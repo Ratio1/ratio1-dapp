@@ -10,9 +10,14 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                inter: ['Inter', 'sans-serif'],
                 mona: ['Mona Sans', 'sans-serif'],
-                ibm: ['IBM Plex Sans', 'sans-serif'],
+            },
+            flex: {
+                2: '2 1 0%',
+                3: '3 1 0%',
+            },
+            colors: {
+                body: '#4b5563',
             },
         },
     },
