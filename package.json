@@ -12,6 +12,8 @@
     "dependencies": {
         "@nextui-org/breadcrumbs": "^2.2.5",
         "@nextui-org/button": "^2.2.8",
+        "@nextui-org/card": "^2.2.8",
+        "@nextui-org/divider": "^2.2.5",
         "@nextui-org/system": "^2.4.5",
         "@nextui-org/theme": "^2.4.4",
         "clsx": "^2.1.1",

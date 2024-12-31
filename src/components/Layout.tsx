@@ -4,7 +4,7 @@ import Sider from './Sider';
 function Layout() {
     return (
         <div className="layout center-all min-h-dvh font-mona">
-            <div className="min-h-dvh flex-1 border-r border-gray-200 px-8 py-48">
+            <div className="min-h-dvh flex-1 border-r-2 border-gray-300 px-8 py-48">
                 <Sider />
             </div>
 

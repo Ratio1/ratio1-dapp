@@ -13,13 +13,18 @@ function Content() {
     }, [location]);
 
     return (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-10">
             <Breadcrumbs
+                classNames={{
+                    list: 'bg-lightAccent',
+                }}
                 itemClasses={{
                     separator: 'px-2',
                 }}
                 separator="/"
                 size="lg"
+                radius="sm"
+                variant="solid"
             >
                 <BreadcrumbItem>{rootRoute}</BreadcrumbItem>
                 <BreadcrumbItem>Placeholder</BreadcrumbItem>

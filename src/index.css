@@ -5,8 +5,10 @@
 @tailwind utilities;
 
 body {
-    @apply text-body h-screen w-screen overflow-x-hidden;
-    background: linear-gradient(160deg, #f2f3fa 0%, #f5f6fa 20%, #f8f8fd 30%, #ffffff 100%);
+    @apply h-screen w-screen overflow-x-hidden text-body;
+    /* background: #e8ebed; */
+    background: #dedfe8;
+    /* background: linear-gradient(160deg, #f2f3fa 0%, #f5f6fa 20%, #f8f8fd 30%, #ffffff 100%); */
 }
 
 /* Utilities */
