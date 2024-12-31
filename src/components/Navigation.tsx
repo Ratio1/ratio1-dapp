@@ -15,7 +15,7 @@ export default function Navigation() {
     };
 
     return (
-        <div className="ml-12 flex w-full flex-col gap-3">
+        <div className="flex w-full flex-col gap-3">
             {map(routes, (route, index) => (
                 <div key={index} onClick={() => onRouteClick(index, route.path)}>
                     <Route route={route} isActive={index === activeRoute} />

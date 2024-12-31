@@ -14,7 +14,7 @@ export interface AppRoute {
 export const routePaths = {
     root: '/',
     dashboard: '/dashboard',
-    buy: 'buy',
+    buy: '/buy',
 };
 
 export const routeTitles = {
