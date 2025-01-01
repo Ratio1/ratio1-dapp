@@ -3,12 +3,12 @@ import Sider from './Sider';
 
 function Layout() {
     return (
-        <div className="layout center-all min-h-dvh font-mona">
-            <div className="min-h-dvh flex-1 border-r-2 border-gray-300 px-8 py-48">
+        <div className="flex min-h-dvh items-stretch font-mona">
+            <div className="w-56 p-8">
                 <Sider />
             </div>
 
-            <div className="flex-4 min-h-dvh px-8 py-48">
+            <div className="min-h-dvh w-full py-10">
                 <Content />
             </div>
         </div>

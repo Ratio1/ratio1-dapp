@@ -18,7 +18,8 @@ export default {
                 4: '4 1 0%',
             },
             colors: {
-                body: '#4b5563',
+                body: '#2e3038',
+                bodyLight: '#73798c',
                 bodyHover: '#9ba1ae',
                 darkAccent: '#283044',
                 whitesmoke: '#f5f5f5',

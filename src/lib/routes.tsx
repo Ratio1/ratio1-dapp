@@ -1,41 +1,70 @@
 import Buy from '@pages/Buy';
 import Dashboard from '@pages/Dashboard';
-import { map } from 'lodash';
-import { RiFunctionLine, RiStickyNoteAddLine } from 'react-icons/ri';
+import Overview from '@pages/Overview';
+import Rewards from '@pages/Rewards';
+import { RiCpuLine, RiFunctionLine, RiStickyNoteAddLine } from 'react-icons/ri';
 
 export interface AppRoute {
     path: string;
-    page: () => JSX.Element;
-    icon: JSX.Element;
-    children?: AppRoute[];
-    defaultChildPath?: string;
+    icon?: JSX.Element;
 }
 
-export const routePaths = {
+export interface SimpleRoute extends AppRoute {
+    page: () => JSX.Element;
+}
+
+export interface ParentRoute extends AppRoute {
+    children?: SimpleRoute[];
+}
+
+export const routePath = {
     root: '/',
     dashboard: '/dashboard',
     buy: '/buy',
+    nodeDeeds: '/node-deeds',
+    // Relative routes (children)
+    overview: 'overview',
+    rewards: 'rewards',
 };
 
-export const routeTitles = {
-    [routePaths.dashboard]: 'Dashboard',
-    [routePaths.buy]: 'Buy',
+export const mainRoutesInfo = {
+    [routePath.dashboard]: {
+        title: 'Dashboard',
+        description: 'An organized view of your key information',
+    },
+    [routePath.buy]: {
+        title: 'Buy',
+        description: 'Purchase licenses for Node Deeds',
+    },
+    [routePath.nodeDeeds]: {
+        title: 'Node Deeds',
+        description: 'Organize and manage your Node Deeds',
+    },
 };
 
-export const getRoutesArray = (): Array<{
-    path: string;
-    title: string;
-}> => map(routeTitles, (title, route) => ({ path: route, title }));
-
-export const routes: AppRoute[] = [
+export const routes: Array<SimpleRoute | ParentRoute> = [
     {
-        path: routePaths.dashboard,
+        path: routePath.dashboard,
         page: Dashboard,
         icon: <RiFunctionLine />,
     },
     {
-        path: routePaths.buy,
+        path: routePath.buy,
         page: Buy,
         icon: <RiStickyNoteAddLine />,
+    },
+    {
+        path: routePath.nodeDeeds,
+        icon: <RiCpuLine />,
+        children: [
+            {
+                path: routePath.overview,
+                page: Overview,
+            },
+            {
+                path: routePath.rewards,
+                page: Rewards,
+            },
+        ],
     },
 ];

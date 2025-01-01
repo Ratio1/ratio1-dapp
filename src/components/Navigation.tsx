@@ -1,6 +1,5 @@
-import { AppRoute, routes, routeTitles } from '@lib/routes';
+import { AppRoute, mainRoutesInfo, routes } from '@lib/routes';
 import clsx from 'clsx';
-import { map } from 'lodash';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,7 +15,7 @@ export default function Navigation() {
 
     return (
         <div className="flex w-full flex-col gap-3">
-            {map(routes, (route, index) => (
+            {routes.map((route, index) => (
                 <div key={index} onClick={() => onRouteClick(index, route.path)}>
                     <Route route={route} isActive={index === activeRoute} />
                 </div>
@@ -28,13 +27,13 @@ export default function Navigation() {
 function Route({ route, isActive }: { route: AppRoute; isActive: boolean }) {
     return (
         <div
-            className={clsx('cursor-pointer rounded-lg bg-lightAccent px-4 py-2.5 transition-all hover:text-bodyHover', {
-                '!bg-darkAccent text-whitesmoke hover:!text-whitesmoke': isActive,
+            className={clsx('min-w-44 cursor-pointer rounded-lg px-4 py-2.5 transition-all hover:bg-gray-100', {
+                '!bg-primary-50 text-primary': isActive,
             })}
         >
             <div className="flex items-center gap-2">
                 <div className="text-[22px]">{route.icon}</div>
-                <div className="font-medium"> {routeTitles[route.path]}</div>
+                <div className="font-medium"> {mainRoutesInfo[route.path].title}</div>
             </div>
         </div>
     );

@@ -3,9 +3,9 @@ import { Divider } from '@nextui-org/divider';
 
 function Dashboard() {
     return (
-        <div className="flex w-full flex-col gap-10">
+        <div className="flex w-full max-w-5xl flex-col gap-10">
             <div className="flex flex-col gap-2">
-                <div className="text-[26px] font-bold leading-7 text-black">Your total rewards</div>
+                <div className="text-[26px] font-bold leading-7 text-black">Claimable rewards</div>
                 <div className="text-[26px] font-bold leading-7 text-primary">$92,239.00</div>
             </div>
 
