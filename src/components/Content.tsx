@@ -22,8 +22,8 @@ function Content() {
 
     return (
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-14 px-10">
-            <div className="flex flex-col items-center gap-4">
-                <div className="text-[38px] font-bold leading-9 text-black">{title}</div>
+            <div className="flex flex-col items-center gap-3">
+                <div className="text-[36px] font-bold leading-9 text-black">{title}</div>
                 <div className="text-bodyLight text-[20px] leading-5">{description}</div>
             </div>
 

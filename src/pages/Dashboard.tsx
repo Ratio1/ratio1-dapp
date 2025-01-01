@@ -21,7 +21,7 @@ function Dashboard() {
                 <div className="text-2xl font-semibold">Node Deed Tiers</div>
 
                 <div className="shadow-light-200/30 bg-light shadow-sm-light flex flex-col gap-4 rounded-2xl border border-[#e3e4e8] p-6">
-                    <div className="text-xl font-medium">Ce frumoasa esti</div>
+                    <div className="text-xl font-medium">Naeural Edge Protocol</div>
                     <div>Visit source code on GitHub.</div>
                     <div>Make beautiful websites regardless of your design experience.</div>
                 </div>

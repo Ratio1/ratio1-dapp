@@ -1,25 +1,108 @@
 import Bear from '@assets/bear.jpeg';
+import Arbitrum from '@assets/networks/arbitrum.png';
+import ArbitrumSepolia from '@assets/networks/arbitrum_sepolia.png';
+import EthereumSepolia from '@assets/networks/ethereum_sepolia.png';
 import { useDisclosure } from '@lib/useDisclosure';
 import { getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Drawer, DrawerBody, DrawerContent, DrawerFooter } from '@nextui-org/drawer';
+import { Select, SelectItem } from '@nextui-org/select';
 import { RiArrowDownLine, RiArrowRightDoubleLine, RiSettingsLine, RiWallet3Line } from 'react-icons/ri';
+
+const networks = [
+    {
+        id: 1,
+        name: 'Arbitrum',
+        src: Arbitrum,
+    },
+    {
+        id: 2,
+        name: 'Arbitrum Sepolia',
+        src: ArbitrumSepolia,
+    },
+    {
+        id: 3,
+        name: 'Ethereum Sepolia',
+        src: EthereumSepolia,
+    },
+];
 
 function Wallet() {
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     return (
         <>
-            <Button className="h-12 rounded-2xl" variant="solid" color="primary" onPress={onOpen}>
-                <div className="flex items-center gap-2">
-                    <div className="text-[22px]">
-                        <RiWallet3Line />
-                    </div>
+            <div className="flex items-center gap-3">
+                <Select
+                    className="min-w-52"
+                    classNames={{
+                        label: 'group-data-[filled=true]:-translate-y-5',
+                        trigger: 'min-h-12',
+                        listboxWrapper: 'max-h-[400px]',
+                    }}
+                    items={networks}
+                    label=""
+                    labelPlacement="outside"
+                    listboxProps={{
+                        itemClasses: {
+                            base: [
+                                'rounded-md',
+                                'text-default-500',
+                                'transition-opacity',
+                                'data-[hover=true]:text-foreground',
+                                'data-[hover=true]:bg-default-100',
+                                'dark:data-[hover=true]:bg-default-50',
+                                'data-[selectable=true]:focus:bg-default-50',
+                                'data-[pressed=true]:opacity-70',
+                                'data-[focus-visible=true]:ring-default-500',
+                            ],
+                        },
+                    }}
+                    popoverProps={{
+                        classNames: {
+                            base: 'before:bg-default-200',
+                            content: 'p-0 border-small border-divider bg-background',
+                        },
+                    }}
+                    renderValue={(networks) => {
+                        return networks.map((network) => (
+                            <div key={network.key} className="flex items-center gap-2">
+                                <div className="center-all h-7 w-7">
+                                    <img alt={network.data?.name} className="h-6 rounded-full" src={network.data?.src} />
+                                </div>
 
-                    <div className="text-base font-semibold">0.2675 ETH</div>
-                    {/* <div className="text-base font-semibold">Login</div> */}
+                                <div className="font-medium">{network.data?.name}</div>
+                            </div>
+                        ));
+                    }}
+                    variant="bordered"
+                >
+                    {(network) => (
+                        <SelectItem key={network.id} textValue={network.name}>
+                            <div className="flex items-center gap-2">
+                                <div className="center-all h-7 w-7">
+                                    <img alt={network.name} className="h-6 rounded-full" src={network.src} />
+                                </div>
+
+                                <div className="font-medium">{network.name}</div>
+                            </div>
+                        </SelectItem>
+                    )}
+                </Select>
+
+                <div className="flex">
+                    <Button className="h-12" variant="solid" color="primary" onPress={onOpen}>
+                        <div className="flex items-center gap-2">
+                            <div className="text-[22px]">
+                                <RiWallet3Line />
+                            </div>
+
+                            <div className="text-base font-medium">0.2675 ETH</div>
+                            {/* <div className="text-base font-medium">Login</div> */}
+                        </div>
+                    </Button>
                 </div>
-            </Button>
+            </div>
 
             <Drawer
                 isOpen={isOpen}
