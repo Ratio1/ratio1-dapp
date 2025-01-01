@@ -4,17 +4,12 @@ import { Divider } from '@nextui-org/divider';
 function Dashboard() {
     return (
         <div className="flex w-full flex-col gap-10">
-            <div className="flex flex-col gap-3">
-                <div className="text-3xl font-bold leading-7 text-black">Your total rewards</div>
-                <div className="text-3xl font-bold leading-7 text-primary">$92,239.00</div>
+            <div className="flex flex-col gap-2">
+                <div className="text-[26px] font-bold leading-7 text-black">Your total rewards</div>
+                <div className="text-[26px] font-bold leading-7 text-primary">$92,239.00</div>
             </div>
 
-            <Card
-                className="max-w-[400px]"
-                classNames={{
-                    base: 'bg-lightAccent',
-                }}
-            >
+            <Card className="max-w-[400px]" shadow="sm">
                 <CardHeader className="flex gap-3">
                     <div className="flex flex-col">
                         <p className="text-md">NextUI</p>

@@ -28,12 +28,12 @@ export default function Navigation() {
 function Route({ route, isActive }: { route: AppRoute; isActive: boolean }) {
     return (
         <div
-            className={clsx('bg-lightAccent hover:text-bodyHover cursor-pointer rounded-lg px-4 py-2.5 transition-all', {
+            className={clsx('cursor-pointer rounded-lg bg-lightAccent px-4 py-2.5 transition-all hover:text-bodyHover', {
                 '!bg-darkAccent text-whitesmoke hover:!text-whitesmoke': isActive,
             })}
         >
             <div className="flex items-center gap-2">
-                <div className="text-xl">{route.icon}</div>
+                <div className="text-[22px]">{route.icon}</div>
                 <div className="font-medium"> {routeTitles[route.path]}</div>
             </div>
         </div>

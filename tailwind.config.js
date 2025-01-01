@@ -22,7 +22,7 @@ export default {
                 bodyHover: '#9ba1ae',
                 darkAccent: '#283044',
                 whitesmoke: '#f5f5f5',
-                lightAccent: '#ededf2',
+                lightAccent: '#f5f5f8',
                 primary: '#1b47f7',
             },
         },
