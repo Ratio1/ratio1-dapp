@@ -21,9 +21,7 @@ function Content() {
     }, [location]);
 
     return (
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-12 px-10">
-            <div className="absolute right-12 top-0">Connect Wallet</div>
-
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-14 px-10">
             <div className="flex flex-col items-center gap-4">
                 <div className="text-[38px] font-bold leading-9 text-black">{title}</div>
                 <div className="text-bodyLight text-[20px] leading-5">{description}</div>
