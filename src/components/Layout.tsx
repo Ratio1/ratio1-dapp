@@ -5,7 +5,7 @@ import Wallet from './Wallet';
 function Layout() {
     return (
         <div className="flex min-h-dvh items-stretch font-mona">
-            <div className="bg-[#f5f7fe] px-10 py-10">
+            <div className="bg-lightAccent px-10 py-10">
                 <Sider />
             </div>
 

@@ -5,7 +5,7 @@ export default {
     content: [
         './index.html',
         './src/**/*.{js,ts,jsx,tsx,mdx}',
-        './node_modules/@nextui-org/theme/dist/components/(breadcrumbs|button|card|divider|ripple|spinner).js',
+        './node_modules/@nextui-org/theme/dist/components/(breadcrumbs|button|card|divider|drawer|select|ripple|spinner|modal|form|listbox|popover|scroll-shadow).js',
     ],
     theme: {
         extend: {
@@ -23,7 +23,7 @@ export default {
                 bodyHover: '#9ba1ae',
                 darkAccent: '#283044',
                 whitesmoke: '#f5f5f5',
-                lightAccent: '#f5f5f8',
+                lightAccent: '#f5f7fe',
                 primary: '#1b47f7',
                 light: '#fcfcfd',
             },
