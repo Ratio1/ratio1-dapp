@@ -14,7 +14,15 @@ export interface SimpleRoute extends AppRoute {
 }
 
 export interface ParentRoute extends AppRoute {
-    children?: SimpleRoute[];
+    children: SimpleRoute[];
+}
+
+export function isSimpleRoute(route: AppRoute): route is SimpleRoute {
+    return (route as SimpleRoute).page !== undefined;
+}
+
+export function isParentRoute(route: AppRoute): route is ParentRoute {
+    return (route as ParentRoute).children !== undefined;
 }
 
 export const routePath = {
@@ -40,6 +48,11 @@ export const mainRoutesInfo = {
         title: 'Node Deeds',
         description: 'Organize and manage your Node Deeds',
     },
+};
+
+export const childRouteTitles = {
+    [routePath.overview]: 'Overview',
+    [routePath.rewards]: 'Rewards',
 };
 
 export const routes: Array<SimpleRoute | ParentRoute> = [
