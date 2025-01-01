@@ -28,7 +28,7 @@ export function isParentRoute(route: AppRoute): route is ParentRoute {
 export const routePath = {
     root: '/',
     dashboard: '/dashboard',
-    buy: '/buy',
+    buy: '/licenses',
     nodeDeeds: '/node-deeds',
     // Relative routes (children)
     overview: 'overview',
@@ -41,8 +41,8 @@ export const mainRoutesInfo = {
         description: 'An organized view of your key information',
     },
     [routePath.buy]: {
-        title: 'Buy',
-        description: 'Purchase licenses for Node Deeds',
+        title: 'Licenses',
+        description: 'Purchase redeemable licenses for Node Deeds',
     },
     [routePath.nodeDeeds]: {
         title: 'Node Deeds',

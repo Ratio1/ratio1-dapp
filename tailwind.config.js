@@ -25,6 +25,10 @@ export default {
                 whitesmoke: '#f5f5f5',
                 lightAccent: '#f5f5f8',
                 primary: '#1b47f7',
+                light: '#fcfcfd',
+            },
+            boxShadow: {
+                'sm-light': '0px 3px 4px 0px #00000008',
             },
         },
     },
