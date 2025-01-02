@@ -197,7 +197,7 @@ function Wallet() {
                                             <RiArrowDownLine />
                                         </div>
 
-                                        <div className="font-medium text-slate-500">4.06%</div>
+                                        <div className="text-sm font-medium leading-4 text-slate-500">4.06%</div>
                                     </div>
                                 </div>
                             </div>

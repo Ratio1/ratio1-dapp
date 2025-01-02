@@ -1,5 +1,5 @@
-import Buy from '@pages/Buy';
 import Dashboard from '@pages/Dashboard';
+import Licenses from '@pages/Licenses';
 import Overview from '@pages/Overview';
 import Rewards from '@pages/Rewards';
 import { RiCpuLine, RiFunctionLine, RiStickyNoteAddLine } from 'react-icons/ri';
@@ -63,7 +63,7 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
     },
     {
         path: routePath.buy,
-        page: Buy,
+        page: Licenses,
         icon: <RiStickyNoteAddLine />,
     },
     {

@@ -5,7 +5,7 @@ export default {
     content: [
         './index.html',
         './src/**/*.{js,ts,jsx,tsx,mdx}',
-        './node_modules/@nextui-org/theme/dist/components/(breadcrumbs|button|card|divider|drawer|select|ripple|spinner|modal|form|listbox|popover|scroll-shadow).js',
+        './node_modules/@nextui-org/theme/dist/components/(breadcrumbs|button|card|divider|drawer|progress|select|ripple|spinner|modal|form|listbox|popover|scroll-shadow).js',
     ],
     theme: {
         extend: {
@@ -30,6 +30,9 @@ export default {
             },
             boxShadow: {
                 'sm-light': '0px 3px 4px 0px #00000008',
+            },
+            rotate: {
+                270: '270deg',
             },
         },
     },
