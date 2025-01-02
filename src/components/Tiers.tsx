@@ -40,7 +40,7 @@ export default function Tiers() {
                 { index: 1, price: 500, units: 89, sold: 89 },
                 { index: 2, price: 750, units: 144, sold: 144 },
                 { index: 3, price: 1000, units: 233, sold: 233 },
-                { index: 4, price: 1500, units: 377, sold: 263 },
+                { index: 4, price: 1500, units: 377, sold: 262 },
                 { index: 5, price: 2000, units: 610, sold: 0 },
                 { index: 6, price: 2500, units: 987, sold: 0 },
                 { index: 7, price: 3000, units: 1597, sold: 0 },
