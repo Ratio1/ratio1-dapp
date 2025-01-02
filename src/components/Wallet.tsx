@@ -36,25 +36,26 @@ function Wallet() {
                 <Select
                     className="min-w-52"
                     classNames={{
+                        trigger: 'min-h-12 bg-softGray data-[hover=true]:bg-gray-200',
                         label: 'group-data-[filled=true]:-translate-y-5',
-                        trigger: 'min-h-12',
                         listboxWrapper: 'max-h-[400px]',
                     }}
                     items={networks}
+                    aria-label="network-selector"
                     label=""
                     labelPlacement="outside"
                     listboxProps={{
                         itemClasses: {
                             base: [
-                                'rounded-md',
+                                'rounded-xl',
                                 'text-default-500',
                                 'transition-opacity',
                                 'data-[hover=true]:text-foreground',
                                 'data-[hover=true]:bg-default-100',
-                                'dark:data-[hover=true]:bg-default-50',
-                                'data-[selectable=true]:focus:bg-default-50',
+                                'data-[selectable=true]:focus:bg-default-100',
                                 'data-[pressed=true]:opacity-70',
                                 'data-[focus-visible=true]:ring-default-500',
+                                'px-3',
                             ],
                         },
                     }}
@@ -75,11 +76,11 @@ function Wallet() {
                             </div>
                         ));
                     }}
-                    variant="bordered"
+                    variant="flat"
                 >
                     {(network) => (
                         <SelectItem key={network.id} textValue={network.name}>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 py-1">
                                 <div className="center-all h-7 w-7">
                                     <img alt={network.name} className="h-6 rounded-full" src={network.src} />
                                 </div>

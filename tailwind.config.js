@@ -26,6 +26,7 @@ export default {
                 lightAccent: '#f5f7fe',
                 primary: '#1b47f7',
                 light: '#fcfcfd',
+                softGray: '#f6f6f8',
             },
             boxShadow: {
                 'sm-light': '0px 3px 4px 0px #00000008',
