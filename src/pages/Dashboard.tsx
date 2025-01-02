@@ -1,7 +1,7 @@
 function Dashboard() {
     return (
         <div className="flex w-full flex-col gap-6">
-            <div className="flex gap-6">
+            <div className="grid grid-cols-3 gap-6">
                 <div className="bg-softGray flex flex-col gap-6 rounded-3xl px-10 py-10">
                     <div className="flex flex-col gap-3">
                         <div className="text-[26px] font-bold leading-7 text-black">Claimable Rewards</div>
@@ -11,8 +11,15 @@ function Dashboard() {
 
                 <div className="bg-softGray flex flex-col gap-6 rounded-3xl px-10 py-10">
                     <div className="flex flex-col gap-3">
-                        <div className="text-[26px] font-bold leading-7 text-black">R1 Balance</div>
+                        <div className="text-[26px] font-bold leading-7 text-black">RATIO1 Balance</div>
                         <div className="text-[26px] font-bold leading-7 text-primary">255.125</div>
+                    </div>
+                </div>
+
+                <div className="bg-softGray flex flex-col gap-6 rounded-3xl px-10 py-10">
+                    <div className="flex flex-col gap-3">
+                        <div className="text-[26px] font-bold leading-7 text-black">Current Epoch</div>
+                        <div className="text-[26px] font-bold leading-7 text-slate-500">926</div>
                     </div>
                 </div>
             </div>

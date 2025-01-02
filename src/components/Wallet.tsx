@@ -1,34 +1,38 @@
 import Bear from '@assets/bear.jpeg';
 import Arbitrum from '@assets/networks/arbitrum.png';
 import ArbitrumSepolia from '@assets/networks/arbitrum_sepolia.png';
+import Ethereum from '@assets/networks/ethereum.png';
 import EthereumSepolia from '@assets/networks/ethereum_sepolia.png';
 import { useDisclosure } from '@lib/useDisclosure';
 import { getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Drawer, DrawerBody, DrawerContent, DrawerFooter } from '@nextui-org/drawer';
 import { Select, SelectItem } from '@nextui-org/select';
+import { SharedSelection } from '@nextui-org/system';
+import { useState } from 'react';
 import { RiArrowDownLine, RiArrowRightDoubleLine, RiSettingsLine, RiWallet3Line } from 'react-icons/ri';
 
 const networks = [
     {
-        id: 1,
-        name: 'Arbitrum',
+        key: 1,
+        label: 'Arbitrum',
         src: Arbitrum,
     },
     {
-        id: 2,
-        name: 'Arbitrum Sepolia',
+        key: 2,
+        label: 'Arbitrum Sepolia',
         src: ArbitrumSepolia,
     },
     {
-        id: 3,
-        name: 'Ethereum Sepolia',
+        key: 3,
+        label: 'Ethereum Sepolia',
         src: EthereumSepolia,
     },
 ];
 
 function Wallet() {
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const [networkKeys, setNetworkKeys] = useState(new Set(['1']));
 
     return (
         <>
@@ -39,6 +43,10 @@ function Wallet() {
                         trigger: 'min-h-12 bg-softGray data-[hover=true]:bg-gray-200',
                         label: 'group-data-[filled=true]:-translate-y-5',
                         listboxWrapper: 'max-h-[400px]',
+                    }}
+                    selectedKeys={networkKeys}
+                    onSelectionChange={(value: SharedSelection) => {
+                        setNetworkKeys(new Set([value.anchorKey as string]));
                     }}
                     items={networks}
                     aria-label="network-selector"
@@ -69,23 +77,23 @@ function Wallet() {
                         return networks.map((network) => (
                             <div key={network.key} className="flex items-center gap-2">
                                 <div className="center-all h-7 w-7">
-                                    <img alt={network.data?.name} className="h-6 rounded-full" src={network.data?.src} />
+                                    <img alt={network.data?.label} className="h-6 rounded-full" src={network.data?.src} />
                                 </div>
 
-                                <div className="font-medium">{network.data?.name}</div>
+                                <div className="font-medium">{network.data?.label}</div>
                             </div>
                         ));
                     }}
                     variant="flat"
                 >
                     {(network) => (
-                        <SelectItem key={network.id} textValue={network.name}>
+                        <SelectItem key={network.key} textValue={network.label}>
                             <div className="flex items-center gap-2 py-1">
                                 <div className="center-all h-7 w-7">
-                                    <img alt={network.name} className="h-6 rounded-full" src={network.src} />
+                                    <img alt={network.label} className="h-6 rounded-full" src={network.src} />
                                 </div>
 
-                                <div className="font-medium">{network.name}</div>
+                                <div className="font-medium">{network.label}</div>
                             </div>
                         </SelectItem>
                     )}
@@ -127,7 +135,7 @@ function Wallet() {
                 hideCloseButton
             >
                 <DrawerContent>
-                    <DrawerBody className="my-4 flex flex-col gap-7">
+                    <DrawerBody className="my-4 flex flex-col gap-8">
                         {/* Identity */}
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -165,6 +173,33 @@ function Wallet() {
                                 </div>
 
                                 <div className="font-medium text-slate-500">$0.30 (0.26%)</div>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            <div className="text-2xl font-bold">Tokens</div>
+
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <img src={Ethereum} alt="Ethereum" className="h-11 w-11 rounded-full" />
+
+                                    <div className="flex flex-col gap-1">
+                                        <div className="font-medium leading-4 text-black">Ethereum</div>
+                                        <div className="text-sm font-medium leading-4 text-slate-500">0.027 ETH</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col items-end gap-1">
+                                    <div className="font-medium leading-4 text-black">$92.74</div>
+
+                                    <div className="flex items-center gap-0.5">
+                                        <div className="text-red-500">
+                                            <RiArrowDownLine />
+                                        </div>
+
+                                        <div className="font-medium text-slate-500">4.06%</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </DrawerBody>
