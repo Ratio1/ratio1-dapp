@@ -1,4 +1,5 @@
 import { formatNumber } from '@lib/utils';
+import { Button } from '@nextui-org/button';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 
@@ -54,18 +55,29 @@ export default function Tiers() {
 
     return (
         <div className="flex flex-col gap-8">
-            <div className="flex gap-14">
-                <div className="flex flex-col gap-0">
-                    <div className="text-xl font-bold">Current Price</div>
-                    <div className="text-2xl font-bold text-primary">${stages[currentStage - 1].price}</div>
-                </div>
+            <div className="flex justify-between">
+                <div className="flex gap-20">
+                    <div className="flex flex-col">
+                        <div className="text-xl font-bold">Current Price</div>
+                        <div className="text-2xl font-bold text-primary">${stages[currentStage - 1].price}</div>
+                    </div>
 
-                <div className="flex flex-col gap-0">
-                    <div className="text-xl font-bold">Units </div>
-                    <div className="text-2xl font-bold text-primary">
-                        {stages[currentStage - 1].units - stages[currentStage - 1].sold}/{stages[currentStage - 1].units}
+                    <div className="flex flex-col">
+                        <div className="text-xl font-bold">Units</div>
+                        <div className="text-2xl font-bold text-primary">
+                            {stages[currentStage - 1].units - stages[currentStage - 1].sold}/{stages[currentStage - 1].units}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col">
+                        <div className="text-xl font-bold">Next Price</div>
+                        <div className="text-2xl font-bold text-primary">${stages[currentStage].price}</div>
                     </div>
                 </div>
+
+                <Button color="primary">
+                    <div className="font-medium">Buy</div>
+                </Button>
             </div>
 
             <div className="flex justify-between">
