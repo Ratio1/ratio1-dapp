@@ -56,7 +56,7 @@ export default function Tiers() {
     return (
         <div className="flex flex-col gap-8">
             <div className="flex justify-between">
-                <div className="flex gap-20">
+                <div className="flex gap-24">
                     <div className="flex flex-col">
                         <div className="text-xl font-bold">Current Price</div>
                         <div className="text-2xl font-bold text-primary">${stages[currentStage - 1].price}</div>
@@ -84,7 +84,7 @@ export default function Tiers() {
                 {stages.map((stage) => (
                     <div
                         key={stage.index}
-                        className={clsx('center-all bg-softGray relative flex-col gap-4', {
+                        className={clsx('center-all relative flex-col gap-4 bg-softGray', {
                             'bg-blue-50': stage.index === currentStage,
                             'bg-green-100': stage.units === stage.sold,
                         })}
@@ -98,7 +98,7 @@ export default function Tiers() {
                         <div className="flex h-36 w-1 flex-col flex-nowrap justify-end overflow-hidden rounded-full bg-gray-300">
                             <div
                                 className={clsx('overflow-hidden rounded-full bg-primary transition-all duration-500', {
-                                    'bg-green-400': stage.units === stage.sold,
+                                    '!bg-green-300': stage.units === stage.sold,
                                 })}
                                 style={{ height: `${(100 * stage.sold) / stage.units}%` }}
                             ></div>
