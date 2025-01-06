@@ -1,7 +1,10 @@
+import { useDisclosure } from '@lib/useDisclosure';
 import { formatNumber } from '@lib/utils';
 import { Button } from '@nextui-org/button';
+import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
+import { RiArrowRightDoubleLine } from 'react-icons/ri';
 
 const INITIAL_STATE: {
     index: number;
@@ -24,6 +27,8 @@ const INITIAL_STATE: {
 ];
 
 export default function Tiers() {
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
     const [currentStage, setCurrentStage] = useState<number>(4);
     const [stages, setStages] = useState<
         {
@@ -54,63 +59,104 @@ export default function Tiers() {
     }, []);
 
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex justify-between">
-                <div className="flex gap-24">
-                    <div className="flex flex-col">
-                        <div className="text-xl font-bold">Current Price</div>
-                        <div className="text-2xl font-bold text-primary">${stages[currentStage - 1].price}</div>
-                    </div>
+        <>
+            <div className="flex flex-col gap-8">
+                <div className="flex justify-between">
+                    <div className="flex gap-24">
+                        <div className="flex flex-col">
+                            <div className="text-xl font-bold">Current Price</div>
+                            <div className="text-2xl font-bold text-primary">${stages[currentStage - 1].price}</div>
+                        </div>
 
-                    <div className="flex flex-col">
-                        <div className="text-xl font-bold">Units</div>
-                        <div className="text-2xl font-bold text-primary">
-                            {stages[currentStage - 1].units - stages[currentStage - 1].sold}/{stages[currentStage - 1].units}
+                        <div className="flex flex-col">
+                            <div className="text-xl font-bold">Units</div>
+                            <div className="text-2xl font-bold text-primary">
+                                {stages[currentStage - 1].units - stages[currentStage - 1].sold}/
+                                {stages[currentStage - 1].units}
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col">
+                            <div className="text-xl font-bold">Next Price</div>
+                            <div className="text-2xl font-bold text-primary">${stages[currentStage].price}</div>
                         </div>
                     </div>
 
-                    <div className="flex flex-col">
-                        <div className="text-xl font-bold">Next Price</div>
-                        <div className="text-2xl font-bold text-primary">${stages[currentStage].price}</div>
-                    </div>
+                    <Button color="primary" onPress={onOpen}>
+                        <div className="font-medium">Buy</div>
+                    </Button>
                 </div>
 
-                <Button color="primary">
-                    <div className="font-medium">Buy</div>
-                </Button>
-            </div>
+                <div className="flex justify-between">
+                    {stages.map((stage) => (
+                        <div
+                            key={stage.index}
+                            className={clsx('center-all relative flex-col gap-4 bg-softGray', {
+                                'bg-blue-50': stage.index === currentStage,
+                                'bg-green-100': stage.units === stage.sold,
+                            })}
+                        >
+                            {stage.units === stage.sold ? (
+                                <Label variant="green">S/O</Label>
+                            ) : (
+                                <Label variant={stage.index === currentStage ? 'blue' : 'gray'}>
+                                    {stage.units - stage.sold}
+                                </Label>
+                            )}
 
-            <div className="flex justify-between">
-                {stages.map((stage) => (
-                    <div
-                        key={stage.index}
-                        className={clsx('center-all relative flex-col gap-4 bg-softGray', {
-                            'bg-blue-50': stage.index === currentStage,
-                            'bg-green-100': stage.units === stage.sold,
-                        })}
-                    >
-                        {stage.units === stage.sold ? (
-                            <Label variant="green">S/O</Label>
-                        ) : (
-                            <Label variant={stage.index === currentStage ? 'blue' : 'gray'}>{stage.units - stage.sold}</Label>
-                        )}
+                            <div className="flex h-36 w-1 flex-col flex-nowrap justify-end overflow-hidden rounded-full bg-gray-300">
+                                <div
+                                    className={clsx('overflow-hidden rounded-full bg-primary transition-all duration-500', {
+                                        '!bg-green-300': stage.units === stage.sold,
+                                    })}
+                                    style={{ height: `${(100 * stage.sold) / stage.units}%` }}
+                                ></div>
+                            </div>
 
-                        <div className="flex h-36 w-1 flex-col flex-nowrap justify-end overflow-hidden rounded-full bg-gray-300">
-                            <div
-                                className={clsx('overflow-hidden rounded-full bg-primary transition-all duration-500', {
-                                    '!bg-green-300': stage.units === stage.sold,
-                                })}
-                                style={{ height: `${(100 * stage.sold) / stage.units}%` }}
-                            ></div>
+                            <Label
+                                variant={stage.units === stage.sold ? 'green' : stage.index === currentStage ? 'blue' : 'gray'}
+                            >
+                                <div>${formatNumber(stage.price)}</div>
+                            </Label>
                         </div>
-
-                        <Label variant={stage.units === stage.sold ? 'green' : stage.index === currentStage ? 'blue' : 'gray'}>
-                            <div>${formatNumber(stage.price)}</div>
-                        </Label>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
-        </div>
+
+            <Drawer
+                isOpen={isOpen}
+                onOpenChange={onClose}
+                size="sm"
+                classNames={{
+                    base: 'data-[placement=right]:sm:m-3 data-[placement=left]:sm:m-3 rounded-medium font-mona',
+                }}
+                motionProps={{
+                    variants: {
+                        enter: {
+                            opacity: 1,
+                            x: 0,
+                        },
+                        exit: {
+                            x: 100,
+                            opacity: 0,
+                        },
+                    },
+                }}
+                hideCloseButton
+            >
+                <DrawerContent>
+                    <DrawerBody className="my-4 flex flex-col gap-8">
+                        <div className="flex items-center gap-2">
+                            <Button isIconOnly variant="flat" onPress={onClose}>
+                                <div className="text-[22px]">
+                                    <RiArrowRightDoubleLine />
+                                </div>
+                            </Button>
+                        </div>
+                    </DrawerBody>
+                </DrawerContent>
+            </Drawer>
+        </>
     );
 }
 
