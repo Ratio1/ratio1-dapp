@@ -1,8 +1,28 @@
 import Layout from '@components/Layout';
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/authentication';
 import { isParentRoute, isSimpleRoute, routePath, routes } from '@lib/routes';
+import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { useAccount, useSignMessage } from 'wagmi';
 
 function App() {
+    const { authenticated, setAuthenticated } = useAuthenticationContext() as AuthenticationContextType;
+
+    const { isConnected, address } = useAccount();
+    const { signMessageAsync } = useSignMessage();
+
+    useEffect(() => {
+        const handleAuth = async () => {
+            console.log('handleAuth');
+        };
+
+        if (isConnected && !authenticated) {
+            handleAuth();
+        }
+
+        console.log('[App.tsx] isConnected', isConnected);
+    }, [isConnected]);
+
     return (
         <Routes>
             <Route path={routePath.root} element={<Layout />}>
