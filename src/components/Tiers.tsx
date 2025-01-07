@@ -60,48 +60,46 @@ export default function Tiers() {
 
     return (
         <>
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-[1.75rem]">
                 <div className="flex justify-between">
-                    <div className="flex gap-24">
+                    <div className="flex w-full justify-between gap-28">
                         <div className="flex flex-col">
-                            <div className="text-xl font-bold">Current Price</div>
-                            <div className="text-2xl font-bold text-primary">${stages[currentStage - 1].price}</div>
+                            <div className="text-xl font-bold">Current Price (T{currentStage})</div>
+                            <div className="text-[22px] font-bold text-primary">${stages[currentStage - 1].price}</div>
                         </div>
 
                         <div className="flex flex-col">
-                            <div className="text-xl font-bold">Units</div>
-                            <div className="text-2xl font-bold text-primary">
+                            <div className="text-xl font-bold">Remaining Units</div>
+                            <div className="text-[22px] font-bold text-primary">
                                 {stages[currentStage - 1].units - stages[currentStage - 1].sold}/
                                 {stages[currentStage - 1].units}
                             </div>
                         </div>
 
                         <div className="flex flex-col">
-                            <div className="text-xl font-bold">Next Price</div>
-                            <div className="text-2xl font-bold text-primary">${stages[currentStage].price}</div>
+                            <div className="text-xl font-bold">Next Price (T{currentStage + 1})</div>
+                            <div className="text-[22px] font-bold text-primary">${stages[currentStage].price}</div>
                         </div>
                     </div>
-
-                    <Button color="primary" onPress={onOpen}>
-                        <div className="font-medium">Buy</div>
-                    </Button>
                 </div>
 
                 <div className="flex justify-between">
                     {stages.map((stage) => (
                         <div
                             key={stage.index}
-                            className={clsx('center-all relative flex-col gap-4 bg-softGray', {
-                                'bg-blue-50': stage.index === currentStage,
-                                'bg-green-100': stage.units === stage.sold,
+                            className={clsx('center-all relative min-w-[60px] flex-col gap-4 rounded-full py-3', {
+                                'bg-gradient-to-t from-slate-200': stage.index === currentStage,
                             })}
                         >
-                            {stage.units === stage.sold ? (
-                                <Label variant="green">S/O</Label>
+                            {/* TODO: clsx */}
+                            {stage.index != currentStage ? (
+                                <div className="rounded-full bg-gray-300 px-2.5 py-0.5 text-[15px] font-medium">
+                                    ${formatNumber(stage.price)}
+                                </div>
                             ) : (
-                                <Label variant={stage.index === currentStage ? 'blue' : 'gray'}>
-                                    {stage.units - stage.sold}
-                                </Label>
+                                <div className="rounded-full bg-body px-2.5 py-0.5 text-[15px] font-medium text-white">
+                                    ${formatNumber(stage.price)}
+                                </div>
                             )}
 
                             <div className="flex h-36 w-1 flex-col flex-nowrap justify-end overflow-hidden rounded-full bg-gray-300">
@@ -113,11 +111,28 @@ export default function Tiers() {
                                 ></div>
                             </div>
 
-                            <Label
+                            <div
+                                className={clsx('text-sm', {
+                                    'text-primary': stage.index === currentStage,
+                                })}
+                            >
+                                {stage.index >= currentStage ? stage.units - stage.sold : '-'}
+                            </div>
+
+                            {/* <Label
                                 variant={stage.units === stage.sold ? 'green' : stage.index === currentStage ? 'blue' : 'gray'}
                             >
                                 <div>${formatNumber(stage.price)}</div>
-                            </Label>
+                            </Label> */}
+
+                            <div
+                                className={clsx('center-all h-10 w-10 rounded-full text-[15px] font-medium tracking-wider', {
+                                    'bg-gray-300 text-body': stage.index != currentStage,
+                                    'bg-body text-white': stage.index === currentStage,
+                                })}
+                            >
+                                T{stage.index}
+                            </div>
                         </div>
                     ))}
                 </div>

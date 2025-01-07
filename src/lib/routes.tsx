@@ -1,8 +1,9 @@
 import Dashboard from '@pages/Dashboard';
 import Licenses from '@pages/Licenses';
 import Overview from '@pages/Overview';
+import Profile from '@pages/Profile';
 import Rewards from '@pages/Rewards';
-import { RiCpuLine, RiFunctionLine, RiStickyNoteAddLine } from 'react-icons/ri';
+import { RiCpuLine, RiFunctionLine, RiShieldUserLine, RiStickyNoteAddLine } from 'react-icons/ri';
 
 export interface AppRoute {
     path: string;
@@ -28,8 +29,9 @@ export function isParentRoute(route: AppRoute): route is ParentRoute {
 export const routePath = {
     root: '/',
     dashboard: '/dashboard',
-    buy: '/licenses',
+    buy: '/buy-licenses',
     nodeDeeds: '/node-deeds',
+    profileKyc: '/profile-and-kyc',
     // Relative routes (children)
     overview: 'overview',
     rewards: 'rewards',
@@ -41,12 +43,16 @@ export const mainRoutesInfo = {
         description: 'An organized view of your key information',
     },
     [routePath.buy]: {
-        title: 'Licenses',
+        title: 'Buy Licenses',
         description: 'Purchase redeemable licenses for Node Deeds',
     },
     [routePath.nodeDeeds]: {
         title: 'Node Deeds',
         description: 'Organize and manage your Node Deeds',
+    },
+    [routePath.profileKyc]: {
+        title: 'Profile & KYC',
+        description: 'Manage your profile and KYC (Know Your Customer)',
     },
 };
 
@@ -79,5 +85,10 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
                 page: Rewards,
             },
         ],
+    },
+    {
+        path: routePath.profileKyc,
+        page: Profile,
+        icon: <RiShieldUserLine />,
     },
 ];
