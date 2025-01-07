@@ -91,16 +91,14 @@ export default function Tiers() {
                                 'bg-gradient-to-t from-slate-200': stage.index === currentStage,
                             })}
                         >
-                            {/* TODO: clsx */}
-                            {stage.index != currentStage ? (
-                                <div className="rounded-full bg-gray-300 px-2.5 py-0.5 text-[15px] font-medium">
-                                    ${formatNumber(stage.price)}
-                                </div>
-                            ) : (
-                                <div className="rounded-full bg-body px-2.5 py-0.5 text-[15px] font-medium text-white">
-                                    ${formatNumber(stage.price)}
-                                </div>
-                            )}
+                            <div
+                                className={clsx('rounded-full px-2.5 py-0.5 text-[15px] font-medium', {
+                                    'bg-gray-300 text-body': stage.index != currentStage,
+                                    'bg-body text-white': stage.index === currentStage,
+                                })}
+                            >
+                                ${formatNumber(stage.price)}
+                            </div>
 
                             <div className="flex h-36 w-1 flex-col flex-nowrap justify-end overflow-hidden rounded-full bg-gray-300">
                                 <div
@@ -118,12 +116,6 @@ export default function Tiers() {
                             >
                                 {stage.index >= currentStage ? stage.units - stage.sold : '-'}
                             </div>
-
-                            {/* <Label
-                                variant={stage.units === stage.sold ? 'green' : stage.index === currentStage ? 'blue' : 'gray'}
-                            >
-                                <div>${formatNumber(stage.price)}</div>
-                            </Label> */}
 
                             <div
                                 className={clsx('center-all h-10 w-10 rounded-full text-[15px] font-medium tracking-wider', {
@@ -172,19 +164,5 @@ export default function Tiers() {
                 </DrawerContent>
             </Drawer>
         </>
-    );
-}
-
-function Label({ children, variant = 'blue' }) {
-    return (
-        <div
-            className={clsx('px-1 py-1', {
-                'bg-blue-100': variant === 'blue',
-                'bg-green-300': variant === 'green',
-                'bg-gray-200': variant === 'gray',
-            })}
-        >
-            <div className="w-12 text-center font-medium">{children}</div>
-        </div>
     );
 }
