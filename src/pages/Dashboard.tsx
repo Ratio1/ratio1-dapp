@@ -1,4 +1,5 @@
 import Tiers from '@components/Tiers';
+import { RiArrowRightUpLine } from 'react-icons/ri';
 
 function Dashboard() {
     return (
@@ -6,22 +7,46 @@ function Dashboard() {
             <div className="grid grid-cols-3 gap-6">
                 <div className="flex flex-col gap-6 rounded-3xl bg-softGray px-10 py-10">
                     <div className="flex flex-col gap-3">
-                        <div className="text-[22px] font-bold leading-6">Claimable Rewards</div>
-                        <div className="text-[22px] font-bold leading-6 text-primary">$92,239.00</div>
+                        <div className="text-xl font-bold leading-6">Claimable Rewards</div>
+
+                        <div className="flex items-center justify-between">
+                            <div className="text-[22px] font-semibold leading-6 text-primary">$92,239.00</div>
+
+                            <div className="rounded-md bg-green-100 px-1.5 py-1 text-[15px] font-medium tracking-wider text-green-700">
+                                <div className="flex items-center gap-1">
+                                    <div className="text-[18px]">
+                                        <RiArrowRightUpLine />
+                                    </div>
+                                    <div>2.15%</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div className="flex flex-col gap-6 rounded-3xl bg-softGray px-10 py-10">
                     <div className="flex flex-col gap-3">
-                        <div className="text-[22px] font-bold leading-6">RATIO1 Balance</div>
-                        <div className="text-[22px] font-bold leading-6 text-primary">255.125</div>
+                        <div className="text-xl font-bold leading-6">RATIO1 Balance</div>
+
+                        <div className="flex items-center justify-between">
+                            <div className="text-[22px] font-semibold leading-6 text-primary">255.125</div>
+
+                            <div className="rounded-md bg-green-100 px-1.5 py-1 text-[15px] font-medium tracking-wider text-green-700">
+                                <div className="flex items-center gap-1">
+                                    <div className="text-[18px]">
+                                        <RiArrowRightUpLine />
+                                    </div>
+                                    <div>7.25%</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-6 rounded-3xl bg-softGray px-10 py-10">
+                <div className="flex flex-col gap-6 rounded-3xl bg-[#4767B9] px-10 py-10">
                     <div className="flex flex-col gap-3">
-                        <div className="text-[22px] font-bold leading-6">Current Epoch</div>
-                        <div className="text-[22px] font-bold leading-6 text-primary">926</div>
+                        <div className="text-xl font-semibold leading-6 text-blue-100">Current Epoch</div>
+                        <div className="text-[22px] font-semibold leading-6 text-whitesmoke">926</div>
                     </div>
                 </div>
             </div>
