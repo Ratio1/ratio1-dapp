@@ -1,7 +1,6 @@
 import { getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { useAppKit, useDisconnect } from '@reown/appkit/react';
-import { useEffect } from 'react';
 import { useAccount, useEnsName } from 'wagmi';
 
 function Profile() {
@@ -10,10 +9,6 @@ function Profile() {
     const { disconnect } = useDisconnect();
 
     const { open, close } = useAppKit();
-
-    useEffect(() => {
-        console.log('[Profile.tsx]');
-    }, []);
 
     return (
         <div className="center-all flex-col gap-8 font-medium">
