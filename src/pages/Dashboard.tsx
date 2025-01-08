@@ -1,4 +1,5 @@
 import Tiers from '@components/Tiers';
+import { Button } from '@nextui-org/button';
 import { RiArrowRightUpLine } from 'react-icons/ri';
 
 function Dashboard() {
@@ -46,14 +47,18 @@ function Dashboard() {
                 <div className="flex flex-col gap-6 rounded-3xl bg-softGray px-10 py-10">
                     <div className="flex flex-col gap-3">
                         <div className="text-xl font-semibold leading-6">Current Epoch</div>
-                        <div className="text-[22px] font-semibold leading-6">926</div>
+                        <div className="text-[22px] font-semibold leading-6 text-slate-600">926</div>
                     </div>
                 </div>
             </div>
 
             <div className="flex w-full flex-col gap-6 rounded-3xl bg-softGray px-10 py-10">
-                <div className="flex">
-                    <div className="text-[26px] font-bold leading-7">License Tiers</div>
+                <div className="flex items-center justify-between">
+                    <div className="text-[26px] font-bold leading-7">Licenses & Tiers</div>
+
+                    <Button color="primary">
+                        <div className="text-base font-medium">Buy License</div>
+                    </Button>
                 </div>
 
                 <div className="shadow-light-200/30 flex flex-col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-[1.75rem] shadow-sm-light">

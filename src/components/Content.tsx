@@ -1,6 +1,7 @@
 import { mainRoutesInfo } from '@lib/routes';
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import Wallet from './Wallet';
 
 function Content() {
     const [title, setTitle] = useState<string>();
@@ -21,10 +22,14 @@ function Content() {
     }, [location]);
 
     return (
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-14 px-10">
-            <div className="flex flex-col items-center gap-3">
-                <div className="text-[36px] font-bold leading-9 text-black">{title}</div>
-                <div className="text-bodyLight text-[20px] leading-5">{description}</div>
+        <div className="mx-auto flex max-w-6xl flex-col gap-12 px-10">
+            <div className="flex items-start justify-between">
+                <div className="flex flex-col gap-3">
+                    <div className="text-[36px] font-bold leading-9 text-black">{title}</div>
+                    <div className="text-[20px] leading-5 text-bodyLight">{description}</div>
+                </div>
+
+                <Wallet />
             </div>
 
             <Outlet />
