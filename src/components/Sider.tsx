@@ -5,7 +5,7 @@ function Sider() {
     return (
         <div className="flex flex-col gap-10">
             <div className="center-all">
-                <img src={Logo} alt="Logo" className="h-7" />
+                <img src={Logo} alt="Logo" className="h-6" />
             </div>
 
             <Navigation />

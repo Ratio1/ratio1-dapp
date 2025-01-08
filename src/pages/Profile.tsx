@@ -1,22 +1,42 @@
 import { getShortAddress } from '@lib/utils';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { Button } from '@nextui-org/button';
+import { useAppKit, useDisconnect } from '@reown/appkit/react';
 import { useAccount, useEnsName } from 'wagmi';
 
 function Profile() {
     const { address } = useAccount();
     const { data, error, status } = useEnsName({ address });
+    const { disconnect } = useDisconnect();
+
+    const { open, close } = useAppKit();
 
     return (
-        <div className="center-all flex-col gap-4 font-medium">
-            <div>Profile & KYC</div>
+        <div className="center-all flex-col gap-8 font-medium">
+            <div className="flex gap-4"></div>
+
+            {!!address && (
+                <div className="rounded-full bg-body px-2.5 py-0.5 text-[15px] font-medium text-white">
+                    {getShortAddress(address)}
+                </div>
+            )}
+
+            {!!data && <div>{data}</div>}
+
+            <button onClick={() => disconnect()} className="rounded-full bg-red-500 px-4 py-2 text-white hover:bg-red-600">
+                Disconnect Wallet
+            </button>
 
             <div className="flex">
-                <ConnectButton />
+                <Button
+                    variant="solid"
+                    color="primary"
+                    onPress={() => {
+                        open({ view: 'Connect' });
+                    }}
+                >
+                    <div className="text-base font-medium">Connect Wallet</div>
+                </Button>
             </div>
-
-            {!!address && <div>{getShortAddress(address)}</div>}
-
-            {!!data && <div>ENS: {data}</div>}
         </div>
     );
 }

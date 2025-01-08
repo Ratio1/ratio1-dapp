@@ -1,46 +1,44 @@
+import { metadata, projectId, queryClient, siweConfig, wagmiAdapter } from '@lib/config';
 import { NextUIProvider } from '@nextui-org/system';
-import { getDefaultConfig, lightTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import '@rainbow-me/rainbowkit/styles.css';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { arbitrum, mainnet, sepolia } from '@reown/appkit/networks';
+import { createAppKit } from '@reown/appkit/react';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
-import { http, WagmiProvider } from 'wagmi';
-import { arbitrum, sepolia } from 'wagmi/chains';
+import { WagmiProvider } from 'wagmi';
 import { AuthenticationProvider } from './authentication';
 
-// const wagmiConfig = createConfig({
-//     chains: [arbitrum, sepolia],
-//     transports: {
-//         [arbitrum.id]: http(),
-//         [sepolia.id]: http(),
-//     },
-// });
-
-const config = getDefaultConfig({
-    appName: 'Ratio1',
-    projectId: '6fb791d3d18d57d28ae7677e4cff8c6e',
-    chains: [arbitrum, sepolia],
-    transports: {
-        [arbitrum.id]: http(),
-        [sepolia.id]: http(),
+createAppKit({
+    adapters: [wagmiAdapter],
+    projectId,
+    networks: [arbitrum, sepolia, mainnet],
+    defaultNetwork: mainnet,
+    metadata,
+    features: {
+        analytics: true,
+        swaps: false,
+        onramp: false,
+        email: false,
+        socials: [],
+    },
+    siweConfig,
+    enableWalletConnect: false,
+    allWallets: 'HIDE',
+    termsConditionsUrl: 'https://www.mytermsandconditions.com',
+    themeMode: 'light',
+    themeVariables: {
+        '--w3m-font-family': 'Mona Sans',
+        '--w3m-accent': '#1b47f7',
     },
 });
-
-const queryClient = new QueryClient();
 
 export function Wrappers({ children }: { children: React.ReactNode }) {
     return (
         <BrowserRouter>
-            <WagmiProvider config={config}>
+            <WagmiProvider config={wagmiAdapter.wagmiConfig}>
                 <QueryClientProvider client={queryClient}>
-                    <RainbowKitProvider
-                        theme={lightTheme({
-                            accentColor: '#1b47f7',
-                        })}
-                    >
-                        <NextUIProvider>
-                            <AuthenticationProvider>{children}</AuthenticationProvider>
-                        </NextUIProvider>
-                    </RainbowKitProvider>
+                    <NextUIProvider>
+                        <AuthenticationProvider>{children}</AuthenticationProvider>
+                    </NextUIProvider>
                 </QueryClientProvider>
             </WagmiProvider>
         </BrowserRouter>

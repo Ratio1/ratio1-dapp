@@ -28,12 +28,12 @@ body {
 }
 
 *::-webkit-scrollbar-track {
-    background: #9898a8;
+    background: white;
     background-clip: padding-box;
 }
 
 *::-webkit-scrollbar-thumb {
-    background-color: #3e40d3;
+    background-color: #f5f7fe;
     border-radius: 0px;
     border: 0;
 }
