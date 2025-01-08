@@ -1,5 +1,7 @@
 import { getShortAddress } from '@lib/utils';
-import { useDisconnect } from '@reown/appkit/react';
+import { Button } from '@nextui-org/button';
+import { useAppKit, useDisconnect } from '@reown/appkit/react';
+import { useEffect } from 'react';
 import { useAccount, useEnsName } from 'wagmi';
 
 function Profile() {
@@ -7,11 +9,17 @@ function Profile() {
     const { data, error, status } = useEnsName({ address });
     const { disconnect } = useDisconnect();
 
+    const { open, close } = useAppKit();
+
+    useEffect(() => {
+        console.log('[Profile.tsx]');
+    }, []);
+
     return (
         <div className="center-all flex-col gap-8 font-medium">
             <div className="flex gap-4">
                 <appkit-network-button />
-                <appkit-button />
+                <appkit-button size="md" />
             </div>
 
             {!!address && (
@@ -25,6 +33,18 @@ function Profile() {
             <button onClick={() => disconnect()} className="rounded-full bg-red-500 px-4 py-2 text-white hover:bg-red-600">
                 Disconnect Wallet
             </button>
+
+            <div className="flex">
+                <Button
+                    variant="solid"
+                    color="primary"
+                    onPress={() => {
+                        open({ view: 'Connect' });
+                    }}
+                >
+                    Open
+                </Button>
+            </div>
         </div>
     );
 }
