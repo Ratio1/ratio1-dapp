@@ -12,10 +12,7 @@ function Profile() {
 
     return (
         <div className="center-all flex-col gap-8 font-medium">
-            <div className="flex gap-4">
-                <appkit-network-button />
-                <appkit-button size="md" />
-            </div>
+            <div className="flex gap-4"></div>
 
             {!!address && (
                 <div className="rounded-full bg-body px-2.5 py-0.5 text-[15px] font-medium text-white">
@@ -37,7 +34,7 @@ function Profile() {
                         open({ view: 'Connect' });
                     }}
                 >
-                    Open
+                    <div className="text-base font-medium">Connect Wallet</div>
                 </Button>
             </div>
         </div>

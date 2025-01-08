@@ -7,10 +7,8 @@ import { useDisclosure } from '@lib/useDisclosure';
 import { getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Drawer, DrawerBody, DrawerContent, DrawerFooter } from '@nextui-org/drawer';
-import { Select, SelectItem } from '@nextui-org/select';
-import { SharedSelection } from '@nextui-org/system';
 import { useState } from 'react';
-import { RiArrowDownLine, RiArrowRightDoubleLine, RiSettingsLine, RiWallet3Line } from 'react-icons/ri';
+import { RiArrowDownLine, RiArrowRightDoubleLine, RiSettingsLine } from 'react-icons/ri';
 
 const networks = [
     {
@@ -37,80 +35,8 @@ function Wallet() {
     return (
         <>
             <div className="flex items-center gap-3">
-                <Select
-                    className="min-w-52"
-                    classNames={{
-                        trigger: 'min-h-12 bg-softGray data-[hover=true]:bg-gray-200',
-                        label: 'group-data-[filled=true]:-translate-y-5',
-                        listboxWrapper: 'max-h-[400px]',
-                    }}
-                    selectedKeys={networkKeys}
-                    onSelectionChange={(value: SharedSelection) => {
-                        setNetworkKeys(new Set([value.anchorKey as string]));
-                    }}
-                    items={networks}
-                    aria-label="network-selector"
-                    label=""
-                    labelPlacement="outside"
-                    listboxProps={{
-                        itemClasses: {
-                            base: [
-                                'rounded-xl',
-                                'text-default-500',
-                                'transition-opacity',
-                                'data-[hover=true]:text-foreground',
-                                'data-[hover=true]:bg-default-100',
-                                'data-[selectable=true]:focus:bg-default-100',
-                                'data-[pressed=true]:opacity-70',
-                                'data-[focus-visible=true]:ring-default-500',
-                                'px-3',
-                            ],
-                        },
-                    }}
-                    popoverProps={{
-                        classNames: {
-                            base: 'before:bg-default-200',
-                            content: 'p-0 border-small border-divider bg-background',
-                        },
-                    }}
-                    renderValue={(networks) => {
-                        return networks.map((network) => (
-                            <div key={network.key} className="flex items-center gap-2">
-                                <div className="center-all h-7 w-7">
-                                    <img alt={network.data?.label} className="h-6 rounded-full" src={network.data?.src} />
-                                </div>
-
-                                <div className="font-medium">{network.data?.label}</div>
-                            </div>
-                        ));
-                    }}
-                    variant="flat"
-                >
-                    {(network) => (
-                        <SelectItem key={network.key} textValue={network.label}>
-                            <div className="flex items-center gap-2 py-1">
-                                <div className="center-all h-7 w-7">
-                                    <img alt={network.label} className="h-6 rounded-full" src={network.src} />
-                                </div>
-
-                                <div className="font-medium">{network.label}</div>
-                            </div>
-                        </SelectItem>
-                    )}
-                </Select>
-
-                <div className="flex">
-                    <Button className="h-12" variant="solid" color="primary" onPress={onOpen}>
-                        <div className="flex items-center gap-2">
-                            <div className="text-[22px]">
-                                <RiWallet3Line />
-                            </div>
-
-                            <div className="text-base font-medium">0.2675 ETH</div>
-                            {/* <div className="text-base font-medium">Login</div> */}
-                        </div>
-                    </Button>
-                </div>
+                <appkit-network-button />
+                <appkit-button />
             </div>
 
             <Drawer

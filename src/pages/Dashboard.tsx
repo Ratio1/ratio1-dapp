@@ -43,10 +43,10 @@ function Dashboard() {
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-6 rounded-3xl bg-[#4767B9] px-10 py-10">
+                <div className="flex flex-col gap-6 rounded-3xl bg-softGray px-10 py-10">
                     <div className="flex flex-col gap-3">
-                        <div className="text-xl font-semibold leading-6 text-blue-100">Current Epoch</div>
-                        <div className="text-[22px] font-semibold leading-6 text-whitesmoke">926</div>
+                        <div className="text-xl font-semibold leading-6">Current Epoch</div>
+                        <div className="text-[22px] font-semibold leading-6">926</div>
                     </div>
                 </div>
             </div>
