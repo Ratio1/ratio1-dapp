@@ -129,7 +129,7 @@ function Dashboard() {
 
                                         <div className="flex gap-1">
                                             <Button
-                                                className="min-w-10 rounded-lg border-default-200 bg-[#fcfcfd] p-0"
+                                                className="min-w-10 rounded-lg border border-default-200 bg-[#fcfcfd] p-0"
                                                 color="default"
                                                 variant="bordered"
                                                 size="md"
@@ -140,7 +140,7 @@ function Dashboard() {
                                             <Input
                                                 size="md"
                                                 classNames={{
-                                                    inputWrapper: 'rounded-lg bg-[#fcfcfd]',
+                                                    inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
                                                     input: 'font-medium',
                                                 }}
                                                 variant="bordered"
@@ -151,7 +151,7 @@ function Dashboard() {
                                             />
 
                                             <Button
-                                                className="min-w-10 rounded-lg border-default-200 bg-[#fcfcfd] p-0"
+                                                className="min-w-10 rounded-lg border border-default-200 bg-[#fcfcfd] p-0"
                                                 color="default"
                                                 variant="bordered"
                                                 size="md"
