@@ -1,19 +1,12 @@
 import { NextUIProvider } from '@nextui-org/system';
 import { createAppKit } from '@reown/appkit';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
+import { createSIWEConfig, formatMessage, SIWECreateMessageArgs, SIWEVerifyMessageArgs } from '@reown/appkit-siwe';
 import { arbitrum, mainnet, sepolia } from '@reown/appkit/networks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { WagmiProvider } from 'wagmi';
 import { AuthenticationProvider } from './authentication';
-
-// const wagmiConfig = createConfig({
-//     chains: [arbitrum, sepolia],
-//     transports: {
-//         [arbitrum.id]: http(),
-//         [sepolia.id]: http(),
-//     },
-// });
 
 const queryClient = new QueryClient();
 
@@ -32,14 +25,65 @@ const wagmiAdapter = new WagmiAdapter({
     ssr: false,
 });
 
+async function getSession() {
+    console.log('getSession');
+
+    return null;
+
+    // Return if successful
+    // return {
+    //     chainId: 1,
+    //     address: '0x58fFB0F89e50DcC25Bc208757a63dDA06d30433A',
+    // };
+}
+
+const verifyMessage = async ({ message, signature }: SIWEVerifyMessageArgs) => {
+    console.log('verifyMessage', message, signature);
+    return true;
+};
+
+const siweConfig = createSIWEConfig({
+    signOutOnAccountChange: true,
+    signOutOnNetworkChange: true,
+    signOutOnDisconnect: true,
+    getMessageParams: async () => ({
+        domain: window.location.host,
+        uri: window.location.origin,
+        chains: [1, 42161, 11155111],
+        statement: 'Please sign with your account',
+        iat: new Date().toISOString(),
+    }),
+    createMessage: ({ address, ...args }: SIWECreateMessageArgs) => formatMessage(args, address),
+    getNonce: async () => {
+        const nonce = 'NONCE';
+        if (!nonce) {
+            throw new Error('Failed to get nonce.');
+        }
+        return nonce;
+    },
+    getSession,
+    verifyMessage,
+    signOut: async () => {
+        return true;
+    },
+    onSignOut() {
+        console.log('onSignOut');
+    },
+    onSignIn() {
+        console.log('onSignIn');
+    },
+});
+
 createAppKit({
     adapters: [wagmiAdapter],
-    networks: [arbitrum, sepolia, mainnet],
     projectId,
+    networks: [arbitrum, sepolia, mainnet],
+    defaultNetwork: mainnet,
     metadata,
     features: {
-        analytics: false,
+        analytics: true,
     },
+    siweConfig,
     themeMode: 'light',
     themeVariables: {
         '--w3m-font-family': 'Mona Sans',
