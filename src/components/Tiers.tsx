@@ -1,10 +1,6 @@
-import { useDisclosure } from '@lib/useDisclosure';
 import { formatNumber } from '@lib/utils';
-import { Button } from '@nextui-org/button';
-import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
-import { RiArrowRightDoubleLine } from 'react-icons/ri';
 
 const INITIAL_STATE: {
     index: number;
@@ -27,8 +23,6 @@ const INITIAL_STATE: {
 ];
 
 export default function Tiers() {
-    const { isOpen, onOpen, onClose } = useDisclosure();
-
     const [currentStage, setCurrentStage] = useState<number>(4);
     const [stages, setStages] = useState<
         {
@@ -129,40 +123,6 @@ export default function Tiers() {
                     ))}
                 </div>
             </div>
-
-            <Drawer
-                isOpen={isOpen}
-                onOpenChange={onClose}
-                size="sm"
-                classNames={{
-                    base: 'data-[placement=right]:sm:m-3 data-[placement=left]:sm:m-3 rounded-medium font-mona',
-                }}
-                motionProps={{
-                    variants: {
-                        enter: {
-                            opacity: 1,
-                            x: 0,
-                        },
-                        exit: {
-                            x: 100,
-                            opacity: 0,
-                        },
-                    },
-                }}
-                hideCloseButton
-            >
-                <DrawerContent>
-                    <DrawerBody className="my-4 flex flex-col gap-8">
-                        <div className="flex items-center gap-2">
-                            <Button isIconOnly variant="flat" onPress={onClose}>
-                                <div className="text-[22px]">
-                                    <RiArrowRightDoubleLine />
-                                </div>
-                            </Button>
-                        </div>
-                    </DrawerBody>
-                </DrawerContent>
-            </Drawer>
         </>
     );
 }
