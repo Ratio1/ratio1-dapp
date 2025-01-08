@@ -104,7 +104,7 @@ function Dashboard() {
                 hideCloseButton
             >
                 <DrawerContent>
-                    <DrawerBody className="my-4 flex flex-col gap-8">
+                    <DrawerBody className="my-4 flex flex-col gap-6">
                         <div className="flex items-center gap-2">
                             <Button isIconOnly variant="flat" className="bg-lightAccent" onPress={onClose}>
                                 <div className="text-[22px]">
@@ -114,50 +114,56 @@ function Dashboard() {
                         </div>
 
                         <div className="flex flex-col gap-4">
-                            <div className="flex items-center gap-2 text-primary">
-                                <RiStickyNoteAddLine className="text-xl" />
-                                <div className="text-base font-medium">Node License</div>
-                            </div>
+                            <div className="flex flex-col overflow-hidden rounded-md border border-slate-200 bg-lightAccent">
+                                <div className="flex items-center gap-2.5 p-4">
+                                    <div className="rounded-md bg-primary p-2 text-white">
+                                        <RiStickyNoteAddLine className="text-xl" />
+                                    </div>
 
-                            <div className="flex items-center justify-between gap-24">
-                                <div className="font-medium">Quantity</div>
+                                    <div className="text-base font-medium">Node License</div>
+                                </div>
 
-                                <div className="flex gap-1">
-                                    <Button
-                                        className="min-w-10 rounded-lg border-default-200 bg-[#fcfcfd] p-0"
-                                        color="default"
-                                        variant="bordered"
-                                        size="md"
-                                    >
-                                        <BiMinus className="text-[18px] text-[#71717a]" />
-                                    </Button>
+                                <div className="flex border-t border-slate-200 bg-white p-4">
+                                    <div className="flex items-center justify-between gap-12">
+                                        <div className="font-medium">Quantity</div>
 
-                                    <Input
-                                        size="md"
-                                        classNames={{
-                                            inputWrapper: 'rounded-lg bg-[#fcfcfd]',
-                                            input: 'font-medium',
-                                        }}
-                                        variant="bordered"
-                                        // label="Amount"
-                                        color="primary"
-                                        labelPlacement="outside"
-                                        placeholder="1"
-                                        type="number"
-                                    />
+                                        <div className="flex gap-1">
+                                            <Button
+                                                className="min-w-10 rounded-lg border-default-200 bg-[#fcfcfd] p-0"
+                                                color="default"
+                                                variant="bordered"
+                                                size="md"
+                                            >
+                                                <BiMinus className="text-[18px] text-[#71717a]" />
+                                            </Button>
 
-                                    <Button
-                                        className="min-w-10 rounded-lg border-default-200 bg-[#fcfcfd] p-0"
-                                        color="default"
-                                        variant="bordered"
-                                        size="md"
-                                    >
-                                        <RiAddFill className="text-[18px] text-[#71717a]" />
-                                    </Button>
+                                            <Input
+                                                size="md"
+                                                classNames={{
+                                                    inputWrapper: 'rounded-lg bg-[#fcfcfd]',
+                                                    input: 'font-medium',
+                                                }}
+                                                variant="bordered"
+                                                color="primary"
+                                                labelPlacement="outside"
+                                                placeholder="1"
+                                                type="number"
+                                            />
+
+                                            <Button
+                                                className="min-w-10 rounded-lg border-default-200 bg-[#fcfcfd] p-0"
+                                                color="default"
+                                                variant="bordered"
+                                                size="md"
+                                            >
+                                                <RiAddFill className="text-[18px] text-[#71717a]" />
+                                            </Button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="flex w-full flex-col rounded-md bg-lightAccent p-10">
+                            <div className="flex w-full flex-col rounded-md bg-lightAccent px-10 py-8">
                                 <div className="flex flex-col gap-1.5 text-center">
                                     <div className="text-sm font-medium text-slate-500">Total amount</div>
                                     <div className="text-2xl font-semibold text-primary">$4500</div>
