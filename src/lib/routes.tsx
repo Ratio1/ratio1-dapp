@@ -1,9 +1,7 @@
 import Dashboard from '@pages/Dashboard';
 import Licenses from '@pages/Licenses';
-import Overview from '@pages/Overview';
 import Profile from '@pages/Profile';
-import Rewards from '@pages/Rewards';
-import { RiCpuLine, RiFunctionLine, RiShieldUserLine, RiStickyNoteAddLine } from 'react-icons/ri';
+import { RiCpuLine, RiFunctionLine, RiShieldUserLine } from 'react-icons/ri';
 
 export interface AppRoute {
     path: string;
@@ -29,12 +27,8 @@ export function isParentRoute(route: AppRoute): route is ParentRoute {
 export const routePath = {
     root: '/',
     dashboard: '/dashboard',
-    buy: '/buy-licenses',
-    nodeDeeds: '/node-deeds',
+    licenses: '/licenses-and-nodes',
     profileKyc: '/profile-and-kyc',
-    // Relative routes (children)
-    overview: 'overview',
-    rewards: 'rewards',
 };
 
 export const mainRoutesInfo = {
@@ -42,23 +36,14 @@ export const mainRoutesInfo = {
         title: 'Dashboard',
         description: 'An organized view of your key information',
     },
-    [routePath.buy]: {
-        title: 'Buy Licenses',
-        description: 'Purchase redeemable licenses for Node Deeds',
-    },
-    [routePath.nodeDeeds]: {
-        title: 'Node Deeds',
-        description: 'Organize and manage your Node Deeds',
+    [routePath.licenses]: {
+        title: 'Licenses & Nodes',
+        description: 'Organize & assign your licenses to nodes',
     },
     [routePath.profileKyc]: {
         title: 'Profile & KYC',
         description: 'Manage your profile and KYC (Know Your Customer)',
     },
-};
-
-export const childRouteTitles = {
-    [routePath.overview]: 'Overview',
-    [routePath.rewards]: 'Rewards',
 };
 
 export const routes: Array<SimpleRoute | ParentRoute> = [
@@ -68,23 +53,9 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
         icon: <RiFunctionLine />,
     },
     {
-        path: routePath.buy,
+        path: routePath.licenses,
         page: Licenses,
-        icon: <RiStickyNoteAddLine />,
-    },
-    {
-        path: routePath.nodeDeeds,
         icon: <RiCpuLine />,
-        children: [
-            {
-                path: routePath.overview,
-                page: Overview,
-            },
-            {
-                path: routePath.rewards,
-                page: Rewards,
-            },
-        ],
     },
     {
         path: routePath.profileKyc,

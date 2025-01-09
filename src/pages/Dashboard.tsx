@@ -5,7 +5,7 @@ import { Divider } from '@nextui-org/divider';
 import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
 import { Input } from '@nextui-org/input';
 import { BiMinus } from 'react-icons/bi';
-import { RiAddFill, RiArrowRightDoubleLine, RiArrowRightUpLine, RiStickyNoteAddLine } from 'react-icons/ri';
+import { RiAddFill, RiArrowRightDoubleLine, RiArrowRightUpLine, RiCpuLine } from 'react-icons/ri';
 
 function Dashboard() {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -64,10 +64,6 @@ function Dashboard() {
                     <div className="flex items-center justify-between">
                         <div className="text-[26px] font-bold leading-7">Licenses & Tiers</div>
 
-                        {/* <Button color="primary" startContent={<RiStickyNoteAddLine className="text-xl" />}>
-                        <div className="text-base font-medium">Buy License</div>
-                    </Button> */}
-
                         <Button color="primary" onPress={onOpen}>
                             <div className="flex items-center gap-3">
                                 <div className="text-base font-medium">Buy License</div>
@@ -117,7 +113,7 @@ function Dashboard() {
                             <div className="flex flex-col overflow-hidden rounded-md border border-slate-200 bg-lightAccent">
                                 <div className="flex items-center gap-2.5 p-4">
                                     <div className="rounded-md bg-primary p-2 text-white">
-                                        <RiStickyNoteAddLine className="text-xl" />
+                                        <RiCpuLine className="text-xl" />
                                     </div>
 
                                     <div className="text-base font-medium">Node License</div>

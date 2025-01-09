@@ -1,5 +1,4 @@
 import { getShortAddress } from '@lib/utils';
-import { Button } from '@nextui-org/button';
 import { useAppKit, useDisconnect } from '@reown/appkit/react';
 import { useAccount, useEnsName } from 'wagmi';
 
@@ -21,22 +20,6 @@ function Profile() {
             )}
 
             {!!data && <div>{data}</div>}
-
-            <button onClick={() => disconnect()} className="rounded-full bg-red-500 px-4 py-2 text-white hover:bg-red-600">
-                Disconnect Wallet
-            </button>
-
-            <div className="flex">
-                <Button
-                    variant="solid"
-                    color="primary"
-                    onPress={() => {
-                        open({ view: 'Connect' });
-                    }}
-                >
-                    <div className="text-base font-medium">Connect Wallet</div>
-                </Button>
-            </div>
         </div>
     );
 }
