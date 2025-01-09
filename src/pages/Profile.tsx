@@ -1,6 +1,7 @@
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Input } from '@nextui-org/input';
+import { Switch } from '@nextui-org/switch';
 import { useState } from 'react';
 import { RiMailLine, RiNewsLine, RiUserFollowLine } from 'react-icons/ri';
 
@@ -73,7 +74,7 @@ function Profile() {
                     />
                 </div>
 
-                <div className="flex flex-col justify-between gap-6 rounded-3xl bg-lightAccent px-10 py-10">
+                {/* <div className="flex flex-col justify-between gap-6 rounded-3xl bg-lightAccent px-10 py-10">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="rounded-full bg-primary p-2 text-white">
@@ -83,24 +84,6 @@ function Profile() {
                             <div className="text-xl font-bold leading-6">Subscription</div>
                         </div>
                     </div>
-
-                    {/* <Alert
-                        color="primary"
-                        variant="faded"
-                        title="You are not subscribed to email updates."
-                        endContent={
-                            <Button
-                                className="border-1 bg-background font-medium text-default-700"
-                                size="sm"
-                                variant="bordered"
-                            >
-                                Subscribe
-                            </Button>
-                        }
-                        classNames={{
-                            base: 'items-center',
-                        }}
-                    /> */}
 
                     <Alert
                         color="primary"
@@ -119,6 +102,24 @@ function Profile() {
                             base: 'items-center',
                         }}
                     />
+                </div> */}
+
+                <div className="flex flex-col gap-0 overflow-hidden rounded-2xl border border-[#e3e4e8] bg-light">
+                    <div className="bg-lightAccent px-10 py-6">
+                        <div className="flex items-center gap-3">
+                            <div className="rounded-full bg-primary p-2 text-white">
+                                <RiNewsLine className="text-xl" />
+                            </div>
+
+                            <div className="text-xl font-bold leading-6">Subscription</div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between px-10 py-6">
+                        <div>Subscribe to email updates.</div>
+
+                        <Switch defaultSelected={true} size="sm" />
+                    </div>
                 </div>
             </div>
         </div>
