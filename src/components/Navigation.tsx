@@ -21,7 +21,7 @@ function Route({ route }: { route: SimpleRoute | ParentRoute }) {
     return (
         <div className="flex flex-col gap-2">
             <div
-                className={clsx('min-w-44 cursor-pointer rounded-lg px-4 py-2.5 transition-all hover:bg-primary-50', {
+                className={clsx('min-w-44 cursor-pointer rounded-lg px-4 py-2.5 transition-all hover:bg-[#e2eefb]', {
                     'bg-[#e2eefb] text-primary': location.pathname.includes(route.path),
                 })}
                 onClick={() => navigate(route.path)}
