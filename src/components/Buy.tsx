@@ -63,8 +63,6 @@ function Buy({ onClose }) {
             index++;
         }
 
-        console.log(array);
-
         return array;
     };
 
