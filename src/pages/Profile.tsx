@@ -49,7 +49,7 @@ function Profile() {
                     </div>
                 </div>
 
-                <div className="flex flex-col justify-between gap-6 rounded-3xl bg-lightAccent px-10 py-10">
+                {/* <div className="flex flex-col justify-between gap-6 rounded-3xl bg-lightAccent px-10 py-10">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="rounded-full bg-primary p-2 text-white">
@@ -72,37 +72,37 @@ function Profile() {
                             base: 'items-center',
                         }}
                     />
-                </div>
+                </div> */}
 
-                {/* <div className="flex flex-col justify-between gap-6 rounded-3xl bg-lightAccent px-10 py-10">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="rounded-full bg-primary p-2 text-white">
-                                <RiNewsLine className="text-xl" />
+                <div className="flex flex-col gap-0 overflow-hidden rounded-2xl border border-[#e3e4e8] bg-light">
+                    <div className="bg-lightAccent px-10 py-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="rounded-full bg-primary p-2 text-white">
+                                    <RiUserFollowLine className="text-xl" />
+                                </div>
+
+                                <div className="text-xl font-bold leading-6">KYC</div>
                             </div>
 
-                            <div className="text-xl font-bold leading-6">Subscription</div>
+                            <div className="rounded-md bg-red-100 px-2 py-1 text-sm font-medium tracking-wider text-red-700">
+                                Not Started
+                            </div>
                         </div>
                     </div>
 
-                    <Alert
-                        color="primary"
-                        variant="faded"
-                        title="You are subscribed to email updates."
-                        endContent={
-                            <Button
-                                className="border-1 bg-background font-medium text-default-700"
-                                size="sm"
-                                variant="bordered"
-                            >
-                                Unsubscribe
-                            </Button>
-                        }
-                        classNames={{
-                            base: 'items-center',
-                        }}
-                    />
-                </div> */}
+                    <div className="flex items-center justify-between px-10 py-6">
+                        <Alert
+                            color="primary"
+                            title="You need to register and confirm your email first."
+                            classNames={{
+                                base: 'items-center',
+                            }}
+                        />
+
+                        {/* <div>You need to register and confirm your email first.</div> */}
+                    </div>
+                </div>
 
                 <div className="flex flex-col gap-0 overflow-hidden rounded-2xl border border-[#e3e4e8] bg-light">
                     <div className="bg-lightAccent px-10 py-6">
