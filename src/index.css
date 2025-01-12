@@ -6,7 +6,6 @@
 
 body {
     @apply h-screen w-screen overflow-x-hidden text-body;
-    background: #fcfcfd;
 }
 
 /* Utilities */
@@ -40,4 +39,9 @@ input[type='number']::-webkit-outer-spin-button {
 input[type='number'] {
     appearance: textfield;
     -moz-appearance: textfield;
+}
+
+button {
+    font-weight: 500 !important;
+    letter-spacing: 0 !important;
 }
