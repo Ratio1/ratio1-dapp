@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function Navigation() {
     return (
-        <div className="flex w-full flex-col gap-2">
+        <div className="flex w-full flex-col gap-3">
             {routes.map((route, index) => (
                 <div key={index}>
                     <Route route={route} />

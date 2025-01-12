@@ -7,6 +7,7 @@ const array = [
         id: 385,
         alias: 'stefan-edge-node',
         eth_address: '0xbF57FEB86044aE9f7B6ED74874A6b1d60D64601b',
+        isUnlinked: true,
     },
     {
         id: 5567,
@@ -37,9 +38,15 @@ function Licenses() {
                 <div key={item.id} className="flex flex-col gap-4 rounded-3xl bg-lightAccent px-8 py-7">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="rounded-full bg-[#e0eeff] px-4 py-2 font-medium text-primary">
-                                License #{item.id}
-                            </div>
+                            {item.isUnlinked ? (
+                                <div className="rounded-full bg-red-100 px-4 py-2 font-medium text-red-600">
+                                    License #{item.id}
+                                </div>
+                            ) : (
+                                <div className="rounded-full bg-[#e0eeff] px-4 py-2 font-medium text-primary">
+                                    License #{item.id}
+                                </div>
+                            )}
                         </div>
 
                         <Dropdown>
