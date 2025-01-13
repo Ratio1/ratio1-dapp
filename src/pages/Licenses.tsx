@@ -54,7 +54,7 @@ function Licenses() {
     const [isExpanded, setExpanded] = useState<boolean>(true);
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6">
             {array.slice(4, 5).map((item) => (
                 <div
                     key={item.id}
@@ -192,10 +192,15 @@ function Licenses() {
 
                     {isExpanded && (
                         <div className="px-8 py-7">
-                            <div className="col gap-4">
+                            <div className="col gap-8">
+                                <div className="row gap-3 border-b-2 border-slate-200 pb-8">
+                                    <div className="min-w-[160px] font-medium text-slate-800">Assign timestamp</div>
+                                    <div className="text-slate-600">{new Date().toLocaleString()}</div>
+                                </div>
+
                                 <div className="flex gap-8">
                                     <div className="row h-10">
-                                        <div className="text-base font-medium text-slate-600">Uptime per epoch</div>
+                                        <div className="font-medium text-slate-800">Uptime per epoch</div>
                                     </div>
 
                                     <div className="col gap-4 border-l-2 border-slate-200 pl-8">
