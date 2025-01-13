@@ -13,6 +13,10 @@ body {
     @apply flex items-center;
 }
 
+.col {
+    @apply flex flex-col;
+}
+
 .center-all {
     @apply row justify-center;
 }
