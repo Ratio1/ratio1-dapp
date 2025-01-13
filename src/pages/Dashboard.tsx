@@ -70,7 +70,7 @@ function Dashboard() {
                         </Button>
                     </div>
 
-                    <div className="shadow-light-200/30 flex flex-col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-[1.75rem] shadow-sm-light">
+                    <div className="flex flex-col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-[1.75rem]">
                         <Tiers />
                     </div>
                 </div>

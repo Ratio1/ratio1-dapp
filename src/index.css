@@ -9,8 +9,12 @@ body {
 }
 
 /* Utilities */
+.row {
+    @apply flex items-center;
+}
+
 .center-all {
-    @apply flex items-center justify-center;
+    @apply row justify-center;
 }
 
 /* Scrollbar */

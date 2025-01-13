@@ -1,4 +1,4 @@
-import { formatNumber } from '@lib/utils';
+import { fN } from '@lib/utils';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 
@@ -91,7 +91,7 @@ export default function Tiers() {
                                     'bg-body text-white': stage.index === currentStage,
                                 })}
                             >
-                                ${formatNumber(stage.price)}
+                                ${fN(stage.price)}
                             </div>
 
                             <div className="flex h-36 w-1 flex-col flex-nowrap justify-end overflow-hidden rounded-full bg-gray-300">
