@@ -3,6 +3,7 @@ import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
 import clsx from 'clsx';
 import { round } from 'lodash';
+import { useState } from 'react';
 import { RiCpuLine, RiLink, RiLinkUnlink, RiMoreFill, RiWalletLine } from 'react-icons/ri';
 
 const LICENSE_CAP = 25000;
@@ -50,6 +51,8 @@ const array = [
 ];
 
 function Licenses() {
+    const [isExpanded, setExpanded] = useState<boolean>(false);
+
     return (
         <div className="flex flex-col gap-4">
             {array.map((item) => (
@@ -316,8 +319,18 @@ function Licenses() {
             ))}
 
             {array.slice(3, 4).map((item) => (
-                <div key={item.id} className="flex flex-col rounded-3xl bg-lightAccent">
-                    <div className="row justify-between rounded-3xl border-3 border-lightAccent bg-lightAccent px-8 py-7">
+                <div
+                    key={item.id}
+                    className="flex cursor-pointer flex-col overflow-hidden rounded-3xl border-3 border-lightAccent bg-lightAccent transition-all hover:border-[#e9ebf1]"
+                    onClick={() => {
+                        setExpanded(!isExpanded);
+                    }}
+                >
+                    <div
+                        className={clsx('row justify-between bg-white px-8 py-7', {
+                            'rounded-bl-3xl rounded-br-3xl': isExpanded,
+                        })}
+                    >
                         <div className="row">
                             <div className="row min-w-[550px] gap-3">
                                 {!!item.alias && <div className="min-w-[160px] font-medium">{item.alias}</div>}
@@ -439,6 +452,15 @@ function Licenses() {
                             </Dropdown>
                         </div>
                     </div>
+
+                    {isExpanded && (
+                        <div className="px-8 py-7">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et ex eget sem tincidunt vehicula.
+                            Integer semper leo aliquam nisi interdum dignissim. Aenean ultricies ipsum ut urna pellentesque
+                            interdum. Aliquam fermentum tincidunt massa at varius. Morbi condimentum tristique turpis ac
+                            consectetur. In molestie lorem eu tristique dictum.
+                        </div>
+                    )}
                 </div>
             ))}
         </div>
