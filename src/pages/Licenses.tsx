@@ -76,7 +76,7 @@ function Licenses() {
                                     <div
                                         className={clsx('rounded-full px-3 py-2 text-sm font-medium', {
                                             'bg-[#e0eeff] text-primary': !!item.node_address,
-                                            'bg-red-100 text-red-600': !item.node_address,
+                                            'bg-purple-100 text-purple-600': !item.node_address,
                                         })}
                                     >
                                         <div className="row gap-1">
@@ -193,50 +193,75 @@ function Licenses() {
                     {isExpanded && (
                         <div className="px-8 py-7">
                             <div className="col gap-8">
-                                <div className="row gap-3 border-b-2 border-slate-200 pb-8">
-                                    <div className="min-w-[160px] font-medium text-slate-800">Assign timestamp</div>
-                                    <div className="text-slate-600">{new Date().toLocaleString()}</div>
+                                <div className="col gap-2 border-b-2 border-slate-200 pb-8">
+                                    <div className="row gap-3">
+                                        <div className="min-w-[160px] font-medium text-slate-800">Assign timestamp</div>
+                                        <div className="text-slate-600">{new Date().toLocaleString()}</div>
+                                    </div>
+
+                                    <div className="row gap-3">
+                                        <div className="min-w-[160px] font-medium text-slate-800">Last claimed epoch</div>
+                                        <div className="text-slate-600">901</div>
+                                    </div>
+
+                                    <div className="row gap-3">
+                                        <div className="min-w-[160px] font-medium text-slate-800">Claimable epochs</div>
+                                        <div className="text-green-600">902-926</div>
+                                    </div>
                                 </div>
 
-                                <div className="flex gap-8">
-                                    <div className="row h-10">
+                                {/* <div className="flex items-center gap-2.5">
+                                    <div className="rounded-full bg-orange-100 p-3 text-orange-600">
+                                        <RiTimeLine className="text-2xl" />
+                                    </div>
+
+                                    <div className="col gap-0.5">
+                                        <div className="text-sm font-medium text-slate-500">Assign Timestamp</div>
+                                        <div className="text-sm font-medium">{new Date().toLocaleString()}</div>
+                                    </div>
+                                </div> */}
+
+                                <div className="flex gap-3">
+                                    <div className="row h-10 min-w-[160px]">
                                         <div className="font-medium text-slate-800">Uptime per epoch</div>
                                     </div>
 
-                                    <div className="col gap-4 border-l-2 border-slate-200 pl-8">
-                                        <div className="flex items-center gap-2.5">
-                                            <div className="rounded-full bg-teal-100 p-2 text-teal-600">
-                                                <RiTimeLine className="text-2xl" />
+                                    <div className="flex gap-10">
+                                        <div className="col gap-3 border-l-2 border-slate-200 pl-10">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="rounded-full bg-teal-100 p-2 text-teal-600">
+                                                    <RiTimeLine className="text-2xl" />
+                                                </div>
+
+                                                <div className="text-sm font-medium text-slate-600">Last Epoch</div>
                                             </div>
 
-                                            <div className="text-base font-medium text-slate-600">Last Epoch</div>
+                                            <div className="text-center text-xl font-medium">16.2h</div>
                                         </div>
 
-                                        <div className="text-2xl font-medium">16.2h</div>
-                                    </div>
+                                        <div className="col gap-3 border-l-2 border-slate-200 pl-10">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="rounded-full bg-purple-100 p-2 text-purple-600">
+                                                    <RiTimeLine className="text-2xl" />
+                                                </div>
 
-                                    <div className="col gap-4 border-l-2 border-slate-200 pl-8">
-                                        <div className="flex items-center gap-2.5">
-                                            <div className="rounded-full bg-purple-100 p-2 text-purple-600">
-                                                <RiTimeLine className="text-2xl" />
+                                                <div className="text-sm font-medium text-slate-600">All time average</div>
                                             </div>
 
-                                            <div className="text-base font-medium text-slate-600">All time average</div>
+                                            <div className="text-center text-xl font-medium">14.1h</div>
                                         </div>
 
-                                        <div className="text-2xl font-medium">14.1h</div>
-                                    </div>
+                                        <div className="col gap-3 border-l-2 border-slate-200 pl-10">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="rounded-full bg-orange-100 p-2 text-orange-600">
+                                                    <RiTimeLine className="text-2xl" />
+                                                </div>
 
-                                    <div className="col gap-4 border-l-2 border-slate-200 pl-8">
-                                        <div className="flex items-center gap-2.5">
-                                            <div className="rounded-full bg-orange-100 p-2 text-orange-600">
-                                                <RiTimeLine className="text-2xl" />
+                                                <div className="text-sm font-medium text-slate-600">Last week average</div>
                                             </div>
 
-                                            <div className="text-base font-medium text-slate-600">Last week average</div>
+                                            <div className="text-center text-xl font-medium">15.7h</div>
                                         </div>
-
-                                        <div className="text-2xl font-medium">15.7h</div>
                                     </div>
                                 </div>
                             </div>
@@ -256,13 +281,20 @@ function Licenses() {
                                     <div
                                         className={clsx('rounded-full px-3 py-2 text-sm font-medium', {
                                             'bg-[#e0eeff] text-primary': !!item.node_address,
-                                            'bg-red-100 text-red-600': !item.node_address,
+                                            'bg-purple-100 text-purple-600': !item.node_address,
                                         })}
                                     >
                                         <div className="row gap-1">
                                             <RiCpuLine className="text-base" />
                                             <div>License #{item.id}</div>
                                         </div>
+                                    </div>
+                                </div>
+
+                                <div className="rounded-full bg-red-100 px-3 py-2 text-sm font-medium text-red-600">
+                                    <div className="row gap-1">
+                                        <RiTimeLine className="text-base" />
+                                        <div>Assignable after {new Date().toLocaleString()}</div>
                                     </div>
                                 </div>
 
