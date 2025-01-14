@@ -195,7 +195,7 @@ function Licenses() {
                         <div className="px-8 py-8">
                             <div className="col gap-8">
                                 <div className="flex justify-between border-b-2 border-slate-200 pb-8">
-                                    <div className="col gap-3">
+                                    <div className="col flex-1 gap-3">
                                         <div className="row gap-3">
                                             <div className="min-w-[166px] text-slate-500">Assign timestamp</div>
                                             <div className="">{new Date().toLocaleString()}</div>
@@ -208,28 +208,46 @@ function Licenses() {
 
                                         <div className="row gap-3">
                                             <div className="min-w-[166px] text-slate-500">Claimable epochs</div>
-                                            <div className="text-green-600">902-926</div>
+                                            <div className="font-medium text-primary">902-926</div>
                                         </div>
                                     </div>
 
-                                    <div className="col gap-4 rounded-3xl bg-gradient-to-tr from-primary to-primary-600 px-6 py-5">
-                                        <div className="flex justify-between gap-20">
-                                            <div className="row gap-2">
-                                                <img src={Logo} alt="Logo" className="brightness-1000 h-7 filter" />
-                                                <div className="font-medium text-white">Rewards Summary</div>
+                                    <div className="relative max-w-[42%] flex-1 rounded-3xl">
+                                        <div className="col relative z-10 gap-4 rounded-3xl bg-[#3f67bf] px-6 py-5">
+                                            <div className="flex justify-between gap-20 border-b-2 border-white/15 pb-4">
+                                                <div className="row gap-2">
+                                                    <img src={Logo} alt="Logo" className="h-7 brightness-1000 filter" />
+                                                    <div className="font-medium text-white">Rewards Summary</div>
+                                                </div>
+
+                                                <Button className="h-9" color="primary" size="sm" variant="faded">
+                                                    <div className="text-sm">Claim</div>
+                                                </Button>
                                             </div>
 
-                                            <Button className="h-9" color="primary" size="sm" variant="faded">
-                                                <div className="text-sm">Claim</div>
-                                            </Button>
-                                        </div>
+                                            <div className="flex">
+                                                <div className="flex-1">
+                                                    <div className="col gap-2 text-white">
+                                                        <div className="row justify-between">
+                                                            <div className="text-sm text-white/85">Availability</div>
+                                                            <div className="w-[50%] text-sm font-medium text-white">26.08</div>
+                                                        </div>
 
-                                        <div className="col gap-2 text-white">
-                                            <div className="row justify-between">
-                                                <div className="text-sm font-medium">Availability</div>
-                                                <div className="text-sm font-medium">25.5</div>
+                                                        <div className="row justify-between">
+                                                            <div className="text-sm text-white/85">Usage</div>
+                                                            <div className="w-[50%] text-sm font-medium">20.3</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex flex-1 flex-col">
+                                                    <div className="text-sm font-medium text-white/85">Total amount</div>
+                                                    <div className="text-2xl font-semibold text-white">46.38</div>
+                                                </div>
                                             </div>
                                         </div>
+
+                                        <div className="absolute -bottom-1 left-0 right-0 h-20 rounded-3xl bg-[#658bdc]"></div>
                                     </div>
                                 </div>
 
