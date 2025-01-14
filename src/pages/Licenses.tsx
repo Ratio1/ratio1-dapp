@@ -1,3 +1,4 @@
+import Logo from '@assets/token.svg';
 import { fN, getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
@@ -70,7 +71,7 @@ function Licenses() {
                     >
                         <div className="row">
                             <div className="row min-w-[550px] gap-3">
-                                {!!item.alias && <div className="min-w-[160px] font-medium">{item.alias}</div>}
+                                {!!item.alias && <div className="min-w-[166px] font-medium">{item.alias}</div>}
 
                                 <div className="flex min-w-[150px]">
                                     <div
@@ -191,49 +192,60 @@ function Licenses() {
                     </div>
 
                     {isExpanded && (
-                        <div className="px-8 py-7">
+                        <div className="px-8 py-8">
                             <div className="col gap-8">
-                                <div className="col gap-2 border-b-2 border-slate-200 pb-8">
-                                    <div className="row gap-3">
-                                        <div className="min-w-[160px] font-medium text-slate-800">Assign timestamp</div>
-                                        <div className="text-slate-600">{new Date().toLocaleString()}</div>
+                                <div className="flex justify-between border-b-2 border-slate-200 pb-8">
+                                    <div className="col gap-3">
+                                        <div className="row gap-3">
+                                            <div className="min-w-[166px] text-slate-500">Assign timestamp</div>
+                                            <div className="">{new Date().toLocaleString()}</div>
+                                        </div>
+
+                                        <div className="row gap-3">
+                                            <div className="min-w-[166px] text-slate-500">Last claimed epoch</div>
+                                            <div className="">901</div>
+                                        </div>
+
+                                        <div className="row gap-3">
+                                            <div className="min-w-[166px] text-slate-500">Claimable epochs</div>
+                                            <div className="text-green-600">902-926</div>
+                                        </div>
                                     </div>
 
-                                    <div className="row gap-3">
-                                        <div className="min-w-[160px] font-medium text-slate-800">Last claimed epoch</div>
-                                        <div className="text-slate-600">901</div>
-                                    </div>
+                                    <div className="col gap-4 rounded-3xl bg-gradient-to-tr from-primary to-primary-600 px-6 py-5">
+                                        <div className="flex justify-between gap-20">
+                                            <div className="row gap-2">
+                                                <img src={Logo} alt="Logo" className="brightness-1000 h-7 filter" />
+                                                <div className="font-medium text-white">Rewards Summary</div>
+                                            </div>
 
-                                    <div className="row gap-3">
-                                        <div className="min-w-[160px] font-medium text-slate-800">Claimable epochs</div>
-                                        <div className="text-green-600">902-926</div>
+                                            <Button className="h-9" color="primary" size="sm" variant="faded">
+                                                <div className="text-sm">Claim</div>
+                                            </Button>
+                                        </div>
+
+                                        <div className="col gap-2 text-white">
+                                            <div className="row justify-between">
+                                                <div className="text-sm font-medium">Availability</div>
+                                                <div className="text-sm font-medium">25.5</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* <div className="flex items-center gap-2.5">
-                                    <div className="rounded-full bg-orange-100 p-3 text-orange-600">
-                                        <RiTimeLine className="text-2xl" />
-                                    </div>
-
-                                    <div className="col gap-0.5">
-                                        <div className="text-sm font-medium text-slate-500">Assign Timestamp</div>
-                                        <div className="text-sm font-medium">{new Date().toLocaleString()}</div>
-                                    </div>
-                                </div> */}
-
                                 <div className="flex gap-3">
-                                    <div className="row h-10 min-w-[160px]">
-                                        <div className="font-medium text-slate-800">Uptime per epoch</div>
+                                    <div className="row h-10 min-w-[166px]">
+                                        <div className="text-slate-500">Uptime per epoch</div>
                                     </div>
 
                                     <div className="flex gap-10">
                                         <div className="col gap-3 border-l-2 border-slate-200 pl-10">
                                             <div className="flex items-center gap-2.5">
-                                                <div className="rounded-full bg-teal-100 p-2 text-teal-600">
+                                                <div className="rounded-full bg-teal-100 p-1.5 text-teal-600">
                                                     <RiTimeLine className="text-2xl" />
                                                 </div>
 
-                                                <div className="text-sm font-medium text-slate-600">Last Epoch</div>
+                                                <div className="text-sm font-medium text-slate-500">Last Epoch</div>
                                             </div>
 
                                             <div className="text-center text-xl font-medium">16.2h</div>
@@ -241,11 +253,11 @@ function Licenses() {
 
                                         <div className="col gap-3 border-l-2 border-slate-200 pl-10">
                                             <div className="flex items-center gap-2.5">
-                                                <div className="rounded-full bg-purple-100 p-2 text-purple-600">
+                                                <div className="rounded-full bg-purple-100 p-1.5 text-purple-600">
                                                     <RiTimeLine className="text-2xl" />
                                                 </div>
 
-                                                <div className="text-sm font-medium text-slate-600">All time average</div>
+                                                <div className="text-sm font-medium text-slate-500">All time average</div>
                                             </div>
 
                                             <div className="text-center text-xl font-medium">14.1h</div>
@@ -253,11 +265,11 @@ function Licenses() {
 
                                         <div className="col gap-3 border-l-2 border-slate-200 pl-10">
                                             <div className="flex items-center gap-2.5">
-                                                <div className="rounded-full bg-orange-100 p-2 text-orange-600">
+                                                <div className="rounded-full bg-orange-100 p-1.5 text-orange-600">
                                                     <RiTimeLine className="text-2xl" />
                                                 </div>
 
-                                                <div className="text-sm font-medium text-slate-600">Last week average</div>
+                                                <div className="text-sm font-medium text-slate-500">Last week average</div>
                                             </div>
 
                                             <div className="text-center text-xl font-medium">15.7h</div>
@@ -275,7 +287,7 @@ function Licenses() {
                     <div className="row justify-between">
                         <div className="row">
                             <div className="row min-w-[550px] gap-3">
-                                {!!item.alias && <div className="min-w-[160px] font-medium">{item.alias}</div>}
+                                {!!item.alias && <div className="min-w-[166px] font-medium">{item.alias}</div>}
 
                                 <div className="flex min-w-[150px]">
                                     <div

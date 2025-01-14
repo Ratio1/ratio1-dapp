@@ -34,6 +34,9 @@ export default {
             rotate: {
                 270: '270deg',
             },
+            brightness: {
+                1000: '100.0',
+            },
         },
     },
     darkMode: 'class',
