@@ -1,5 +1,4 @@
-import Logo from '@assets/token.svg';
-import LicensesDashboard from '@components/LicensesDashboard';
+import LicensesHeader from '@components/LicensesHeader';
 import { fN, getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
@@ -57,8 +56,9 @@ function Licenses() {
 
     return (
         <div className="flex flex-col gap-6">
-            <LicensesDashboard />
+            <LicensesHeader />
 
+            {/* Assigned */}
             {array.slice(4, 5).map((item) => (
                 <div
                     key={item.id}
@@ -74,7 +74,7 @@ function Licenses() {
                     >
                         <div className="row">
                             <div className="row min-w-[550px] gap-3">
-                                {!!item.alias && <div className="min-w-[166px] font-medium">{item.alias}</div>}
+                                {!!item.alias && <div className="min-w-[180px] font-medium">{item.alias}</div>}
 
                                 <div className="flex min-w-[150px]">
                                     <div
@@ -199,25 +199,48 @@ function Licenses() {
                             <div className="col gap-8">
                                 <div className="flex justify-between border-b-2 border-slate-200 pb-8">
                                     <div className="col flex-1 gap-3">
+                                        <div className="text-lg font-medium">Node information</div>
+
                                         <div className="row gap-3">
-                                            <div className="min-w-[166px] text-slate-500">Assign timestamp</div>
-                                            <div className="">{new Date().toLocaleString()}</div>
+                                            <div className="min-w-[180px] text-slate-500">Assign timestamp</div>
+                                            <div>{new Date().toLocaleString()}</div>
                                         </div>
 
                                         <div className="row gap-3">
-                                            <div className="min-w-[166px] text-slate-500">Last claimed epoch</div>
-                                            <div className="">901</div>
+                                            <div className="min-w-[180px] text-slate-500">Last claimed epoch</div>
+                                            <div>901</div>
                                         </div>
 
                                         <div className="row gap-3">
-                                            <div className="min-w-[166px] text-slate-500">Claimable epochs</div>
+                                            <div className="min-w-[180px] text-slate-500">Claimable epochs</div>
                                             <div className="font-medium text-primary">902-926</div>
                                         </div>
                                     </div>
 
-                                    <div className="relative max-w-[42%] flex-1 rounded-3xl">
+                                    <div className="col flex-1 gap-3">
+                                        <div className="text-lg font-medium">Rewards</div>
+
+                                        <div className="row gap-3">
+                                            <div className="min-w-[180px] text-slate-500">Total amount ($R1)</div>
+                                            <div className="font-medium text-primary">46.38</div>
+                                        </div>
+
+                                        <div className="text-lg font-medium">Summary</div>
+
+                                        <div className="row gap-3">
+                                            <div className="min-w-[180px] text-slate-500">Proof of Availability</div>
+                                            <div>46.38</div>
+                                        </div>
+
+                                        <div className="row gap-3">
+                                            <div className="min-w-[180px] text-slate-500">Proof of AI</div>
+                                            <div>0</div>
+                                        </div>
+                                    </div>
+
+                                    {/* <div className="relative max-w-[42%] flex-1 rounded-3xl">
                                         <div className="col relative z-10 gap-4 rounded-3xl bg-[#3f67bf] px-6 py-5">
-                                            <div className="flex justify-between gap-20 border-b-2 border-white/15 pb-4">
+                                            <div className="flex justify-between gap-20 border-b-2 border-white/10 pb-4">
                                                 <div className="row gap-2.5">
                                                     <img src={Logo} alt="Logo" className="brightness-1000 h-7 filter" />
                                                     <div className="text-lg font-medium text-white">Rewards</div>
@@ -251,49 +274,53 @@ function Licenses() {
                                         </div>
 
                                         <div className="absolute -bottom-1 left-0 right-0 h-20 rounded-3xl bg-[#658bdc]"></div>
-                                    </div>
+                                    </div> */}
                                 </div>
 
-                                <div className="flex gap-3">
-                                    <div className="row h-10 min-w-[166px]">
-                                        <div className="text-slate-500">Uptime per epoch</div>
-                                    </div>
+                                <div className="col gap-3">
+                                    <div className="text-lg font-medium leading-none">Node performance</div>
 
-                                    <div className="flex gap-10">
-                                        <div className="col gap-2.5 border-l-2 border-slate-200 pl-10">
-                                            <div className="flex items-center gap-2.5">
-                                                <div className="rounded-full bg-teal-100 p-1.5 text-teal-600">
-                                                    <RiTimeLine className="text-2xl" />
-                                                </div>
-
-                                                <div className="text-sm font-medium text-slate-500">Last Epoch</div>
-                                            </div>
-
-                                            <div className="text-center text-xl font-medium">16.2h</div>
+                                    <div className="flex gap-3">
+                                        <div className="row h-10 min-w-[180px]">
+                                            <div className="text-slate-500">Uptime per epoch</div>
                                         </div>
 
-                                        <div className="col gap-2.5 border-l-2 border-slate-200 pl-10">
-                                            <div className="flex items-center gap-2.5">
-                                                <div className="rounded-full bg-purple-100 p-1.5 text-purple-600">
-                                                    <RiTimeLine className="text-2xl" />
+                                        <div className="flex gap-10">
+                                            <div className="col gap-2.5 border-l-2 border-slate-200 pl-10">
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className="rounded-full bg-teal-100 p-1.5 text-teal-600">
+                                                        <RiTimeLine className="text-2xl" />
+                                                    </div>
+
+                                                    <div className="text-sm font-medium text-slate-500">Last Epoch</div>
                                                 </div>
 
-                                                <div className="text-sm font-medium text-slate-500">All time average</div>
+                                                <div className="text-center text-xl font-medium">16.2h</div>
                                             </div>
 
-                                            <div className="text-center text-xl font-medium">14.1h</div>
-                                        </div>
+                                            <div className="col gap-2.5 border-l-2 border-slate-200 pl-10">
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className="rounded-full bg-purple-100 p-1.5 text-purple-600">
+                                                        <RiTimeLine className="text-2xl" />
+                                                    </div>
 
-                                        <div className="col gap-2.5 border-l-2 border-slate-200 pl-10">
-                                            <div className="flex items-center gap-2.5">
-                                                <div className="rounded-full bg-orange-100 p-1.5 text-orange-600">
-                                                    <RiTimeLine className="text-2xl" />
+                                                    <div className="text-sm font-medium text-slate-500">All time average</div>
                                                 </div>
 
-                                                <div className="text-sm font-medium text-slate-500">Last week average</div>
+                                                <div className="text-center text-xl font-medium">14.1h</div>
                                             </div>
 
-                                            <div className="text-center text-xl font-medium">15.7h</div>
+                                            <div className="col gap-2.5 border-l-2 border-slate-200 pl-10">
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className="rounded-full bg-orange-100 p-1.5 text-orange-600">
+                                                        <RiTimeLine className="text-2xl" />
+                                                    </div>
+
+                                                    <div className="text-sm font-medium text-slate-500">Last week average</div>
+                                                </div>
+
+                                                <div className="text-center text-xl font-medium">15.7h</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -303,12 +330,13 @@ function Licenses() {
                 </div>
             ))}
 
+            {/* Unassigned */}
             {array.slice(0, 1).map((item) => (
                 <div key={item.id} className="flex flex-col gap-3 rounded-3xl bg-lightAccent px-8 py-7">
                     <div className="row justify-between">
                         <div className="row">
                             <div className="row min-w-[550px] gap-3">
-                                {!!item.alias && <div className="min-w-[166px] font-medium">{item.alias}</div>}
+                                {!!item.alias && <div className="min-w-[180px] font-medium">{item.alias}</div>}
 
                                 <div className="flex min-w-[150px]">
                                     <div
