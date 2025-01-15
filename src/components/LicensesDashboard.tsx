@@ -5,28 +5,44 @@ import { add } from 'date-fns';
 import { useState } from 'react';
 import { RiTimeLine } from 'react-icons/ri';
 
-{
-    /* <div>Earned: $R1 1000</div>
-<div>Available: $R1 46.2</div>
-<div>Future claimable: $R1 99.5k (~$255.3K)</div> */
-}
-
 function LicensesDashboard() {
     const [timestamp, setTimestamp] = useState<Date>(add(new Date(), { hours: 14, minutes: 30 }));
 
     return (
         <div className="flex gap-6">
             <div className="relative mb-1 w-full rounded-3xl">
-                <div className="col relative z-10 h-full gap-4 rounded-3xl bg-[#3f67bf] px-6 py-5">
-                    <div className="flex justify-between gap-20 border-b-2 border-white/15 pb-4">
-                        <div className="row gap-2">
+                <div className="col relative z-10 h-full justify-between gap-4 rounded-3xl bg-[#3f67bf] px-6 py-5">
+                    <div className="flex justify-between gap-20 pb-4">
+                        <div className="row gap-2.5">
                             <img src={Logo} alt="Logo" className="brightness-1000 h-7 filter" />
-                            <div className="font-medium text-white">Rewards Summary</div>
+                            <div className="font-medium text-white">Rewards</div>
                         </div>
 
                         <Button className="h-9" color="primary" size="sm" variant="faded">
                             <div className="text-sm">Claim all</div>
                         </Button>
+                    </div>
+
+                    <div className="row justify-between">
+                        <div className="col gap-1">
+                            <div className="text-sm font-medium text-white/85">Claimable (R1)</div>
+                            <div className="text-xl font-medium text-white">46.2</div>
+                        </div>
+
+                        <div className="col gap-1">
+                            <div className="text-sm font-medium text-white/85">Earned (R1)</div>
+                            <div className="text-xl font-medium text-white">1012.895</div>
+                        </div>
+
+                        <div className="col gap-1">
+                            <div className="text-sm font-medium text-white/85">Future Claimable (R1)</div>
+                            <div className="text-xl font-medium text-white">199.2k</div>
+                        </div>
+
+                        <div className="col gap-1">
+                            <div className="text-sm font-medium text-white/85">Future Claimable ($)</div>
+                            <div className="text-xl font-medium text-white">862.825k</div>
+                        </div>
                     </div>
                 </div>
 

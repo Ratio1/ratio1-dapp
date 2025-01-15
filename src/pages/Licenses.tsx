@@ -250,9 +250,9 @@ function Licenses() {
                                     <div className="relative max-w-[42%] flex-1 rounded-3xl">
                                         <div className="col relative z-10 gap-4 rounded-3xl bg-[#3f67bf] px-6 py-5">
                                             <div className="flex justify-between gap-20 border-b-2 border-white/15 pb-4">
-                                                <div className="row gap-2">
+                                                <div className="row gap-2.5">
                                                     <img src={Logo} alt="Logo" className="brightness-1000 h-7 filter" />
-                                                    <div className="font-medium text-white">Rewards Summary</div>
+                                                    <div className="font-medium text-white">Rewards</div>
                                                 </div>
 
                                                 <Button className="h-9" color="primary" size="sm" variant="faded">
