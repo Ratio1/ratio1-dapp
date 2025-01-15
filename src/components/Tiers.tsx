@@ -58,12 +58,12 @@ export default function Tiers() {
                 <div className="flex justify-between">
                     <div className="flex w-full justify-between gap-28">
                         <div className="flex flex-col">
-                            <div className="text-xl font-bold">Current Price (T{currentStage})</div>
+                            <div className="text-xl font-semibold">Current Price (T{currentStage})</div>
                             <div className="text-[22px] font-bold text-primary">${stages[currentStage - 1].price}</div>
                         </div>
 
                         <div className="flex flex-col">
-                            <div className="text-xl font-bold">Remaining Units</div>
+                            <div className="text-xl font-semibold">Remaining Units</div>
                             <div className="text-[22px] font-bold text-primary">
                                 {stages[currentStage - 1].units - stages[currentStage - 1].sold}/
                                 {stages[currentStage - 1].units}
@@ -71,7 +71,7 @@ export default function Tiers() {
                         </div>
 
                         <div className="flex flex-col">
-                            <div className="text-xl font-bold">Next Price (T{currentStage + 1})</div>
+                            <div className="text-xl font-semibold">Next Price (T{currentStage + 1})</div>
                             <div className="text-[22px] font-bold text-primary">${stages[currentStage].price}</div>
                         </div>
                     </div>

@@ -1,4 +1,5 @@
 import Logo from '@assets/token.svg';
+import LicensesDashboard from '@components/LicensesDashboard';
 import { fN, getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
@@ -71,6 +72,8 @@ function Licenses() {
                 <Tab key="assigned" title="Assigned" />
                 <Tab key="unassigned" title="Unassigned" />
             </Tabs>
+
+            <LicensesDashboard />
 
             {array.slice(4, 5).map((item) => (
                 <div

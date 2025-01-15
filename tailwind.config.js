@@ -11,6 +11,7 @@ export default {
         extend: {
             fontFamily: {
                 mona: ['Mona Sans', 'sans-serif'],
+                robotoMono: ['Roboto Mono', 'serif'],
             },
             flex: {
                 2: '2 1 0%',
