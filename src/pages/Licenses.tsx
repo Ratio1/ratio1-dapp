@@ -2,6 +2,7 @@ import Logo from '@assets/token.svg';
 import { fN, getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
+import { Tab, Tabs } from '@nextui-org/tabs';
 import clsx from 'clsx';
 import { round } from 'lodash';
 import { useState } from 'react';
@@ -56,6 +57,21 @@ function Licenses() {
 
     return (
         <div className="flex flex-col gap-6">
+            <Tabs
+                aria-label="Tabs"
+                color="primary"
+                radius="lg"
+                size="lg"
+                classNames={{
+                    tabList: 'p-1.5 bg-lightAccent',
+                    tabContent: 'text-[15px]',
+                }}
+            >
+                <Tab key="all" title="All licenses" />
+                <Tab key="assigned" title="Assigned" />
+                <Tab key="unassigned" title="Unassigned" />
+            </Tabs>
+
             {array.slice(4, 5).map((item) => (
                 <div
                     key={item.id}
@@ -169,8 +185,8 @@ function Licenses() {
                                                 <RiLink className="pr-0.5 text-[22px] text-slate-500" />
 
                                                 <div className="flex flex-col">
-                                                    <div className="font-medium text-body">Link</div>
-                                                    <div className="text-xs text-slate-500">Assign license to a node</div>
+                                                    <div className="font-medium text-body">Assign</div>
+                                                    <div className="text-xs text-slate-500">Link license to a node</div>
                                                 </div>
                                             </div>
                                         </DropdownItem>
@@ -180,7 +196,7 @@ function Licenses() {
                                                 <RiLinkUnlink className="pr-0.5 text-[22px] text-slate-500" />
 
                                                 <div className="flex flex-col">
-                                                    <div className="font-medium text-body">Unlink</div>
+                                                    <div className="font-medium text-body">Unassign</div>
                                                     <div className="text-xs text-slate-500">Remove license from node</div>
                                                 </div>
                                             </div>
@@ -216,7 +232,7 @@ function Licenses() {
                                         <div className="col relative z-10 gap-4 rounded-3xl bg-[#3f67bf] px-6 py-5">
                                             <div className="flex justify-between gap-20 border-b-2 border-white/15 pb-4">
                                                 <div className="row gap-2">
-                                                    <img src={Logo} alt="Logo" className="h-7 brightness-1000 filter" />
+                                                    <img src={Logo} alt="Logo" className="brightness-1000 h-7 filter" />
                                                     <div className="font-medium text-white">Rewards Summary</div>
                                                 </div>
 
@@ -226,21 +242,21 @@ function Licenses() {
                                             </div>
 
                                             <div className="flex">
-                                                <div className="flex-1">
+                                                <div className="flex-2">
                                                     <div className="col gap-2 text-white">
                                                         <div className="row justify-between">
-                                                            <div className="text-sm text-white/85">Availability</div>
-                                                            <div className="w-[50%] text-sm font-medium text-white">26.08</div>
+                                                            <div className="text-sm text-white/85">Proof of Availability</div>
+                                                            <div className="w-[42%] text-sm font-medium text-white">46.38</div>
                                                         </div>
 
                                                         <div className="row justify-between">
-                                                            <div className="text-sm text-white/85">Usage</div>
-                                                            <div className="w-[50%] text-sm font-medium">20.3</div>
+                                                            <div className="text-sm text-white/85">Proof of AI</div>
+                                                            <div className="w-[42%] text-sm font-medium">0</div>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="flex flex-1 flex-col">
+                                                <div className="flex flex-1 flex-col text-right">
                                                     <div className="text-sm font-medium text-white/85">Total amount</div>
                                                     <div className="text-2xl font-semibold text-white">46.38</div>
                                                 </div>
@@ -257,7 +273,7 @@ function Licenses() {
                                     </div>
 
                                     <div className="flex gap-10">
-                                        <div className="col gap-3 border-l-2 border-slate-200 pl-10">
+                                        <div className="col gap-2.5 border-l-2 border-slate-200 pl-10">
                                             <div className="flex items-center gap-2.5">
                                                 <div className="rounded-full bg-teal-100 p-1.5 text-teal-600">
                                                     <RiTimeLine className="text-2xl" />
@@ -269,7 +285,7 @@ function Licenses() {
                                             <div className="text-center text-xl font-medium">16.2h</div>
                                         </div>
 
-                                        <div className="col gap-3 border-l-2 border-slate-200 pl-10">
+                                        <div className="col gap-2.5 border-l-2 border-slate-200 pl-10">
                                             <div className="flex items-center gap-2.5">
                                                 <div className="rounded-full bg-purple-100 p-1.5 text-purple-600">
                                                     <RiTimeLine className="text-2xl" />
@@ -281,7 +297,7 @@ function Licenses() {
                                             <div className="text-center text-xl font-medium">14.1h</div>
                                         </div>
 
-                                        <div className="col gap-3 border-l-2 border-slate-200 pl-10">
+                                        <div className="col gap-2.5 border-l-2 border-slate-200 pl-10">
                                             <div className="flex items-center gap-2.5">
                                                 <div className="rounded-full bg-orange-100 p-1.5 text-orange-600">
                                                     <RiTimeLine className="text-2xl" />
@@ -410,8 +426,8 @@ function Licenses() {
                                                 <RiLink className="pr-0.5 text-[22px] text-slate-500" />
 
                                                 <div className="flex flex-col">
-                                                    <div className="font-medium text-body">Link</div>
-                                                    <div className="text-xs text-slate-500">Assign license to a node</div>
+                                                    <div className="font-medium text-body">Assign</div>
+                                                    <div className="text-xs text-slate-500">Link license to a node</div>
                                                 </div>
                                             </div>
                                         </DropdownItem>
@@ -421,7 +437,7 @@ function Licenses() {
                                                 <RiLinkUnlink className="pr-0.5 text-[22px] text-slate-500" />
 
                                                 <div className="flex flex-col">
-                                                    <div className="font-medium text-body">Unlink</div>
+                                                    <div className="font-medium text-body">Unassign</div>
                                                     <div className="text-xs text-slate-500">Remove license from node</div>
                                                 </div>
                                             </div>
