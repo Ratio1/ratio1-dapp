@@ -68,7 +68,7 @@ function Wallet() {
                                 <img src={Bear} alt="Bear" className="h-11 w-11 rounded-full" />
 
                                 <div className="flex flex-col gap-1">
-                                    <div className="font-medium leading-4 text-black">wzrdx.eth</div>
+                                    <div className="font-medium leading-4">wzrdx.eth</div>
                                     <div className="text-sm font-medium leading-4 text-slate-500">
                                         {getShortAddress('0x58fFB0F89e50DcC25Bc208757a63dDA06d30433A')}
                                     </div>
@@ -110,13 +110,13 @@ function Wallet() {
                                     <img src={Ethereum} alt="Ethereum" className="h-11 w-11 rounded-full" />
 
                                     <div className="flex flex-col gap-1">
-                                        <div className="font-medium leading-4 text-black">Ethereum</div>
+                                        <div className="font-medium leading-4">Ethereum</div>
                                         <div className="text-sm font-medium leading-4 text-slate-500">0.027 ETH</div>
                                     </div>
                                 </div>
 
                                 <div className="flex flex-col items-end gap-1">
-                                    <div className="font-medium leading-4 text-black">$92.74</div>
+                                    <div className="font-medium leading-4">$92.74</div>
 
                                     <div className="flex items-center gap-0.5">
                                         <div className="text-red-500">

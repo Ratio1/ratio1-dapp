@@ -19,15 +19,10 @@ export default {
                 4: '4 1 0%',
             },
             colors: {
-                body: '#0b0b47', //'#2e3038',
-                bodyLight: '#73798c',
-                bodyHover: '#9ba1ae',
-                darkAccent: '#283044',
-                whitesmoke: '#f5f5f5',
+                body: '#0b0b47',
+                light: '#fcfcfd',
                 lightAccent: '#F4F5FA',
                 primary: '#1b47f7',
-                light: '#fcfcfd',
-                softGray: '#f6f6f8',
             },
             boxShadow: {
                 'sm-light': '0px 3px 4px 0px #00000008',

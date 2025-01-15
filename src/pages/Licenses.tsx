@@ -3,7 +3,6 @@ import LicensesDashboard from '@components/LicensesDashboard';
 import { fN, getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
-import { Tab, Tabs } from '@nextui-org/tabs';
 import clsx from 'clsx';
 import { round } from 'lodash';
 import { useState } from 'react';
@@ -59,37 +58,6 @@ function Licenses() {
     return (
         <div className="flex flex-col gap-6">
             <LicensesDashboard />
-
-            <Tabs
-                aria-label="Tabs"
-                color="primary"
-                radius="lg"
-                size="lg"
-                classNames={{
-                    tabList: 'p-1.5 bg-lightAccent',
-                    tabContent: 'text-[15px]',
-                }}
-            >
-                <Tab key="all" title="All" />
-                <Tab
-                    key="assigned"
-                    title={
-                        <div className="row gap-2">
-                            <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                            Assigned
-                        </div>
-                    }
-                />
-                <Tab
-                    key="unassigned"
-                    title={
-                        <div className="row gap-2">
-                            <div className="h-2 w-2 rounded-full bg-red-500"></div>
-                            Unassigned
-                        </div>
-                    }
-                />
-            </Tabs>
 
             {array.slice(4, 5).map((item) => (
                 <div
@@ -252,7 +220,7 @@ function Licenses() {
                                             <div className="flex justify-between gap-20 border-b-2 border-white/15 pb-4">
                                                 <div className="row gap-2.5">
                                                     <img src={Logo} alt="Logo" className="brightness-1000 h-7 filter" />
-                                                    <div className="font-medium text-white">Rewards</div>
+                                                    <div className="text-lg font-medium text-white">Rewards</div>
                                                 </div>
 
                                                 <Button className="h-9" color="primary" size="sm" variant="faded">
