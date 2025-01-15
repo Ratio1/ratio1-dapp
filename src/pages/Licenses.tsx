@@ -58,6 +58,8 @@ function Licenses() {
 
     return (
         <div className="flex flex-col gap-6">
+            <LicensesDashboard />
+
             <Tabs
                 aria-label="Tabs"
                 color="primary"
@@ -68,12 +70,26 @@ function Licenses() {
                     tabContent: 'text-[15px]',
                 }}
             >
-                <Tab key="all" title="All licenses" />
-                <Tab key="assigned" title="Assigned" />
-                <Tab key="unassigned" title="Unassigned" />
+                <Tab key="all" title="All" />
+                <Tab
+                    key="assigned"
+                    title={
+                        <div className="row gap-2">
+                            <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                            Assigned
+                        </div>
+                    }
+                />
+                <Tab
+                    key="unassigned"
+                    title={
+                        <div className="row gap-2">
+                            <div className="h-2 w-2 rounded-full bg-red-500"></div>
+                            Unassigned
+                        </div>
+                    }
+                />
             </Tabs>
-
-            <LicensesDashboard />
 
             {array.slice(4, 5).map((item) => (
                 <div

@@ -62,12 +62,12 @@ export const Timer: FunctionComponent<
     return (
         <div className="font-robotoMono row justify-between gap-1.5 leading-6">
             {[
-                String(duration.hours).padStart(2, '0'),
-                String(duration.minutes).padStart(2, '0'),
-                String(duration.seconds).padStart(2, '0'),
+                String(duration.hours || 0).padStart(2, '0'),
+                String(duration.minutes || 0).padStart(2, '0'),
+                String(duration.seconds || 0).padStart(2, '0'),
             ].map((item, index) => (
                 <div key={index} className="col center-all min-w-[76px] gap-2 rounded-lg bg-primary-50 px-2 py-3 text-primary">
-                    <div className="text-[26px] leading-none tracking-tight">{item}</div>
+                    <div className="text-[24px] leading-none tracking-tight">{item}</div>
                     <div className="text-[13px] uppercase leading-none">{labels[index]}</div>
                 </div>
             ))}
