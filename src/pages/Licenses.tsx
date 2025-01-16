@@ -74,7 +74,7 @@ function Licenses() {
                     >
                         <div className="row">
                             <div className="row min-w-[550px] gap-3">
-                                {!!item.alias && <div className="min-w-[180px] font-medium">{item.alias}</div>}
+                                {!!item.alias && <div className="min-w-[184px] font-medium">{item.alias}</div>}
 
                                 <div className="flex min-w-[150px]">
                                     <div
@@ -202,18 +202,30 @@ function Licenses() {
                                         <div className="text-lg font-medium">Node information</div>
 
                                         <div className="row gap-3">
-                                            <div className="min-w-[180px] text-slate-500">Assign timestamp</div>
+                                            <div className="min-w-[184px] text-slate-500">Assign timestamp</div>
                                             <div>{new Date().toLocaleString()}</div>
                                         </div>
 
                                         <div className="row gap-3">
-                                            <div className="min-w-[180px] text-slate-500">Last claimed epoch</div>
-                                            <div>901</div>
+                                            <div className="min-w-[184px] text-slate-500">Last claimed epoch</div>
+                                            <div>920</div>
                                         </div>
 
                                         <div className="row gap-3">
-                                            <div className="min-w-[180px] text-slate-500">Claimable epochs</div>
-                                            <div className="font-medium text-primary">902-926</div>
+                                            <div className="min-w-[184px] text-slate-500">Claimable epochs</div>
+                                            <div className="font-medium text-primary">6</div>
+                                        </div>
+
+                                        <div className="pt-2 text-lg font-medium">Proof of Availability</div>
+
+                                        <div className="row gap-3">
+                                            <div className="min-w-[184px] text-slate-500">Initial amount</div>
+                                            <div>100k</div>
+                                        </div>
+
+                                        <div className="row gap-3">
+                                            <div className="min-w-[184px] text-slate-500">Remaining amount</div>
+                                            <div>97.6k</div>
                                         </div>
                                     </div>
 
@@ -221,67 +233,29 @@ function Licenses() {
                                         <div className="text-lg font-medium">Rewards</div>
 
                                         <div className="row gap-3">
-                                            <div className="min-w-[180px] text-slate-500">Total amount ($R1)</div>
+                                            <div className="min-w-[184px] text-slate-500">Total amount ($R1)</div>
                                             <div className="font-medium text-primary">46.38</div>
                                         </div>
 
-                                        <div className="text-lg font-medium">Summary</div>
+                                        <div className="pt-2 text-lg font-medium">Summary</div>
 
                                         <div className="row gap-3">
-                                            <div className="min-w-[180px] text-slate-500">Proof of Availability</div>
+                                            <div className="min-w-[184px] text-slate-500">Proof of Availability</div>
                                             <div>46.38</div>
                                         </div>
 
                                         <div className="row gap-3">
-                                            <div className="min-w-[180px] text-slate-500">Proof of AI</div>
+                                            <div className="min-w-[184px] text-slate-500">Proof of AI</div>
                                             <div>0</div>
                                         </div>
                                     </div>
-
-                                    {/* <div className="relative max-w-[42%] flex-1 rounded-3xl">
-                                        <div className="col relative z-10 gap-4 rounded-3xl bg-[#3f67bf] px-6 py-5">
-                                            <div className="flex justify-between gap-20 border-b-2 border-white/10 pb-4">
-                                                <div className="row gap-2.5">
-                                                    <img src={Logo} alt="Logo" className="brightness-1000 h-7 filter" />
-                                                    <div className="text-lg font-medium text-white">Rewards</div>
-                                                </div>
-
-                                                <Button className="h-9" color="primary" size="sm" variant="faded">
-                                                    <div className="text-sm">Claim</div>
-                                                </Button>
-                                            </div>
-
-                                            <div className="flex">
-                                                <div className="flex-2">
-                                                    <div className="col gap-2 text-white">
-                                                        <div className="row justify-between">
-                                                            <div className="text-sm text-white/85">Proof of Availability</div>
-                                                            <div className="w-[42%] text-sm font-medium text-white">46.38</div>
-                                                        </div>
-
-                                                        <div className="row justify-between">
-                                                            <div className="text-sm text-white/85">Proof of AI</div>
-                                                            <div className="w-[42%] text-sm font-medium">0</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex flex-1 flex-col text-right">
-                                                    <div className="text-sm font-medium text-white/85">Total amount</div>
-                                                    <div className="text-2xl font-semibold text-white">46.38</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="absolute -bottom-1 left-0 right-0 h-20 rounded-3xl bg-[#658bdc]"></div>
-                                    </div> */}
                                 </div>
 
                                 <div className="col gap-3">
                                     <div className="text-lg font-medium leading-none">Node performance</div>
 
                                     <div className="flex gap-3">
-                                        <div className="row h-10 min-w-[180px]">
+                                        <div className="row h-10 min-w-[184px]">
                                             <div className="text-slate-500">Uptime per epoch</div>
                                         </div>
 
@@ -336,7 +310,7 @@ function Licenses() {
                     <div className="row justify-between">
                         <div className="row">
                             <div className="row min-w-[550px] gap-3">
-                                {!!item.alias && <div className="min-w-[180px] font-medium">{item.alias}</div>}
+                                {!!item.alias && <div className="min-w-[184px] font-medium">{item.alias}</div>}
 
                                 <div className="flex min-w-[150px]">
                                     <div
