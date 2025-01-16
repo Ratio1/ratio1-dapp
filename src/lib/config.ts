@@ -7,6 +7,8 @@ export const queryClient = new QueryClient();
 
 export const projectId = '6fb791d3d18d57d28ae7677e4cff8c6e';
 
+export const genesisDate = new Date('2025-01-01');
+
 export const metadata = {
     name: 'Ratio1',
     description: 'Ratio1',

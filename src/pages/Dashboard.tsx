@@ -1,9 +1,11 @@
 import Buy from '@components/Buy';
 import Tiers from '@components/Tiers';
+import { genesisDate } from '@lib/config';
 import { useDisclosure } from '@lib/useDisclosure';
 import { Button } from '@nextui-org/button';
 import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
-import { RiArrowRightUpLine } from 'react-icons/ri';
+import { addDays, differenceInDays, formatDistanceToNow } from 'date-fns';
+import { RiArrowRightUpLine, RiTimeLine } from 'react-icons/ri';
 
 function Dashboard() {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -18,15 +20,6 @@ function Dashboard() {
 
                             <div className="flex items-center gap-2.5">
                                 <div className="text-[22px] font-semibold leading-6 text-primary">1287.45</div>
-
-                                {/* <div className="rounded-md bg-green-100 px-2 py-1 text-sm font-medium tracking-wider text-green-700">
-                                    <div className="flex items-center gap-1">
-                                        <div className="-ml-0.5 text-[18px]">
-                                            <RiArrowRightUpLine />
-                                        </div>
-                                        <div>2.15%</div>
-                                    </div>
-                                </div> */}
                             </div>
                         </div>
                     </div>
@@ -38,7 +31,7 @@ function Dashboard() {
                             <div className="flex items-center gap-2.5">
                                 <div className="text-[22px] font-semibold leading-6 text-primary">255.125</div>
 
-                                <div className="rounded-md bg-green-100 px-2 py-1 text-sm font-medium tracking-wider text-green-700">
+                                <div className="rounded-md bg-[#cff9de] px-2 py-1 text-sm font-medium tracking-wider text-green-700">
                                     <div className="flex items-center gap-1">
                                         <div className="-ml-0.5 text-[18px]">
                                             <RiArrowRightUpLine />
@@ -53,7 +46,25 @@ function Dashboard() {
                     <div className="flex flex-col gap-6 rounded-3xl bg-lightAccent px-10 py-10">
                         <div className="flex flex-col gap-3">
                             <div className="text-xl font-semibold leading-6">Current Epoch</div>
-                            <div className="text-[22px] font-semibold leading-6">926</div>
+
+                            <div className="flex items-center gap-2.5">
+                                <div className="text-[22px] font-semibold leading-6">
+                                    {differenceInDays(new Date(), genesisDate)}
+                                </div>
+
+                                <div className="rounded-md bg-orange-100 px-2 py-1 text-sm font-medium tracking-wider text-orange-600">
+                                    <div className="flex items-center gap-1">
+                                        <div className="text-[18px]">
+                                            <RiTimeLine />
+                                        </div>
+                                        <div>
+                                            {formatDistanceToNow(
+                                                addDays(genesisDate, 1 + differenceInDays(new Date(), genesisDate)),
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

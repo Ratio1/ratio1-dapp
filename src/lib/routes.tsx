@@ -1,6 +1,7 @@
 import Dashboard from '@pages/Dashboard';
 import Licenses from '@pages/Licenses';
 import Profile from '@pages/Profile';
+import TermsAndConditions from '@pages/T&C';
 import { RiCpuLine, RiFunctionLine, RiShieldUserLine } from 'react-icons/ri';
 
 export interface AppRoute {
@@ -29,6 +30,7 @@ export const routePath = {
     dashboard: '/dashboard',
     licenses: '/licenses-and-nodes',
     profileKyc: '/profile-and-kyc',
+    termsAndConditions: '/terms-and-conditions',
 };
 
 export const mainRoutesInfo = {
@@ -43,6 +45,10 @@ export const mainRoutesInfo = {
     [routePath.profileKyc]: {
         title: 'Profile & KYC',
         description: 'Manage your profile and KYC (Know Your Customer)',
+    },
+    [routePath.termsAndConditions]: {
+        title: 'Terms & Conditions',
+        description: 'Terms governing your use of our services',
     },
 };
 
@@ -61,5 +67,9 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
         path: routePath.profileKyc,
         page: Profile,
         icon: <RiShieldUserLine />,
+    },
+    {
+        path: routePath.termsAndConditions,
+        page: TermsAndConditions,
     },
 ];

@@ -4,12 +4,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function Navigation() {
     return (
-        <div className="flex w-full flex-col gap-3">
-            {routes.map((route, index) => (
-                <div key={index}>
-                    <Route route={route} />
-                </div>
-            ))}
+        <div className="flex w-full flex-col gap-2">
+            {routes
+                .filter((route) => !!route.icon)
+                .map((route, index) => (
+                    <div key={index}>
+                        <Route route={route} />
+                    </div>
+                ))}
         </div>
     );
 }
@@ -21,14 +23,14 @@ function Route({ route }: { route: SimpleRoute | ParentRoute }) {
     return (
         <div className="flex flex-col gap-2">
             <div
-                className={clsx('min-w-44 cursor-pointer rounded-lg px-4 py-2.5 transition-all hover:bg-[#e2eefb]', {
+                className={clsx('min-w-40 cursor-pointer rounded-lg px-3 py-2.5 transition-all hover:bg-[#e2eefb]', {
                     'bg-[#e2eefb] text-primary': location.pathname.includes(route.path),
                 })}
                 onClick={() => navigate(route.path)}
             >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5">
                     <div className="text-[22px]">{route.icon}</div>
-                    <div className="font-medium"> {mainRoutesInfo[route.path].title}</div>
+                    <div className="text-[15px] font-medium"> {mainRoutesInfo[route.path].title}</div>
                 </div>
             </div>
         </div>
