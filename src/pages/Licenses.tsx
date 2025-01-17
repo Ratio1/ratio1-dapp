@@ -1,4 +1,5 @@
 import LicensesHeader from '@components/LicensesHeader';
+import { isLicenseAssigned } from '@lib/utils';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { addHours } from 'date-fns';
 import { useState } from 'react';
@@ -56,7 +57,11 @@ function Licenses() {
 
             {licenses.map((license) => (
                 <div key={license.id}>
-                    <LicenseCard license={license} isExpanded={isExpanded} setExpanded={setExpanded} />
+                    <LicenseCard
+                        license={license}
+                        isExpanded={isLicenseAssigned(license) ? isExpanded : false}
+                        setExpanded={setExpanded}
+                    />
                 </div>
             ))}
         </div>
