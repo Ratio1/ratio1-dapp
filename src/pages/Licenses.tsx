@@ -1,18 +1,20 @@
 import LicensesHeader from '@components/LicensesHeader';
+import { LICENSE_CAP } from '@lib/config';
 import { fN, getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
 import clsx from 'clsx';
+import { addHours } from 'date-fns';
 import { round } from 'lodash';
 import { useState } from 'react';
 import { RiCpuLine, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine, RiWalletLine } from 'react-icons/ri';
-
-const LICENSE_CAP = 25000;
+import { AssignedLicense, UnassignedLicense } from 'types';
 
 const array = [
     {
         id: 1251,
         used: 4670,
+        cooldownTimestamp: addHours(new Date(), 12),
     },
     {
         id: 385,
@@ -51,6 +53,24 @@ const array = [
     },
 ];
 
+const unassignedLicenses: UnassignedLicense[] = [
+    {
+        id: 1251,
+        used: 4670,
+        cooldownTimestamp: addHours(new Date(), 12),
+    },
+];
+
+const assignedLicenses: AssignedLicense[] = [
+    {
+        id: 385,
+        alias: 'stefan-edge-node',
+        node_address: '0xbF57FEB86044aE9f7B6ED74874A6b1d60D64601b',
+        rewards: 256.1,
+        used: 2500,
+    },
+];
+
 function Licenses() {
     const [isExpanded, setExpanded] = useState<boolean>(true);
 
@@ -59,7 +79,7 @@ function Licenses() {
             <LicensesHeader />
 
             {/* Assigned */}
-            {array.slice(4, 5).map((item) => (
+            {assignedLicenses.map((item) => (
                 <div
                     key={item.id}
                     className="flex cursor-pointer flex-col overflow-hidden rounded-3xl border-3 border-lightAccent bg-lightAccent transition-all hover:border-[#e9ebf1]"
@@ -305,7 +325,7 @@ function Licenses() {
             ))}
 
             {/* Unassigned */}
-            {array.slice(0, 1).map((item) => (
+            {assignedLicenses.map((item) => (
                 <div key={item.id} className="flex flex-col gap-3 rounded-3xl bg-lightAccent px-8 py-7">
                     <div className="row justify-between">
                         <div className="row">

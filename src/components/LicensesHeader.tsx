@@ -1,4 +1,4 @@
-import Logo from '@assets/token.svg';
+import Logo from '@assets/token_white.svg';
 import { Button } from '@nextui-org/button';
 import { Tab, Tabs } from '@nextui-org/tabs';
 import { Timer } from '@shared/Timer';
@@ -14,7 +14,7 @@ function LicensesHeader() {
                 <div className="col relative z-10 h-full gap-6 rounded-3xl bg-[#3f67bf] px-8 py-7">
                     <div className="flex justify-between gap-20 border-b-2 border-white/10 pb-6">
                         <div className="row gap-2.5">
-                            <img src={Logo} alt="Logo" className="brightness-1000 h-7 filter" />
+                            <img src={Logo} alt="Logo" className="h-7 filter" />
                             <div className="text-lg font-medium text-white">Rewards</div>
                         </div>
 

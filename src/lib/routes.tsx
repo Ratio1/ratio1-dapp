@@ -3,7 +3,7 @@ import Licenses from '@pages/Licenses';
 import Profile from '@pages/Profile';
 import Search from '@pages/Search';
 import TermsAndConditions from '@pages/T&C';
-import { RiCpuLine, RiFunctionLine, RiSearchLine, RiShieldUserLine } from 'react-icons/ri';
+import { RiCpuLine, RiFileSearchLine, RiFunctionLine, RiShieldUserLine } from 'react-icons/ri';
 
 export interface AppRoute {
     path: string;
@@ -77,7 +77,7 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
     {
         path: routePath.search,
         page: Search,
-        icon: <RiSearchLine />,
+        icon: <RiFileSearchLine />,
     },
     {
         path: routePath.termsAndConditions,

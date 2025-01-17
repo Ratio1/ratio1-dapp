@@ -22,7 +22,7 @@ function Content() {
     }, [location]);
 
     return (
-        <div className="mx-auto flex max-w-6xl flex-col gap-12 px-10">
+        <div className="mx-auto flex h-full max-w-6xl flex-col gap-12 px-10">
             <div className="flex items-start justify-between">
                 <div className="flex flex-col gap-3">
                     <div className="text-[36px] font-bold leading-9">{title}</div>

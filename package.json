@@ -10,9 +10,6 @@
         "preview": "vite preview"
     },
     "dependencies": {
-        "@heroui/spinner": "^2.2.6",
-        "@heroui/system": "^2.4.6",
-        "@heroui/theme": "^2.4.5",
         "@nextui-org/alert": "^2.2.9",
         "@nextui-org/breadcrumbs": "^2.2.5",
         "@nextui-org/button": "^2.2.8",
@@ -23,6 +20,7 @@
         "@nextui-org/input": "^2.4.8",
         "@nextui-org/progress": "^2.2.5",
         "@nextui-org/select": "^2.4.8",
+        "@nextui-org/spinner": "^2.2.6",
         "@nextui-org/switch": "^2.2.8",
         "@nextui-org/system": "^2.4.5",
         "@nextui-org/tabs": "^2.2.7",

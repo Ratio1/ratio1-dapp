@@ -63,3 +63,5 @@ export const siweConfig = createSIWEConfig({
         console.log('onSignIn');
     },
 });
+
+export const LICENSE_CAP = 25000;
