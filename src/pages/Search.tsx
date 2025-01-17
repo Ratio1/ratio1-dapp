@@ -1,11 +1,12 @@
 import Empty from '@assets/empty.png';
 import { Input } from '@nextui-org/input';
 import { Spinner } from '@nextui-org/spinner';
-import { LicenseCard } from '@shared/LicenseCard';
+import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { useState } from 'react';
 import { RiSearchLine } from 'react-icons/ri';
+import { AssignedLicense } from 'types';
 
-const LICENSE = {
+const LICENSE: AssignedLicense = {
     id: 5564,
     alias: 'naeural_396c2f29',
     node_address: '0x71c4255E9ACa4E1Eb41167056F2f9dCC6DbBB58a',
@@ -21,7 +22,10 @@ function Search() {
 
     const onSearch = () => {
         setLoading(true);
-        console.log('onSearch');
+
+        const sanitizedNumber = value.replace('License', '').replace('Licence', '').replace('#', '').trim();
+
+        console.log('sanitized', sanitizedNumber);
 
         setTimeout(() => {
             setLoading(false);
@@ -74,7 +78,7 @@ function Search() {
                     <img src={Empty} alt="Empty" className="h-28" />
                 </div>
             ) : (
-                <LicenseCard isExpanded />
+                <LicenseCard license={LICENSE} isExpanded disableActions />
             )}
         </div>
     );

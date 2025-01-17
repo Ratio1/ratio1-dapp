@@ -49,7 +49,7 @@ export const mainRoutesInfo = {
         description: 'Manage your profile and KYC (Know Your Customer)',
     },
     [routePath.search]: {
-        title: 'Search',
+        title: 'License Checker',
         description: 'Find detailed information about any license',
     },
     [routePath.termsAndConditions]: {

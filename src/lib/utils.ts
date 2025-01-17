@@ -1,3 +1,5 @@
+import { AssignedLicense, UnassignedLicense } from 'types';
+
 export const getShortAddress = (address: string, size = 4) => `${address.slice(0, size)}...${address.slice(-size)}`;
 
 export function fN(num: number): string {
@@ -7,3 +9,7 @@ export function fN(num: number): string {
     }
     return num.toString();
 }
+
+export const isLicenseAssigned = (obj: UnassignedLicense | AssignedLicense): obj is AssignedLicense => {
+    return 'alias' in obj && 'node_address' in obj;
+};
