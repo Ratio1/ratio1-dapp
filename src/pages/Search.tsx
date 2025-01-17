@@ -2,8 +2,9 @@ import Empty from '@assets/empty.png';
 import { Input } from '@nextui-org/input';
 import { Spinner } from '@nextui-org/spinner';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { RiSearchLine } from 'react-icons/ri';
+import { useSearchParams } from 'react-router-dom';
 import { AssignedLicense } from 'types';
 
 const LICENSE: AssignedLicense = {
@@ -20,12 +21,30 @@ function Search() {
 
     const [result, setResult] = useState<any>();
 
-    const onSearch = () => {
-        setLoading(true);
+    const [searchParams, setSearchParams] = useSearchParams();
 
+    const licenseId = searchParams.get('licenseId');
+
+    useEffect(() => {
+        if (licenseId) {
+            setValue(licenseId);
+            onSearch();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [licenseId]);
+
+    const onSearch = () => {
         const sanitizedNumber = value.replace('License', '').replace('Licence', '').replace('#', '').trim();
 
+        if (!sanitizedNumber) {
+            return;
+        }
+
         console.log('sanitized', sanitizedNumber);
+
+        setLoading(true);
+
+        setSearchParams({ licenseId: sanitizedNumber });
 
         setTimeout(() => {
             setLoading(false);
