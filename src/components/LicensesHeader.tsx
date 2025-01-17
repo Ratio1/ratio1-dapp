@@ -83,7 +83,7 @@ function LicensesHeader() {
                             </div>
 
                             <div className="row gap-3">
-                                <div className="text-lg font-medium text-white">Next rewards in</div>
+                                <div className="font-medium text-white">Next rewards in</div>
                                 <Timer
                                     timestamp={timestamp}
                                     callback={() => {
