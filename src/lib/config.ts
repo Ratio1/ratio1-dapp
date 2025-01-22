@@ -3,6 +3,9 @@ import { SIWECreateMessageArgs, SIWEVerifyMessageArgs, createSIWEConfig, formatM
 import { arbitrum, mainnet, sepolia } from '@reown/appkit/networks';
 import { QueryClient } from '@tanstack/react-query';
 
+export const contractAddress = '0x799319c30eCdA0fA9E678FbA217047f03E92527F';
+export const explorerUrl = 'https://sepolia.etherscan.io';
+
 export const queryClient = new QueryClient();
 
 export const projectId = '6fb791d3d18d57d28ae7677e4cff8c6e';

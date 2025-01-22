@@ -30,7 +30,6 @@ function Search() {
             setValue(licenseId);
             onSearch();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [licenseId]);
 
     const onSearch = () => {
@@ -93,7 +92,7 @@ function Search() {
             </div>
 
             {!result ? (
-                <div className="center-all col h-full gap-1.5">
+                <div className="center-all col gap-1.5 p-8">
                     <img src={Empty} alt="Empty" className="h-28" />
                     <div className="text-sm text-slate-400">Search for a license</div>
                 </div>

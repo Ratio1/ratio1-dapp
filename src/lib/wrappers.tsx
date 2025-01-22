@@ -3,6 +3,7 @@ import { NextUIProvider } from '@nextui-org/system';
 import { arbitrum, mainnet, sepolia } from '@reown/appkit/networks';
 import { createAppKit } from '@reown/appkit/react';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
 import { BrowserRouter } from 'react-router-dom';
 import { WagmiProvider } from 'wagmi';
 import { AuthenticationProvider } from './authentication';
@@ -38,6 +39,15 @@ export function Wrappers({ children }: { children: React.ReactNode }) {
                 <QueryClientProvider client={queryClient}>
                     <NextUIProvider>
                         <AuthenticationProvider>{children}</AuthenticationProvider>
+                        <Toaster
+                            position="bottom-right"
+                            containerStyle={{
+                                top: 40,
+                                left: 40,
+                                bottom: 40,
+                                right: 40,
+                            }}
+                        />
                     </NextUIProvider>
                 </QueryClientProvider>
             </WagmiProvider>
