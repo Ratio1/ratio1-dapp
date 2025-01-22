@@ -13,3 +13,21 @@ export function fN(num: number): string {
 export const isLicenseAssigned = (obj: UnassignedLicense | AssignedLicense): obj is AssignedLicense => {
     return 'alias' in obj && 'node_address' in obj;
 };
+
+// export const watchTx = async (txHash: string, publicClient) => {
+//     const waitForTx = async (): Promise<TransactionReceipt> => {
+//         try {
+//             const receipt: TransactionReceipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+//             if (receipt.status === 'success') {
+//                 console.log('Transaction confirmed successfully!', receipt);
+//                 return receipt;
+//             } else {
+//                 throw new Error('Transaction failed, please try again.');
+//             }
+//         } catch (error: any) {
+//             console.error(error.message || error);
+//             throw error;
+//         }
+//     };
+// };

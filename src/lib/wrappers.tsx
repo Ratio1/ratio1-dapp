@@ -7,6 +7,7 @@ import { Toaster } from 'react-hot-toast';
 import { BrowserRouter } from 'react-router-dom';
 import { WagmiProvider } from 'wagmi';
 import { AuthenticationProvider } from './authentication';
+import { GeneralProvider } from './general';
 
 createAppKit({
     adapters: [wagmiAdapter],
@@ -38,7 +39,9 @@ export function Wrappers({ children }: { children: React.ReactNode }) {
             <WagmiProvider config={wagmiAdapter.wagmiConfig}>
                 <QueryClientProvider client={queryClient}>
                     <NextUIProvider>
-                        <AuthenticationProvider>{children}</AuthenticationProvider>
+                        <AuthenticationProvider>
+                            <GeneralProvider>{children}</GeneralProvider>
+                        </AuthenticationProvider>
                         <Toaster
                             position="bottom-right"
                             containerStyle={{

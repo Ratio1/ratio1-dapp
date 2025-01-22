@@ -1,59 +1,28 @@
 import Logo from '@assets/token_white.svg';
 import abi from '@blockchain/abi.json';
-import { contractAddress, explorerUrl, genesisDate } from '@lib/config';
+import { contractAddress, genesisDate } from '@lib/config';
+import { GeneralContextType, useGeneralContext } from '@lib/general';
 import { Button } from '@nextui-org/button';
 import { Tab, Tabs } from '@nextui-org/tabs';
 import { Timer } from '@shared/Timer';
 import { addDays, differenceInDays } from 'date-fns';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiExternalLinkLine } from 'react-icons/ri';
-import { Link } from 'react-router-dom';
-import { TransactionReceipt } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
 function LicensesHeader({ onFilterChange }) {
+    const { watchTx } = useGeneralContext() as GeneralContextType;
+
     const [timestamp] = useState<Date>(addDays(genesisDate, 1 + differenceInDays(new Date(), genesisDate)));
     const [isLoading, setLoading] = useState<boolean>(false);
 
     const publicClient = usePublicClient();
     const { data: walletClient } = useWalletClient();
 
-    const debug = () => {
-        toast.success('Successfully toasted!');
-    };
-
-    const onClaimAll = () => {
-        console.log('onClaimAll');
-
-        toast.promise(claimAll(), {
-            loading: 'Transaction loading...',
-            success: (receipt) => (
-                <div className="col gap-0.5">
-                    <div className="font-medium">Transaction confirmed</div>
-                    <div className="row gap-1">
-                        <div className="text-slate-500">View transaction details</div>
-                        <Link to={`${explorerUrl}/tx/${receipt.transactionHash}`} target="_blank" className="text-primary">
-                            <RiExternalLinkLine />
-                        </Link>
-                    </div>
-                </div>
-            ),
-            error: <div>Transaction failed, please try again.</div>,
-        });
-    };
-
     const claimAll = async () => {
-        console.log('claimAll');
-
-        if (!walletClient) {
-            console.error('No wallet client found');
-            throw new Error('No wallet client found');
-        }
-
-        if (!publicClient) {
-            console.error('No public client found');
-            throw new Error('No public client found');
+        if (!walletClient || !publicClient) {
+            toast.error('Unexpected error, please try again.');
+            return;
         }
 
         try {
@@ -63,24 +32,18 @@ function LicensesHeader({ onFilterChange }) {
                 address: contractAddress,
                 abi,
                 functionName: 'store',
-                args: [26],
+                args: [27],
             });
 
             console.log(`Transaction sent! Hash: ${txHash}`);
 
-            const receipt: TransactionReceipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+            await watchTx(txHash, publicClient);
 
-            if (receipt.status === 'success') {
-                console.log('Transaction confirmed successfully!', receipt);
-                setLoading(false);
-                return receipt;
-            } else {
-                throw new Error('Transaction failed, please try again.');
-            }
+            console.log('Finished watching transaction.');
         } catch (err: any) {
             console.error(err.message || 'An error occurred');
+        } finally {
             setLoading(false);
-            throw err;
         }
     };
 
@@ -94,17 +57,13 @@ function LicensesHeader({ onFilterChange }) {
                             <div className="text-lg font-medium text-white">Rewards</div>
                         </div>
 
-                        <Button className="h-9" color="primary" size="sm" variant="faded" onPress={debug}>
-                            <div className="text-sm">Debug</div>
-                        </Button>
-
                         <Button
                             className="h-9"
                             color="primary"
                             size="sm"
                             variant="faded"
                             isLoading={isLoading}
-                            onPress={onClaimAll}
+                            onPress={claimAll}
                         >
                             <div className="text-sm">Claim all</div>
                         </Button>

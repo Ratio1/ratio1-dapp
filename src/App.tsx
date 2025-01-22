@@ -1,11 +1,8 @@
 import Layout from '@components/Layout';
-import { AuthenticationContextType, useAuthenticationContext } from '@lib/authentication';
 import { isParentRoute, isSimpleRoute, routePath, routes } from '@lib/routes';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 function App() {
-    const { authenticated, setAuthenticated } = useAuthenticationContext() as AuthenticationContextType;
-
     return (
         <Routes>
             <Route path={routePath.root} element={<Layout />}>
