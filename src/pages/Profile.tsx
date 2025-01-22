@@ -1,12 +1,26 @@
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Input } from '@nextui-org/input';
+import { Modal, ModalBody, ModalContent, useDisclosure } from '@nextui-org/modal';
 import { Switch } from '@nextui-org/switch';
 import { useState } from 'react';
-import { RiMailLine, RiNewsLine, RiUserFollowLine } from 'react-icons/ri';
+import { RiMailLine, RiMailSendLine, RiNewsLine, RiUserFollowLine } from 'react-icons/ri';
 
 function Profile() {
     const [email, setEmail] = useState<string>('');
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+    const [isLoading, setLoading] = useState<boolean>(false);
+
+    const onRegister = () => {
+        console.log('onRegister');
+        setLoading(true);
+
+        setTimeout(() => {
+            setLoading(false);
+            onOpen();
+        }, 500);
+    };
 
     return (
         <div className="flex w-full flex-col gap-6">
@@ -43,9 +57,11 @@ function Profile() {
                             placeholder="Email"
                         />
 
-                        <Button color="primary" className="rounded-lg">
-                            <div className="text-sm font-medium">Register</div>
-                        </Button>
+                        <div className="flex">
+                            <Button color="primary" className="rounded-lg" isLoading={isLoading} onPress={onRegister}>
+                                <div className="text-sm font-medium">Register</div>
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
@@ -95,6 +111,43 @@ function Profile() {
                     </div>
                 </div>
             </div>
+
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                backdrop="blur"
+                size="lg"
+                // classNames={{
+                //     body: 'p-0',
+                // }}
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalBody>
+                                <div className="col gap-6 px-4 py-10">
+                                    <div className="center-all">
+                                        <div className="center-all rounded-full bg-primary-50 p-6">
+                                            <RiMailSendLine className="text-4xl text-primary-300" />
+                                        </div>
+                                    </div>
+
+                                    <div className="col gap-2 text-center">
+                                        <div className="text-lg font-semibold uppercase tracking-wider text-primary-800">
+                                            Email Confirmation
+                                        </div>
+
+                                        <div className="leading-5 text-slate-400">
+                                            We've sent a confirmation email to <span className="text-primary">{email}</span>.
+                                            Please follow the link inside the email to confirm your address.
+                                        </div>
+                                    </div>
+                                </div>
+                            </ModalBody>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
         </div>
     );
 }
