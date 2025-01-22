@@ -1,3 +1,4 @@
+import Favicon from '@assets/favicon.png';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 import { SIWECreateMessageArgs, SIWEVerifyMessageArgs, createSIWEConfig, formatMessage } from '@reown/appkit-siwe';
 import { arbitrum, mainnet, sepolia } from '@reown/appkit/networks';
@@ -14,9 +15,10 @@ export const genesisDate = new Date('2025-01-01T00:00:00.000Z');
 
 export const metadata = {
     name: 'Ratio1',
-    description: 'Ratio1',
-    url: 'https://example.com', // Origin must match your domain & subdomain
-    icons: ['https://avatars.githubusercontent.com/u/179229932'],
+    description:
+        'Experience the power of Ratio1 AI OS, built on Ratio1 Protocol and powered by blockchain, democratizing AI to empower limitless innovation.',
+    url: 'https://app.ratio1.ai',
+    icons: [Favicon],
 };
 
 export const wagmiAdapter = new WagmiAdapter({

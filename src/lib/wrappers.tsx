@@ -25,7 +25,7 @@ createAppKit({
     siweConfig,
     enableWalletConnect: false,
     allWallets: 'HIDE',
-    termsConditionsUrl: 'https://www.mytermsandconditions.com',
+    termsConditionsUrl: 'https://ratio1.ai/terms-and-conditions',
     themeMode: 'light',
     themeVariables: {
         '--w3m-font-family': 'Mona Sans',
