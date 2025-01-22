@@ -36,9 +36,9 @@ export const GeneralProvider = ({ children }) => {
             {
                 loading: 'Transaction loading...',
                 success: (receipt) => (
-                    <div className="col gap-0.5">
+                    <div className="col">
                         <div className="font-medium">Transaction confirmed</div>
-                        <div className="row text-sm">
+                        <div className="row gap-1 text-sm">
                             <div className="text-slate-500">View transaction details</div>
                             <Link to={`${explorerUrl}/tx/${receipt.transactionHash}`} target="_blank" className="text-primary">
                                 <RiExternalLinkLine className="text-lg" />

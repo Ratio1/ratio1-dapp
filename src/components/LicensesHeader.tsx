@@ -47,6 +47,10 @@ function LicensesHeader({ onFilterChange }) {
         }
     };
 
+    const debug = () => {
+        toast.loading('Successfully toasted!');
+    };
+
     return (
         <div className="flex gap-6">
             <div className="relative w-full rounded-3xl">
@@ -56,6 +60,10 @@ function LicensesHeader({ onFilterChange }) {
                             <img src={Logo} alt="Logo" className="h-7 filter" />
                             <div className="text-lg font-medium text-white">Rewards</div>
                         </div>
+
+                        {/* <Button className="h-9" color="primary" size="sm" variant="faded" onPress={debug}>
+                            <div className="text-sm">Debug</div>
+                        </Button> */}
 
                         <Button
                             className="h-9"
