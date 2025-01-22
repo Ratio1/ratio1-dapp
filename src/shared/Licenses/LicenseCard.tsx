@@ -7,12 +7,12 @@ import { LicenseCardHeader } from './LicenseCardHeader';
 export const LicenseCard = ({
     license,
     isExpanded,
-    setExpanded,
+    toggle,
     disableActions,
 }: {
     license: UnassignedLicense | AssignedLicense;
     isExpanded: boolean;
-    setExpanded?: React.Dispatch<React.SetStateAction<boolean>>;
+    toggle?: (id: number) => void;
     disableActions?: boolean;
 }) => {
     return (
@@ -24,8 +24,8 @@ export const LicenseCard = ({
                 },
             )}
             onClick={() => {
-                if (isLicenseAssigned(license) && setExpanded) {
-                    setExpanded(!isExpanded);
+                if (isLicenseAssigned(license) && toggle) {
+                    toggle(license.id);
                 }
             }}
         >

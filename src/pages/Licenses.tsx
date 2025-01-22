@@ -2,10 +2,10 @@ import LicensesHeader from '@components/LicensesHeader';
 import { isLicenseAssigned } from '@lib/utils';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { addHours } from 'date-fns';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { AssignedLicense, UnassignedLicense } from 'types';
 
-const licenses: Array<UnassignedLicense | AssignedLicense> = [
+const LICENSES: Array<UnassignedLicense | AssignedLicense> = [
     {
         id: 385,
         alias: 'stefan-edge-node',
@@ -27,20 +27,6 @@ const licenses: Array<UnassignedLicense | AssignedLicense> = [
         rewards: 205,
         used: 575,
     },
-    // {
-    //     id: 682,
-    //     alias: 'aidmob-wsl',
-    //     node_address: '0x795Fdb7cF8bFD17625998e7Ec7b3276ED79aEE25',
-    //     rewards: 46.38,
-    //     used: 17802,
-    // },
-    // {
-    //     id: 5839,
-    //     alias: 'bleo_core',
-    //     node_address: '0x4D599d9584794E27A16e34bEA28750f5eA804Ad6',
-    //     rewards: 8.52,
-    //     used: 8102,
-    // },
     {
         id: 1251,
         used: 4670,
@@ -49,18 +35,51 @@ const licenses: Array<UnassignedLicense | AssignedLicense> = [
 ];
 
 function Licenses() {
-    const [isExpanded, setExpanded] = useState<boolean>(true);
+    const [licenses, setLicenses] = useState<Array<UnassignedLicense | AssignedLicense>>(LICENSES);
+    const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+
+    const onLicenseExpand = (id: number) => {
+        setLicenses((prevLicenses) =>
+            prevLicenses.map((license) =>
+                license.id === id
+                    ? {
+                          ...license,
+                          isExpanded: !license.isExpanded,
+                      }
+                    : license,
+            ),
+        );
+
+        setTimeout(() => {
+            const cardRef = cardRefs.current.get(id);
+            if (cardRef) {
+                cardRef.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                });
+            }
+        }, 0);
+    };
 
     return (
-        <div className="flex flex-col gap-6">
-            <LicensesHeader />
+        <div className="flex flex-col gap-3">
+            <div className="mb-3">
+                <LicensesHeader />
+            </div>
 
             {licenses.map((license) => (
-                <div key={license.id}>
+                <div
+                    key={license.id}
+                    ref={(element) => {
+                        if (element) {
+                            cardRefs.current.set(license.id, element);
+                        }
+                    }}
+                >
                     <LicenseCard
                         license={license}
-                        isExpanded={isLicenseAssigned(license) ? isExpanded : false}
-                        setExpanded={setExpanded}
+                        isExpanded={isLicenseAssigned(license) ? !!license.isExpanded : false}
+                        toggle={onLicenseExpand}
                     />
                 </div>
             ))}

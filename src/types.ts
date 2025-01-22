@@ -1,6 +1,7 @@
 interface License {
     readonly id: number;
     used: number;
+    isExpanded?: boolean;
 }
 
 interface UnassignedLicense extends License {
