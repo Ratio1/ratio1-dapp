@@ -1,12 +1,13 @@
 import Logo from '@assets/token_white.svg';
+import { genesisDate } from '@lib/config';
 import { Button } from '@nextui-org/button';
 import { Tab, Tabs } from '@nextui-org/tabs';
 import { Timer } from '@shared/Timer';
-import { add } from 'date-fns';
+import { addDays, differenceInDays } from 'date-fns';
 import { useState } from 'react';
 
-function LicensesHeader() {
-    const [timestamp, setTimestamp] = useState<Date>(add(new Date(), { hours: 14, minutes: 30 }));
+function LicensesHeader({ onFilterChange }) {
+    const [timestamp] = useState<Date>(addDays(genesisDate, 1 + differenceInDays(new Date(), genesisDate)));
 
     return (
         <div className="flex gap-6">
@@ -58,6 +59,9 @@ function LicensesHeader() {
                                     classNames={{
                                         tabList: 'p-1.5 bg-[#345aad]',
                                         tabContent: 'text-[15px] text-white',
+                                    }}
+                                    onSelectionChange={(key) => {
+                                        onFilterChange(key);
                                     }}
                                 >
                                     <Tab key="all" title="All" />

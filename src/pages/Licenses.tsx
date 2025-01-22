@@ -35,7 +35,7 @@ const LICENSES: Array<UnassignedLicense | AssignedLicense> = [
 ];
 
 function Licenses() {
-    const [licenses, setLicenses] = useState<Array<UnassignedLicense | AssignedLicense>>(LICENSES);
+    const [licenses, setLicenses] = useState<Array<UnassignedLicense | AssignedLicense>>([]);
     const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
     const onLicenseExpand = (id: number) => {
@@ -61,10 +61,25 @@ function Licenses() {
         }, 0);
     };
 
+    const onFilterChange = (key: 'all' | 'assigned' | 'unassigned') => {
+        switch (key) {
+            case 'assigned':
+                setLicenses(LICENSES.filter(isLicenseAssigned));
+                break;
+
+            case 'unassigned':
+                setLicenses(LICENSES.filter((license) => !isLicenseAssigned(license)));
+                break;
+
+            default:
+                setLicenses(LICENSES);
+        }
+    };
+
     return (
         <div className="flex flex-col gap-3">
             <div className="mb-3">
-                <LicensesHeader />
+                <LicensesHeader onFilterChange={onFilterChange} />
             </div>
 
             {licenses.map((license) => (
