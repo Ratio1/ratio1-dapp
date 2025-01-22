@@ -39,18 +39,18 @@ function EmailConfirmation() {
                 <div className="col mt-6 w-[50%] gap-2">
                     <div className="row relative justify-between">
                         <div className="col center-all z-10 w-[150px] gap-4">
-                            <div className="center-all outline-6 h-14 w-14 outline outline-[#fcfcfd]">
+                            <div className="center-all outline-6 h-12 w-12 outline outline-[#fcfcfd]">
                                 <div className="center-all h-full w-full rounded-full bg-primary">
-                                    <RiCheckLine className="text-4xl text-white" />
+                                    <RiCheckLine className="text-3xl text-white" />
                                 </div>
                             </div>
 
                             <div className="font-medium text-primary-800">Email Confirmed</div>
                         </div>
                         <div className="col center-all z-10 w-[150px] gap-4">
-                            <div className="center-all outline-6 h-14 w-14 rounded-full bg-primary p-[3px] outline outline-[#fcfcfd]">
+                            <div className="center-all outline-6 h-12 w-12 rounded-full bg-primary p-[2.5px] outline outline-[#fcfcfd]">
                                 <div className="center-all h-full w-full rounded-full bg-[#fcfcfd]">
-                                    <RiShieldCheckLine className="text-4xl text-primary" />
+                                    <RiShieldCheckLine className="text-3xl text-primary" />
                                 </div>
                             </div>
 
@@ -58,23 +58,23 @@ function EmailConfirmation() {
                         </div>
 
                         <div className="col center-all z-10 w-[150px] gap-4">
-                            <div className="center-all outline-6 h-14 w-14 rounded-full bg-primary p-[3px] outline outline-[#fcfcfd]">
+                            <div className="center-all outline-6 h-12 w-12 rounded-full bg-primary p-[2.5px] outline outline-[#fcfcfd]">
                                 <div className="center-all h-full w-full rounded-full bg-[#fcfcfd]">
-                                    <RiCpuLine className="text-4xl text-primary" />
+                                    <RiCpuLine className="text-3xl text-primary" />
                                 </div>
                             </div>
 
                             <div className="font-medium text-primary-800">Buy License</div>
                         </div>
 
-                        <div className="absolute left-[75px] right-[75px] top-7 h-[3px] bg-primary"></div>
+                        <div className="absolute left-[75px] right-[75px] top-6 h-[2.5px] bg-primary"></div>
                     </div>
                 </div>
 
-                <div className="mt-6">
+                <div className="mt-4">
                     <Link to={routePath.profileKyc}>
-                        <Button color="primary" size="lg" variant="flat">
-                            Go to KYC
+                        <Button color="primary" size="md" variant="solid">
+                            <div className="text-base font-medium">Go to KYC</div>
                         </Button>
                     </Link>
                 </div>
