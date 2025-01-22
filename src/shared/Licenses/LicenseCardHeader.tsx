@@ -50,7 +50,7 @@ export const LicenseCardHeader = ({
                         <div className="rounded-full bg-red-100 px-3 py-2 text-sm font-medium text-red-600">
                             <div className="row gap-1">
                                 <RiTimeLine className="text-base" />
-                                <div>Useable after {license.cooldownTimestamp.toLocaleString()}</div>
+                                <div>Linkable after {license.cooldownTimestamp.toLocaleString()}</div>
                             </div>
                         </div>
                     )}
