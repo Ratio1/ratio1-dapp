@@ -53,3 +53,7 @@ button {
     font-weight: 500 !important;
     letter-spacing: 0 !important;
 }
+
+ul {
+    list-style: inside;
+}

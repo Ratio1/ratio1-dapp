@@ -18,20 +18,47 @@ function Sider() {
                 <Navigation />
             </div>
 
-            <Link to={routePath.termsAndConditions}>
-                <div
-                    className={clsx('cursor-pointer rounded-lg bg-[#e8ebf6] px-3 py-2.5 transition-all hover:bg-[#e2eefb]', {
-                        'bg-[#e2eefb] text-primary': location.pathname.includes(routePath.termsAndConditions),
-                    })}
-                >
-                    <div className="flex items-center gap-2.5">
-                        <div className="text-[22px]">
-                            <RiFileList3Line />
+            <div className="col gap-2.5">
+                <div className="center-all">
+                    <Link to={routePath.privacyPolicy}>
+                        <div
+                            className={clsx(
+                                'cursor-pointer rounded-lg bg-[#e8ebf6] px-3.5 py-2.5 transition-all hover:bg-[#e2eefb]',
+                                {
+                                    'bg-[#e2eefb] text-primary': location.pathname.includes(routePath.privacyPolicy),
+                                },
+                            )}
+                        >
+                            <div className="flex items-center gap-2.5">
+                                <div className="text-[22px]">
+                                    <RiFileList3Line />
+                                </div>
+                                <div className="text-[15px] font-medium">Privacy Policy</div>
+                            </div>
                         </div>
-                        <div className="text-[15px] font-medium">Terms & Conditions</div>
-                    </div>
+                    </Link>
                 </div>
-            </Link>
+
+                <div className="center-all">
+                    <Link to={routePath.termsAndConditions}>
+                        <div
+                            className={clsx(
+                                'cursor-pointer rounded-lg bg-[#e8ebf6] px-3.5 py-2.5 transition-all hover:bg-[#e2eefb]',
+                                {
+                                    'bg-[#e2eefb] text-primary': location.pathname.includes(routePath.termsAndConditions),
+                                },
+                            )}
+                        >
+                            <div className="flex items-center gap-2.5">
+                                <div className="text-[22px]">
+                                    <RiFileList3Line />
+                                </div>
+                                <div className="text-[15px] font-medium">Terms & Conditions</div>
+                            </div>
+                        </div>
+                    </Link>
+                </div>
+            </div>
         </div>
     );
 }

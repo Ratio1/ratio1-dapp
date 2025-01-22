@@ -2,6 +2,7 @@ import NotFound from '@pages/404';
 import Dashboard from '@pages/Dashboard';
 import EmailConfirmation from '@pages/EmailConfirmation';
 import Licenses from '@pages/Licenses';
+import PrivacyPolicy from '@pages/PrivacyPolicy';
 import Profile from '@pages/Profile';
 import Search from '@pages/Search';
 import TermsAndConditions from '@pages/T&C';
@@ -35,6 +36,7 @@ export const routePath = {
     profileKyc: '/profile-and-kyc',
     search: '/search',
     termsAndConditions: '/terms-and-conditions',
+    privacyPolicy: '/privacy-policy',
     confirmEmail: '/confirm-email',
     notFound: '/404',
 };
@@ -59,6 +61,10 @@ export const mainRoutesInfo = {
     [routePath.termsAndConditions]: {
         title: 'Terms & Conditions',
         description: 'Terms governing your use of our services',
+    },
+    [routePath.privacyPolicy]: {
+        title: 'Privacy Policy',
+        description: 'Understand how we handle and protect your personal data',
     },
     [routePath.confirmEmail]: {
         title: 'Email Confirmation',
@@ -92,6 +98,10 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
     {
         path: routePath.termsAndConditions,
         page: TermsAndConditions,
+    },
+    {
+        path: routePath.privacyPolicy,
+        page: PrivacyPolicy,
     },
     {
         path: routePath.confirmEmail,
