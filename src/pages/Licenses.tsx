@@ -61,13 +61,13 @@ function Licenses() {
         }, 0);
     };
 
-    const onFilterChange = (key: 'all' | 'assigned' | 'unassigned') => {
+    const onFilterChange = (key: 'all' | 'linked' | 'unlinked') => {
         switch (key) {
-            case 'assigned':
+            case 'linked':
                 setLicenses(LICENSES.filter(isLicenseAssigned));
                 break;
 
-            case 'unassigned':
+            case 'unlinked':
                 setLicenses(LICENSES.filter((license) => !isLicenseAssigned(license)));
                 break;
 

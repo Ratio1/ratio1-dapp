@@ -138,8 +138,8 @@ export const LicenseCardHeader = ({
                                         <RiLink className="pr-0.5 text-[22px] text-slate-500" />
 
                                         <div className="flex flex-col">
-                                            <div className="font-medium text-body">Assign</div>
-                                            <div className="text-xs text-slate-500">Link license to a node</div>
+                                            <div className="font-medium text-body">Link</div>
+                                            <div className="text-xs text-slate-500">Assign license to a node</div>
                                         </div>
                                     </div>
                                 </DropdownItem>
@@ -149,7 +149,7 @@ export const LicenseCardHeader = ({
                                         <RiLinkUnlink className="pr-0.5 text-[22px] text-slate-500" />
 
                                         <div className="flex flex-col">
-                                            <div className="font-medium text-body">Unassign</div>
+                                            <div className="font-medium text-body">Unlink</div>
                                             <div className="text-xs text-slate-500">Remove license from node</div>
                                         </div>
                                     </div>

@@ -119,20 +119,20 @@ function LicensesHeader({ onFilterChange }) {
                                 >
                                     <Tab key="all" title="All" />
                                     <Tab
-                                        key="assigned"
+                                        key="linked"
                                         title={
                                             <div className="row gap-2">
                                                 <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                                                Assigned
+                                                Linked
                                             </div>
                                         }
                                     />
                                     <Tab
-                                        key="unassigned"
+                                        key="unlinked"
                                         title={
                                             <div className="row gap-2">
                                                 <div className="h-2 w-2 rounded-full bg-red-500"></div>
-                                                Unassigned
+                                                Unlinked
                                             </div>
                                         }
                                     />
