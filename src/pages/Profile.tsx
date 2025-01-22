@@ -35,7 +35,7 @@ function Profile() {
                     <div className="col gap-1.5 text-center">
                         <div className="font-bold uppercase tracking-wider text-primary-800">Connect Wallet</div>
 
-                        <div className="max-w-[460px] leading-5 text-slate-400">
+                        <div className="text-slate-400">
                             To proceed, please connect your wallet so we can identify and display your profile.
                         </div>
 
@@ -151,7 +151,7 @@ function Profile() {
                                                     Email Confirmation
                                                 </div>
 
-                                                <div className="leading-5 text-slate-400">
+                                                <div className="text-slate-400">
                                                     We've sent a confirmation email to{' '}
                                                     <span className="text-primary">{email}</span>. Please follow the link inside
                                                     the email to confirm your address.

@@ -1,4 +1,5 @@
 import Dashboard from '@pages/Dashboard';
+import EmailConfirmation from '@pages/EmailConfirmation';
 import Licenses from '@pages/Licenses';
 import Profile from '@pages/Profile';
 import Search from '@pages/Search';
@@ -33,6 +34,7 @@ export const routePath = {
     profileKyc: '/profile-and-kyc',
     search: '/search',
     termsAndConditions: '/terms-and-conditions',
+    confirmEmail: '/confirm-email',
 };
 
 export const mainRoutesInfo = {
@@ -55,6 +57,9 @@ export const mainRoutesInfo = {
     [routePath.termsAndConditions]: {
         title: 'Terms & Conditions',
         description: 'Terms governing your use of our services',
+    },
+    [routePath.confirmEmail]: {
+        title: 'Email Confirmation',
     },
 };
 
@@ -82,5 +87,9 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
     {
         path: routePath.termsAndConditions,
         page: TermsAndConditions,
+    },
+    {
+        path: routePath.confirmEmail,
+        page: EmailConfirmation,
     },
 ];

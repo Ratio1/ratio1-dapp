@@ -26,7 +26,7 @@ function Content() {
             <div className="flex items-start justify-between">
                 <div className="flex flex-col gap-3">
                     <div className="text-[36px] font-bold leading-9">{title}</div>
-                    <div className="text-lg leading-5 text-slate-500">{description}</div>
+                    {!!description && <div className="text-lg leading-5 text-slate-500">{description}</div>}
                 </div>
 
                 <Wallet />

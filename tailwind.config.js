@@ -33,6 +33,10 @@ export default {
             brightness: {
                 1000: '100.0',
             },
+            outlineWidth: {
+                3: '3px',
+                6: '6px',
+            },
         },
     },
     darkMode: 'class',
