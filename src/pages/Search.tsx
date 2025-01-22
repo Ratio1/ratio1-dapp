@@ -93,8 +93,9 @@ function Search() {
             </div>
 
             {!result ? (
-                <div className="center-all h-full">
+                <div className="center-all col h-full gap-1.5">
                     <img src={Empty} alt="Empty" className="h-28" />
+                    <div className="text-sm text-slate-400">Search for a license</div>
                 </div>
             ) : (
                 <LicenseCard license={LICENSE} isExpanded disableActions />
