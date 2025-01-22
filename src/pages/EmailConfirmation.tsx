@@ -2,18 +2,19 @@ import { routePath } from '@lib/routes';
 import { Button } from '@nextui-org/button';
 import { useEffect } from 'react';
 import { RiCheckLine, RiCpuLine, RiMailCheckLine, RiShieldCheckLine } from 'react-icons/ri';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 function EmailConfirmation() {
-    const [searchParams, setSearchParams] = useSearchParams();
-
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
     const token = searchParams.get('token');
 
     useEffect(() => {
         if (!token) {
-            // TODO: Route to 404
             console.log('Invalid token');
+            navigate(routePath.notFound);
         } else {
+            // TODO: Validate token
             console.log(token);
         }
     }, [token]);
@@ -36,7 +37,7 @@ function EmailConfirmation() {
                     </div>
                 </div>
 
-                <div className="col mt-6 w-[50%] gap-2">
+                <div className="col mt-6 w-[512px] gap-2">
                     <div className="row relative justify-between">
                         <div className="col center-all z-10 w-[150px] gap-4">
                             <div className="center-all outline-6 h-12 w-12 outline outline-[#fcfcfd]">

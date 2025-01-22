@@ -57,10 +57,10 @@ export const siweConfig = createSIWEConfig({
         return true;
     },
     onSignOut() {
-        console.log('onSignOut');
+        // Called after sign-out
     },
     onSignIn() {
-        console.log('onSignIn');
+        // Called afer sign-in
     },
 });
 

@@ -1,3 +1,4 @@
+import NotFound from '@pages/404';
 import Dashboard from '@pages/Dashboard';
 import EmailConfirmation from '@pages/EmailConfirmation';
 import Licenses from '@pages/Licenses';
@@ -35,6 +36,7 @@ export const routePath = {
     search: '/search',
     termsAndConditions: '/terms-and-conditions',
     confirmEmail: '/confirm-email',
+    notFound: '/404',
 };
 
 export const mainRoutesInfo = {
@@ -60,6 +62,9 @@ export const mainRoutesInfo = {
     },
     [routePath.confirmEmail]: {
         title: 'Email Confirmation',
+    },
+    [routePath.notFound]: {
+        title: 'Not Found',
     },
 };
 
@@ -91,5 +96,9 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
     {
         path: routePath.confirmEmail,
         page: EmailConfirmation,
+    },
+    {
+        path: routePath.notFound,
+        page: NotFound,
     },
 ];
