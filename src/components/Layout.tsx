@@ -4,9 +4,11 @@ import Sider from './Sider';
 function Layout() {
     return (
         <div className="flex min-h-dvh items-stretch bg-[#fcfcfd] font-mona">
-            <Sider />
+            <div className="web-only">
+                <Sider />
+            </div>
 
-            <div className="relative ml-[256px] min-h-dvh w-full py-12">
+            <div className="relative min-h-dvh w-full py-6 md:ml-[256px] md:py-10 lg:py-12">
                 <Content />
             </div>
         </div>

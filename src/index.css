@@ -21,6 +21,14 @@ body {
     @apply row justify-center;
 }
 
+.web-only {
+    @apply hidden md:block;
+}
+
+.mobile-only {
+    @apply block md:hidden;
+}
+
 /* Scrollbar */
 *::-webkit-scrollbar {
     width: 8px;
@@ -49,6 +57,7 @@ input[type='number'] {
     -moz-appearance: textfield;
 }
 
+/* Primitives */
 button {
     font-weight: 500 !important;
     letter-spacing: 0 !important;
