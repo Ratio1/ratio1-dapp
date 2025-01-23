@@ -21,12 +21,20 @@ body {
     @apply row justify-center;
 }
 
-.web-only {
+.web-only-block {
     @apply hidden md:block;
 }
 
-.mobile-only {
+.mobile-only-block {
     @apply block md:hidden;
+}
+
+.web-only-flex {
+    @apply hidden md:flex;
+}
+
+.mobile-only-flex {
+    @apply flex md:hidden;
 }
 
 /* Scrollbar */

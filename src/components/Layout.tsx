@@ -4,7 +4,7 @@ import Sider from './Sider';
 function Layout() {
     return (
         <div className="flex min-h-dvh items-stretch bg-[#fcfcfd] font-mona">
-            <div className="web-only">
+            <div className="web-only-block">
                 <Sider />
             </div>
 

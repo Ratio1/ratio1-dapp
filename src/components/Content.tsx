@@ -36,7 +36,7 @@ function Content() {
                 </div>
 
                 <div className="row w-full justify-between lg:w-auto">
-                    <div className="mobile-only">
+                    <div className="mobile-only-block">
                         <img src={Logo} alt="Logo" className="h-10" />
                     </div>
 

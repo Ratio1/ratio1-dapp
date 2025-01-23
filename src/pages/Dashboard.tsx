@@ -44,7 +44,7 @@ function Dashboard() {
                                     {differenceInDays(new Date(), genesisDate)}
                                 </div>
 
-                                <div className="web-only rounded-md bg-orange-100 px-2 py-1 text-sm font-medium tracking-wider text-orange-600">
+                                <div className="web-only-block rounded-md bg-orange-100 px-2 py-1 text-sm font-medium tracking-wider text-orange-600">
                                     <div className="row gap-1">
                                         <div className="text-[18px]">
                                             <RiTimeLine />
@@ -73,7 +73,7 @@ function Dashboard() {
                         </Button>
                     </div>
 
-                    <div className="col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-[1.75rem]">
+                    <div className="col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-6 lg:p-7">
                         <Tiers />
                     </div>
                 </BigCard>

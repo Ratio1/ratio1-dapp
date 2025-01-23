@@ -54,7 +54,7 @@ export default function Tiers() {
 
     return (
         <>
-            <div className="col gap-[1.75rem]">
+            <div className="col gap-5 lg:gap-7">
                 <div className="flex justify-between">
                     <div className="col flex w-full justify-between gap-8 lg:flex-row lg:gap-28">
                         <div className="col text-center lg:text-left">
@@ -81,7 +81,8 @@ export default function Tiers() {
                     </div>
                 </div>
 
-                <div className="flex justify-between">
+                {/* Web */}
+                <div className="web-only-flex flex justify-between">
                     {stages.map((stage) => (
                         <div
                             key={stage.index}
@@ -122,6 +123,66 @@ export default function Tiers() {
                                 })}
                             >
                                 T{stage.index}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Mobile */}
+                <div className="mobile-only-flex col">
+                    {stages.map((stage) => (
+                        <div
+                            key={stage.index}
+                            className={clsx(
+                                'relative -mx-2 flex flex-row-reverse items-center gap-4 rounded-full px-3 py-2.5',
+                                {
+                                    'bg-slate-200': stage.index === currentStage,
+                                },
+                            )}
+                        >
+                            <div className="flex min-w-[62px] justify-end">
+                                <div
+                                    className={clsx(
+                                        'w-full rounded-full px-2.5 py-0.5 text-center text-sm font-medium lg:text-[15px]',
+                                        {
+                                            'bg-gray-300 text-body': stage.index != currentStage,
+                                            'bg-body text-white': stage.index === currentStage,
+                                        },
+                                    )}
+                                >
+                                    ${fN(stage.price)}
+                                </div>
+                            </div>
+
+                            <div className="flex h-1 w-full flex-row overflow-hidden rounded-full bg-gray-300">
+                                <div
+                                    className={clsx('overflow-hidden rounded-full bg-primary transition-all duration-500', {
+                                        '!bg-green-300': stage.units === stage.sold,
+                                    })}
+                                    style={{ width: `${(100 * stage.sold) / stage.units}%` }}
+                                ></div>
+                            </div>
+
+                            <div
+                                className={clsx('text-sm', {
+                                    'text-primary': stage.index === currentStage,
+                                })}
+                            >
+                                {stage.index >= currentStage ? stage.units - stage.sold : '-'}
+                            </div>
+
+                            <div className="flex w-9">
+                                <div
+                                    className={clsx(
+                                        'center-all h-9 w-9 rounded-full text-sm font-medium tracking-wider lg:text-[15px]',
+                                        {
+                                            'bg-gray-300 text-body': stage.index != currentStage,
+                                            'bg-body text-white': stage.index === currentStage,
+                                        },
+                                    )}
+                                >
+                                    T{stage.index}
+                                </div>
                             </div>
                         </div>
                     ))}
