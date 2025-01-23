@@ -28,11 +28,15 @@ function Content() {
                 <div className="col gap-2">
                     {!!title && (
                         <div className="row justify-center lg:h-[40.8px] lg:justify-start">
-                            <div className="text-3xl font-bold leading-9 lg:text-[36px]">{title}</div>
+                            <div className="text-[28px] font-bold leading-9 lg:text-[36px]">{title}</div>
                         </div>
                     )}
 
-                    {!!description && <div className="text-base leading-5 text-slate-500 lg:text-lg">{description}</div>}
+                    {!!description && (
+                        <div className="text-center text-base leading-5 text-slate-500 lg:text-left lg:text-lg">
+                            {description}
+                        </div>
+                    )}
                 </div>
 
                 <div className="row w-full justify-between lg:w-auto">
