@@ -1,5 +1,6 @@
 import LicenseLinkModal from '@components/Licenses/LicenseLinkModal';
 import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
+import LicenseUnlinkModal from '@components/Licenses/LicenseUnlinkModal';
 import { isLicenseLinked } from '@lib/utils';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { subHours } from 'date-fns';
@@ -19,7 +20,7 @@ const LICENSES: Array<License | LinkedLicense> = [
         id: 5564,
         alias: 'naeural_396c2f29',
         node_address: '0x71c4255E9ACa4E1Eb41167056F2f9dCC6DbBB58a',
-        rewards: 112,
+        rewards: 0,
         used: 5800,
         assignTimestamp: subHours(new Date(), 24),
     },
@@ -48,11 +49,16 @@ function Licenses() {
     const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
     const linkModalRef = useRef<{ trigger: (_license) => void }>(null);
+    const unlinkModalRef = useRef<{ trigger: (_license) => void }>(null);
 
     const onAction = (type: 'link' | 'unlink' | 'claim', license: License | LinkedLicense) => {
         switch (type) {
             case 'link':
                 onLink(license);
+                break;
+
+            case 'unlink':
+                onUnlink(license);
                 break;
 
             default:
@@ -63,6 +69,12 @@ function Licenses() {
     const onLink = (license: License | LinkedLicense) => {
         if (linkModalRef.current) {
             linkModalRef.current.trigger(license);
+        }
+    };
+
+    const onUnlink = (license: License | LinkedLicense) => {
+        if (unlinkModalRef.current) {
+            unlinkModalRef.current.trigger(license);
         }
     };
 
@@ -132,6 +144,8 @@ function Licenses() {
                 ref={linkModalRef}
                 nodeAddresses={LICENSES.filter(isLicenseLinked).map((license) => license.node_address)}
             />
+
+            <LicenseUnlinkModal ref={unlinkModalRef} />
         </div>
     );
 }

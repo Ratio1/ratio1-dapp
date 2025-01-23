@@ -13,7 +13,7 @@ export const LicenseCard = ({
 }: {
     license: License | LinkedLicense;
     isExpanded: boolean;
-    action: (type: 'link' | 'unlink' | 'claim', license: License | LinkedLicense) => void;
+    action?: (type: 'link' | 'unlink' | 'claim', license: License | LinkedLicense) => void;
     toggle?: (id: number) => void;
     disableActions?: boolean;
 }) => {

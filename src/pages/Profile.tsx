@@ -32,7 +32,7 @@ function Profile() {
                         <RiWalletLine className="text-4xl text-primary-300" />
                     </div>
 
-                    <div className="col gap-1.5 text-center">
+                    <div className="col gap-1 text-center">
                         <div className="font-bold uppercase tracking-wider text-primary-800">Connect Wallet</div>
 
                         <div className="text-slate-400">
@@ -146,7 +146,7 @@ function Profile() {
                                                 </div>
                                             </div>
 
-                                            <div className="col gap-1.5 text-center">
+                                            <div className="col gap-1 text-center">
                                                 <div className="font-bold uppercase tracking-wider text-primary-800">
                                                     Email Confirmation
                                                 </div>

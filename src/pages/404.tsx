@@ -8,7 +8,7 @@ function NotFound() {
                     <RiCloseLargeLine className="text-4xl text-red-500" />
                 </div>
 
-                <div className="col gap-1.5 px-10 text-center">
+                <div className="col gap-1 px-10 text-center">
                     <div className="text-3xl font-bold uppercase tracking-wider text-primary-800">404</div>
 
                     <div className="text-slate-400">

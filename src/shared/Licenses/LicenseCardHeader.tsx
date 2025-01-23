@@ -15,7 +15,7 @@ export const LicenseCardHeader = ({
     disableActions,
 }: {
     license: License | LinkedLicense;
-    action: (type: 'link' | 'unlink' | 'claim', license: License | LinkedLicense) => void;
+    action?: (type: 'link' | 'unlink' | 'claim', license: License | LinkedLicense) => void;
     isExpanded: boolean;
     disableActions?: boolean;
 }) => {
@@ -105,7 +105,11 @@ export const LicenseCardHeader = ({
                                 color="primary"
                                 size="sm"
                                 variant="solid"
-                                onPress={() => action('claim', license)}
+                                onPress={() => {
+                                    if (action) {
+                                        action('claim', license);
+                                    }
+                                }}
                             >
                                 <div className="text-sm">Claim</div>
                             </Button>
@@ -147,7 +151,14 @@ export const LicenseCardHeader = ({
                             </DropdownItem>
 
                             {!isLicenseLinked(license) ? (
-                                <DropdownItem key="link" onPress={() => action('link', license)}>
+                                <DropdownItem
+                                    key="link"
+                                    onPress={() => {
+                                        if (action) {
+                                            action('link', license);
+                                        }
+                                    }}
+                                >
                                     <div className="row gap-2">
                                         <RiLink className="pr-0.5 text-[22px] text-slate-500" />
 
@@ -158,7 +169,14 @@ export const LicenseCardHeader = ({
                                     </div>
                                 </DropdownItem>
                             ) : (
-                                <DropdownItem key="unlink" onPress={() => action('unlink', license)}>
+                                <DropdownItem
+                                    key="unlink"
+                                    onPress={() => {
+                                        if (action) {
+                                            action('unlink', license);
+                                        }
+                                    }}
+                                >
                                     <div className="row gap-2">
                                         <RiLinkUnlink className="pr-0.5 text-[22px] text-slate-500" />
 

@@ -26,7 +26,7 @@ function EmailConfirmation() {
                     <RiMailCheckLine className="text-4xl text-green-500" />
                 </div>
 
-                <div className="col gap-1.5 px-10 text-center">
+                <div className="col gap-1 px-10 text-center">
                     <div className="font-bold uppercase tracking-wider text-primary-800">
                         Thank you for confirming your email!
                     </div>
