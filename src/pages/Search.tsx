@@ -2,17 +2,19 @@ import Empty from '@assets/empty.png';
 import { Input } from '@nextui-org/input';
 import { Spinner } from '@nextui-org/spinner';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
+import { subHours } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { RiSearchLine } from 'react-icons/ri';
 import { useSearchParams } from 'react-router-dom';
-import { AssignedLicense } from 'types';
+import { LinkedLicense } from 'types';
 
-const LICENSE: AssignedLicense = {
+const LICENSE: LinkedLicense = {
     id: 5564,
     alias: 'naeural_396c2f29',
     node_address: '0x71c4255E9ACa4E1Eb41167056F2f9dCC6DbBB58a',
     rewards: 112,
     used: 5800,
+    assignTimestamp: subHours(new Date(), 24),
 };
 
 function Search() {

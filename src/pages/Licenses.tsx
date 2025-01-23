@@ -1,17 +1,18 @@
 import LicensesHeader from '@components/LicensesHeader';
-import { isLicenseAssigned } from '@lib/utils';
+import { isLicenseLinked } from '@lib/utils';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
-import { addHours } from 'date-fns';
+import { subHours } from 'date-fns';
 import { useRef, useState } from 'react';
-import { AssignedLicense, UnassignedLicense } from 'types';
+import { License, LinkedLicense } from 'types';
 
-const LICENSES: Array<UnassignedLicense | AssignedLicense> = [
+const LICENSES: Array<License | LinkedLicense> = [
     {
         id: 385,
         alias: 'stefan-edge-node',
         node_address: '0xbF57FEB86044aE9f7B6ED74874A6b1d60D64601b',
         rewards: 256.1,
         used: 2500,
+        assignTimestamp: subHours(new Date(), 24),
     },
     {
         id: 5564,
@@ -19,6 +20,7 @@ const LICENSES: Array<UnassignedLicense | AssignedLicense> = [
         node_address: '0x71c4255E9ACa4E1Eb41167056F2f9dCC6DbBB58a',
         rewards: 112,
         used: 5800,
+        assignTimestamp: subHours(new Date(), 24),
     },
     {
         id: 6713,
@@ -26,16 +28,17 @@ const LICENSES: Array<UnassignedLicense | AssignedLicense> = [
         node_address: '0x13FF7fDe859f980988Ce687C8797dBB82F031e42',
         rewards: 205,
         used: 575,
+        assignTimestamp: subHours(new Date(), 24),
     },
     {
         id: 1251,
         used: 4670,
-        cooldownTimestamp: addHours(new Date(), 12),
+        assignTimestamp: new Date(),
     },
 ];
 
 function Licenses() {
-    const [licenses, setLicenses] = useState<Array<UnassignedLicense | AssignedLicense>>([]);
+    const [licenses, setLicenses] = useState<Array<License | LinkedLicense>>([]);
     const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
     const onLicenseExpand = (id: number) => {
@@ -64,11 +67,11 @@ function Licenses() {
     const onFilterChange = (key: 'all' | 'linked' | 'unlinked') => {
         switch (key) {
             case 'linked':
-                setLicenses(LICENSES.filter(isLicenseAssigned));
+                setLicenses(LICENSES.filter(isLicenseLinked));
                 break;
 
             case 'unlinked':
-                setLicenses(LICENSES.filter((license) => !isLicenseAssigned(license)));
+                setLicenses(LICENSES.filter((license) => !isLicenseLinked(license)));
                 break;
 
             default:
@@ -93,7 +96,7 @@ function Licenses() {
                 >
                     <LicenseCard
                         license={license}
-                        isExpanded={isLicenseAssigned(license) ? !!license.isExpanded : false}
+                        isExpanded={isLicenseLinked(license) ? !!license.isExpanded : false}
                         toggle={onLicenseExpand}
                     />
                 </div>

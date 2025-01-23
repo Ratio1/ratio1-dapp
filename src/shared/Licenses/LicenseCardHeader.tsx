@@ -1,42 +1,48 @@
 import { LICENSE_CAP } from '@lib/config';
-import { fN, getShortAddress, isLicenseAssigned } from '@lib/utils';
+import { fN, getShortAddress, isLicenseLinked } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
 import clsx from 'clsx';
+import { addDays, isBefore } from 'date-fns';
 import { round } from 'lodash';
 import { RiCpuLine, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine, RiWalletLine } from 'react-icons/ri';
-import { AssignedLicense, UnassignedLicense } from 'types';
+import { License, LinkedLicense } from 'types';
 
 export const LicenseCardHeader = ({
     license,
     isExpanded,
     disableActions,
 }: {
-    license: UnassignedLicense | AssignedLicense;
+    license: License | LinkedLicense;
     isExpanded: boolean;
     disableActions?: boolean;
 }) => {
+    // The license can only be linked once every 24h
+    const hasCooldown = () => {
+        return isBefore(new Date(), addDays(license.assignTimestamp, 1));
+    };
+
     return (
         <div
             className={clsx('row justify-between px-8 py-7', {
                 'rounded-bl-3xl rounded-br-3xl': isExpanded,
-                'bg-white': isLicenseAssigned(license),
+                'bg-white': isLicenseLinked(license),
             })}
         >
             <div className="row">
                 <div className="row min-w-[550px] gap-3">
-                    {isLicenseAssigned(license) && <div className="min-w-[184px] font-medium">{license.alias}</div>}
+                    {isLicenseLinked(license) && <div className="min-w-[184px] font-medium">{license.alias}</div>}
 
                     <div
                         className={clsx('flex', {
-                            'min-w-[150px]': isLicenseAssigned(license),
-                            'min-w-[184px]': !isLicenseAssigned(license),
+                            'min-w-[150px]': isLicenseLinked(license),
+                            'min-w-[184px]': !isLicenseLinked(license),
                         })}
                     >
                         <div
                             className={clsx('rounded-full px-3 py-2 text-sm font-medium', {
-                                'bg-[#e0eeff] text-primary': isLicenseAssigned(license),
-                                'bg-purple-100 text-purple-600': !isLicenseAssigned(license),
+                                'bg-[#e0eeff] text-primary': isLicenseLinked(license),
+                                'bg-purple-100 text-purple-600': !isLicenseLinked(license),
                             })}
                         >
                             <div className="row gap-1">
@@ -46,16 +52,16 @@ export const LicenseCardHeader = ({
                         </div>
                     </div>
 
-                    {!isLicenseAssigned(license) && license.cooldownTimestamp && (
+                    {!isLicenseLinked(license) && hasCooldown() && (
                         <div className="rounded-full bg-red-100 px-3 py-2 text-sm font-medium text-red-600">
                             <div className="row gap-1">
                                 <RiTimeLine className="text-base" />
-                                <div>Linkable after {license.cooldownTimestamp.toLocaleString()}</div>
+                                <div>Linkable after {addDays(license.assignTimestamp, 1).toLocaleString()}</div>
                             </div>
                         </div>
                     )}
 
-                    {isLicenseAssigned(license) && (
+                    {isLicenseLinked(license) && (
                         <div className="rounded-full bg-orange-100 px-3 py-2 text-sm font-medium text-orange-600">
                             <div className="row gap-1">
                                 <RiWalletLine className="text-base" />
@@ -85,7 +91,7 @@ export const LicenseCardHeader = ({
 
             {!disableActions && (
                 <div className="row gap-4">
-                    {isLicenseAssigned(license) && (
+                    {isLicenseLinked(license) && (
                         <div className="row gap-4">
                             <div className="row gap-1.5">
                                 <div className="text-lg font-semibold text-slate-400">$R1</div>
@@ -114,7 +120,7 @@ export const LicenseCardHeader = ({
                         <DropdownMenu
                             aria-label="Dropdown"
                             variant="flat"
-                            disabledKeys={['title']}
+                            disabledKeys={['title', ...(hasCooldown() ? ['link'] : [])]}
                             itemClasses={{
                                 base: [
                                     'rounded-md',
@@ -132,7 +138,7 @@ export const LicenseCardHeader = ({
                                 <div className="text-sm text-slate-700">Actions</div>
                             </DropdownItem>
 
-                            {!isLicenseAssigned(license) ? (
+                            {!isLicenseLinked(license) ? (
                                 <DropdownItem key="link">
                                     <div className="row gap-2">
                                         <RiLink className="pr-0.5 text-[22px] text-slate-500" />
@@ -144,7 +150,7 @@ export const LicenseCardHeader = ({
                                     </div>
                                 </DropdownItem>
                             ) : (
-                                <DropdownItem key="link">
+                                <DropdownItem key="unlink">
                                     <div className="row gap-2">
                                         <RiLinkUnlink className="pr-0.5 text-[22px] text-slate-500" />
 
