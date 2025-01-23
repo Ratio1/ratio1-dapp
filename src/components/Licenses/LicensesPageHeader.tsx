@@ -10,7 +10,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
-function LicensesHeader({ onFilterChange }) {
+function LicensesPageHeader({ onFilterChange }) {
     const { watchTx } = useGeneralContext() as GeneralContextType;
 
     const [timestamp] = useState<Date>(addDays(genesisDate, 1 + differenceInDays(new Date(), genesisDate)));
@@ -158,4 +158,4 @@ function LicensesHeader({ onFilterChange }) {
     );
 }
 
-export default LicensesHeader;
+export default LicensesPageHeader;

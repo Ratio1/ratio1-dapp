@@ -1,4 +1,5 @@
-import LicensesHeader from '@components/LicensesHeader';
+import LicenseLinkModal from '@components/Licenses/LicenseLinkModal';
+import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
 import { isLicenseLinked } from '@lib/utils';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { subHours } from 'date-fns';
@@ -35,11 +36,35 @@ const LICENSES: Array<License | LinkedLicense> = [
         used: 4670,
         assignTimestamp: new Date(),
     },
+    {
+        id: 287,
+        used: 20850,
+        assignTimestamp: subHours(new Date(), 48),
+    },
 ];
 
 function Licenses() {
     const [licenses, setLicenses] = useState<Array<License | LinkedLicense>>([]);
     const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+
+    const linkModalRef = useRef<{ trigger: (_license) => void }>(null);
+
+    const onAction = (type: 'link' | 'unlink' | 'claim', license: License | LinkedLicense) => {
+        switch (type) {
+            case 'link':
+                onLink(license);
+                break;
+
+            default:
+                console.error('Invalid action type');
+        }
+    };
+
+    const onLink = (license: License | LinkedLicense) => {
+        if (linkModalRef.current) {
+            linkModalRef.current.trigger(license);
+        }
+    };
 
     const onLicenseExpand = (id: number) => {
         setLicenses((prevLicenses) =>
@@ -82,7 +107,7 @@ function Licenses() {
     return (
         <div className="flex flex-col gap-3">
             <div className="mb-3">
-                <LicensesHeader onFilterChange={onFilterChange} />
+                <LicensesPageHeader onFilterChange={onFilterChange} />
             </div>
 
             {licenses.map((license) => (
@@ -98,9 +123,15 @@ function Licenses() {
                         license={license}
                         isExpanded={isLicenseLinked(license) ? !!license.isExpanded : false}
                         toggle={onLicenseExpand}
+                        action={onAction}
                     />
                 </div>
             ))}
+
+            <LicenseLinkModal
+                ref={linkModalRef}
+                nodeAddresses={LICENSES.filter(isLicenseLinked).map((license) => license.node_address)}
+            />
         </div>
     );
 }

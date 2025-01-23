@@ -10,10 +10,12 @@ import { License, LinkedLicense } from 'types';
 
 export const LicenseCardHeader = ({
     license,
+    action,
     isExpanded,
     disableActions,
 }: {
     license: License | LinkedLicense;
+    action: (type: 'link' | 'unlink' | 'claim', license: License | LinkedLicense) => void;
     isExpanded: boolean;
     disableActions?: boolean;
 }) => {
@@ -98,7 +100,13 @@ export const LicenseCardHeader = ({
                                 <div className="text-lg font-semibold text-primary">{license.rewards}</div>
                             </div>
 
-                            <Button className="h-9" color="primary" size="sm" variant="solid">
+                            <Button
+                                className="h-9"
+                                color="primary"
+                                size="sm"
+                                variant="solid"
+                                onPress={() => action('claim', license)}
+                            >
                                 <div className="text-sm">Claim</div>
                             </Button>
                         </div>
@@ -139,7 +147,7 @@ export const LicenseCardHeader = ({
                             </DropdownItem>
 
                             {!isLicenseLinked(license) ? (
-                                <DropdownItem key="link">
+                                <DropdownItem key="link" onPress={() => action('link', license)}>
                                     <div className="row gap-2">
                                         <RiLink className="pr-0.5 text-[22px] text-slate-500" />
 
@@ -150,7 +158,7 @@ export const LicenseCardHeader = ({
                                     </div>
                                 </DropdownItem>
                             ) : (
-                                <DropdownItem key="unlink">
+                                <DropdownItem key="unlink" onPress={() => action('unlink', license)}>
                                     <div className="row gap-2">
                                         <RiLinkUnlink className="pr-0.5 text-[22px] text-slate-500" />
 
