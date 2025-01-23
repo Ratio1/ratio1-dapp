@@ -1,5 +1,6 @@
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
+import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
 import { Modal, ModalBody, ModalContent, useDisclosure } from '@nextui-org/modal';
 import { Switch } from '@nextui-org/switch';
@@ -15,13 +16,19 @@ function Profile() {
 
     const { isConnected } = useAccount();
 
-    const onRegister = () => {
+    const register = () => {
         setLoading(true);
 
         setTimeout(() => {
             setLoading(false);
             onOpen();
         }, 300);
+    };
+
+    const onSubmit = (e) => {
+        e.preventDefault();
+        console.log('register');
+        register();
     };
 
     return (
@@ -65,42 +72,44 @@ function Profile() {
                             </div>
 
                             <div className="flex h-full w-full items-center justify-between px-10 py-6">
-                                <div className="col w-full gap-4">
-                                    <div className="flex w-full gap-2">
-                                        <Input
-                                            id="email"
-                                            name="email"
-                                            type="email"
-                                            value={email}
-                                            onValueChange={setEmail}
-                                            size="md"
-                                            classNames={{
-                                                inputWrapper: 'bg-[#fcfcfd] border rounded-lg',
-                                                input: 'font-medium rounded-lg',
-                                            }}
-                                            variant="bordered"
-                                            color="primary"
-                                            labelPlacement="outside"
-                                            placeholder="Email"
-                                        />
-
-                                        <div className="flex">
-                                            <Button
+                                <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>
+                                    <div className="col w-full gap-4">
+                                        <div className="flex w-full gap-2">
+                                            <Input
+                                                id="email"
+                                                name="email"
+                                                type="email"
+                                                value={email}
+                                                onValueChange={setEmail}
+                                                size="md"
+                                                classNames={{
+                                                    inputWrapper: 'bg-[#fcfcfd] border rounded-lg',
+                                                    input: 'font-medium rounded-lg',
+                                                }}
+                                                variant="bordered"
                                                 color="primary"
-                                                className="rounded-lg"
-                                                isLoading={isLoading}
-                                                onPress={onRegister}
-                                            >
-                                                <div className="text-sm font-medium">Register</div>
-                                            </Button>
+                                                labelPlacement="outside"
+                                                placeholder="Email"
+                                            />
+
+                                            <div className="flex">
+                                                <Button
+                                                    color="primary"
+                                                    className="rounded-lg"
+                                                    isLoading={isLoading}
+                                                    type="submit"
+                                                >
+                                                    <div className="text-sm font-medium">Register</div>
+                                                </Button>
+                                            </div>
+                                        </div>
+
+                                        <div className="row gap-2">
+                                            <Switch defaultSelected={true} size="sm" />
+                                            <div className="text-sm font-medium">Subscribe to receive updates on email</div>
                                         </div>
                                     </div>
-
-                                    <div className="row gap-2">
-                                        <Switch defaultSelected={true} size="sm" />
-                                        <div className="text-sm font-medium">Subscribe to receive updates on email</div>
-                                    </div>
-                                </div>
+                                </Form>
                             </div>
                         </div>
 
