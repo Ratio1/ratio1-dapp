@@ -12,6 +12,7 @@ export const queryClient = new QueryClient();
 export const projectId = '6fb791d3d18d57d28ae7677e4cff8c6e';
 
 export const genesisDate = new Date('2025-01-01T00:00:00.000Z');
+export const r1Price = 12.5; // in $USD
 
 export const metadata = {
     name: 'Ratio1',
