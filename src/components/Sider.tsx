@@ -29,7 +29,7 @@ function Sider() {
                                 },
                             )}
                         >
-                            <div className="flex items-center gap-2.5">
+                            <div className="row gap-2.5">
                                 <div className="text-[22px]">
                                     <RiFileList3Line />
                                 </div>
@@ -49,7 +49,7 @@ function Sider() {
                                 },
                             )}
                         >
-                            <div className="flex items-center gap-2.5">
+                            <div className="row gap-2.5">
                                 <div className="text-[22px]">
                                     <RiFileList3Line />
                                 </div>

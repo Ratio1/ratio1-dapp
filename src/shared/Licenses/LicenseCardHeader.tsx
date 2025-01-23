@@ -73,7 +73,7 @@ export const LicenseCardHeader = ({
                     )}
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="col gap-2">
                     <div className="row justify-between text-sm font-medium leading-none">
                         <div>
                             {fN(license.used)}/{fN(LICENSE_CAP)}
@@ -162,7 +162,7 @@ export const LicenseCardHeader = ({
                                     <div className="row gap-2">
                                         <RiLink className="pr-0.5 text-[22px] text-slate-500" />
 
-                                        <div className="flex flex-col">
+                                        <div className="col">
                                             <div className="font-medium text-body">Link</div>
                                             <div className="text-xs text-slate-500">Assign license to a node</div>
                                         </div>
@@ -180,7 +180,7 @@ export const LicenseCardHeader = ({
                                     <div className="row gap-2">
                                         <RiLinkUnlink className="pr-0.5 text-[22px] text-slate-500" />
 
-                                        <div className="flex flex-col">
+                                        <div className="col">
                                             <div className="font-medium text-body">Unlink</div>
                                             <div className="text-xs text-slate-500">Remove license from node</div>
                                         </div>

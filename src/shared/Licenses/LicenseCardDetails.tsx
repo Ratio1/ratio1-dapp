@@ -68,7 +68,7 @@ export const LicenseCardDetails = () => {
 
                         <div className="flex gap-10">
                             <div className="col gap-2.5 border-l-2 border-slate-200 pl-10">
-                                <div className="flex items-center gap-2.5">
+                                <div className="row gap-2.5">
                                     <div className="rounded-full bg-teal-100 p-1.5 text-teal-600">
                                         <RiTimeLine className="text-2xl" />
                                     </div>
@@ -80,7 +80,7 @@ export const LicenseCardDetails = () => {
                             </div>
 
                             <div className="col gap-2.5 border-l-2 border-slate-200 pl-10">
-                                <div className="flex items-center gap-2.5">
+                                <div className="row gap-2.5">
                                     <div className="rounded-full bg-purple-100 p-1.5 text-purple-600">
                                         <RiTimeLine className="text-2xl" />
                                     </div>
@@ -92,7 +92,7 @@ export const LicenseCardDetails = () => {
                             </div>
 
                             <div className="col gap-2.5 border-l-2 border-slate-200 pl-10">
-                                <div className="flex items-center gap-2.5">
+                                <div className="row gap-2.5">
                                     <div className="rounded-full bg-orange-100 p-1.5 text-orange-600">
                                         <RiTimeLine className="text-2xl" />
                                     </div>

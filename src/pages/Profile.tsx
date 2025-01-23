@@ -56,8 +56,8 @@ function Profile() {
                     <div className="grid grid-cols-2 gap-6">
                         <div className="col justify-between overflow-hidden rounded-2xl border border-[#e3e4e8] bg-light">
                             <div className="bg-lightAccent px-10 py-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
+                                <div className="row justify-between">
+                                    <div className="row gap-3">
                                         <div className="rounded-full bg-primary p-2 text-white">
                                             <RiMailLine className="text-xl" />
                                         </div>
@@ -115,8 +115,8 @@ function Profile() {
 
                         <div className="col justify-between overflow-hidden rounded-2xl border border-[#e3e4e8] bg-light">
                             <div className="bg-lightAccent px-10 py-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
+                                <div className="row justify-between">
+                                    <div className="row gap-3">
                                         <div className="rounded-full bg-primary p-2 text-white">
                                             <RiUserFollowLine className="text-xl" />
                                         </div>
@@ -142,9 +142,9 @@ function Profile() {
                         </div>
 
                         {/* TODO: Visible only if registered */}
-                        <div className="flex flex-col gap-0 overflow-hidden rounded-2xl border border-[#e3e4e8] bg-light">
+                        <div className="col gap-0 overflow-hidden rounded-2xl border border-[#e3e4e8] bg-light">
                             <div className="bg-lightAccent px-10 py-6">
-                                <div className="flex items-center gap-3">
+                                <div className="row gap-3">
                                     <div className="rounded-full bg-primary p-2 text-white">
                                         <RiNewsLine className="text-xl" />
                                     </div>
@@ -153,7 +153,7 @@ function Profile() {
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between px-10 py-6">
+                            <div className="row justify-between px-10 py-6">
                                 <div>Send me email updates.</div>
 
                                 <Switch defaultSelected={true} size="sm" />

@@ -24,7 +24,7 @@ function Content() {
     return (
         <div className="mx-auto flex h-full max-w-6xl flex-col gap-12 px-10">
             <div className="flex items-start justify-between">
-                <div className="flex flex-col gap-2">
+                <div className="col gap-2">
                     {!!title && (
                         <div className="row h-[40.8px]">
                             <div className="text-[36px] font-bold leading-9">{title}</div>

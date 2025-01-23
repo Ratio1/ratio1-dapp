@@ -68,7 +68,7 @@ function Buy({ onClose }) {
 
     return (
         <div className="my-4 flex flex-col gap-6">
-            <div className="flex items-center gap-2">
+            <div className="row gap-2">
                 <Button isIconOnly variant="flat" className="bg-lightAccent" onPress={onClose}>
                     <div className="text-[22px]">
                         <RiArrowRightDoubleLine />
@@ -76,18 +76,18 @@ function Buy({ onClose }) {
                 </Button>
             </div>
 
-            <div className="flex flex-col gap-4">
-                <div className="flex flex-col overflow-hidden rounded-md border border-slate-200 bg-lightAccent">
-                    <div className="flex items-center gap-2.5 p-4">
-                        <div className="rounded-md bg-primary p-2 text-white">
+            <div className="col gap-4">
+                <div className="col overflow-hidden rounded-md border border-slate-200 bg-lightAccent">
+                    <div className="row gap-2.5 p-4">
+                        <div className="rounded-md bg-primary p-1.5 text-white">
                             <RiCpuLine className="text-xl" />
                         </div>
 
-                        <div className="text-base font-medium">Node License</div>
+                        <div className="text-base font-medium">Node Licenses</div>
                     </div>
 
                     <div className="flex border-t border-slate-200 bg-white p-4">
-                        <div className="flex items-center justify-between gap-12">
+                        <div className="row justify-between gap-12">
                             <div className="font-medium">Quantity</div>
 
                             <div className="flex gap-1">
@@ -150,7 +150,7 @@ function Buy({ onClose }) {
                 </div>
 
                 <div className="flex w-full flex-col rounded-md bg-lightAccent px-10 py-8">
-                    <div className="flex flex-col gap-1.5 text-center">
+                    <div className="col gap-1.5 text-center">
                         <div className="text-sm font-medium text-slate-500">Total amount</div>
                         <div className="text-2xl font-semibold text-primary">
                             ${sumBy(getRundown(Number.parseInt(quantity)), 'amount').toLocaleString('en-US')}
@@ -161,12 +161,12 @@ function Buy({ onClose }) {
                         <>
                             <Divider className="my-6 bg-slate-200" />
 
-                            <div className="flex flex-col gap-4">
+                            <div className="col gap-4">
                                 <div className="text-sm font-medium text-slate-500">Summary</div>
 
-                                <div className="flex flex-col gap-2">
+                                <div className="col gap-2">
                                     {getRundown(Number.parseInt(quantity)).map((item) => (
-                                        <div key={item.tier} className="flex items-center justify-between">
+                                        <div key={item.tier} className="row justify-between">
                                             <div className="text-sm font-medium">
                                                 {item.quantity} x License{item.quantity > 1 ? 's' : ''} (Tier {item.tier})
                                             </div>
@@ -180,7 +180,7 @@ function Buy({ onClose }) {
 
                     <Divider className="my-6 bg-slate-200" />
 
-                    <div className="flex items-center justify-between">
+                    <div className="row justify-between">
                         <div className="font-medium">Total</div>
                         <div className="font-medium text-primary">
                             ${sumBy(getRundown(Number.parseInt(quantity)), 'amount').toLocaleString('en-US')}

@@ -117,7 +117,7 @@ function Licenses() {
     };
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="col gap-3">
             <div className="mb-3">
                 <LicensesPageHeader onFilterChange={onFilterChange} />
             </div>
