@@ -5,7 +5,7 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-o
 import clsx from 'clsx';
 import { addDays, isBefore } from 'date-fns';
 import { round } from 'lodash';
-import { RiCpuLine, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine, RiWalletLine } from 'react-icons/ri';
+import { RiCloseCircleLine, RiCpuLine, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine, RiWalletLine } from 'react-icons/ri';
 import { License, LinkedLicense } from 'types';
 
 export const LicenseCardHeader = ({
@@ -13,11 +13,13 @@ export const LicenseCardHeader = ({
     action,
     isExpanded,
     disableActions,
+    isBanned,
 }: {
     license: License | LinkedLicense;
     action?: (type: 'link' | 'unlink' | 'claim', license: License | LinkedLicense) => void;
     isExpanded: boolean;
     disableActions?: boolean;
+    isBanned?: boolean;
 }) => {
     // The license can only be linked once every 24h
     const hasCooldown = () => {
@@ -91,7 +93,7 @@ export const LicenseCardHeader = ({
                 </div>
             </div>
 
-            {!disableActions && (
+            {!disableActions && !isBanned && (
                 <div className="row gap-4">
                     {isLicenseLinked(license) && (
                         <div className="row gap-4">
@@ -189,6 +191,15 @@ export const LicenseCardHeader = ({
                             )}
                         </DropdownMenu>
                     </Dropdown>
+                </div>
+            )}
+
+            {isBanned && (
+                <div className="rounded-full bg-red-100 px-3 py-2 text-sm font-medium text-red-600">
+                    <div className="row gap-1">
+                        <RiCloseCircleLine className="text-base" />
+                        <div>Banned</div>
+                    </div>
                 </div>
             )}
         </div>

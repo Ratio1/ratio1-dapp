@@ -3,6 +3,7 @@ interface License {
     used: number;
     assignTimestamp: Date;
     isExpanded?: boolean;
+    isBanned?: boolean;
 }
 
 interface LinkedLicense extends License {

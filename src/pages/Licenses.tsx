@@ -23,6 +23,7 @@ const LICENSES: Array<License | LinkedLicense> = [
         rewards: 0,
         used: 5800,
         assignTimestamp: subHours(new Date(), 24),
+        isBanned: true,
     },
     {
         id: 6713,
@@ -136,6 +137,7 @@ function Licenses() {
                         isExpanded={isLicenseLinked(license) ? !!license.isExpanded : false}
                         toggle={onLicenseExpand}
                         action={onAction}
+                        isBanned={license.isBanned}
                     />
                 </div>
             ))}

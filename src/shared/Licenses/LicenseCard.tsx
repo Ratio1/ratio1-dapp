@@ -10,12 +10,14 @@ export const LicenseCard = ({
     action,
     toggle,
     disableActions,
+    isBanned,
 }: {
     license: License | LinkedLicense;
     isExpanded: boolean;
     action?: (type: 'link' | 'unlink' | 'claim', license: License | LinkedLicense) => void;
     toggle?: (id: number) => void;
     disableActions?: boolean;
+    isBanned?: boolean;
 }) => {
     return (
         <div
@@ -31,7 +33,13 @@ export const LicenseCard = ({
                 }
             }}
         >
-            <LicenseCardHeader license={license} action={action} isExpanded={isExpanded} disableActions={disableActions} />
+            <LicenseCardHeader
+                license={license}
+                action={action}
+                isExpanded={isExpanded}
+                disableActions={disableActions}
+                isBanned={isBanned}
+            />
 
             {isExpanded && <LicenseCardDetails />}
         </div>
