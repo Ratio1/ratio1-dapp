@@ -35,7 +35,7 @@ function Content() {
                     {!!description && <div className="text-base leading-5 text-slate-500 lg:text-lg">{description}</div>}
                 </div>
 
-                <div className="row w-full justify-between">
+                <div className="row w-full justify-between lg:w-auto">
                     <div className="mobile-only">
                         <img src={Logo} alt="Logo" className="h-10" />
                     </div>

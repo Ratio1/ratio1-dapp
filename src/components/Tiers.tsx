@@ -56,23 +56,27 @@ export default function Tiers() {
         <>
             <div className="col gap-[1.75rem]">
                 <div className="flex justify-between">
-                    <div className="flex w-full justify-between gap-28">
-                        <div className="col">
-                            <div className="text-xl font-semibold">Current Price (T{currentStage})</div>
-                            <div className="text-[22px] font-bold text-primary">${stages[currentStage - 1].price}</div>
+                    <div className="col flex w-full justify-between gap-8 lg:flex-row lg:gap-28">
+                        <div className="col text-center lg:text-left">
+                            <div className="text-lg font-semibold lg:text-xl">Current Price (T{currentStage})</div>
+                            <div className="text-[20px] font-bold text-primary lg:text-[22px]">
+                                ${stages[currentStage - 1].price}
+                            </div>
                         </div>
 
-                        <div className="col">
-                            <div className="text-xl font-semibold">Remaining Units</div>
-                            <div className="text-[22px] font-bold text-primary">
+                        <div className="col text-center lg:text-left">
+                            <div className="text-lg font-semibold lg:text-xl">Remaining Units</div>
+                            <div className="text-[20px] font-bold text-primary lg:text-[22px]">
                                 {stages[currentStage - 1].units - stages[currentStage - 1].sold}/
                                 {stages[currentStage - 1].units}
                             </div>
                         </div>
 
-                        <div className="col">
-                            <div className="text-xl font-semibold">Next Price (T{currentStage + 1})</div>
-                            <div className="text-[22px] font-bold text-primary">${stages[currentStage].price}</div>
+                        <div className="col text-center lg:text-left">
+                            <div className="text-lg font-semibold lg:text-xl">Next Price (T{currentStage + 1})</div>
+                            <div className="text-[20px] font-bold text-primary lg:text-[22px]">
+                                ${stages[currentStage].price}
+                            </div>
                         </div>
                     </div>
                 </div>

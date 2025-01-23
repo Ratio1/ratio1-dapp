@@ -1,4 +1,5 @@
 import Buy from '@components/Buy';
+import Tiers from '@components/Tiers';
 import { genesisDate } from '@lib/config';
 import { useDisclosure } from '@lib/useDisclosure';
 import { Button } from '@nextui-org/button';
@@ -16,7 +17,7 @@ function Dashboard() {
                 <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-6">
                     <BigCard>
                         <div className="col h-full justify-between gap-3">
-                            <div className="text-[18px] font-semibold leading-6 lg:text-xl">Claimable $R1</div>
+                            <div className="text-base font-semibold leading-6 lg:text-xl">Claimable $R1</div>
 
                             <div className="row gap-2.5">
                                 <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">1287.45</div>
@@ -26,7 +27,7 @@ function Dashboard() {
 
                     <BigCard>
                         <div className="col h-full justify-between gap-3">
-                            <div className="text-[18px] font-semibold leading-6 lg:text-xl">$R1 Balance</div>
+                            <div className="text-base font-semibold leading-6 lg:text-xl">$R1 Balance</div>
 
                             <div className="row gap-2.5">
                                 <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">255.125</div>
@@ -36,7 +37,7 @@ function Dashboard() {
 
                     <BigCard>
                         <div className="col h-full justify-between gap-3">
-                            <div className="text-[18px] font-semibold leading-6 lg:text-xl">Current Epoch</div>
+                            <div className="text-base font-semibold leading-6 lg:text-xl">Current Epoch</div>
 
                             <div className="row gap-2.5">
                                 <div className="text-xl font-semibold leading-6 lg:text-[22px]">
@@ -72,7 +73,9 @@ function Dashboard() {
                         </Button>
                     </div>
 
-                    <div className="col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-[1.75rem]">{/* <Tiers /> */}</div>
+                    <div className="col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-[1.75rem]">
+                        <Tiers />
+                    </div>
                 </BigCard>
             </div>
 
@@ -81,7 +84,7 @@ function Dashboard() {
                 onOpenChange={onClose}
                 size="sm"
                 classNames={{
-                    base: 'data-[placement=right]:sm:m-3 data-[placement=left]:sm:m-3 rounded-medium font-mona',
+                    base: 'data-[placement=right]:sm:m-3 data-[placement=left]:sm:m-3 rounded-none sm:rounded-medium font-mona',
                 }}
                 motionProps={{
                     variants: {
