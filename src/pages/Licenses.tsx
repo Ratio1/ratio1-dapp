@@ -1,11 +1,16 @@
+import { MNDContractAbi } from '@blockchain/MNDContract';
+import { NDContractAbi } from '@blockchain/NDContract';
 import LicenseLinkModal from '@components/Licenses/LicenseLinkModal';
 import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
 import LicenseUnlinkModal from '@components/Licenses/LicenseUnlinkModal';
+import { getCurrentEpoch, mndContractAddress, ndContractAddress, oraclesUrl } from '@lib/config';
 import { isLicenseLinked } from '@lib/utils';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { subHours } from 'date-fns';
 import { useRef, useState } from 'react';
+import toast from 'react-hot-toast';
 import { License, LinkedLicense } from 'types';
+import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 const LICENSES: Array<License | LinkedLicense> = [
     {
@@ -52,6 +57,99 @@ function Licenses() {
     const linkModalRef = useRef<{ trigger: (_license) => void }>(null);
     const unlinkModalRef = useRef<{ trigger: (_license) => void }>(null);
 
+    const { address } = useAccount();
+    const { data: walletClient } = useWalletClient();
+    const publicClient = usePublicClient();
+
+    /*
+    function _calculateEpoch(uint256 timestamp) private pure returns (uint256) {
+        require(
+            timestamp >= startEpochTimestamp,
+            "Timestamp is before the start epoch."
+        );
+
+        return (timestamp - startEpochTimestamp) / epochDuration;
+    }
+    */
+
+    const claim = async (license: License | LinkedLicense) => {
+        if (!publicClient || !address || !walletClient) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        const userLicense = await publicClient.readContract({
+            address: mndContractAddress,
+            abi: MNDContractAbi,
+            functionName: 'getUserLicense',
+            args: [address],
+        });
+
+        const currentEpoch = getCurrentEpoch();
+
+        const oraclesResponse = (await fetch(
+            oraclesUrl +
+                `/node_epochs_range?eth_node_addr=${userLicense.nodeAddress}&start_epoch=${userLicense.lastClaimEpoch}&end_epoch=${
+                    currentEpoch - 1
+                }`,
+            {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            },
+        ).then((res) => res.json())) as {
+            result: {
+                node: string;
+                node_eth_address: `0x${string}`;
+                epochs: number[];
+                epochs_vals: number[];
+                eth_signed_data: {
+                    input: string[];
+                    signature_field: string;
+                };
+                eth_signatures: `0x${string}`[];
+                eth_addresses: `0x${string}`[];
+                certainty: { [key: string]: boolean };
+                server_alias: string;
+                server_version: string;
+                server_time: Date;
+                server_current_epoch: number;
+                server_uptime: string;
+                EE_SIGN: string;
+                EE_SENDER: string;
+                EE_ETH_SENDER: string;
+                EE_ETH_SIGN: string;
+                EE_HASH: string;
+            };
+            node_addr: string;
+        };
+
+        const licenseTokenPrice = await publicClient.readContract({
+            address: ndContractAddress,
+            abi: NDContractAbi,
+            functionName: 'getLicenseTokenPrice',
+        });
+
+        console.log({ licenseTokenPrice });
+
+        const txHash = await walletClient.writeContract({
+            address: mndContractAddress,
+            abi: MNDContractAbi,
+            functionName: 'claimRewards',
+            args: [
+                {
+                    licenseId: 0n,
+                    nodeAddress: userLicense.nodeAddress,
+                    epochs: oraclesResponse.result.epochs.map((epoch) => BigInt(epoch)),
+                    availabilies: oraclesResponse.result.epochs_vals,
+                },
+                oraclesResponse.result.eth_signatures,
+            ],
+        });
+    };
+
     const onAction = (type: 'link' | 'unlink' | 'claim', license: License | LinkedLicense) => {
         switch (type) {
             case 'link':
@@ -60,6 +158,52 @@ function Licenses() {
 
             case 'unlink':
                 onUnlink(license);
+                break;
+
+            case 'claim':
+                claim(license);
+
+                /*
+    
+                const response = (await fetch(backendUrl + '/license/buy', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({
+                        name: 'a',
+                        surname: 'a',
+                        isCompany: false,
+                        identificationCode: 'a',
+                        address: 'a',
+                        state: 'a',
+                        city: 'a',
+                        country: 'a',
+                    }),
+                }).then((res) => res.json())) as {
+                    data: {
+                        signature: string;
+                        uuid: string;
+                    };
+                    error: string;
+                };
+                console.log(response);
+    
+                const txHash = await walletClient.writeContract({
+                    address: ndContractAddress,
+                    abi: NDContractAbi,
+                    functionName: 'buyLicense',
+                    args: [
+                        BigInt(quantity), // nLicesesToBuy
+                        1, // tier TODO get correct tier
+                        Buffer.from(response.data.uuid).toString() as `0x${string}`, // invoice uuid
+                        `0x${response.data.signature}`, // signature
+                    ],
+                });
+                */
+                console.log('claim');
                 break;
 
             default:

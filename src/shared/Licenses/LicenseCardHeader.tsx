@@ -7,6 +7,7 @@ import { addDays, isBefore } from 'date-fns';
 import { round } from 'lodash';
 import { RiCloseCircleLine, RiCpuLine, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine, RiWalletLine } from 'react-icons/ri';
 import { License, LinkedLicense } from 'types';
+import { formatUnits } from 'viem';
 
 export const LicenseCardHeader = ({
     license,
@@ -14,12 +15,14 @@ export const LicenseCardHeader = ({
     isExpanded,
     disableActions,
     isBanned,
+    rewardsAmount,
 }: {
     license: License | LinkedLicense;
     action?: (type: 'link' | 'unlink' | 'claim', license: License | LinkedLicense) => void;
     isExpanded: boolean;
     disableActions?: boolean;
     isBanned?: boolean;
+    rewardsAmount: bigint | null;
 }) => {
     // The license can only be linked once every 24h
     const hasCooldown = () => {
@@ -99,7 +102,9 @@ export const LicenseCardHeader = ({
                         <div className="row gap-4">
                             <div className="row gap-1.5">
                                 <div className="text-lg font-semibold text-slate-400">$R1</div>
-                                <div className="text-lg font-semibold text-primary">{license.rewards}</div>
+                                <div className="text-lg font-semibold text-primary">
+                                    {Number(formatUnits(rewardsAmount ?? 0n, 18)).toFixed(2)}
+                                </div>
                             </div>
 
                             <Button

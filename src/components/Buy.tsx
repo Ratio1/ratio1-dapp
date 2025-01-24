@@ -1,4 +1,5 @@
-import { r1Price } from '@lib/config';
+import { backendUrl, ndContractAddress, r1Price } from '@lib/config';
+import { NDContractAbi } from '@blockchain/NDContract';
 import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
 import { Input } from '@nextui-org/input';
@@ -7,8 +8,12 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
 import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine } from 'react-icons/ri';
+import { usePublicClient, useWalletClient } from 'wagmi';
+import { useGeneralContext, GeneralContextType } from '@lib/general';
 
 function Buy({ onClose }) {
+    const { watchTx } = useGeneralContext() as GeneralContextType;
+
     const [tier, setTier] = useState<number>(4);
     const [supply, setSupply] = useState<number>(115);
     const [price, setPrice] = useState<number>(1500);
@@ -17,15 +22,73 @@ function Buy({ onClose }) {
 
     const [isLoading, setLoading] = useState<boolean>(false);
 
-    const buy = () => {
-        setLoading(true);
+    const { data: walletClient } = useWalletClient();
+    const publicClient = usePublicClient();
 
-        setTimeout(() => {
-            toast.error('Not enough $R1 in your wallet.', {
-                position: 'top-center',
+    const buy = async () => {
+        try {
+            setLoading(true);
+
+            const accessToken = localStorage.getItem('accessToken');
+
+            if (!walletClient || !publicClient || !accessToken) {
+                toast.error('Unexpected error, please try again.');
+                return;
+            }
+
+            const response = (await fetch(backendUrl + '/license/buy', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify({
+                    name: 'a',
+                    surname: 'a',
+                    isCompany: false,
+                    identificationCode: 'a',
+                    address: 'a',
+                    state: 'a',
+                    city: 'a',
+                    country: 'a',
+                }),
+            }).then((res) => res.json())) as {
+                data: {
+                    signature: string;
+                    uuid: string;
+                };
+                error: string;
+            };
+
+            const txHash = await walletClient.writeContract({
+                address: ndContractAddress,
+                abi: NDContractAbi,
+                functionName: 'buyLicense',
+                args: [
+                    BigInt(quantity), // nLicesesToBuy
+                    1, // tier TODO get correct tier
+                    Buffer.from(response.data.uuid).toString() as `0x${string}`, // invoice uuid
+                    `0x${response.data.signature}`, // signature
+                ],
             });
+
+            await watchTx(txHash, publicClient);
+
             setLoading(false);
-        }, 300);
+
+            /*
+            setTimeout(() => {
+                toast.error('Not enough $R1 in your wallet.', {
+                    position: 'top-center',
+                });
+                setLoading(false);
+            }, 300);
+            */
+        } catch (err: any) {
+            console.error(err.message || 'An error occurred');
+            setLoading(false);
+        }
     };
 
     return (
