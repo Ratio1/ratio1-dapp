@@ -21,13 +21,13 @@ function EmailConfirmation() {
 
     return (
         <div className="col w-full gap-6">
-            <div className="center-all col gap-6 p-6">
+            <div className="center-all col gap-6 lg:p-6">
                 <div className="center-all rounded-full bg-green-100 p-6">
                     <RiMailCheckLine className="text-4xl text-green-500" />
                 </div>
 
-                <div className="col gap-1 px-10 text-center">
-                    <div className="font-bold uppercase tracking-wider text-primary-800">
+                <div className="col gap-1 text-center lg:px-10">
+                    <div className="px-6 font-bold uppercase tracking-wider text-primary-800">
                         Thank you for confirming your email!
                     </div>
 
@@ -37,7 +37,8 @@ function EmailConfirmation() {
                     </div>
                 </div>
 
-                <div className="col mt-6 w-[512px] gap-2">
+                {/* Web */}
+                <div className="col web-only-flex mt-6 w-[512px] gap-2">
                     <div className="row relative justify-between">
                         <div className="col center-all z-10 w-[150px] gap-4">
                             <div className="center-all outline-6 h-12 w-12 outline outline-[#fcfcfd]">
@@ -66,6 +67,42 @@ function EmailConfirmation() {
                             </div>
 
                             <div className="font-medium text-primary-800">Buy License</div>
+                        </div>
+
+                        <div className="absolute left-[75px] right-[75px] top-6 h-[2.5px] bg-primary"></div>
+                    </div>
+                </div>
+
+                {/* Mobile */}
+                <div className="col mobile-only-flex mt-6 w-full gap-2">
+                    <div className="row relative justify-between">
+                        <div className="col center-all z-10 w-[126px] gap-3">
+                            <div className="center-all outline-6 h-12 w-12 outline outline-[#fcfcfd]">
+                                <div className="center-all h-full w-full rounded-full bg-primary">
+                                    <RiCheckLine className="text-3xl text-white" />
+                                </div>
+                            </div>
+
+                            <div className="max-w-[74px] text-center text-sm font-medium text-primary-800">Email Confirmed</div>
+                        </div>
+                        <div className="col center-all z-10 w-[126px] gap-3">
+                            <div className="center-all outline-6 h-12 w-12 rounded-full bg-primary p-[2.5px] outline outline-[#fcfcfd]">
+                                <div className="center-all h-full w-full rounded-full bg-[#fcfcfd]">
+                                    <RiShieldCheckLine className="text-3xl text-primary" />
+                                </div>
+                            </div>
+
+                            <div className="max-w-[74px] text-center text-sm font-medium text-primary-800">Complete KYC</div>
+                        </div>
+
+                        <div className="col center-all z-10 w-[126px] gap-3">
+                            <div className="center-all outline-6 h-12 w-12 rounded-full bg-primary p-[2.5px] outline outline-[#fcfcfd]">
+                                <div className="center-all h-full w-full rounded-full bg-[#fcfcfd]">
+                                    <RiCpuLine className="text-3xl text-primary" />
+                                </div>
+                            </div>
+
+                            <div className="max-w-[74px] text-center text-sm font-medium text-primary-800">Buy License</div>
                         </div>
 
                         <div className="absolute left-[75px] right-[75px] top-6 h-[2.5px] bg-primary"></div>
