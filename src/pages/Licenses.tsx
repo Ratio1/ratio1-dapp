@@ -29,7 +29,7 @@ const LICENSES: Array<License | LinkedLicense> = [
         id: 6713,
         alias: 'naeural_b859867c',
         node_address: '0x13FF7fDe859f980988Ce687C8797dBB82F031e42',
-        rewards: 205,
+        rewards: 0,
         used: 575,
         assignTimestamp: subHours(new Date(), 24),
     },

@@ -41,8 +41,6 @@ function Search() {
             return;
         }
 
-        console.log('sanitized', sanitizedNumber);
-
         setLoading(true);
 
         setSearchParams({ licenseId: sanitizedNumber });
@@ -54,8 +52,8 @@ function Search() {
     };
 
     return (
-        <div className="col h-full gap-6">
-            <div className="w-[50%]">
+        <div className="col h-full gap-4 lg:gap-6">
+            <div className="w-full lg:w-[50%]">
                 <Input
                     value={value}
                     onKeyDown={(e) => {
