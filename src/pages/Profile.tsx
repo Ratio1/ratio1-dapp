@@ -4,6 +4,7 @@ import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
 import { Modal, ModalBody, ModalContent, useDisclosure } from '@nextui-org/modal';
 import { Switch } from '@nextui-org/switch';
+import { Card } from '@shared/Card';
 import { useState } from 'react';
 import { RiMailLine, RiMailSendLine, RiNewsLine, RiUserFollowLine, RiWalletLine } from 'react-icons/ri';
 import { useAccount } from 'wagmi';
@@ -13,6 +14,8 @@ function Profile() {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
     const [isLoading, setLoading] = useState<boolean>(false);
+
+    const [isRegistered] = useState<boolean>(true);
 
     const { isConnected } = useAccount();
 
@@ -53,25 +56,22 @@ function Profile() {
                 </div>
             ) : (
                 <>
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="col justify-between overflow-hidden rounded-2xl border border-[#e3e4e8] bg-light">
-                            <div className="bg-lightAccent px-10 py-6">
-                                <div className="row justify-between">
-                                    <div className="row gap-3">
-                                        <div className="rounded-full bg-primary p-2 text-white">
-                                            <RiMailLine className="text-xl" />
-                                        </div>
-
-                                        <div className="text-xl font-bold leading-6">Registration</div>
-                                    </div>
-
-                                    <div className="rounded-md bg-red-100 px-2 py-1 text-sm font-medium tracking-wider text-red-700">
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
+                        <Card
+                            icon={<RiMailLine />}
+                            title="Registration"
+                            label={
+                                !isRegistered ? (
+                                    <div className="rounded-md bg-red-100 px-2 py-1 text-xs font-medium tracking-wider text-red-700 lg:text-sm">
                                         Not Registered
                                     </div>
-                                </div>
-                            </div>
-
-                            <div className="flex h-full w-full items-center justify-between px-10 py-6">
+                                ) : (
+                                    <></>
+                                )
+                            }
+                        >
+                            {/* TODO: If registered display email without controls */}
+                            <div className="flex h-full w-full items-center justify-between">
                                 <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>
                                     <div className="col w-full gap-4">
                                         <div className="flex w-full gap-2">
@@ -111,26 +111,18 @@ function Profile() {
                                     </div>
                                 </Form>
                             </div>
-                        </div>
+                        </Card>
 
-                        <div className="col justify-between overflow-hidden rounded-2xl border border-[#e3e4e8] bg-light">
-                            <div className="bg-lightAccent px-10 py-6">
-                                <div className="row justify-between">
-                                    <div className="row gap-3">
-                                        <div className="rounded-full bg-primary p-2 text-white">
-                                            <RiUserFollowLine className="text-xl" />
-                                        </div>
-
-                                        <div className="text-xl font-bold leading-6">KYC</div>
-                                    </div>
-
-                                    <div className="rounded-md bg-red-100 px-2 py-1 text-sm font-medium tracking-wider text-red-700">
-                                        Not Started
-                                    </div>
+                        <Card
+                            icon={<RiUserFollowLine />}
+                            title="KYC"
+                            label={
+                                <div className="rounded-md bg-red-100 px-2 py-1 text-xs font-medium tracking-wider text-red-700 lg:text-sm">
+                                    Not Started
                                 </div>
-                            </div>
-
-                            <div className="flex h-full items-center justify-between px-10 py-6">
+                            }
+                        >
+                            <div className="row h-full justify-between">
                                 <Alert
                                     color="primary"
                                     title="You need to register and confirm your email first."
@@ -139,26 +131,16 @@ function Profile() {
                                     }}
                                 />
                             </div>
-                        </div>
+                        </Card>
 
-                        {/* TODO: Visible only if registered */}
-                        <div className="col gap-0 overflow-hidden rounded-2xl border border-[#e3e4e8] bg-light">
-                            <div className="bg-lightAccent px-10 py-6">
-                                <div className="row gap-3">
-                                    <div className="rounded-full bg-primary p-2 text-white">
-                                        <RiNewsLine className="text-xl" />
-                                    </div>
-
-                                    <div className="text-xl font-bold leading-6">Subscription</div>
+                        {isRegistered && (
+                            <Card icon={<RiNewsLine />} title="Subscription">
+                                <div className="row justify-between">
+                                    <div>Send me email updates.</div>
+                                    <Switch defaultSelected={true} size="sm" />
                                 </div>
-                            </div>
-
-                            <div className="row justify-between px-10 py-6">
-                                <div>Send me email updates.</div>
-
-                                <Switch defaultSelected={true} size="sm" />
-                            </div>
-                        </div>
+                            </Card>
+                        )}
                     </div>
 
                     <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur" size="lg">

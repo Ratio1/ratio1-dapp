@@ -9,7 +9,7 @@ function Layout() {
                 <Sider />
             </div>
 
-            <div className="relative min-h-dvh w-full py-6 md:ml-[256px] md:py-10 lg:py-12">
+            <div className="relative mb-[76px] min-h-dvh w-full py-6 md:ml-[256px] md:py-10 lg:mb-0 lg:py-12">
                 <Content />
             </div>
 
