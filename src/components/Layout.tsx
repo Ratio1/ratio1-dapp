@@ -1,4 +1,5 @@
 import Content from './Content';
+import MobileTabs from './Mobile/MobileTabs';
 import Sider from './Sider';
 
 function Layout() {
@@ -10,6 +11,10 @@ function Layout() {
 
             <div className="relative min-h-dvh w-full py-6 md:ml-[256px] md:py-10 lg:py-12">
                 <Content />
+            </div>
+
+            <div className="mobile-only-block">
+                <MobileTabs />
             </div>
         </div>
     );
