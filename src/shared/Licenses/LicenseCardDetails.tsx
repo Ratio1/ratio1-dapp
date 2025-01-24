@@ -73,17 +73,16 @@ export const LicenseCardDetails = () => {
         </div>
     );
 
-    const getPerformanceBox = (label: string, value: number, classes: string) => (
-        <div className="col gap-2">
-            <div className="row gap-2.5">
-                <div className={`rounded-full p-1.5 ${classes}`}>
-                    <RiTimeLine className="text-2xl" />
-                </div>
-
-                <div className="text-sm font-medium text-slate-500">{label}</div>
+    const getNodePerformanceItem = (label: string, value: number, classes: string) => (
+        <div className="row gap-3">
+            <div className={`rounded-full p-3.5 ${classes}`}>
+                <RiTimeLine className="text-2xl" />
             </div>
 
-            <div className="text-lg font-medium lg:text-center lg:text-xl">{value}h</div>
+            <div className="col">
+                <div className="text-sm text-slate-500 lg:text-base">{label}</div>
+                <div className="text-sm font-medium lg:text-base">{value}h</div>
+            </div>
         </div>
     );
 
@@ -109,7 +108,7 @@ export const LicenseCardDetails = () => {
                         <div className="col gap-3">
                             {getTitle('Rewards')}
 
-                            {getLine('Total amount ($R1)', 46.38)}
+                            {getLine('Total amount ($R1)', 46.38, true)}
                         </div>
 
                         <div className="col gap-3">
@@ -123,11 +122,11 @@ export const LicenseCardDetails = () => {
                 <div className="col -mt-0.5 gap-3">
                     {getTitle('Node performance')}
 
-                    <div className="col gap-3">
+                    <div className="row gap-8">
                         <div className="text-slate-500">Uptime per epoch</div>
 
                         <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
-                            {nodePerformance.map(({ label, value, classes }) => getPerformanceBox(label, value, classes))}
+                            {nodePerformance.map(({ label, value, classes }) => getNodePerformanceItem(label, value, classes))}
                         </div>
                     </div>
                 </div>
