@@ -10,7 +10,7 @@ export default function MobileTabs() {
 
     return (
         <div className="center-all fixed bottom-0 left-0 right-0 z-40">
-            <div className="center-all w-full gap-2 border-t-2 border-slate-200 bg-slate-100 px-2.5 py-2.5">
+            <div className="center-all w-full gap-2 border-t-2 border-slate-200 bg-slate-100 px-2.5 py-2">
                 {mobileRoutes.map((route, index) => (
                     <div key={route.path}>
                         <Link
