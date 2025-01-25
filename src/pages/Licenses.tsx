@@ -7,14 +7,15 @@ import { getCurrentEpoch, mndContractAddress, ndContractAddress, oraclesUrl } fr
 import { isLicenseLinked } from '@lib/utils';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { subHours } from 'date-fns';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { License, LinkedLicense } from 'types';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
+/*
 const LICENSES: Array<License | LinkedLicense> = [
     {
-        id: 385,
+        licenseId: 385,
         alias: 'stefan-edge-node',
         node_address: '0xbF57FEB86044aE9f7B6ED74874A6b1d60D64601b',
         rewards: 256.1,
@@ -22,7 +23,7 @@ const LICENSES: Array<License | LinkedLicense> = [
         assignTimestamp: subHours(new Date(), 24),
     },
     {
-        id: 5564,
+        licenseId: 5564,
         alias: 'naeural_396c2f29',
         node_address: '0x71c4255E9ACa4E1Eb41167056F2f9dCC6DbBB58a',
         rewards: 0,
@@ -31,7 +32,7 @@ const LICENSES: Array<License | LinkedLicense> = [
         isBanned: true,
     },
     {
-        id: 6713,
+        licenseId: 6713,
         alias: 'naeural_b859867c',
         node_address: '0x13FF7fDe859f980988Ce687C8797dBB82F031e42',
         rewards: 205,
@@ -39,20 +40,21 @@ const LICENSES: Array<License | LinkedLicense> = [
         assignTimestamp: subHours(new Date(), 24),
     },
     {
-        id: 1251,
+        licenseId: 1251,
         used: 4670,
         assignTimestamp: new Date(),
     },
     {
-        id: 287,
+        licenseId: 287,
         used: 20850,
         assignTimestamp: subHours(new Date(), 48),
     },
 ];
+*/
 
 function Licenses() {
     const [licenses, setLicenses] = useState<Array<License | LinkedLicense>>([]);
-    const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+    const cardRefs = useRef<Map<bigint, HTMLDivElement>>(new Map());
 
     const linkModalRef = useRef<{ trigger: (_license) => void }>(null);
     const unlinkModalRef = useRef<{ trigger: (_license) => void }>(null);
@@ -72,6 +74,89 @@ function Licenses() {
     }
     */
 
+    useEffect(() => {
+        if (!publicClient || !address) {
+            return;
+        }
+
+        publicClient
+            .readContract({
+                address: mndContractAddress,
+                abi: MNDContractAbi,
+                functionName: 'getUserLicense',
+                args: [address],
+            })
+            .then(async (userLicense) => {
+                const oraclesResponse = (await fetch(
+                    oraclesUrl +
+                        `/node_epochs_range?eth_node_addr=${
+                            userLicense.nodeAddress
+                        }&start_epoch=${userLicense.lastClaimEpoch}&end_epoch=${getCurrentEpoch() - 1}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                    },
+                ).then((res) => res.json())) as {
+                    result: {
+                        node: string;
+                        node_eth_address: `0x${string}`;
+                        epochs: number[];
+                        epochs_vals: number[];
+                        eth_signed_data: {
+                            input: string[];
+                            signature_field: string;
+                        };
+                        eth_signatures: `0x${string}`[];
+                        eth_addresses: `0x${string}`[];
+                        certainty: { [key: string]: boolean };
+                        server_alias: string;
+                        server_version: string;
+                        server_time: Date;
+                        server_current_epoch: number;
+                        server_uptime: string;
+                        EE_SIGN: string;
+                        EE_SENDER: string;
+                        EE_ETH_SENDER: string;
+                        EE_ETH_SIGN: string;
+                        EE_HASH: string;
+                    };
+                    node_addr: string;
+                };
+
+                const { rewardsAmount: rewards } = await publicClient.readContract({
+                    address: mndContractAddress,
+                    abi: MNDContractAbi,
+                    functionName: 'calculateRewards',
+                    args: [
+                        {
+                            licenseId: 0n,
+                            nodeAddress: oraclesResponse.result.node_eth_address,
+                            epochs: oraclesResponse.result.epochs.map((epoch) => BigInt(epoch)),
+                            availabilies: oraclesResponse.result.epochs_vals,
+                        },
+                    ],
+                });
+
+                return { ...userLicense, rewards };
+            })
+            .then((userLicense) => {
+                setLicenses([
+                    {
+                        ...userLicense,
+                        used: 0,
+                        isExpanded: false,
+                        isBanned: false,
+                        alias: 'Your Edge Node',
+                        node_address: userLicense.nodeAddress,
+                    },
+                ]);
+                console.log({ userLicense });
+            });
+    }, [address]);
+
     const claim = async (license: License | LinkedLicense) => {
         if (!publicClient || !address || !walletClient) {
             toast.error('Unexpected error, please try again.');
@@ -84,6 +169,8 @@ function Licenses() {
             functionName: 'getUserLicense',
             args: [address],
         });
+
+        console.log({ userLicense });
 
         const currentEpoch = getCurrentEpoch();
 
@@ -223,10 +310,10 @@ function Licenses() {
         }
     };
 
-    const onLicenseExpand = (id: number) => {
+    const onLicenseExpand = (id: bigint) => {
         setLicenses((prevLicenses) =>
             prevLicenses.map((license) =>
-                license.id === id
+                license.licenseId === id
                     ? {
                           ...license,
                           isExpanded: !license.isExpanded,
@@ -247,6 +334,7 @@ function Licenses() {
     };
 
     const onFilterChange = (key: 'all' | 'linked' | 'unlinked') => {
+        /*
         switch (key) {
             case 'linked':
                 setLicenses(LICENSES.filter(isLicenseLinked));
@@ -259,6 +347,7 @@ function Licenses() {
             default:
                 setLicenses(LICENSES);
         }
+        */
     };
 
     return (
@@ -269,10 +358,10 @@ function Licenses() {
 
             {licenses.map((license) => (
                 <div
-                    key={license.id}
+                    key={license.licenseId}
                     ref={(element) => {
                         if (element) {
-                            cardRefs.current.set(license.id, element);
+                            cardRefs.current.set(license.licenseId, element);
                         }
                     }}
                 >
@@ -286,10 +375,10 @@ function Licenses() {
                 </div>
             ))}
 
-            <LicenseLinkModal
+            {/*TODO <LicenseLinkModal
                 ref={linkModalRef}
                 nodeAddresses={LICENSES.filter(isLicenseLinked).map((license) => license.node_address)}
-            />
+            />*/}
 
             <LicenseUnlinkModal ref={unlinkModalRef} />
         </div>

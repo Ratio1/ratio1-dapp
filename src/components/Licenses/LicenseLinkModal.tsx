@@ -40,7 +40,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
                         <Spinner />
                     ) : (
                         <>
-                            <ModalHeader>Link License #{license.id}</ModalHeader>
+                            <ModalHeader>Link License #{license.licenseId}</ModalHeader>
 
                             <ModalBody>
                                 <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>

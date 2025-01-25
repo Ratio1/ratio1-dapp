@@ -15,18 +15,16 @@ export const LicenseCardHeader = ({
     isExpanded,
     disableActions,
     isBanned,
-    rewardsAmount,
 }: {
     license: License | LinkedLicense;
     action?: (type: 'link' | 'unlink' | 'claim', license: License | LinkedLicense) => void;
     isExpanded: boolean;
     disableActions?: boolean;
     isBanned?: boolean;
-    rewardsAmount: bigint | null;
 }) => {
     // The license can only be linked once every 24h
     const hasCooldown = () => {
-        return isBefore(new Date(), addDays(license.assignTimestamp, 1));
+        return isBefore(new Date(), addDays(Number(license.assignTimestamp), 1));
     };
 
     return (
@@ -54,7 +52,7 @@ export const LicenseCardHeader = ({
                         >
                             <div className="row gap-1">
                                 <RiCpuLine className="text-base" />
-                                <div>License #{license.id}</div>
+                                <div>License #{Number(license.licenseId)}</div>
                             </div>
                         </div>
                     </div>
@@ -63,7 +61,7 @@ export const LicenseCardHeader = ({
                         <div className="rounded-full bg-red-100 px-3 py-2 text-sm font-medium text-red-600">
                             <div className="row gap-1">
                                 <RiTimeLine className="text-base" />
-                                <div>Linkable after {addDays(license.assignTimestamp, 1).toLocaleString()}</div>
+                                <div>Linkable after {addDays(Number(license.assignTimestamp), 1).toLocaleString()}</div>
                             </div>
                         </div>
                     )}
@@ -103,7 +101,7 @@ export const LicenseCardHeader = ({
                             <div className="row gap-1.5">
                                 <div className="text-lg font-semibold text-slate-400">$R1</div>
                                 <div className="text-lg font-semibold text-primary">
-                                    {Number(formatUnits(rewardsAmount ?? 0n, 18)).toFixed(2)}
+                                    {Number(formatUnits(license.rewards ?? 0n, 18)).toFixed(2)}
                                 </div>
                             </div>
 

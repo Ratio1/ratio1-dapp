@@ -44,7 +44,7 @@ const LicenseUnlinkModal = forwardRef((_props, ref) => {
                         <Spinner />
                     ) : (
                         <>
-                            <ModalHeader>Unlink License #{license.id}</ModalHeader>
+                            <ModalHeader>Unlink License #{license.licenseId}</ModalHeader>
 
                             <ModalBody>
                                 <div className="col w-full gap-6">

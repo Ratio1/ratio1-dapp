@@ -9,7 +9,7 @@ import { useSearchParams } from 'react-router-dom';
 import { LinkedLicense } from 'types';
 
 const LICENSE: LinkedLicense = {
-    id: 5564,
+    licenseId: 5564,
     alias: 'naeural_396c2f29',
     node_address: '0x71c4255E9ACa4E1Eb41167056F2f9dCC6DbBB58a',
     rewards: 112,
