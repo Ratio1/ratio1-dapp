@@ -6,7 +6,7 @@ import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nex
 import { Spinner } from '@nextui-org/spinner';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { RiWalletLine } from 'react-icons/ri';
-import { License, LinkedLicense } from 'types';
+import { MNDLicense } from 'types';
 
 interface Props {
     nodeAddresses: string[];
@@ -14,11 +14,11 @@ interface Props {
 
 const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
-    const [license, setLicense] = useState<License | LinkedLicense>();
+    const [license, setLicense] = useState<MNDLicense>();
 
     const [address, setAddress] = useState('');
 
-    const trigger = (license: License | LinkedLicense) => {
+    const trigger = (license: MNDLicense) => {
         setLicense(license);
         onOpen();
     };

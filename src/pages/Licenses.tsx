@@ -3,13 +3,13 @@ import { NDContractAbi } from '@blockchain/NDContract';
 import LicenseLinkModal from '@components/Licenses/LicenseLinkModal';
 import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
 import LicenseUnlinkModal from '@components/Licenses/LicenseUnlinkModal';
-import { getCurrentEpoch, mndContractAddress, ndContractAddress, oraclesUrl } from '@lib/config';
-import { isLicenseLinked } from '@lib/utils';
+import { getNodeEpochsRange } from '@lib/api/oracles';
+import { getCurrentEpoch, mndContractAddress, ND_LICENSE_CAP, ndContractAddress, oraclesUrl } from '@lib/config';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { subHours } from 'date-fns';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { License, LinkedLicense } from 'types';
+import { EthAddress, License } from 'types';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 /*
@@ -53,7 +53,20 @@ const LICENSES: Array<License | LinkedLicense> = [
 */
 
 function Licenses() {
-    const [licenses, setLicenses] = useState<Array<License | LinkedLicense>>([]);
+    const [licenses, setLicenses] = useState<Array<License>>([]);
+    const [filter, setFilter] = useState<'all' | 'linked' | 'unlinked'>('all');
+    const licensesToShow = useMemo(() => {
+        switch (filter) {
+            case 'linked':
+                return licenses.filter((license) => license.isLinked);
+
+            case 'unlinked':
+                return licenses.filter((license) => !license.isLinked);
+
+            default:
+                return licenses;
+        }
+    }, [licenses, filter]);
     const cardRefs = useRef<Map<bigint, HTMLDivElement>>(new Map());
 
     const linkModalRef = useRef<{ trigger: (_license) => void }>(null);
@@ -63,181 +76,177 @@ function Licenses() {
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
 
-    /*
-    function _calculateEpoch(uint256 timestamp) private pure returns (uint256) {
-        require(
-            timestamp >= startEpochTimestamp,
-            "Timestamp is before the start epoch."
-        );
+    const calculateMndRewards = async ({
+        licenseId,
+        nodeAddress,
+        lastClaimEpoch,
+    }: {
+        licenseId: bigint;
+        nodeAddress: EthAddress;
+        lastClaimEpoch: bigint;
+    }) => {
+        if (!publicClient) {
+            return { rewardsAmount: 0n, node_alias: '' };
+        }
+        const currentEpoch = getCurrentEpoch();
+        if (currentEpoch === Number(lastClaimEpoch)) {
+            return { rewardsAmount: 0n, node_alias: '' }; //TODO check how to get the node_alias in this case
+        }
 
-        return (timestamp - startEpochTimestamp) / epochDuration;
-    }
-    */
+        const { node_alias, epochs, epochs_vals } = await getNodeEpochsRange(
+            nodeAddress,
+            Number(lastClaimEpoch),
+            getCurrentEpoch() - 1,
+        );
+        const { rewardsAmount } = await publicClient.readContract({
+            address: mndContractAddress,
+            abi: MNDContractAbi,
+            functionName: 'calculateRewards',
+            args: [
+                {
+                    licenseId,
+                    nodeAddress,
+                    epochs: epochs.map(BigInt),
+                    availabilies: epochs_vals,
+                },
+            ],
+        });
+        return { rewardsAmount, node_alias };
+    };
+    const calculateNdRewards = async ({
+        licenseId,
+        nodeAddress,
+        lastClaimEpoch,
+    }: {
+        licenseId: bigint;
+        nodeAddress: EthAddress;
+        lastClaimEpoch: bigint;
+    }) => {
+        if (!publicClient) {
+            return { rewardsAmount: 0n, node_alias: '' };
+        }
+        const currentEpoch = getCurrentEpoch();
+        if (currentEpoch === Number(lastClaimEpoch)) {
+            return { rewardsAmount: 0n, node_alias: '' }; //TODO check how to get the node_alias in this case
+        }
+
+        const { node_alias, epochs, epochs_vals } = await getNodeEpochsRange(
+            nodeAddress,
+            Number(lastClaimEpoch),
+            getCurrentEpoch() - 1,
+        );
+        const { rewardsAmount } = await publicClient.readContract({
+            address: ndContractAddress,
+            abi: NDContractAbi,
+            functionName: 'calculateRewards',
+            args: [
+                [
+                    {
+                        licenseId,
+                        nodeAddress,
+                        epochs: epochs.map(BigInt),
+                        availabilies: epochs_vals,
+                    },
+                ],
+            ],
+        })[0];
+        return { rewardsAmount, node_alias };
+    };
 
     useEffect(() => {
         if (!publicClient || !address) {
             return;
         }
 
-        publicClient
-            .readContract({
-                address: mndContractAddress,
-                abi: MNDContractAbi,
-                functionName: 'getUserLicense',
-                args: [address],
-            })
-            .then(async (userLicense) => {
-                const oraclesResponse = (await fetch(
-                    oraclesUrl +
-                        `/node_epochs_range?eth_node_addr=${
-                            userLicense.nodeAddress
-                        }&start_epoch=${userLicense.lastClaimEpoch}&end_epoch=${getCurrentEpoch() - 1}`,
-                    {
-                        method: 'GET',
-                        headers: {
-                            Accept: 'application/json',
-                            'Content-Type': 'application/json',
-                        },
-                    },
-                ).then((res) => res.json())) as {
-                    result: {
-                        node: string;
-                        node_eth_address: `0x${string}`;
-                        epochs: number[];
-                        epochs_vals: number[];
-                        eth_signed_data: {
-                            input: string[];
-                            signature_field: string;
-                        };
-                        eth_signatures: `0x${string}`[];
-                        eth_addresses: `0x${string}`[];
-                        certainty: { [key: string]: boolean };
-                        server_alias: string;
-                        server_version: string;
-                        server_time: Date;
-                        server_current_epoch: number;
-                        server_uptime: string;
-                        EE_SIGN: string;
-                        EE_SENDER: string;
-                        EE_ETH_SENDER: string;
-                        EE_ETH_SIGN: string;
-                        EE_HASH: string;
-                    };
-                    node_addr: string;
-                };
-
-                const { rewardsAmount: rewards } = await publicClient.readContract({
+        Promise.all([
+            publicClient
+                .readContract({
                     address: mndContractAddress,
                     abi: MNDContractAbi,
-                    functionName: 'calculateRewards',
-                    args: [
-                        {
-                            licenseId: 0n,
-                            nodeAddress: oraclesResponse.result.node_eth_address,
-                            epochs: oraclesResponse.result.epochs.map((epoch) => BigInt(epoch)),
-                            availabilies: oraclesResponse.result.epochs_vals,
-                        },
-                    ],
-                });
-
-                return { ...userLicense, rewards };
-            })
-            .then((userLicense) => {
-                setLicenses([
-                    {
+                    functionName: 'getUserLicense',
+                    args: [address],
+                })
+                .then((userLicense) => {
+                    const isLinked = userLicense.nodeAddress !== '0x0000000000000000000000000000000000000000';
+                    if (!isLinked) {
+                        return { ...userLicense, type: 'MND' as const, isLinked, isBanned: false as const };
+                    }
+                    const promise = calculateMndRewards(userLicense);
+                    return {
                         ...userLicense,
-                        used: 0,
-                        isExpanded: false,
-                        isBanned: false,
-                        alias: 'Your Edge Node',
-                        node_address: userLicense.nodeAddress,
-                    },
-                ]);
-                console.log({ userLicense });
-            });
+                        type: 'MND' as const,
+                        isLinked,
+                        rewards: promise.then(({ rewardsAmount }) => rewardsAmount),
+                        alias: promise.then(({ node_alias }) => node_alias),
+                        isBanned: false as const,
+                    };
+                }),
+            publicClient
+                .readContract({
+                    address: ndContractAddress,
+                    abi: NDContractAbi,
+                    functionName: 'getLicenses',
+                    args: [address],
+                })
+                .then((userLicenses) => {
+                    return userLicenses.map((license) => {
+                        const isLinked = license.nodeAddress !== '0x0000000000000000000000000000000000000000';
+                        if (!isLinked) {
+                            return { ...license, type: 'ND' as const, totalAssignedAmount: ND_LICENSE_CAP, isLinked };
+                        }
+                        const promise = calculateNdRewards(license);
+                        return {
+                            ...license,
+                            type: 'ND' as const,
+                            totalAssignedAmount: ND_LICENSE_CAP,
+                            isLinked,
+                            rewards: promise.then(({ rewardsAmount }) => rewardsAmount),
+                            alias: promise.then(({ node_alias }) => node_alias),
+                        };
+                    });
+                }),
+        ]).then(([mndLicense, ndLicenses]) => {
+            if (mndLicense.totalAssignedAmount) {
+                setLicenses([mndLicense, ...ndLicenses]);
+            } else {
+                setLicenses(ndLicenses);
+            }
+        });
     }, [address]);
 
-    const claim = async (license: License | LinkedLicense) => {
-        if (!publicClient || !address || !walletClient) {
-            toast.error('Unexpected error, please try again.');
-            return;
+    const onClaim = async (license: License) => {
+        try {
+            if (!publicClient || !address || !walletClient) {
+                toast.error('Unexpected error, please try again.');
+                return;
+            }
+
+            const { epochs, epochs_vals, eth_signatures } = await getNodeEpochsRange(
+                license.nodeAddress,
+                Number(license.lastClaimEpoch),
+                getCurrentEpoch() - 1,
+            );
+
+            const txHash = await walletClient.writeContract({
+                address: mndContractAddress,
+                abi: MNDContractAbi,
+                functionName: 'claimRewards',
+                args: [
+                    {
+                        licenseId: 0n,
+                        nodeAddress: license.nodeAddress,
+                        epochs: epochs.map((epoch) => BigInt(epoch)),
+                        availabilies: epochs_vals,
+                    },
+                    eth_signatures,
+                ],
+            });
+        } catch (err: any) {
+            toast.error(`An error occurred: ${err.message}\nPlease try again.`);
         }
-
-        const userLicense = await publicClient.readContract({
-            address: mndContractAddress,
-            abi: MNDContractAbi,
-            functionName: 'getUserLicense',
-            args: [address],
-        });
-
-        console.log({ userLicense });
-
-        const currentEpoch = getCurrentEpoch();
-
-        const oraclesResponse = (await fetch(
-            oraclesUrl +
-                `/node_epochs_range?eth_node_addr=${userLicense.nodeAddress}&start_epoch=${userLicense.lastClaimEpoch}&end_epoch=${
-                    currentEpoch - 1
-                }`,
-            {
-                method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-            },
-        ).then((res) => res.json())) as {
-            result: {
-                node: string;
-                node_eth_address: `0x${string}`;
-                epochs: number[];
-                epochs_vals: number[];
-                eth_signed_data: {
-                    input: string[];
-                    signature_field: string;
-                };
-                eth_signatures: `0x${string}`[];
-                eth_addresses: `0x${string}`[];
-                certainty: { [key: string]: boolean };
-                server_alias: string;
-                server_version: string;
-                server_time: Date;
-                server_current_epoch: number;
-                server_uptime: string;
-                EE_SIGN: string;
-                EE_SENDER: string;
-                EE_ETH_SENDER: string;
-                EE_ETH_SIGN: string;
-                EE_HASH: string;
-            };
-            node_addr: string;
-        };
-
-        const licenseTokenPrice = await publicClient.readContract({
-            address: ndContractAddress,
-            abi: NDContractAbi,
-            functionName: 'getLicenseTokenPrice',
-        });
-
-        console.log({ licenseTokenPrice });
-
-        const txHash = await walletClient.writeContract({
-            address: mndContractAddress,
-            abi: MNDContractAbi,
-            functionName: 'claimRewards',
-            args: [
-                {
-                    licenseId: 0n,
-                    nodeAddress: userLicense.nodeAddress,
-                    epochs: oraclesResponse.result.epochs.map((epoch) => BigInt(epoch)),
-                    availabilies: oraclesResponse.result.epochs_vals,
-                },
-                oraclesResponse.result.eth_signatures,
-            ],
-        });
     };
 
-    const onAction = (type: 'link' | 'unlink' | 'claim', license: License | LinkedLicense) => {
+    const onAction = (type: 'link' | 'unlink' | 'claim', license: License) => {
         switch (type) {
             case 'link':
                 onLink(license);
@@ -248,49 +257,7 @@ function Licenses() {
                 break;
 
             case 'claim':
-                claim(license);
-
-                /*
-    
-                const response = (await fetch(backendUrl + '/license/buy', {
-                    method: 'POST',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                    body: JSON.stringify({
-                        name: 'a',
-                        surname: 'a',
-                        isCompany: false,
-                        identificationCode: 'a',
-                        address: 'a',
-                        state: 'a',
-                        city: 'a',
-                        country: 'a',
-                    }),
-                }).then((res) => res.json())) as {
-                    data: {
-                        signature: string;
-                        uuid: string;
-                    };
-                    error: string;
-                };
-                console.log(response);
-    
-                const txHash = await walletClient.writeContract({
-                    address: ndContractAddress,
-                    abi: NDContractAbi,
-                    functionName: 'buyLicense',
-                    args: [
-                        BigInt(quantity), // nLicesesToBuy
-                        1, // tier TODO get correct tier
-                        Buffer.from(response.data.uuid).toString() as `0x${string}`, // invoice uuid
-                        `0x${response.data.signature}`, // signature
-                    ],
-                });
-                */
-                console.log('claim');
+                onClaim(license);
                 break;
 
             default:
@@ -298,13 +265,13 @@ function Licenses() {
         }
     };
 
-    const onLink = (license: License | LinkedLicense) => {
+    const onLink = (license: License) => {
         if (linkModalRef.current) {
             linkModalRef.current.trigger(license);
         }
     };
 
-    const onUnlink = (license: License | LinkedLicense) => {
+    const onUnlink = (license: License) => {
         if (unlinkModalRef.current) {
             unlinkModalRef.current.trigger(license);
         }
@@ -333,30 +300,13 @@ function Licenses() {
         }, 0);
     };
 
-    const onFilterChange = (key: 'all' | 'linked' | 'unlinked') => {
-        /*
-        switch (key) {
-            case 'linked':
-                setLicenses(LICENSES.filter(isLicenseLinked));
-                break;
-
-            case 'unlinked':
-                setLicenses(LICENSES.filter((license) => !isLicenseLinked(license)));
-                break;
-
-            default:
-                setLicenses(LICENSES);
-        }
-        */
-    };
-
     return (
         <div className="col gap-3">
             <div className="mb-3">
-                <LicensesPageHeader onFilterChange={onFilterChange} />
+                <LicensesPageHeader onFilterChange={setFilter} />
             </div>
 
-            {licenses.map((license) => (
+            {licensesToShow.map((license) => (
                 <div
                     key={license.licenseId}
                     ref={(element) => {
@@ -367,10 +317,9 @@ function Licenses() {
                 >
                     <LicenseCard
                         license={license}
-                        isExpanded={isLicenseLinked(license) ? !!license.isExpanded : false}
+                        isExpanded={license.isLinked ? !!license.isExpanded : false}
                         toggle={onLicenseExpand}
                         action={onAction}
-                        isBanned={license.isBanned}
                     />
                 </div>
             ))}

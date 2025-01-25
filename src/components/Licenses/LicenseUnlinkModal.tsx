@@ -1,3 +1,4 @@
+import useAwait from '@lib/useAwait';
 import { isLicenseLinked } from '@lib/utils';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
@@ -6,13 +7,13 @@ import { Spinner } from '@nextui-org/spinner';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiLinkUnlink } from 'react-icons/ri';
-import { License, LinkedLicense } from 'types';
+import { MNDLicense } from 'types';
 
 const LicenseUnlinkModal = forwardRef((_props, ref) => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
-    const [license, setLicense] = useState<License | LinkedLicense>();
+    const [license, setLicense] = useState<MNDLicense>();
 
-    const trigger = (license: License | LinkedLicense) => {
+    const trigger = (license: MNDLicense) => {
         if (isLicenseLinked(license) && license.rewards > 0) {
             toast.error('Rewards must be claimed before unlinking license.', {
                 position: 'top-center',

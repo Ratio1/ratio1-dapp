@@ -1,4 +1,4 @@
-import { backendUrl, ndContractAddress, r1Price } from '@lib/config';
+import { ndContractAddress, r1ContractAddress, r1Price } from '@lib/config';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
@@ -10,6 +10,8 @@ import { BiMinus } from 'react-icons/bi';
 import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine } from 'react-icons/ri';
 import { usePublicClient, useWalletClient } from 'wagmi';
 import { useGeneralContext, GeneralContextType } from '@lib/general';
+import { buyLicense } from '@lib/api/backend';
+import { ERC20Abi } from '@blockchain/ERC20';
 
 function Buy({ onClose }) {
     const { watchTx } = useGeneralContext() as GeneralContextType;
@@ -20,56 +22,67 @@ function Buy({ onClose }) {
 
     const [quantity, setQuantity] = useState<string>('1');
 
+    const [isLoadingApprove, setLoadingApprove] = useState<boolean>(false);
     const [isLoading, setLoading] = useState<boolean>(false);
 
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
 
-    const buy = async () => {
+    const allowR1Spending = async () => {
         try {
-            setLoading(true);
+            setLoadingApprove(true);
 
-            const accessToken = localStorage.getItem('accessToken');
-
-            if (!walletClient || !publicClient || !accessToken) {
+            if (!walletClient || !publicClient) {
                 toast.error('Unexpected error, please try again.');
                 return;
             }
 
-            const response = (await fetch(backendUrl + '/license/buy', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify({
-                    name: 'a',
-                    surname: 'a',
-                    isCompany: false,
-                    identificationCode: 'a',
-                    address: 'a',
-                    state: 'a',
-                    city: 'a',
-                    country: 'a',
-                }),
-            }).then((res) => res.json())) as {
-                data: {
-                    signature: string;
-                    uuid: string;
-                };
-                error: string;
-            };
+            const txHash = await walletClient.writeContract({
+                address: r1ContractAddress,
+                abi: ERC20Abi,
+                functionName: 'approve',
+                args: [ndContractAddress, 20000_000000000000000000n],
+            });
+
+            await watchTx(txHash, publicClient);
+
+            setLoadingApprove(false);
+        } catch (err: any) {
+            console.error(err.message || 'An error occurred');
+            toast.error(`An error occurred: ${err.message}\nPlease try again.`);
+            setLoading(false);
+        }
+    };
+
+    const buy = async () => {
+        try {
+            setLoading(true);
+
+            if (!walletClient || !publicClient) {
+                toast.error('Unexpected error, please try again.');
+                return;
+            }
+
+            const { signature, uuid } = await buyLicense({
+                name: 'a',
+                surname: 'a',
+                isCompany: false,
+                identificationCode: 'a',
+                address: 'a',
+                state: 'a',
+                city: 'a',
+                country: 'a',
+            });
 
             const txHash = await walletClient.writeContract({
                 address: ndContractAddress,
                 abi: NDContractAbi,
                 functionName: 'buyLicense',
                 args: [
-                    BigInt(quantity), // nLicesesToBuy
+                    BigInt(quantity),
                     1, // tier TODO get correct tier
-                    Buffer.from(response.data.uuid).toString() as `0x${string}`, // invoice uuid
-                    `0x${response.data.signature}`, // signature
+                    Buffer.from(uuid).toString() as `0x${string}`,
+                    `0x${signature}`,
                 ],
             });
 
@@ -87,6 +100,7 @@ function Buy({ onClose }) {
             */
         } catch (err: any) {
             console.error(err.message || 'An error occurred');
+            toast.error(`An error occurred: ${err.message}\nPlease try again.`);
             setLoading(false);
         }
     };
@@ -216,6 +230,12 @@ function Buy({ onClose }) {
                     )}
 
                     <div className="mt-6 w-full">
+                        <Button className="w-full" color="primary" onPress={allowR1Spending} isLoading={isLoadingApprove}>
+                            Allow R1 spending
+                        </Button>
+                    </div>
+
+                    <div className="mt-2 w-full">
                         <Button className="w-full" color="primary" onPress={buy} isLoading={isLoading}>
                             Buy
                         </Button>

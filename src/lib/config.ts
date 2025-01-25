@@ -13,6 +13,7 @@ import { QueryClient } from '@tanstack/react-query';
 
 export const contractAddress = '0x799319c30eCdA0fA9E678FbA217047f03E92527F';
 
+export const r1ContractAddress = '0x6764E348ad3190DC90f6767C4BF38D7479a77981';
 export const ndContractAddress = '0xdF58793EB6c8862d81B76810239652f0aAEEDbF8';
 export const mndContractAddress = '0xc2F47468Fd614b63dCe00205153748aE801114f2';
 export const explorerUrl = 'https://sepolia.etherscan.io';
@@ -78,6 +79,8 @@ const verifyMessage = async ({ message, signature }: SIWEVerifyMessageArgs) => {
             error: string;
         };
         localStorage.setItem('accessToken', response.data.accessToken);
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+        localStorage.setItem('expiration', response.data.expiration.toString());
         const chainId = getChainIdFromMessage(message);
         const address = getAddressFromMessage(message);
         localStorage.setItem('chainId', chainId.replace('eip155:', ''));
@@ -120,4 +123,4 @@ export const siweConfig = createSIWEConfig({
     },
 });
 
-export const LICENSE_CAP = 25000;
+export const ND_LICENSE_CAP = 25000n;

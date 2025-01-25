@@ -1,8 +1,11 @@
+import useAwait from '@lib/useAwait';
 import { RiTimeLine } from 'react-icons/ri';
-import { License, LinkedLicense } from 'types';
+import { License } from 'types';
 import { formatUnits } from 'viem';
 
-export const LicenseCardDetails = ({ license }: { license: License | LinkedLicense }) => {
+export const LicenseCardDetails = ({ license }: { license: License }) => {
+    const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
+
     return (
         <div className="px-8 py-8">
             <div className="col gap-8">
@@ -29,12 +32,12 @@ export const LicenseCardDetails = ({ license }: { license: License | LinkedLicen
 
                         <div className="row gap-3">
                             <div className="min-w-[184px] text-slate-500">Initial amount</div>
-                            <div>100k</div>
+                            <div>{Number(formatUnits(license.totalAssignedAmount ?? 0n, 18)).toFixed(2)}</div>
                         </div>
 
                         <div className="row gap-3">
                             <div className="min-w-[184px] text-slate-500">Remaining amount</div>
-                            <div>97.6k</div>
+                            <div>{Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2)}</div>
                         </div>
                     </div>
 
@@ -44,7 +47,7 @@ export const LicenseCardDetails = ({ license }: { license: License | LinkedLicen
                         <div className="row gap-3">
                             <div className="min-w-[184px] text-slate-500">Total amount ($R1)</div>
                             <div className="font-medium text-primary">
-                                {Number(formatUnits(license.rewards ?? 0n, 18)).toFixed(2)}
+                                {isLoadingRewards ? '...' : Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)}
                             </div>
                         </div>
 
@@ -52,7 +55,7 @@ export const LicenseCardDetails = ({ license }: { license: License | LinkedLicen
 
                         <div className="row gap-3">
                             <div className="min-w-[184px] text-slate-500">Proof of Availability</div>
-                            <div>{Number(formatUnits(license.rewards ?? 0n, 18)).toFixed(2)}</div>
+                            <div>{isLoadingRewards ? '...' : Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)}</div>
                         </div>
 
                         <div className="row gap-3">
