@@ -1,16 +1,18 @@
 import Logo from '@assets/token_white.svg';
 import abi from '@blockchain/abi.json';
-import { contractAddress, genesisDate } from '@lib/config';
+import { NDContractAbi } from '@blockchain/NDContract';
+import { getNodeEpochsRange } from '@lib/api/oracles';
+import { contractAddress, genesisDate, ndContractAddress } from '@lib/config';
 import { GeneralContextType, useGeneralContext } from '@lib/general';
 import useAwait from '@lib/useAwait';
-import { fBI } from '@lib/utils';
+import { fBI, getCurrentEpoch } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Tab, Tabs } from '@nextui-org/tabs';
 import { Timer } from '@shared/Timer';
 import { addDays, differenceInDays } from 'date-fns';
 import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { License } from 'types';
+import { ComputeParam, EthAddress, License } from 'types';
 import { formatUnits } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
@@ -52,16 +54,47 @@ function LicensesPageHeader({
         try {
             setLoading(true);
 
+            //TODO check if we can do another transaction for MNDs
+            const txParameters = await Promise.all(
+                licenses
+                    .filter((license) => license.type === 'ND')
+                    .map(async (license) => {
+                        if (!license.isLinked || (await license.rewards) === 0n) {
+                            return;
+                        }
+                        //TODO decide if we want to store this data in the license object
+                        const { epochs, epochs_vals, eth_signatures } = await getNodeEpochsRange(
+                            license.nodeAddress,
+                            Number(license.lastClaimEpoch),
+                            getCurrentEpoch() - 1,
+                        );
+                        const computeParam = {
+                            licenseId: license.licenseId,
+                            nodeAddress: license.nodeAddress,
+                            epochs: epochs.map((epoch) => BigInt(epoch)),
+                            availabilies: epochs_vals,
+                        };
+                        return { computeParam, eth_signatures };
+                    }),
+            ).then((a) => a.filter((x): x is { computeParam: ComputeParam; eth_signatures: `0x${string}`[] } => !!x));
+
+            if (!txParameters.length) {
+                throw new Error('No rewards to claim');
+            }
+
             const txHash = await walletClient.writeContract({
-                address: contractAddress,
-                abi,
-                functionName: 'store',
-                args: [27],
+                address: ndContractAddress,
+                abi: NDContractAbi,
+                functionName: 'claimRewards',
+                args: [
+                    [...txParameters.map(({ computeParam }) => computeParam)],
+                    [...txParameters.map(({ eth_signatures }) => eth_signatures)],
+                ],
             });
 
-            console.log(`Transaction sent! Hash: ${txHash}`);
-
             await watchTx(txHash, publicClient);
+
+            //TODO update fetched data
 
             console.log('Finished watching transaction.');
         } catch (err: any) {

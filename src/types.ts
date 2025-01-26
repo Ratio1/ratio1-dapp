@@ -40,7 +40,14 @@ type GNDLicense = BaseLicense & {
 
 type License = NDLicense | MNDLicense | GNDLicense;
 
-type NodeAvailabilityResult = {
+type ComputeParam = {
+    licenseId: bigint;
+    nodeAddress: `0x${string}`;
+    epochs: bigint[];
+    availabilies: number[];
+};
+
+type OraclesAvailabilityResult = {
     node: string;
     node_alias: string;
     node_eth_address: EthAddress;
@@ -100,7 +107,8 @@ export type {
     NDLicense,
     MNDLicense,
     GNDLicense,
-    NodeAvailabilityResult as OraclesAvailabilityResult,
+    ComputeParam,
+    OraclesAvailabilityResult,
     BuyLicenseRequest,
     OraclesDefaultResult,
     ApiAccount,
