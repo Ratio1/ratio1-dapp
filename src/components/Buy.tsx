@@ -81,7 +81,7 @@ function Buy({ onClose }) {
                 args: [
                     BigInt(quantity),
                     1, // tier TODO get correct tier
-                    Buffer.from(uuid).toString() as `0x${string}`,
+                    `0x${Buffer.from(uuid).toString('hex')}`,
                     `0x${signature}`,
                 ],
             });
