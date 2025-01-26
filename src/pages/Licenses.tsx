@@ -324,10 +324,10 @@ function Licenses() {
                 </div>
             ))}
 
-            {/*TODO <LicenseLinkModal
+            <LicenseLinkModal
                 ref={linkModalRef}
-                nodeAddresses={LICENSES.filter(isLicenseLinked).map((license) => license.node_address)}
-            />*/}
+                nodeAddresses={licenses.filter((license) => license.isLinked).map((license) => license.nodeAddress)}
+            />
 
             <LicenseUnlinkModal ref={unlinkModalRef} />
         </div>

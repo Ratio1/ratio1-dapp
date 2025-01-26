@@ -6,7 +6,7 @@ import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nex
 import { Spinner } from '@nextui-org/spinner';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { RiWalletLine } from 'react-icons/ri';
-import { MNDLicense } from 'types';
+import { License } from 'types';
 
 interface Props {
     nodeAddresses: string[];
@@ -14,11 +14,11 @@ interface Props {
 
 const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
-    const [license, setLicense] = useState<MNDLicense>();
+    const [license, setLicense] = useState<License>();
 
     const [address, setAddress] = useState('');
 
-    const trigger = (license: MNDLicense) => {
+    const trigger = (license: License) => {
         setLicense(license);
         onOpen();
     };
@@ -40,7 +40,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
                         <Spinner />
                     ) : (
                         <>
-                            <ModalHeader>Link License #{license.licenseId}</ModalHeader>
+                            <ModalHeader>Link License #{Number(license.licenseId)}</ModalHeader>
 
                             <ModalBody>
                                 <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>

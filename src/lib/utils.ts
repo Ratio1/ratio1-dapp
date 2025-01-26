@@ -1,5 +1,3 @@
-import { MNDLicense } from 'types';
-
 export const getShortAddress = (address: string, size = 4) => `${address.slice(0, size)}...${address.slice(-size)}`;
 
 export function fN(num: number): string {
@@ -22,7 +20,3 @@ export function fNBigInt(num: bigint, decimals: number): string {
     }
     return num.toString();
 }
-
-export const isLicenseLinked = (obj: MNDLicense) => {
-    return obj.nodeAddress !== '0x0000000000000000000000000000000000000000';
-};

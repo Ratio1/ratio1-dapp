@@ -6,16 +6,18 @@ import { subHours } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { RiSearchLine } from 'react-icons/ri';
 import { useSearchParams } from 'react-router-dom';
-import { LinkedLicense } from 'types';
-
-const LICENSE: LinkedLicense = {
-    licenseId: 5564,
-    alias: 'naeural_396c2f29',
-    node_address: '0x71c4255E9ACa4E1Eb41167056F2f9dCC6DbBB58a',
-    rewards: 112,
-    used: 5800,
-    assignTimestamp: subHours(new Date(), 24),
+import { License } from 'types';
+/*
+const LICENSE: License = {
+    type: 'ND',
+    isBanned: false,
+    licenseId: 5564n,
+    nodeAddress: '0x71c4255E9ACa4E1Eb41167056F2f9dCC6DbBB58a',
+    alias: Promise.resolve('naeural_396c2f29'),
+    rewards: Promise.resolve(112n),
+    assignTimestamp: 1n,
 };
+*/
 
 function Search() {
     const [value, setValue] = useState<string>('');
@@ -49,7 +51,7 @@ function Search() {
 
         setTimeout(() => {
             setLoading(false);
-            setResult(LICENSE);
+            //setResult(LICENSE);
         }, 500);
     };
 
@@ -93,14 +95,16 @@ function Search() {
                 />
             </div>
 
-            {!result ? (
-                <div className="center-all col gap-1.5 p-8">
-                    <img src={Empty} alt="Empty" className="h-28" />
-                    <div className="text-sm text-slate-400">Search for a license</div>
-                </div>
-            ) : (
+            {
+                !result ? (
+                    <div className="center-all col gap-1.5 p-8">
+                        <img src={Empty} alt="Empty" className="h-28" />
+                        <div className="text-sm text-slate-400">Search for a license</div>
+                    </div>
+                ) : null /* : (
                 <LicenseCard license={LICENSE} isExpanded disableActions />
-            )}
+            )*/
+            }
         </div>
     );
 }
