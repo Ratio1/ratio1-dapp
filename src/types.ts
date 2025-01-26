@@ -1,7 +1,7 @@
 type R1Address = `0xai${string}`;
 type EthAddress = `0x${string}`;
 
-type License = (NDLicense | MNDLicense) & {
+type BaseLicense = {
     readonly licenseId: bigint;
     nodeAddress: EthAddress;
     totalClaimedAmount: bigint;
@@ -11,28 +11,29 @@ type License = (NDLicense | MNDLicense) & {
     assignTimestamp: bigint;
     lastClaimOracle: EthAddress;
     totalAssignedAmount: bigint;
-
     isExpanded?: boolean;
 } & (
-        | {
-              isLinked: true;
-              alias: Promise<string>;
-              rewards: Promise<bigint>;
-          }
-        | {
-              isLinked: false;
-          }
-    );
+    | {
+          isLinked: true;
+          alias: Promise<string>;
+          rewards: Promise<bigint>;
+      }
+    | {
+          isLinked: false;
+      }
+);
 
 type NDLicense = {
     type: 'ND';
     isBanned: boolean;
-};
+} & BaseLicense;
 
 type MNDLicense = {
     type: 'MND';
     isBanned: false;
-};
+} & BaseLicense;
+
+type License = NDLicense | MNDLicense;
 
 type OraclesAvailabilityResult = {
     node: string;
@@ -74,4 +75,13 @@ type OraclesDefaultResult = {
     EE_HASH: string;
 };
 
-export type { R1Address, EthAddress, License, OraclesAvailabilityResult, BuyLicenseRequest, OraclesDefaultResult };
+export type {
+    R1Address,
+    EthAddress,
+    License,
+    NDLicense,
+    MNDLicense,
+    OraclesAvailabilityResult,
+    BuyLicenseRequest,
+    OraclesDefaultResult,
+};
