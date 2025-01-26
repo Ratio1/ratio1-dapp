@@ -16,7 +16,7 @@ export const contractAddress = '0x799319c30eCdA0fA9E678FbA217047f03E92527F';
 export const r1ContractAddress = '0x6764E348ad3190DC90f6767C4BF38D7479a77981';
 export const ndContractAddress = '0xdF58793EB6c8862d81B76810239652f0aAEEDbF8';
 export const mndContractAddress = '0xc2F47468Fd614b63dCe00205153748aE801114f2';
-export const explorerUrl = 'https://sepolia.etherscan.io';
+export const explorerUrl = 'https://sepolia.basescan.org';
 
 export const backendUrl = 'https://ratio1-backend.ngrok.app';
 export const oraclesUrl = 'https://naeural-oracle.ngrok.app';
@@ -26,7 +26,12 @@ export const queryClient = new QueryClient();
 
 export const projectId = '6fb791d3d18d57d28ae7677e4cff8c6e';
 
-export const genesisDate = new Date('2025-01-01T00:00:00.000Z');
+export const genesisDate = new Date('2025-01-24T00:00:00.000Z');
+export const epochDuration = 3600; // 1 hour
+export const mndCliffEpochs = 120;
+export const gndVestingEpochs = 1825;
+export const mndVestingEpochs = 1825;
+export const ndVestingEpochs = 1825;
 export const r1Price = 12.5; // in $USD
 
 export const metadata = {
@@ -42,13 +47,6 @@ export const wagmiAdapter = new WagmiAdapter({
     projectId,
     ssr: false,
 });
-
-export const getCurrentEpoch = () => {
-    const startEpochTimestamp = 1737676800; // 2022-09-01T00:00:00Z
-    const epochDuration = 3600; // 1 hour
-
-    return Math.floor((Date.now() / 1000 - startEpochTimestamp) / epochDuration);
-};
 
 async function getSession() {
     const accessToken = localStorage.getItem('accessToken');
@@ -123,4 +121,4 @@ export const siweConfig = createSIWEConfig({
     },
 });
 
-export const ND_LICENSE_CAP = 25000n;
+export const ND_LICENSE_CAP = 46_224n * 10n ** 18n;

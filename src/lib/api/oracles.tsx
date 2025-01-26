@@ -11,61 +11,12 @@ export const getNodeEpochsRange = (nodeAddress: types.EthAddress, startEpoch: nu
         `/node_epochs_range?eth_node_addr=${nodeAddress}&start_epoch=${startEpoch}&end_epoch=${endEpoch}`,
     );
 
-/*
+export const getNodeLastEpoch = (nodeAddress: types.EthAddress) =>
+    _doGet<types.OraclesAvailabilityResult>(`/node_last_epoch?eth_node_addr=${nodeAddress}`);
 
-export async function getAccount() {
-    const account = await _doGet<ApiAccount>('accounts/account');
-    store.dispatch(setAccount(account));
-    return account;
-}
-
-export async function getLockingPoints() {
-    try {
-        const points = await _doGet<number>('accounts/locking-points');
-        store.dispatch(setLockingPoints(points));
-        return points;
-    } catch (e) {
-        return 0;
-    }
-}
-
-export async function setUpdatesSubscribe(receiveUpdates: boolean) {
-    const account = await _doGet<ApiAccount>(`/accounts/${receiveUpdates ? 'subscribe' : 'unsubscribe'}`);
-    store.dispatch(setAccount(account));
-    return account;
-}
-
-export async function confirmEmail(token: string) {
-    const account = await _doGet<ApiAccount>(`/accounts/email/confirm?token=${token}`);
-    store.dispatch(setAccount(account));
-    return account;
-}
-*/
-
-// *****
-// POST
-// *****
-/*
-export const buyLicense = (params: types.BuyLicenseRequest) =>
-    _doPost<{
-        signature: string;
-        uuid: string;
-    }>('/license/buy', params);
-*/
-/*
-export async function registerEmail(params: { email: string; receiveUpdates: boolean }) {
-    const account = await _doPost<ApiAccount>(`/accounts/email/register`, params);
-    store.dispatch(setAccount(account));
-    return account;
-}
-export async function initKycSession() {
-    return _doPost<{
-        session_id: string;
-        sandbox: boolean;
-    }>('/synaps/init', {});
-}
-
-*/
+//TODO ask if we can have an endpoint for this
+export const getNodeAlias = (nodeAddress: types.EthAddress) =>
+    getNodeLastEpoch(nodeAddress).then(({ node_alias }) => node_alias);
 
 // *****
 // INTERNAL HELPERS

@@ -33,9 +33,14 @@ type MNDLicense = {
     isBanned: false;
 } & BaseLicense;
 
-type License = NDLicense | MNDLicense;
+type GNDLicense = {
+    type: 'GND';
+    isBanned: false;
+} & BaseLicense;
 
-type OraclesAvailabilityResult = {
+type License = NDLicense | MNDLicense | GNDLicense;
+
+type NodeAvailabilityResult = {
     node: string;
     node_alias: string;
     node_eth_address: EthAddress;
@@ -81,7 +86,8 @@ export type {
     License,
     NDLicense,
     MNDLicense,
-    OraclesAvailabilityResult,
+    GNDLicense,
+    NodeAvailabilityResult as OraclesAvailabilityResult,
     BuyLicenseRequest,
     OraclesDefaultResult,
 };
