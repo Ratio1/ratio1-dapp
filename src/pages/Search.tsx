@@ -1,4 +1,7 @@
 import Empty from '@assets/empty.png';
+import { NDContractAbi } from '@blockchain/NDContract';
+import { ND_LICENSE_CAP, ndContractAddress } from '@lib/config';
+import { getLicenseRewardsAndName } from '@lib/utils';
 import { Input } from '@nextui-org/input';
 import { Spinner } from '@nextui-org/spinner';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
@@ -6,7 +9,8 @@ import { subHours } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { RiSearchLine } from 'react-icons/ri';
 import { useSearchParams } from 'react-router-dom';
-import { License } from 'types';
+import { License, NDLicense } from 'types';
+import { usePublicClient } from 'wagmi';
 /*
 const LICENSE: License = {
     type: 'ND',
@@ -23,9 +27,10 @@ function Search() {
     const [value, setValue] = useState<string>('');
     const [isLoading, setLoading] = useState<boolean>(false);
 
-    const [result, setResult] = useState<any>();
+    const [result, setResult] = useState<NDLicense | null>();
 
     const [searchParams, setSearchParams] = useSearchParams();
+    const publicClient = usePublicClient();
 
     const licenseId = searchParams.get('licenseId');
 
@@ -36,7 +41,10 @@ function Search() {
         }
     }, [licenseId]);
 
-    const onSearch = () => {
+    const onSearch = async () => {
+        if (!publicClient) {
+            return;
+        }
         const sanitizedNumber = value.replace('License', '').replace('Licence', '').replace('#', '').trim();
 
         if (!sanitizedNumber) {
@@ -49,10 +57,43 @@ function Search() {
 
         setSearchParams({ licenseId: sanitizedNumber });
 
-        setTimeout(() => {
-            setLoading(false);
-            //setResult(LICENSE);
-        }, 500);
+        const [nodeAddress, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle, isBanned] =
+            await publicClient.readContract({
+                address: ndContractAddress,
+                abi: NDContractAbi,
+                functionName: 'licenses',
+                args: [BigInt(sanitizedNumber)],
+            });
+
+        const isLinked = nodeAddress !== '0x0000000000000000000000000000000000000000';
+        const license = {
+            type: 'ND' as const,
+            licenseId: BigInt(sanitizedNumber),
+            nodeAddress,
+            totalClaimedAmount,
+            remainingAmount: ND_LICENSE_CAP - totalClaimedAmount,
+            lastClaimEpoch,
+            claimableEpochs: BigInt(0),
+            assignTimestamp,
+            lastClaimOracle,
+            totalAssignedAmount: ND_LICENSE_CAP,
+            isBanned,
+        };
+        if (!isLinked) {
+            setResult({
+                ...license,
+                isLinked,
+            });
+        } else {
+            const licenseDataPromise = getLicenseRewardsAndName(license);
+            return {
+                ...license,
+                rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
+                alias: licenseDataPromise.then(({ node_alias }) => node_alias),
+            };
+        }
+
+        setLoading(false);
     };
 
     return (
@@ -95,16 +136,14 @@ function Search() {
                 />
             </div>
 
-            {
-                !result ? (
-                    <div className="center-all col gap-1.5 p-8">
-                        <img src={Empty} alt="Empty" className="h-28" />
-                        <div className="text-sm text-slate-400">Search for a license</div>
-                    </div>
-                ) : null /* : (
-                <LicenseCard license={LICENSE} isExpanded disableActions />
-            )*/
-            }
+            {!result ? (
+                <div className="center-all col gap-1.5 p-8">
+                    <img src={Empty} alt="Empty" className="h-28" />
+                    <div className="text-sm text-slate-400">Search for a license</div>
+                </div>
+            ) : (
+                <LicenseCard license={result} isExpanded disableActions />
+            )}
         </div>
     );
 }

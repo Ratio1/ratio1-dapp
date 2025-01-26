@@ -79,11 +79,15 @@ function Licenses() {
     const { watchTx } = useGeneralContext() as GeneralContextType;
 
     useEffect(() => {
+        fetchLicenses().then(setLicenses);
+    }, [address]);
+
+    const fetchLicenses = async (): Promise<Array<License>> => {
         if (!publicClient || !address) {
-            return;
+            return [];
         }
 
-        Promise.all([
+        const [mndLicense, ndLicenses] = await Promise.all([
             publicClient
                 .readContract({
                     address: mndContractAddress,
@@ -136,14 +140,12 @@ function Licenses() {
                         };
                     });
                 }),
-        ]).then(([mndLicense, ndLicenses]) => {
-            if (mndLicense.totalAssignedAmount) {
-                setLicenses([mndLicense, ...ndLicenses]);
-            } else {
-                setLicenses(ndLicenses);
-            }
-        });
-    }, [address]);
+        ]);
+        if (mndLicense.totalAssignedAmount) {
+            return [mndLicense, ...ndLicenses];
+        }
+        return ndLicenses;
+    };
 
     const onClaim = async (license: License) => {
         try {
@@ -159,40 +161,31 @@ function Licenses() {
                 getCurrentEpoch() - 1,
             );
 
+            const computeParam = {
+                licenseId: license.licenseId,
+                nodeAddress: license.nodeAddress,
+                epochs: epochs.map((epoch) => BigInt(epoch)),
+                availabilies: epochs_vals,
+            };
             const txHash =
                 license.type === 'ND'
                     ? await walletClient.writeContract({
                           address: ndContractAddress,
                           abi: NDContractAbi,
                           functionName: 'claimRewards',
-                          args: [
-                              [
-                                  {
-                                      licenseId: 0n,
-                                      nodeAddress: license.nodeAddress,
-                                      epochs: epochs.map((epoch) => BigInt(epoch)),
-                                      availabilies: epochs_vals,
-                                  },
-                              ],
-                              [eth_signatures],
-                          ],
+                          args: [[computeParam], [eth_signatures]],
                       })
                     : await walletClient.writeContract({
                           address: mndContractAddress,
                           abi: MNDContractAbi,
                           functionName: 'claimRewards',
-                          args: [
-                              {
-                                  licenseId: 0n,
-                                  nodeAddress: license.nodeAddress,
-                                  epochs: epochs.map((epoch) => BigInt(epoch)),
-                                  availabilies: epochs_vals,
-                              },
-                              eth_signatures,
-                          ],
+                          args: [computeParam, eth_signatures],
                       });
 
             await watchTx(txHash, publicClient);
+
+            const updatedLicenses = await fetchLicenses();
+            setLicenses(updatedLicenses);
         } catch (err: any) {
             toast.error(`An error occurred: ${err.message}\nPlease try again.`);
         }
@@ -255,7 +248,7 @@ function Licenses() {
     return (
         <div className="col gap-3">
             <div className="mb-3">
-                <LicensesPageHeader onFilterChange={setFilter} />
+                <LicensesPageHeader onFilterChange={setFilter} licenses={licenses} />
             </div>
 
             {licensesToShow.map((license) => (

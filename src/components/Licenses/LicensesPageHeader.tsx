@@ -2,19 +2,43 @@ import Logo from '@assets/token_white.svg';
 import abi from '@blockchain/abi.json';
 import { contractAddress, genesisDate } from '@lib/config';
 import { GeneralContextType, useGeneralContext } from '@lib/general';
+import useAwait from '@lib/useAwait';
+import { fNBigInt } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Tab, Tabs } from '@nextui-org/tabs';
 import { Timer } from '@shared/Timer';
 import { addDays, differenceInDays } from 'date-fns';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
+import { License } from 'types';
+import { formatUnits } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
-function LicensesPageHeader({ onFilterChange }) {
+function LicensesPageHeader({
+    onFilterChange,
+    licenses,
+}: {
+    onFilterChange: (key: 'all' | 'linked' | 'unlinked') => void;
+    licenses: Array<License>;
+}) {
     const { watchTx } = useGeneralContext() as GeneralContextType;
 
     const [timestamp] = useState<Date>(addDays(genesisDate, 1 + differenceInDays(new Date(), genesisDate)));
+    const rewardsPromise = useMemo(
+        () =>
+            Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then((rewards) =>
+                rewards.reduce((acc, reward) => acc + reward, 0n),
+            ),
+        [licenses],
+    );
+    const [rewards, isLoadingRewards] = useAwait(rewardsPromise);
     const [isLoading, setLoading] = useState<boolean>(false);
+
+    const earnedAmount = useMemo(() => licenses.reduce((acc, license) => acc + license.totalClaimedAmount, 0n), [licenses]);
+    const futureClaimableAmount = useMemo(
+        () => licenses.reduce((acc, license) => acc + license.remainingAmount, 0n),
+        [licenses],
+    );
 
     const publicClient = usePublicClient();
     const { data: walletClient } = useWalletClient();
@@ -81,17 +105,19 @@ function LicensesPageHeader({ onFilterChange }) {
                         <div className="row justify-between">
                             <div className="col gap-1">
                                 <div className="text-sm font-medium text-white/85">Claimable ($R1)</div>
-                                <div className="text-xl font-medium text-white">46.2</div>
+                                <div className="text-xl font-medium text-white">
+                                    {isLoadingRewards ? '...' : Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)}
+                                </div>
                             </div>
 
                             <div className="col gap-1">
                                 <div className="text-sm font-medium text-white/85">Earned ($R1)</div>
-                                <div className="text-xl font-medium text-white">1012.895</div>
+                                <div className="text-xl font-medium text-white">{fNBigInt(earnedAmount, 18)}</div>
                             </div>
 
                             <div className="col gap-1">
                                 <div className="text-sm font-medium text-white/85">Future Claimable ($R1)</div>
-                                <div className="text-xl font-medium text-white">199.2k</div>
+                                <div className="text-xl font-medium text-white">{fNBigInt(futureClaimableAmount, 18)}</div>
                             </div>
 
                             <div className="col gap-1">
@@ -114,7 +140,7 @@ function LicensesPageHeader({ onFilterChange }) {
                                         tabContent: 'text-[15px] text-white',
                                     }}
                                     onSelectionChange={(key) => {
-                                        onFilterChange(key);
+                                        onFilterChange(key as 'all' | 'linked' | 'unlinked');
                                     }}
                                 >
                                     <Tab key="all" title="All" />

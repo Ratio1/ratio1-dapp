@@ -1,3 +1,7 @@
+import { MNDContractAbi } from '@blockchain/MNDContract';
+import { NDContractAbi } from '@blockchain/NDContract';
+import { ndContractAddress, mndContractAddress } from '@lib/config';
+import { useGeneralContext, GeneralContextType } from '@lib/general';
 import useAwait from '@lib/useAwait';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
@@ -6,14 +10,20 @@ import { Spinner } from '@nextui-org/spinner';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiLinkUnlink } from 'react-icons/ri';
-import { License } from 'types';
+import { EthAddress, License } from 'types';
+import { useWalletClient, usePublicClient } from 'wagmi';
 
 const LicenseUnlinkModal = forwardRef((_props, ref) => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const [license, setLicense] = useState<License>();
     const [rewards] = useAwait(license?.isLinked ? license.rewards : 0n);
 
+    const { watchTx } = useGeneralContext() as GeneralContextType;
+    const { data: walletClient } = useWalletClient();
+    const publicClient = usePublicClient();
+
     const trigger = (license: License) => {
+        //TODO this does not work as expected
         if (license.isLinked && (rewards ?? 0n) > 0n) {
             toast.error('Rewards must be claimed before unlinking license.', {
                 position: 'top-center',
@@ -33,8 +43,19 @@ const LicenseUnlinkModal = forwardRef((_props, ref) => {
         trigger,
     }));
 
-    const onConfirm = () => {
-        console.log('onConfirm');
+    const onConfirm = async () => {
+        if (!walletClient || !license) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        const txHash = await walletClient.writeContract({
+            address: license.type === 'ND' ? ndContractAddress : mndContractAddress,
+            abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
+            functionName: 'unlinkNode',
+            args: [license.licenseId],
+        });
+        await watchTx(txHash, publicClient);
     };
 
     return (

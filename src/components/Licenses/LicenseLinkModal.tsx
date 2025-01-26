@@ -1,3 +1,7 @@
+import { MNDContractAbi } from '@blockchain/MNDContract';
+import { NDContractAbi } from '@blockchain/NDContract';
+import { mndContractAddress, ndContractAddress } from '@lib/config';
+import { GeneralContextType, useGeneralContext } from '@lib/general';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Form } from '@nextui-org/form';
@@ -5,8 +9,10 @@ import { Input } from '@nextui-org/input';
 import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
 import { Spinner } from '@nextui-org/spinner';
 import { forwardRef, useImperativeHandle, useState } from 'react';
+import toast from 'react-hot-toast';
 import { RiWalletLine } from 'react-icons/ri';
-import { License } from 'types';
+import { EthAddress, License } from 'types';
+import { usePublicClient, useWalletClient } from 'wagmi';
 
 interface Props {
     nodeAddresses: string[];
@@ -15,6 +21,10 @@ interface Props {
 const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [license, setLicense] = useState<License>();
+
+    const { watchTx } = useGeneralContext() as GeneralContextType;
+    const { data: walletClient } = useWalletClient();
+    const publicClient = usePublicClient();
 
     const [address, setAddress] = useState('');
 
@@ -27,9 +37,20 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
         trigger,
     }));
 
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
-        console.log('submit');
+        if (!walletClient || !license) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        const txHash = await walletClient.writeContract({
+            address: license.type === 'ND' ? ndContractAddress : mndContractAddress,
+            abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
+            functionName: 'linkNode',
+            args: [license.licenseId, address as EthAddress],
+        });
+        await watchTx(txHash, publicClient);
     };
 
     return (
