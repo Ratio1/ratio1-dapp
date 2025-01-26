@@ -43,7 +43,7 @@ export const registerEmail = (params: { email: string; receiveUpdates: boolean }
 // *****
 
 async function _doGet<T>(endpoint: string) {
-    const { data } = await axiosAuth.get<{
+    const { data } = await axiosBackend.get<{
         data: T;
         error: string;
     }>(endpoint);
@@ -54,7 +54,7 @@ async function _doGet<T>(endpoint: string) {
 }
 
 async function _doPost<T>(endpoint: string, body: any) {
-    const { data } = await axiosAuth.post<{
+    const { data } = await axiosBackend.post<{
         data: T;
         error: string;
     }>(endpoint, body);
@@ -64,7 +64,7 @@ async function _doPost<T>(endpoint: string, body: any) {
     return data.data;
 }
 
-const axiosAuth = axios.create({
+const axiosBackend = axios.create({
     baseURL: backendUrl,
     headers: {
         Accept: 'application/json',
@@ -72,7 +72,7 @@ const axiosAuth = axios.create({
     },
 });
 
-axiosAuth.interceptors.request.use(
+axiosBackend.interceptors.request.use(
     async (config) => {
         const token = localStorage.getItem('accessToken'); //TODO check where this should be taken from
         if (token) {
@@ -85,7 +85,7 @@ axiosAuth.interceptors.request.use(
     },
 );
 
-axiosAuth.interceptors.response.use(
+axiosBackend.interceptors.response.use(
     (response) => {
         return response;
     },
@@ -95,16 +95,16 @@ axiosAuth.interceptors.response.use(
             originalRequest._retry = true;
             const refreshToken = localStorage.getItem('refreshToken');
             if (refreshToken) {
-                return axiosAuth
+                return axiosBackend
                     .post('/auth/refresh', {
                         refreshToken: refreshToken,
                     })
                     .then((res) => {
                         if (res.status === 200) {
                             localStorage.setItem('accessToken', res.data.accessToken);
-                            return axiosAuth(originalRequest);
+                            return axiosBackend(originalRequest);
                         }
-                        return axiosAuth(originalRequest);
+                        return axiosBackend(originalRequest);
                     });
             }
         }

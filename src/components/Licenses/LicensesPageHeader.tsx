@@ -3,7 +3,7 @@ import abi from '@blockchain/abi.json';
 import { contractAddress, genesisDate } from '@lib/config';
 import { GeneralContextType, useGeneralContext } from '@lib/general';
 import useAwait from '@lib/useAwait';
-import { fNBigInt } from '@lib/utils';
+import { fBI } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Tab, Tabs } from '@nextui-org/tabs';
 import { Timer } from '@shared/Timer';
@@ -112,12 +112,12 @@ function LicensesPageHeader({
 
                             <div className="col gap-1">
                                 <div className="text-sm font-medium text-white/85">Earned ($R1)</div>
-                                <div className="text-xl font-medium text-white">{fNBigInt(earnedAmount, 18)}</div>
+                                <div className="text-xl font-medium text-white">{fBI(earnedAmount, 18)}</div>
                             </div>
 
                             <div className="col gap-1">
                                 <div className="text-sm font-medium text-white/85">Future Claimable ($R1)</div>
-                                <div className="text-xl font-medium text-white">{fNBigInt(futureClaimableAmount, 18)}</div>
+                                <div className="text-xl font-medium text-white">{fBI(futureClaimableAmount, 18)}</div>
                             </div>
 
                             <div className="col gap-1">

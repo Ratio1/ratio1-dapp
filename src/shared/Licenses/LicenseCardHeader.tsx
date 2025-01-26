@@ -1,5 +1,5 @@
 import useAwait from '@lib/useAwait';
-import { fN, fNBigInt, getShortAddress } from '@lib/utils';
+import { fBI, getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
 import clsx from 'clsx';
@@ -80,7 +80,7 @@ export const LicenseCardHeader = ({
                 <div className="col gap-2">
                     <div className="row justify-between text-sm font-medium leading-none">
                         <div>
-                            {fNBigInt(license.totalClaimedAmount, 18)}/{fNBigInt(license.totalAssignedAmount, 18)}
+                            {fBI(license.totalClaimedAmount, 18)}/{fBI(license.totalAssignedAmount, 18)}
                         </div>
 
                         <div>{round(Number((license.totalClaimedAmount * 100n) / license.totalAssignedAmount), 1)}%</div>

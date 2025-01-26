@@ -23,20 +23,20 @@ type BaseLicense = {
       }
 );
 
-type NDLicense = {
+type NDLicense = BaseLicense & {
     type: 'ND';
     isBanned: boolean;
-} & BaseLicense;
+};
 
-type MNDLicense = {
+type MNDLicense = BaseLicense & {
     type: 'MND';
     isBanned: false;
-} & BaseLicense;
+};
 
-type GNDLicense = {
+type GNDLicense = BaseLicense & {
     type: 'GND';
     isBanned: false;
-} & BaseLicense;
+};
 
 type License = NDLicense | MNDLicense | GNDLicense;
 

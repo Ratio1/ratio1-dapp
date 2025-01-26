@@ -13,46 +13,6 @@ import toast from 'react-hot-toast';
 import { License } from 'types';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
-/*
-const LICENSES: Array<License | LinkedLicense> = [
-    {
-        licenseId: 385,
-        alias: 'stefan-edge-node',
-        node_address: '0xbF57FEB86044aE9f7B6ED74874A6b1d60D64601b',
-        rewards: 256.1,
-        used: 2500,
-        assignTimestamp: subHours(new Date(), 24),
-    },
-    {
-        licenseId: 5564,
-        alias: 'naeural_396c2f29',
-        node_address: '0x71c4255E9ACa4E1Eb41167056F2f9dCC6DbBB58a',
-        rewards: 0,
-        used: 5800,
-        assignTimestamp: subHours(new Date(), 24),
-        isBanned: true,
-    },
-    {
-        licenseId: 6713,
-        alias: 'naeural_b859867c',
-        node_address: '0x13FF7fDe859f980988Ce687C8797dBB82F031e42',
-        rewards: 205,
-        used: 575,
-        assignTimestamp: subHours(new Date(), 24),
-    },
-    {
-        licenseId: 1251,
-        used: 4670,
-        assignTimestamp: new Date(),
-    },
-    {
-        licenseId: 287,
-        used: 20850,
-        assignTimestamp: subHours(new Date(), 48),
-    },
-];
-*/
-
 function Licenses() {
     const [licenses, setLicenses] = useState<Array<License>>([]);
     const [filter, setFilter] = useState<'all' | 'linked' | 'unlinked'>('all');

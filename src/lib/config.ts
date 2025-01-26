@@ -79,7 +79,7 @@ export const siweConfig = createSIWEConfig({
     getMessageParams: async () => ({
         domain: window.location.host,
         uri: window.location.origin,
-        chains: [84532],
+        chains: [baseSepolia.id],
         statement: 'Please sign with your account.',
         iat: new Date().toISOString(),
     }),

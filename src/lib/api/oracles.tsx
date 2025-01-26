@@ -24,7 +24,7 @@ export const getNodeAlias = (nodeAddress: types.EthAddress) =>
 // *****
 
 async function _doGet<T>(endpoint: string) {
-    const { data } = await axiosAuth.get<{
+    const { data } = await axiosOracles.get<{
         result: (
             | {
                   error: string;
@@ -41,7 +41,7 @@ async function _doGet<T>(endpoint: string) {
 }
 
 async function _doPost<T>(endpoint: string, body: any) {
-    const { data } = await axiosAuth.post<{
+    const { data } = await axiosOracles.post<{
         result: types.OraclesDefaultResult &
             (
                 | {
@@ -57,7 +57,7 @@ async function _doPost<T>(endpoint: string, body: any) {
     return data.result;
 }
 
-const axiosAuth = axios.create({
+const axiosOracles = axios.create({
     baseURL: oraclesUrl,
     headers: {
         Accept: 'application/json',
@@ -65,7 +65,7 @@ const axiosAuth = axios.create({
     },
 });
 
-axiosAuth.interceptors.response.use(
+axiosOracles.interceptors.response.use(
     (response) => {
         return response;
     },

@@ -5,23 +5,11 @@ import { getLicenseRewardsAndName } from '@lib/utils';
 import { Input } from '@nextui-org/input';
 import { Spinner } from '@nextui-org/spinner';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
-import { subHours } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { RiSearchLine } from 'react-icons/ri';
 import { useSearchParams } from 'react-router-dom';
-import { License, NDLicense } from 'types';
+import { NDLicense } from 'types';
 import { usePublicClient } from 'wagmi';
-/*
-const LICENSE: License = {
-    type: 'ND',
-    isBanned: false,
-    licenseId: 5564n,
-    nodeAddress: '0x71c4255E9ACa4E1Eb41167056F2f9dCC6DbBB58a',
-    alias: Promise.resolve('naeural_396c2f29'),
-    rewards: Promise.resolve(112n),
-    assignTimestamp: 1n,
-};
-*/
 
 function Search() {
     const [value, setValue] = useState<string>('');
@@ -57,6 +45,7 @@ function Search() {
 
         setSearchParams({ licenseId: sanitizedNumber });
 
+        //TODO we should have an endpoint to get the license data?
         const [nodeAddress, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle, isBanned] =
             await publicClient.readContract({
                 address: ndContractAddress,

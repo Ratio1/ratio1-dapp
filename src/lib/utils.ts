@@ -1,4 +1,4 @@
-import { GNDLicense, License, MNDLicense, NDLicense } from 'types';
+import { License, GNDLicense, MNDLicense, NDLicense } from 'types';
 import { epochDuration, genesisDate, gndVestingEpochs, mndCliffEpochs, mndVestingEpochs, ndVestingEpochs } from './config';
 import { getNodeAlias, getNodeEpochsRange } from './api/oracles';
 
@@ -12,7 +12,7 @@ export function fN(num: number): string {
     return num.toString();
 }
 
-export function fNBigInt(num: bigint, decimals: number): string {
+export function fBI(num: bigint, decimals: number): string {
     num = num / 10n ** BigInt(decimals);
     if (num >= 1_000_000n) {
         const formattedNum = Number(num) / 1_000_000;
