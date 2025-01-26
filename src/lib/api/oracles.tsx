@@ -1,6 +1,7 @@
 import * as types from 'types';
-import { oraclesUrl } from '../config';
 import axios from 'axios';
+
+const oraclesUrl = 'https://naeural-oracle.ngrok.app';
 
 // *****
 // GET

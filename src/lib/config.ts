@@ -19,10 +19,6 @@ export const ndContractAddress = '0xdF58793EB6c8862d81B76810239652f0aAEEDbF8';
 export const mndContractAddress = '0xc2F47468Fd614b63dCe00205153748aE801114f2';
 export const explorerUrl = 'https://sepolia.basescan.org';
 
-export const backendUrl = 'https://ratio1-backend.ngrok.app';
-export const oraclesUrl = 'https://naeural-oracle.ngrok.app';
-//export const backendUrl = 'http://192.168.1.101:3001';
-
 export const queryClient = new QueryClient();
 
 export const projectId = '6fb791d3d18d57d28ae7677e4cff8c6e';
@@ -89,7 +85,7 @@ export const siweConfig = createSIWEConfig({
     }),
     createMessage: ({ address, ...args }: SIWECreateMessageArgs) => formatMessage(args, address),
     getNonce: async () => {
-        const nonce = 'ZHa67TjiuP3NwIJ9Y';
+        const nonce = 'ZHa67TjiuP3NwIJ9Y'; //TODO nonce generation
         return nonce;
     },
     getSession,

@@ -1,6 +1,7 @@
 import * as types from 'types';
-import { backendUrl } from '../config';
 import axios from 'axios';
+
+const backendUrl = 'https://ratio1-backend.ngrok.app';
 
 // *****
 // GET
