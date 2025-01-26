@@ -10,6 +10,7 @@ import {
 } from '@reown/appkit-siwe';
 import { baseSepolia } from '@reown/appkit/networks';
 import { QueryClient } from '@tanstack/react-query';
+import { accessAuth } from './api/backend';
 
 export const contractAddress = '0x799319c30eCdA0fA9E678FbA217047f03E92527F';
 
@@ -61,29 +62,15 @@ async function getSession() {
 //TODO handle properly
 const verifyMessage = async ({ message, signature }: SIWEVerifyMessageArgs) => {
     try {
-        const response = (await fetch(backendUrl + '/auth/access', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ message, signature }),
-        }).then((res) => res.json())) as {
-            data: {
-                accessToken: string;
-                refreshToken: string;
-                expiration: number;
-            };
-            error: string;
-        };
-        localStorage.setItem('accessToken', response.data.accessToken);
-        localStorage.setItem('refreshToken', response.data.refreshToken);
-        localStorage.setItem('expiration', response.data.expiration.toString());
+        const response = await accessAuth({ message, signature });
+        localStorage.setItem('accessToken', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken);
+        localStorage.setItem('expiration', response.expiration.toString());
         const chainId = getChainIdFromMessage(message);
         const address = getAddressFromMessage(message);
         localStorage.setItem('chainId', chainId.replace('eip155:', ''));
         localStorage.setItem('address', address);
-        return response.error === '';
+        return true;
     } catch (error) {
         return false;
     }

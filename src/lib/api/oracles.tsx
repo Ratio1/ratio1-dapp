@@ -64,42 +64,11 @@ const axiosAuth = axios.create({
     },
 });
 
-axiosAuth.interceptors.request.use(
-    async (config) => {
-        const token = localStorage.getItem('accessToken'); //TODO check where this should be taken from
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    },
-);
-
 axiosAuth.interceptors.response.use(
     (response) => {
         return response;
     },
     async (error) => {
-        const originalRequest = error.config;
-        if (error.response.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-            const refreshToken = localStorage.getItem('refreshToken');
-            if (refreshToken) {
-                return axiosAuth
-                    .post('/auth/refresh', {
-                        refreshToken: refreshToken,
-                    })
-                    .then((res) => {
-                        if (res.status === 200) {
-                            localStorage.setItem('accessToken', res.data.accessToken);
-                            return axiosAuth(originalRequest);
-                        }
-                        return axiosAuth(originalRequest);
-                    });
-            }
-        }
         return error.response;
     },
 );

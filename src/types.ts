@@ -80,6 +80,19 @@ type OraclesDefaultResult = {
     EE_HASH: string;
 };
 
+type ApiAccount = {
+    email: string;
+    emailConfirmed: boolean;
+    pendingEmail: string;
+    address: string;
+    uuid: string;
+    kycStatus: string; //TODO check real types
+    isActive: boolean;
+    isBlacklisted: boolean;
+    blacklistedReason: string;
+    receiveUpdates: boolean;
+};
+
 export type {
     R1Address,
     EthAddress,
@@ -90,4 +103,5 @@ export type {
     NodeAvailabilityResult as OraclesAvailabilityResult,
     BuyLicenseRequest,
     OraclesDefaultResult,
+    ApiAccount,
 };

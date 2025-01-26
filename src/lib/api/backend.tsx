@@ -6,45 +6,25 @@ import axios from 'axios';
 // GET
 // *****
 
-/*
-export async function getConfig() {
-    const config = await _doGet<GlobalConfig>('/config');
-    store.dispatch(setConfig(config));
-    return config;
-}
+//TODO here can also store in redux for example
+export const getAccount = async () => _doGet<types.ApiAccount>('accounts/account');
 
-export async function getAccount() {
-    const account = await _doGet<ApiAccount>('accounts/account');
-    store.dispatch(setAccount(account));
-    return account;
-}
+export const emailSubscribe = async () => _doGet<types.ApiAccount>('accounts/subscribe');
 
-export async function getLockingPoints() {
-    try {
-        const points = await _doGet<number>('accounts/locking-points');
-        store.dispatch(setLockingPoints(points));
-        return points;
-    } catch (e) {
-        return 0;
-    }
-}
+export const emailUnsubscribe = async () => _doGet<types.ApiAccount>('accounts/unsubscribe');
 
-export async function setUpdatesSubscribe(receiveUpdates: boolean) {
-    const account = await _doGet<ApiAccount>(`/accounts/${receiveUpdates ? 'subscribe' : 'unsubscribe'}`);
-    store.dispatch(setAccount(account));
-    return account;
-}
-
-export async function confirmEmail(token: string) {
-    const account = await _doGet<ApiAccount>(`/accounts/email/confirm?token=${token}`);
-    store.dispatch(setAccount(account));
-    return account;
-}
-*/
+export const confirmEmail = async (token: string) => _doGet<types.ApiAccount>(`accounts/email/confirm?token=${token}`);
 
 // *****
 // POST
 // *****
+
+export const accessAuth = (params: { message: string; signature: string }) =>
+    _doPost<{
+        accessToken: string;
+        refreshToken: string;
+        expiration: number;
+    }>('/auth/access', params);
 
 export const buyLicense = (params: types.BuyLicenseRequest) =>
     _doPost<{
@@ -52,20 +32,10 @@ export const buyLicense = (params: types.BuyLicenseRequest) =>
         uuid: string;
     }>('/license/buy', params);
 
-/*
-export async function registerEmail(params: { email: string; receiveUpdates: boolean }) {
-    const account = await _doPost<ApiAccount>(`/accounts/email/register`, params);
-    store.dispatch(setAccount(account));
-    return account;
-}
-export async function initKycSession() {
-    return _doPost<{
-        session_id: string;
-        sandbox: boolean;
-    }>('/synaps/init', {});
-}
+export const initSumsubSession = (type: 'individual' | 'company') => _doPost<string>('/sumsub/init/Kyc', { type });
 
-*/
+export const registerEmail = (params: { email: string; receiveUpdates: boolean }) =>
+    _doPost<types.ApiAccount>('/accounts/email/register', params);
 
 // *****
 // INTERNAL HELPERS
