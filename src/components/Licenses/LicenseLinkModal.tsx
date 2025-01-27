@@ -1,3 +1,7 @@
+import { MNDContractAbi } from '@blockchain/MNDContract';
+import { NDContractAbi } from '@blockchain/NDContract';
+import { mndContractAddress, ndContractAddress } from '@lib/config';
+import { GeneralContextType, useGeneralContext } from '@lib/general';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Form } from '@nextui-org/form';
@@ -5,8 +9,10 @@ import { Input } from '@nextui-org/input';
 import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
 import { Spinner } from '@nextui-org/spinner';
 import { forwardRef, useImperativeHandle, useState } from 'react';
+import toast from 'react-hot-toast';
 import { RiWalletLine } from 'react-icons/ri';
-import { License, LinkedLicense } from 'types';
+import { EthAddress, License } from 'types';
+import { usePublicClient, useWalletClient } from 'wagmi';
 
 interface Props {
     nodeAddresses: string[];
@@ -14,11 +20,15 @@ interface Props {
 
 const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
-    const [license, setLicense] = useState<License | LinkedLicense>();
+    const [license, setLicense] = useState<License>();
+
+    const { watchTx } = useGeneralContext() as GeneralContextType;
+    const { data: walletClient } = useWalletClient();
+    const publicClient = usePublicClient();
 
     const [address, setAddress] = useState('');
 
-    const trigger = (license: License | LinkedLicense) => {
+    const trigger = (license: License) => {
         setLicense(license);
         onOpen();
     };
@@ -27,9 +37,20 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
         trigger,
     }));
 
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
-        console.log('submit');
+        if (!walletClient || !license) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        const txHash = await walletClient.writeContract({
+            address: license.type === 'ND' ? ndContractAddress : mndContractAddress,
+            abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
+            functionName: 'linkNode',
+            args: [license.licenseId, address as EthAddress],
+        });
+        await watchTx(txHash, publicClient);
     };
 
     return (
@@ -40,7 +61,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
                         <Spinner />
                     ) : (
                         <>
-                            <ModalHeader>Link License #{license.id}</ModalHeader>
+                            <ModalHeader>Link License #{Number(license.licenseId)}</ModalHeader>
 
                             <ModalBody>
                                 <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>

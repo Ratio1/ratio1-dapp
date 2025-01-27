@@ -1,6 +1,11 @@
+import useAwait from '@lib/useAwait';
 import { RiTimeLine } from 'react-icons/ri';
+import { License } from 'types';
+import { formatUnits } from 'viem';
 
-export const LicenseCardDetails = () => {
+export const LicenseCardDetails = ({ license }: { license: License }) => {
+    const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
+
     return (
         <div className="px-8 py-8">
             <div className="col gap-8">
@@ -10,29 +15,29 @@ export const LicenseCardDetails = () => {
 
                         <div className="row gap-3">
                             <div className="min-w-[184px] text-slate-500">Assign timestamp</div>
-                            <div>{new Date().toLocaleString()}</div>
+                            <div>{new Date(Number(license.assignTimestamp) * 1000).toLocaleString()}</div>
                         </div>
 
                         <div className="row gap-3">
                             <div className="min-w-[184px] text-slate-500">Last claimed epoch</div>
-                            <div>920</div>
+                            <div>{Number(license.lastClaimEpoch)}</div>
                         </div>
 
                         <div className="row gap-3">
                             <div className="min-w-[184px] text-slate-500">Claimable epochs</div>
-                            <div className="font-medium text-primary">6</div>
+                            <div className="font-medium text-primary">{Number(license.claimableEpochs)}</div>
                         </div>
 
                         <div className="pt-2 text-lg font-medium">Proof of Availability</div>
 
                         <div className="row gap-3">
                             <div className="min-w-[184px] text-slate-500">Initial amount</div>
-                            <div>100k</div>
+                            <div>{Number(formatUnits(license.totalAssignedAmount ?? 0n, 18)).toFixed(2)}</div>
                         </div>
 
                         <div className="row gap-3">
                             <div className="min-w-[184px] text-slate-500">Remaining amount</div>
-                            <div>97.6k</div>
+                            <div>{Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2)}</div>
                         </div>
                     </div>
 
@@ -41,14 +46,16 @@ export const LicenseCardDetails = () => {
 
                         <div className="row gap-3">
                             <div className="min-w-[184px] text-slate-500">Total amount ($R1)</div>
-                            <div className="font-medium text-primary">46.38</div>
+                            <div className="font-medium text-primary">
+                                {isLoadingRewards ? '...' : Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)}
+                            </div>
                         </div>
 
                         <div className="pt-2 text-lg font-medium">Summary</div>
 
                         <div className="row gap-3">
                             <div className="min-w-[184px] text-slate-500">Proof of Availability</div>
-                            <div>46.38</div>
+                            <div>{isLoadingRewards ? '...' : Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)}</div>
                         </div>
 
                         <div className="row gap-3">

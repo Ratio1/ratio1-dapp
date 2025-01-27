@@ -1,31 +1,123 @@
-import { r1Price } from '@lib/config';
+import { ndContractAddress, r1ContractAddress, r1Price } from '@lib/config';
+import { NDContractAbi } from '@blockchain/NDContract';
 import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
 import { Input } from '@nextui-org/input';
 import { isFinite, isNaN } from 'lodash';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
 import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine } from 'react-icons/ri';
+import { usePublicClient, useWalletClient } from 'wagmi';
+import { useGeneralContext, GeneralContextType } from '@lib/general';
+import { buyLicense } from '@lib/api/backend';
+import { ERC20Abi } from '@blockchain/ERC20';
 
 function Buy({ onClose }) {
+    const { watchTx } = useGeneralContext() as GeneralContextType;
+
     const [tier, setTier] = useState<number>(4);
     const [supply, setSupply] = useState<number>(115);
     const [price, setPrice] = useState<number>(1500);
+    const [licenseTokenPrice, setLicenseTokenPrice] = useState<bigint>(0n);
 
     const [quantity, setQuantity] = useState<string>('1');
 
+    const [isLoadingApprove, setLoadingApprove] = useState<boolean>(false);
     const [isLoading, setLoading] = useState<boolean>(false);
 
-    const buy = () => {
-        setLoading(true);
+    const { data: walletClient } = useWalletClient();
+    const publicClient = usePublicClient();
 
-        setTimeout(() => {
-            toast.error('Not enough $R1 in your wallet.', {
-                position: 'top-center',
+    useEffect(() => {
+        if (!publicClient) {
+            return;
+        }
+
+        publicClient
+            .readContract({
+                address: ndContractAddress,
+                abi: NDContractAbi,
+                functionName: 'getLicenseTokenPrice',
+            })
+            .then(setLicenseTokenPrice);
+    }, []);
+
+    const allowR1Spending = async () => {
+        try {
+            setLoadingApprove(true);
+
+            if (!walletClient || !publicClient) {
+                toast.error('Unexpected error, please try again.');
+                return;
+            }
+
+            const txHash = await walletClient.writeContract({
+                address: r1ContractAddress,
+                abi: ERC20Abi,
+                functionName: 'approve',
+                args: [ndContractAddress, (BigInt(quantity) * licenseTokenPrice * 110n) / 100n], // 10% slippage
             });
+
+            await watchTx(txHash, publicClient);
+
+            setLoadingApprove(false);
+        } catch (err: any) {
+            console.error(err.message || 'An error occurred');
+            toast.error(`An error occurred: ${err.message}\nPlease try again.`);
             setLoading(false);
-        }, 300);
+        }
+    };
+
+    const buy = async () => {
+        try {
+            setLoading(true);
+
+            if (!walletClient || !publicClient) {
+                toast.error('Unexpected error, please try again.');
+                return;
+            }
+
+            const { signature, uuid } = await buyLicense({
+                name: 'a',
+                surname: 'a',
+                isCompany: false,
+                identificationCode: 'a',
+                address: 'a',
+                state: 'a',
+                city: 'a',
+                country: 'a',
+            });
+
+            const txHash = await walletClient.writeContract({
+                address: ndContractAddress,
+                abi: NDContractAbi,
+                functionName: 'buyLicense',
+                args: [
+                    BigInt(quantity),
+                    1, // tier TODO get correct tier
+                    `0x${Buffer.from(uuid).toString('hex')}`,
+                    `0x${signature}`,
+                ],
+            });
+
+            await watchTx(txHash, publicClient);
+
+            setLoading(false);
+
+            /*
+            setTimeout(() => {
+                toast.error('Not enough $R1 in your wallet.', {
+                    position: 'top-center',
+                });
+                setLoading(false);
+            }, 300);
+            */
+        } catch (err: any) {
+            console.error(err.message || 'An error occurred');
+            toast.error(`An error occurred: ${err.message}\nPlease try again.`);
+            setLoading(false);
+        }
     };
 
     return (
@@ -126,7 +218,7 @@ function Buy({ onClose }) {
                         <div className="center-all gap-1">
                             <div className="text-2xl font-semibold text-slate-400">~$R1</div>
                             <div className="text-2xl font-semibold text-primary">
-                                {((Number.parseInt(quantity) * price) / r1Price).toLocaleString('en-US')}
+                                {((BigInt(quantity) * licenseTokenPrice) / 10n ** 18n).toLocaleString('en-US')}
                             </div>
                         </div>
                     </div>
@@ -153,6 +245,12 @@ function Buy({ onClose }) {
                     )}
 
                     <div className="mt-6 w-full">
+                        <Button className="w-full" color="primary" onPress={allowR1Spending} isLoading={isLoadingApprove}>
+                            Allow R1 spending
+                        </Button>
+                    </div>
+
+                    <div className="mt-2 w-full">
                         <Button className="w-full" color="primary" onPress={buy} isLoading={isLoading}>
                             Buy
                         </Button>
