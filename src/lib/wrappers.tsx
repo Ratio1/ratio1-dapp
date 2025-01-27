@@ -1,3 +1,4 @@
+import ScrollToTop from '@components/ScrollToTop';
 import { metadata, projectId, queryClient, siweConfig, wagmiAdapter } from '@lib/config';
 import { NextUIProvider } from '@nextui-org/system';
 import { arbitrum, mainnet, sepolia } from '@reown/appkit/networks';
@@ -42,6 +43,7 @@ export function Wrappers({ children }: { children: React.ReactNode }) {
                         <AuthenticationProvider>
                             <GeneralProvider>{children}</GeneralProvider>
                         </AuthenticationProvider>
+
                         <Toaster
                             position="bottom-right"
                             containerStyle={{
@@ -51,6 +53,8 @@ export function Wrappers({ children }: { children: React.ReactNode }) {
                                 right: 30,
                             }}
                         />
+
+                        <ScrollToTop />
                     </NextUIProvider>
                 </QueryClientProvider>
             </WagmiProvider>
