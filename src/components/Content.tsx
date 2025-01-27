@@ -2,6 +2,7 @@ import Logo from '@assets/token.svg';
 import { mainRoutesInfo } from '@lib/routes';
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import FooterMobile from './FooterMobile';
 import Wallet from './Wallet';
 
 function Content() {
@@ -23,7 +24,7 @@ function Content() {
     }, [location]);
 
     return (
-        <div className="mx-auto flex h-full max-w-6xl flex-col gap-6 px-4 md:gap-8 md:px-8 lg:gap-12 lg:px-10">
+        <div className="col mx-auto h-full max-w-6xl gap-6 px-4 md:gap-8 md:px-8 lg:gap-12 lg:px-10">
             <div className="flex flex-col-reverse items-center justify-between gap-8 lg:flex-row lg:items-start lg:gap-0">
                 <div className="col gap-2">
                     {!!title && (
@@ -49,6 +50,10 @@ function Content() {
             </div>
 
             <Outlet />
+
+            <div className="layoutBreak:hidden">
+                <FooterMobile />
+            </div>
         </div>
     );
 }
