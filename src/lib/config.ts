@@ -28,7 +28,7 @@ export const epochDurationInSeconds = 3600; // 1 hour
 export const mndCliffEpochs = 120;
 export const gndVestingEpochs = 1825;
 export const mndVestingEpochs = 1825;
-export const ndVestingEpochs = 1825;
+export const ndVestingEpochs = 1800;
 export const r1Price = 12.5; // in $USD
 
 export const metadata = {
