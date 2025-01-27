@@ -1,7 +1,7 @@
 import ScrollToTop from '@components/ScrollToTop';
 import { metadata, projectId, queryClient, siweConfig, wagmiAdapter } from '@lib/config';
 import { NextUIProvider } from '@nextui-org/system';
-import { arbitrum, mainnet, sepolia } from '@reown/appkit/networks';
+import { arbitrum, baseSepolia, mainnet, sepolia } from '@reown/appkit/networks';
 import { createAppKit } from '@reown/appkit/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
@@ -13,7 +13,7 @@ import { GeneralProvider } from './general';
 createAppKit({
     adapters: [wagmiAdapter],
     projectId,
-    networks: [arbitrum, sepolia, mainnet],
+    networks: [arbitrum, sepolia, mainnet, baseSepolia],
     defaultNetwork: mainnet,
     metadata,
     features: {

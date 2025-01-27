@@ -1,63 +1,29 @@
+import useAwait from '@lib/useAwait';
 import clsx from 'clsx';
+import { useState } from 'react';
 import { RiTimeLine } from 'react-icons/ri';
+import { License } from 'types';
+import { formatUnits } from 'viem';
 
-const nodeDetails = [
-    {
-        label: 'Assign timestamp',
-        value: new Date().toLocaleString(),
-    },
-    {
-        label: 'Last claimed epoch',
-        value: 920,
-    },
-    {
-        label: 'Claimable epochs',
-        value: 6,
-        isHighlighted: true,
-    },
-];
-
-const proofOfAvailability = [
-    {
-        label: 'Initial amount',
-        value: 100000,
-    },
-    {
-        label: 'Remaining amount',
-        value: 97600,
-    },
-];
-
-const summary = [
-    {
-        label: 'Proof of Availability',
-        value: 46.38,
-    },
-    {
-        label: 'Proof of AI',
-        value: 'N/A',
-    },
-];
-
-const nodePerformance = [
+const nodePerformanceItems = [
     {
         label: 'Last Epoch',
-        value: 16.2,
         classes: 'bg-teal-100 text-teal-600',
     },
     {
         label: 'All time average',
-        value: 14.1,
         classes: 'bg-purple-100 text-purple-600',
     },
     {
         label: 'Last week average',
-        value: 15.7,
         classes: 'bg-orange-100 text-orange-600',
     },
 ];
 
-export const LicenseCardDetails = () => {
+export const LicenseCardDetails = ({ license }: { license: License }) => {
+    const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
+    const [nodePerformance, setNodePerformance] = useState<[number, number, number]>([0, 0, 0]);
+
     const getTitle = (text: string) => <div className="text-base font-medium lg:text-lg">{text}</div>;
 
     const getLine = (label: string, value: string | number, isHighlighted: boolean = false) => (
@@ -73,8 +39,8 @@ export const LicenseCardDetails = () => {
         </div>
     );
 
-    const getNodePerformanceItem = (label: string, value: number, classes: string) => (
-        <div className="row gap-2 sm:gap-3">
+    const getNodePerformanceItem = (key: number, label: string, value: number, classes: string) => (
+        <div key={key} className="row gap-2 sm:gap-3">
             <div className={`rounded-full p-1.5 sm:p-3.5 ${classes}`}>
                 <RiTimeLine className="text-2xl" />
             </div>
@@ -94,27 +60,37 @@ export const LicenseCardDetails = () => {
                         <div className="col gap-3">
                             {getTitle('Node details')}
 
-                            {nodeDetails.map(({ label, value, isHighlighted }) => getLine(label, value, isHighlighted))}
-                        </div>
+                            {getLine('Assign timestamp', new Date(Number(license.assignTimestamp) * 1000).toLocaleString())}
+                            {getLine('Last claimed epoch', Number(license.lastClaimEpoch))}
+                            {getLine('Claimable epochs', Number(license.claimableEpochs), true)}
 
-                        <div className="col gap-3">
                             {getTitle('Proof of Availability')}
 
-                            {proofOfAvailability.map(({ label, value }) => getLine(label, value))}
-                        </div>
-                    </div>
-
-                    <div className="col flex-1 gap-6">
-                        <div className="col gap-3">
-                            {getTitle('Rewards')}
-
-                            {getLine('Total amount ($R1)', 46.38, true)}
+                            {getLine('Initial amount', Number(formatUnits(license.totalAssignedAmount ?? 0n, 18)).toFixed(2))}
+                            {getLine('Remaining amount', Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2))}
                         </div>
 
-                        <div className="col gap-3">
-                            {getTitle('Summary')}
+                        <div className="col flex-1 gap-6">
+                            <div className="col gap-3">
+                                {getTitle('Rewards')}
 
-                            {summary.map(({ label, value }) => getLine(label, value))}
+                                {getLine(
+                                    'Total amount ($R1)',
+                                    isLoadingRewards ? '...' : Number(formatUnits(rewards ?? 0n, 18)).toFixed(2),
+                                    true,
+                                )}
+
+                                <div className="col gap-3">
+                                    {getTitle('Summary')}
+
+                                    {getLine(
+                                        'Proof of Availability',
+                                        isLoadingRewards ? '...' : Number(formatUnits(rewards ?? 0n, 18)).toFixed(2),
+                                    )}
+
+                                    {getLine('Proof of AI', '0')}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -126,7 +102,9 @@ export const LicenseCardDetails = () => {
                         <div className="text-sm text-slate-500 sm:text-base">Uptime per epoch</div>
 
                         <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
-                            {nodePerformance.map(({ label, value, classes }) => getNodePerformanceItem(label, value, classes))}
+                            {nodePerformanceItems.map(({ label, classes }, index) =>
+                                getNodePerformanceItem(index, label, nodePerformance[index], classes),
+                            )}
                         </div>
                     </div>
                 </div>

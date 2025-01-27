@@ -1,15 +1,59 @@
+import { ERC20Abi } from '@blockchain/ERC20';
 import Buy from '@components/Buy';
 import Tiers from '@components/Tiers';
-import { genesisDate } from '@lib/config';
+import { epochDurationInSeconds, genesisDate, r1ContractAddress } from '@lib/config';
+import { GeneralContextType, useGeneralContext } from '@lib/general';
+import useAwait from '@lib/useAwait';
 import { useDisclosure } from '@lib/useDisclosure';
 import { Button } from '@nextui-org/button';
 import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
 import { BigCard } from '@shared/BigCard';
-import { addDays, differenceInDays, formatDistanceToNow } from 'date-fns';
+import { addSeconds, differenceInSeconds, formatDistanceToNow } from 'date-fns';
+import { useEffect, useMemo, useState } from 'react';
 import { RiArrowRightUpLine, RiTimeLine } from 'react-icons/ri';
+import { License } from 'types';
+import { formatUnits } from 'viem';
+import { useAccount, usePublicClient } from 'wagmi';
 
 function Dashboard() {
+    const { fetchLicenses } = useGeneralContext() as GeneralContextType;
+
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const [r1Balance, setR1Balance] = useState<bigint>(0n);
+    const [licenses, setLicenses] = useState<Array<License>>([]);
+
+    const { address } = useAccount();
+    const publicClient = usePublicClient();
+
+    const rewardsPromise = useMemo(
+        () =>
+            Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then((rewards) =>
+                rewards.reduce((acc, reward) => acc + reward, 0n),
+            ),
+        [licenses],
+    );
+    const [rewards, isLoadingRewards] = useAwait(rewardsPromise);
+
+    useEffect(() => {
+        if (!publicClient) {
+            return;
+        }
+        if (!address) {
+            setR1Balance(0n);
+            return;
+        } else {
+            fetchLicenses().then(setLicenses);
+        }
+
+        publicClient
+            .readContract({
+                address: r1ContractAddress,
+                abi: ERC20Abi,
+                functionName: 'balanceOf',
+                args: [address],
+            })
+            .then(setR1Balance);
+    }, [address]);
 
     return (
         <>
@@ -20,7 +64,9 @@ function Dashboard() {
                             <div className="text-base font-semibold leading-6 lg:text-xl">Claimable $R1</div>
 
                             <div className="row gap-2.5">
-                                <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">1287.45</div>
+                                <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">
+                                    {isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2))}
+                                </div>
                             </div>
                         </div>
                     </BigCard>
@@ -30,7 +76,9 @@ function Dashboard() {
                             <div className="text-base font-semibold leading-6 lg:text-xl">$R1 Balance</div>
 
                             <div className="row gap-2.5">
-                                <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">255.125</div>
+                                <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">
+                                    {parseFloat(Number(formatUnits(r1Balance, 18)).toFixed(3))}
+                                </div>
                             </div>
                         </div>
                     </BigCard>
@@ -41,7 +89,7 @@ function Dashboard() {
 
                             <div className="row gap-2.5">
                                 <div className="text-xl font-semibold leading-6 lg:text-[22px]">
-                                    {differenceInDays(new Date(), genesisDate)}
+                                    {Math.floor(differenceInSeconds(new Date(), genesisDate) / epochDurationInSeconds)}
                                 </div>
 
                                 <div className="web-only-block rounded-md bg-orange-100 px-2 py-1 text-sm font-medium tracking-wider text-orange-600">
@@ -51,7 +99,15 @@ function Dashboard() {
                                         </div>
                                         <div>
                                             {formatDistanceToNow(
-                                                addDays(genesisDate, 1 + differenceInDays(new Date(), genesisDate)),
+                                                addSeconds(
+                                                    genesisDate,
+                                                    epochDurationInSeconds *
+                                                        Math.floor(
+                                                            differenceInSeconds(new Date(), genesisDate) /
+                                                                epochDurationInSeconds,
+                                                        ) +
+                                                        epochDurationInSeconds,
+                                                ),
                                             )}
                                         </div>
                                     </div>

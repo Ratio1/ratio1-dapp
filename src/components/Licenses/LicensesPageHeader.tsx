@@ -1,34 +1,52 @@
 import Logo from '@assets/token_white.svg';
-import abi from '@blockchain/abi.json';
-import { contractAddress, genesisDate } from '@lib/config';
+import { NDContractAbi } from '@blockchain/NDContract';
+import { getNodeEpochsRange } from '@lib/api/oracles';
+import { genesisDate, ndContractAddress } from '@lib/config';
 import { GeneralContextType, useGeneralContext } from '@lib/general';
+import useAwait from '@lib/useAwait';
+import { fBI, getCurrentEpoch } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Tab, Tabs } from '@nextui-org/tabs';
 import { Timer } from '@shared/Timer';
 import { addDays, differenceInDays } from 'date-fns';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
+import { ComputeParam, License } from 'types';
+import { formatUnits } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
-const items = [
-    { label: 'Claimable ($R1)', value: '46.2' },
-    { label: 'Earned ($R1)', value: '1012.895' },
-    { label: 'Future Claimable ($R1)', value: '199.2k' },
-    { label: 'Future Claimable ($)', value: '$862.825k' },
-];
+function LicensesPageHeader({
+    onFilterChange,
+    licenses,
+}: {
+    onFilterChange: (key: 'all' | 'linked' | 'unlinked') => void;
+    licenses: Array<License>;
+}) {
+    const renderItem = (label: string, value) => (
+        <div className="col gap-1">
+            <div className="text-sm font-medium text-white/85">{label}</div>
+            <div className="text-lg font-medium text-white lg:text-xl">{value}</div>
+        </div>
+    );
 
-const renderItem = (label: string, value: string) => (
-    <div className="col gap-1">
-        <div className="text-sm font-medium text-white/85">{label}</div>
-        <div className="text-lg font-medium text-white lg:text-xl">{value}</div>
-    </div>
-);
-
-function LicensesPageHeader({ onFilterChange }) {
     const { watchTx } = useGeneralContext() as GeneralContextType;
 
     const [timestamp] = useState<Date>(addDays(genesisDate, 1 + differenceInDays(new Date(), genesisDate)));
+    const rewardsPromise = useMemo(
+        () =>
+            Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then((rewards) =>
+                rewards.reduce((acc, reward) => acc + reward, 0n),
+            ),
+        [licenses],
+    );
+    const [rewards, isLoadingRewards] = useAwait(rewardsPromise);
     const [isLoading, setLoading] = useState<boolean>(false);
+
+    const earnedAmount = useMemo(() => licenses.reduce((acc, license) => acc + license.totalClaimedAmount, 0n), [licenses]);
+    const futureClaimableAmount = useMemo(
+        () => licenses.reduce((acc, license) => acc + license.remainingAmount, 0n),
+        [licenses],
+    );
 
     const publicClient = usePublicClient();
     const { data: walletClient } = useWalletClient();
@@ -42,16 +60,47 @@ function LicensesPageHeader({ onFilterChange }) {
         try {
             setLoading(true);
 
+            //TODO check if we can do another transaction for MNDs
+            const txParameters = await Promise.all(
+                licenses
+                    .filter((license) => license.type === 'ND')
+                    .map(async (license) => {
+                        if (!license.isLinked || (await license.rewards) === 0n) {
+                            return;
+                        }
+                        //TODO decide if we want to store this data in the license object
+                        const { epochs, epochs_vals, eth_signatures } = await getNodeEpochsRange(
+                            license.nodeAddress,
+                            Number(license.lastClaimEpoch),
+                            getCurrentEpoch() - 1,
+                        );
+                        const computeParam = {
+                            licenseId: license.licenseId,
+                            nodeAddress: license.nodeAddress,
+                            epochs: epochs.map((epoch) => BigInt(epoch)),
+                            availabilies: epochs_vals,
+                        };
+                        return { computeParam, eth_signatures };
+                    }),
+            ).then((a) => a.filter((x): x is { computeParam: ComputeParam; eth_signatures: `0x${string}`[] } => !!x));
+
+            if (!txParameters.length) {
+                throw new Error('No rewards to claim');
+            }
+
             const txHash = await walletClient.writeContract({
-                address: contractAddress,
-                abi,
-                functionName: 'store',
-                args: [27],
+                address: ndContractAddress,
+                abi: NDContractAbi,
+                functionName: 'claimRewards',
+                args: [
+                    [...txParameters.map(({ computeParam }) => computeParam)],
+                    [...txParameters.map(({ eth_signatures }) => eth_signatures)],
+                ],
             });
 
-            console.log(`Transaction sent! Hash: ${txHash}`);
-
             await watchTx(txHash, publicClient);
+
+            //TODO update fetched data
 
             console.log('Finished watching transaction.');
         } catch (err: any) {
@@ -85,7 +134,13 @@ function LicensesPageHeader({ onFilterChange }) {
 
                     <div className="col gap-8 lg:gap-10">
                         <div className="grid grid-cols-2 gap-4 lg:flex lg:flex-row lg:justify-between">
-                            {items.map(({ label, value }) => renderItem(label, value))}
+                            {renderItem(
+                                'Claimable ($R1)',
+                                isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)),
+                            )}
+                            {renderItem('Earned ($R1)', fBI(earnedAmount, 18))}
+                            {renderItem('Future Claimable ($R1)', fBI(futureClaimableAmount, 18))}
+                            {renderItem('Future Claimable ($)', '-')}
                         </div>
 
                         <div className="flex flex-col-reverse justify-between gap-4 lg:flex-row lg:items-end lg:gap-0">
@@ -102,7 +157,7 @@ function LicensesPageHeader({ onFilterChange }) {
                                         tabContent: 'text-[15px] text-white',
                                     }}
                                     onSelectionChange={(key) => {
-                                        onFilterChange(key);
+                                        onFilterChange(key as 'all' | 'linked' | 'unlinked');
                                     }}
                                 >
                                     <Tab key="all" title="All" />

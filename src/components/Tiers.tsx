@@ -1,55 +1,132 @@
+import { NDContractAbi } from '@blockchain/NDContract';
+import { ndContractAddress } from '@lib/config';
 import { fN } from '@lib/utils';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
+import { usePublicClient } from 'wagmi';
 
 const INITIAL_STATE: {
     index: number;
-    price: number;
-    units: number;
-    sold: number;
+    usdPrice: number;
+    totalUnits: number;
+    soldUnits: number;
 }[] = [
-    { index: 1, price: 500, units: 89, sold: 0 },
-    { index: 2, price: 750, units: 144, sold: 0 },
-    { index: 3, price: 1000, units: 233, sold: 0 },
-    { index: 4, price: 1500, units: 377, sold: 0 },
-    { index: 5, price: 2000, units: 610, sold: 0 },
-    { index: 6, price: 2500, units: 987, sold: 0 },
-    { index: 7, price: 3000, units: 1597, sold: 0 },
-    { index: 8, price: 3500, units: 2584, sold: 0 },
-    { index: 9, price: 4000, units: 4181, sold: 0 },
-    { index: 10, price: 5000, units: 6765, sold: 0 },
-    { index: 11, price: 10000, units: 10946, sold: 0 },
-    { index: 12, price: 20000, units: 17711, sold: 0 },
+    {
+        index: 1,
+        usdPrice: 500,
+        totalUnits: 89,
+        soldUnits: 0,
+    },
+    {
+        index: 2,
+        usdPrice: 750,
+        totalUnits: 144,
+        soldUnits: 0,
+    },
+    {
+        index: 3,
+        usdPrice: 1000,
+        totalUnits: 233,
+        soldUnits: 0,
+    },
+    {
+        index: 4,
+        usdPrice: 1500,
+        totalUnits: 377,
+        soldUnits: 0,
+    },
+    {
+        index: 5,
+        usdPrice: 2000,
+        totalUnits: 610,
+        soldUnits: 0,
+    },
+    {
+        index: 6,
+        usdPrice: 2500,
+        totalUnits: 987,
+        soldUnits: 0,
+    },
+    {
+        index: 7,
+        usdPrice: 3000,
+        totalUnits: 1597,
+        soldUnits: 0,
+    },
+    {
+        index: 8,
+        usdPrice: 3500,
+        totalUnits: 2584,
+        soldUnits: 0,
+    },
+    {
+        index: 9,
+        usdPrice: 4000,
+        totalUnits: 4181,
+        soldUnits: 0,
+    },
+    {
+        index: 10,
+        usdPrice: 5000,
+        totalUnits: 6765,
+        soldUnits: 0,
+    },
+    {
+        index: 11,
+        usdPrice: 7000,
+        totalUnits: 10946,
+        soldUnits: 0,
+    },
+    {
+        index: 12,
+        usdPrice: 9500,
+        totalUnits: 17711,
+        soldUnits: 0,
+    },
 ];
 
 export default function Tiers() {
-    const [currentStage, setCurrentStage] = useState<number>(4);
+    const [currentStage, setCurrentStage] = useState<number>(1);
     const [stages, setStages] = useState<
         {
             index: number;
-            price: number;
-            units: number;
-            sold: number;
+            usdPrice: number;
+            totalUnits: number;
+            soldUnits: number;
         }[]
     >(INITIAL_STATE);
 
+    const publicClient = usePublicClient();
+
     useEffect(() => {
-        setTimeout(() => {
-            setStages([
-                { index: 1, price: 500, units: 89, sold: 89 },
-                { index: 2, price: 750, units: 144, sold: 144 },
-                { index: 3, price: 1000, units: 233, sold: 233 },
-                { index: 4, price: 1500, units: 377, sold: 262 },
-                { index: 5, price: 2000, units: 610, sold: 0 },
-                { index: 6, price: 2500, units: 987, sold: 0 },
-                { index: 7, price: 3000, units: 1597, sold: 0 },
-                { index: 8, price: 3500, units: 2584, sold: 0 },
-                { index: 9, price: 4000, units: 4181, sold: 0 },
-                { index: 10, price: 5000, units: 6765, sold: 0 },
-                { index: 11, price: 10000, units: 10946, sold: 0 },
-                { index: 12, price: 20000, units: 17711, sold: 0 },
-            ]);
-        }, 500);
+        if (!publicClient) {
+            return;
+        }
+
+        publicClient
+            .readContract({
+                address: ndContractAddress,
+                abi: NDContractAbi,
+                functionName: 'currentPriceTier',
+            })
+            .then(setCurrentStage);
+
+        publicClient
+            .readContract({
+                address: ndContractAddress,
+                abi: NDContractAbi,
+                functionName: 'getPriceTiers',
+            })
+            .then((priceTiers) => {
+                setStages(
+                    priceTiers.map((tier, index) => ({
+                        index: index + 1,
+                        usdPrice: Number(tier.usdPrice),
+                        totalUnits: Number(tier.totalUnits),
+                        soldUnits: Number(tier.soldUnits),
+                    })),
+                );
+            });
     }, []);
 
     return (
@@ -60,22 +137,22 @@ export default function Tiers() {
                         <div className="col text-center lg:text-left">
                             <div className="text-lg font-semibold lg:text-xl">Current Price (T{currentStage})</div>
                             <div className="text-[20px] font-bold text-primary lg:text-[22px]">
-                                ${stages[currentStage - 1].price}
+                                ${stages[currentStage - 1].usdPrice}
                             </div>
                         </div>
 
                         <div className="col text-center lg:text-left">
                             <div className="text-lg font-semibold lg:text-xl">Remaining Units</div>
                             <div className="text-[20px] font-bold text-primary lg:text-[22px]">
-                                {stages[currentStage - 1].units - stages[currentStage - 1].sold}/
-                                {stages[currentStage - 1].units}
+                                {stages[currentStage - 1].totalUnits - stages[currentStage - 1].soldUnits}/
+                                {stages[currentStage - 1].totalUnits}
                             </div>
                         </div>
 
                         <div className="col text-center lg:text-left">
                             <div className="text-lg font-semibold lg:text-xl">Next Price (T{currentStage + 1})</div>
                             <div className="text-[20px] font-bold text-primary lg:text-[22px]">
-                                ${stages[currentStage].price}
+                                ${stages[currentStage].usdPrice}
                             </div>
                         </div>
                     </div>
@@ -96,15 +173,15 @@ export default function Tiers() {
                                     'bg-body text-white': stage.index === currentStage,
                                 })}
                             >
-                                ${fN(stage.price)}
+                                ${fN(stage.usdPrice)}
                             </div>
 
                             <div className="flex h-36 w-1 flex-col flex-nowrap justify-end overflow-hidden rounded-full bg-gray-300">
                                 <div
                                     className={clsx('overflow-hidden rounded-full bg-primary transition-all duration-500', {
-                                        '!bg-green-300': stage.units === stage.sold,
+                                        '!bg-green-300': stage.totalUnits === stage.soldUnits,
                                     })}
-                                    style={{ height: `${(100 * stage.sold) / stage.units}%` }}
+                                    style={{ height: `${(100 * stage.soldUnits) / stage.totalUnits}%` }}
                                 ></div>
                             </div>
 
@@ -113,7 +190,7 @@ export default function Tiers() {
                                     'text-primary': stage.index === currentStage,
                                 })}
                             >
-                                {stage.index >= currentStage ? stage.units - stage.sold : '-'}
+                                {stage.index >= currentStage ? stage.totalUnits - stage.soldUnits : '-'}
                             </div>
 
                             <div
@@ -150,16 +227,16 @@ export default function Tiers() {
                                         },
                                     )}
                                 >
-                                    ${fN(stage.price)}
+                                    ${fN(stage.usdPrice)}
                                 </div>
                             </div>
 
                             <div className="flex h-1 w-full flex-row overflow-hidden rounded-full bg-gray-300">
                                 <div
                                     className={clsx('overflow-hidden rounded-full bg-primary transition-all duration-500', {
-                                        '!bg-green-300': stage.units === stage.sold,
+                                        '!bg-green-300': stage.totalUnits === stage.soldUnits,
                                     })}
-                                    style={{ width: `${(100 * stage.sold) / stage.units}%` }}
+                                    style={{ width: `${(100 * stage.soldUnits) / stage.totalUnits}%` }}
                                 ></div>
                             </div>
 
@@ -168,7 +245,7 @@ export default function Tiers() {
                                     'text-primary': stage.index === currentStage,
                                 })}
                             >
-                                {stage.index >= currentStage ? stage.units - stage.sold : '-'}
+                                {stage.index >= currentStage ? stage.totalUnits - stage.soldUnits : '-'}
                             </div>
 
                             <div className="flex w-9">

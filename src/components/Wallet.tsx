@@ -1,7 +1,10 @@
 function Wallet() {
     return (
         <div className="row gap-3">
-            <appkit-network-button />
+            <div className="web-only-block">
+                <appkit-network-button />
+            </div>
+
             <appkit-button />
         </div>
     );
