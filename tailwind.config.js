@@ -38,7 +38,16 @@ export default {
                 6: '6px',
             },
         },
+        screens: {
+            sm: '480px',
+            md: '768px',
+            layoutBreak: '836px',
+            lg: '1024px',
+            xl: '1410px',
+            '2xl': '1536px',
+        },
     },
+
     darkMode: 'class',
     plugins: [nextui()],
 };

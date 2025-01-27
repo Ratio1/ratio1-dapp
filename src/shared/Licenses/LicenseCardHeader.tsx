@@ -26,11 +26,11 @@ export const LicenseCardHeader = ({
         return isBefore(new Date(), addDays(license.assignTimestamp, 1));
     };
 
-    const getNodeAliasCard = () => (
-        <>{isLicenseLinked(license) && <div className="min-w-[184px] font-medium">{license.alias}</div>}</>
+    const getNodeAlias = () => (
+        <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">{(license as LinkedLicense).alias}</div>
     );
 
-    const getLicenseIdCard = () => (
+    const getLicenseIdTag = () => (
         <div
             className={clsx('rounded-full px-3 py-2 text-sm font-medium', {
                 'bg-[#e0eeff] text-primary': isLicenseLinked(license),
@@ -44,7 +44,7 @@ export const LicenseCardHeader = ({
         </div>
     );
 
-    const getLicenseCooldownCard = () => (
+    const getLicenseCooldownTag = () => (
         <>
             {!isLicenseLinked(license) && hasCooldown() && (
                 <div className="rounded-full bg-red-100 px-3 py-2 text-sm font-medium text-red-600">
@@ -57,7 +57,7 @@ export const LicenseCardHeader = ({
         </>
     );
 
-    const getNodeAddressCard = () => (
+    const getNodeAddressTag = () => (
         <>
             {isLicenseLinked(license) && (
                 <div className="rounded-full bg-orange-100 px-3 py-2 text-sm font-medium text-orange-600">
@@ -70,7 +70,7 @@ export const LicenseCardHeader = ({
         </>
     );
 
-    const getLicenseUsage = () => (
+    const getLicenseUsageStats = () => (
         <div className="col gap-2">
             <div className="row justify-between text-sm font-medium leading-none">
                 <div>
@@ -89,28 +89,41 @@ export const LicenseCardHeader = ({
         </div>
     );
 
-    const getNodeRewards = () => (
-        <div className="row gap-1.5">
-            <div className="text-lg font-semibold text-slate-400">$R1</div>
-            <div className="text-lg font-semibold text-primary">{(license as LinkedLicense).rewards}</div>
-        </div>
-    );
+    const getNodeRewards = () => {
+        const hasRewards = (license as LinkedLicense).rewards > 0;
 
-    const getClaimRewardsButton = () => (
-        <Button
-            className="h-9"
-            color="primary"
-            size="sm"
-            variant="solid"
-            onPress={() => {
-                if (action) {
-                    action('claim', license);
-                }
-            }}
-        >
-            <div className="text-sm">Claim</div>
-        </Button>
-    );
+        if (!hasRewards) {
+            return undefined;
+        }
+
+        return (
+            <div className="row gap-1.5">
+                <div className="text-base font-semibold text-slate-400 xl:text-lg">$R1</div>
+                <div className="text-base font-semibold text-primary xl:text-lg">{fN((license as LinkedLicense).rewards)}</div>
+            </div>
+        );
+    };
+
+    const getClaimRewardsButton = () => {
+        const hasRewards = (license as LinkedLicense).rewards > 0;
+
+        return (
+            <Button
+                className="h-9"
+                color="primary"
+                size="sm"
+                variant="solid"
+                onPress={() => {
+                    if (action) {
+                        action('claim', license);
+                    }
+                }}
+                isDisabled={!hasRewards}
+            >
+                <div className="text-sm">Claim</div>
+            </Button>
+        );
+    };
 
     const getDropdown = () => (
         <Dropdown placement="bottom-end" shouldBlockScroll={false} radius="sm">
@@ -188,7 +201,7 @@ export const LicenseCardHeader = ({
         </Dropdown>
     );
 
-    const getBannedCard = () => (
+    const getBannedLicenseTag = () => (
         <>
             {isBanned && (
                 <div className="rounded-full bg-red-100 px-3 py-2 text-sm font-medium text-red-600">
@@ -202,48 +215,98 @@ export const LicenseCardHeader = ({
     );
 
     return (
-        <div
-            className={clsx('row justify-between px-5 py-4 lg:px-8 lg:py-7', {
-                'rounded-bl-3xl rounded-br-3xl': isExpanded,
-                'bg-white': isLicenseLinked(license),
-            })}
-        >
-            <div className="row">
-                <div className="row gap-3 lg:min-w-[550px]">
-                    {getNodeAliasCard()}
+        <>
+            {/* Web */}
+            <div
+                className={clsx('web-only-xl-flex row justify-between px-8 py-7', {
+                    'rounded-bl-3xl rounded-br-3xl': isExpanded,
+                    'bg-white': isLicenseLinked(license),
+                })}
+            >
+                <div className="row">
+                    <div className="row gap-3 lg:min-w-[522px]">
+                        {isLicenseLinked(license) && <div className="w-[184px]">{getNodeAlias()}</div>}
 
-                    <div
-                        className={clsx('flex', {
-                            'min-w-[150px]': isLicenseLinked(license),
-                            'min-w-[184px]': !isLicenseLinked(license),
-                        })}
-                    >
-                        {getLicenseIdCard()}
+                        <div
+                            className={clsx('flex', {
+                                'min-w-[150px]': isLicenseLinked(license),
+                                'min-w-[184px]': !isLicenseLinked(license),
+                            })}
+                        >
+                            {getLicenseIdTag()}
+                        </div>
+
+                        {getLicenseCooldownTag()}
+
+                        {getNodeAddressTag()}
                     </div>
 
-                    {getLicenseCooldownCard()}
-
-                    {getNodeAddressCard()}
+                    <div className="w-40">{getLicenseUsageStats()}</div>
                 </div>
 
-                <div className="w-40">{getLicenseUsage()}</div>
+                {!disableActions && !isBanned && (
+                    <div className="row gap-4">
+                        {isLicenseLinked(license) && (
+                            <div className="row gap-4">
+                                {getNodeRewards()}
+
+                                {getClaimRewardsButton()}
+                            </div>
+                        )}
+
+                        {getDropdown()}
+                    </div>
+                )}
+
+                {getBannedLicenseTag()}
             </div>
 
-            {!disableActions && !isBanned && (
-                <div className="row gap-4">
-                    {isLicenseLinked(license) && (
-                        <div className="row gap-4">
-                            {getNodeRewards()}
-
-                            {getClaimRewardsButton()}
-                        </div>
+            {/* Mobile */}
+            <div
+                className={clsx('mobile-only-xl-flex col items-baseline gap-5 px-5 py-5 md:px-8 md:py-7', {
+                    'rounded-bl-3xl rounded-br-3xl': isExpanded,
+                    'bg-white': isLicenseLinked(license),
+                })}
+            >
+                <div className="flex w-full flex-col-reverse gap-4 min-[522px]:flex-row min-[522px]:items-center min-[522px]:justify-between">
+                    {isLicenseLinked(license) ? (
+                        <div className="min-[522px]:max-w-44 lg:max-w-max">{getNodeAlias()}</div>
+                    ) : (
+                        <div className="flex">{getLicenseIdTag()}</div>
                     )}
 
-                    {getDropdown()}
-                </div>
-            )}
+                    {/* Controls */}
+                    <div className="row justify-end">
+                        {!disableActions && !isBanned && (
+                            <div className="row gap-2 lg:gap-4">
+                                {isLicenseLinked(license) && (
+                                    <div className="row gap-2 lg:gap-4">
+                                        {getNodeRewards()}
 
-            {getBannedCard()}
-        </div>
+                                        {getClaimRewardsButton()}
+                                    </div>
+                                )}
+
+                                {getDropdown()}
+                            </div>
+                        )}
+
+                        {getBannedLicenseTag()}
+                    </div>
+                </div>
+
+                {isLicenseLinked(license) && (
+                    <div className="flex w-full justify-between gap-4 min-[522px]:-mt-2 min-[522px]:justify-start">
+                        {getLicenseIdTag()}
+
+                        {getNodeAddressTag()}
+                    </div>
+                )}
+
+                {getLicenseCooldownTag()}
+
+                <div className="w-full">{getLicenseUsageStats()}</div>
+            </div>
+        </>
     );
 };

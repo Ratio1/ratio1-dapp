@@ -3,45 +3,46 @@ import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
 import LicenseUnlinkModal from '@components/Licenses/LicenseUnlinkModal';
 import { isLicenseLinked } from '@lib/utils';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
+import { subHours } from 'date-fns';
 import { useRef, useState } from 'react';
 import { License, LinkedLicense } from 'types';
 
 const LICENSES: Array<License | LinkedLicense> = [
-    // {
-    //     id: 385,
-    //     alias: 'stefan-edge-node',
-    //     node_address: '0xbF57FEB86044aE9f7B6ED74874A6b1d60D64601b',
-    //     rewards: 256.1,
-    //     used: 2500,
-    //     assignTimestamp: subHours(new Date(), 24),
-    // },
-    // {
-    //     id: 5564,
-    //     alias: 'naeural_396c2f29',
-    //     node_address: '0x71c4255E9ACa4E1Eb41167056F2f9dCC6DbBB58a',
-    //     rewards: 0,
-    //     used: 5800,
-    //     assignTimestamp: subHours(new Date(), 24),
-    //     isBanned: true,
-    // },
-    // {
-    //     id: 6713,
-    //     alias: 'naeural_b859867c',
-    //     node_address: '0x13FF7fDe859f980988Ce687C8797dBB82F031e42',
-    //     rewards: 0,
-    //     used: 575,
-    //     assignTimestamp: subHours(new Date(), 24),
-    // },
-    // {
-    //     id: 1251,
-    //     used: 4670,
-    //     assignTimestamp: new Date(),
-    // },
-    // {
-    //     id: 287,
-    //     used: 20850,
-    //     assignTimestamp: subHours(new Date(), 48),
-    // },
+    {
+        id: 385,
+        alias: 'testing_pretty_long_name_for_a_license',
+        node_address: '0xbF57FEB86044aE9f7B6ED74874A6b1d60D64601b',
+        rewards: 25619847.1129,
+        used: 2500,
+        assignTimestamp: subHours(new Date(), 24),
+    },
+    {
+        id: 5564,
+        alias: 'naeural_396c2f29',
+        node_address: '0x71c4255E9ACa4E1Eb41167056F2f9dCC6DbBB58a',
+        rewards: 0,
+        used: 5800,
+        assignTimestamp: subHours(new Date(), 24),
+        isBanned: true,
+    },
+    {
+        id: 6713,
+        alias: 'naeural_b859867c',
+        node_address: '0x13FF7fDe859f980988Ce687C8797dBB82F031e42',
+        rewards: 0,
+        used: 575,
+        assignTimestamp: subHours(new Date(), 24),
+    },
+    {
+        id: 1251,
+        used: 4670,
+        assignTimestamp: new Date(),
+    },
+    {
+        id: 287,
+        used: 20850,
+        assignTimestamp: subHours(new Date(), 48),
+    },
 ];
 
 function Licenses() {
@@ -117,29 +118,31 @@ function Licenses() {
     };
 
     return (
-        <div className="col gap-3">
-            <div className="mb-3">
-                <LicensesPageHeader onFilterChange={onFilterChange} />
-            </div>
-
-            {licenses.map((license) => (
-                <div
-                    key={license.id}
-                    ref={(element) => {
-                        if (element) {
-                            cardRefs.current.set(license.id, element);
-                        }
-                    }}
-                >
-                    <LicenseCard
-                        license={license}
-                        isExpanded={isLicenseLinked(license) ? !!license.isExpanded : false}
-                        toggle={onLicenseExpand}
-                        action={onAction}
-                        isBanned={license.isBanned}
-                    />
+        <div>
+            <div className="col gap-3">
+                <div className="mb-3">
+                    <LicensesPageHeader onFilterChange={onFilterChange} />
                 </div>
-            ))}
+
+                {licenses.map((license) => (
+                    <div
+                        key={license.id}
+                        ref={(element) => {
+                            if (element) {
+                                cardRefs.current.set(license.id, element);
+                            }
+                        }}
+                    >
+                        <LicenseCard
+                            license={license}
+                            isExpanded={isLicenseLinked(license) ? !!license.isExpanded : false}
+                            toggle={onLicenseExpand}
+                            action={onAction}
+                            isBanned={license.isBanned}
+                        />
+                    </div>
+                ))}
+            </div>
 
             <LicenseLinkModal
                 ref={linkModalRef}

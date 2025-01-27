@@ -87,7 +87,7 @@ export const LicenseCardDetails = () => {
     );
 
     return (
-        <div className="px-5 py-5 lg:px-8 lg:py-7">
+        <div className="px-5 py-5 md:px-8 md:py-7">
             <div className="col gap-6 lg:gap-8">
                 <div className="flex flex-col justify-between gap-3 border-b-2 border-slate-200 pb-6 text-sm lg:flex-row lg:gap-0 lg:pb-8 lg:text-base">
                     <div className="col flex-1 gap-6">

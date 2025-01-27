@@ -22,7 +22,7 @@ export const LicenseCard = ({
     return (
         <div
             className={clsx(
-                'flex flex-col overflow-hidden rounded-3xl border-3 border-lightAccent bg-lightAccent transition-all',
+                'mx-auto flex max-w-2xl flex-col overflow-hidden rounded-3xl border-3 border-lightAccent bg-lightAccent transition-all xl:max-w-none',
                 {
                     'cursor-pointer hover:border-[#e9ebf1]': isLicenseLinked(license),
                 },
