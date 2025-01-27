@@ -24,7 +24,7 @@ export const queryClient = new QueryClient();
 export const projectId = '6fb791d3d18d57d28ae7677e4cff8c6e';
 
 export const genesisDate = new Date('2025-01-24T00:00:00.000Z');
-export const epochDuration = 3600; // 1 hour
+export const epochDurationInSeconds = 3600; // 1 hour
 export const mndCliffEpochs = 120;
 export const gndVestingEpochs = 1825;
 export const mndVestingEpochs = 1825;

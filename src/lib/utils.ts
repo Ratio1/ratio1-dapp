@@ -1,6 +1,13 @@
-import { License, GNDLicense, MNDLicense, NDLicense } from 'types';
-import { epochDuration, genesisDate, gndVestingEpochs, mndCliffEpochs, mndVestingEpochs, ndVestingEpochs } from './config';
+import { GNDLicense, License, MNDLicense, NDLicense } from 'types';
 import { getNodeAlias, getNodeEpochsRange } from './api/oracles';
+import {
+    epochDurationInSeconds,
+    genesisDate,
+    gndVestingEpochs,
+    mndCliffEpochs,
+    mndVestingEpochs,
+    ndVestingEpochs,
+} from './config';
 
 export const getShortAddress = (address: string, size = 4) => `${address.slice(0, size)}...${address.slice(-size)}`;
 
@@ -25,7 +32,7 @@ export function fBI(num: bigint, decimals: number): string {
     return num.toString();
 }
 
-export const getCurrentEpoch = () => Math.floor((Date.now() / 1000 - genesisDate.getTime() / 1000) / epochDuration);
+export const getCurrentEpoch = () => Math.floor((Date.now() / 1000 - genesisDate.getTime() / 1000) / epochDurationInSeconds);
 
 export const getLicenseRewardsAndName = async (
     license: Pick<License, 'type' | 'totalClaimedAmount' | 'totalAssignedAmount' | 'lastClaimEpoch' | 'nodeAddress'>,
