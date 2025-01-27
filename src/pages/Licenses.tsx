@@ -6,7 +6,7 @@ import LicenseUnlinkModal from '@components/Licenses/LicenseUnlinkModal';
 import { getNodeEpochsRange } from '@lib/api/oracles';
 import { mndContractAddress, ND_LICENSE_CAP, ndContractAddress } from '@lib/config';
 import { GeneralContextType, useGeneralContext } from '@lib/general';
-import { getLicenseRewardsAndName, getCurrentEpoch } from '@lib/utils';
+import { getCurrentEpoch, getLicenseRewardsAndName } from '@lib/utils';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -28,6 +28,7 @@ function Licenses() {
                 return licenses;
         }
     }, [licenses, filter]);
+
     const cardRefs = useRef<Map<bigint, HTMLDivElement>>(new Map());
 
     const linkModalRef = useRef<{ trigger: (_license) => void }>(null);
@@ -206,28 +207,30 @@ function Licenses() {
     };
 
     return (
-        <div className="col gap-3">
-            <div className="mb-3">
-                <LicensesPageHeader onFilterChange={setFilter} licenses={licenses} />
-            </div>
-
-            {licensesToShow.map((license) => (
-                <div
-                    key={license.licenseId}
-                    ref={(element) => {
-                        if (element) {
-                            cardRefs.current.set(license.licenseId, element);
-                        }
-                    }}
-                >
-                    <LicenseCard
-                        license={license}
-                        isExpanded={license.isLinked ? !!license.isExpanded : false}
-                        toggle={onLicenseExpand}
-                        action={onAction}
-                    />
+        <div>
+            <div className="col gap-3">
+                <div className="mb-3">
+                    <LicensesPageHeader onFilterChange={setFilter} licenses={licenses} />
                 </div>
-            ))}
+
+                {licensesToShow.map((license) => (
+                    <div
+                        key={license.licenseId}
+                        ref={(element) => {
+                            if (element) {
+                                cardRefs.current.set(license.licenseId, element);
+                            }
+                        }}
+                    >
+                        <LicenseCard
+                            license={license}
+                            isExpanded={license.isLinked ? !!license.isExpanded : false}
+                            toggle={onLicenseExpand}
+                            action={onAction}
+                        />
+                    </div>
+                ))}
+            </div>
 
             <LicenseLinkModal
                 ref={linkModalRef}

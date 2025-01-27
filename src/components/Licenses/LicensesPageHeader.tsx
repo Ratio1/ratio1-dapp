@@ -1,8 +1,7 @@
 import Logo from '@assets/token_white.svg';
-import abi from '@blockchain/abi.json';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { getNodeEpochsRange } from '@lib/api/oracles';
-import { contractAddress, genesisDate, ndContractAddress } from '@lib/config';
+import { genesisDate, ndContractAddress } from '@lib/config';
 import { GeneralContextType, useGeneralContext } from '@lib/general';
 import useAwait from '@lib/useAwait';
 import { fBI, getCurrentEpoch } from '@lib/utils';
@@ -12,7 +11,7 @@ import { Timer } from '@shared/Timer';
 import { addDays, differenceInDays } from 'date-fns';
 import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { ComputeParam, EthAddress, License } from 'types';
+import { ComputeParam, License } from 'types';
 import { formatUnits } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
@@ -23,6 +22,13 @@ function LicensesPageHeader({
     onFilterChange: (key: 'all' | 'linked' | 'unlinked') => void;
     licenses: Array<License>;
 }) {
+    const renderItem = (label: string, value) => (
+        <div className="col gap-1">
+            <div className="text-sm font-medium text-white/85">{label}</div>
+            <div className="text-lg font-medium text-white lg:text-xl">{value}</div>
+        </div>
+    );
+
     const { watchTx } = useGeneralContext() as GeneralContextType;
 
     const [timestamp] = useState<Date>(addDays(genesisDate, 1 + differenceInDays(new Date(), genesisDate)));
@@ -104,23 +110,15 @@ function LicensesPageHeader({
         }
     };
 
-    const debug = () => {
-        toast.loading('Successfully toasted!');
-    };
-
     return (
         <div className="flex gap-6">
             <div className="relative w-full rounded-3xl">
-                <div className="col relative z-10 h-full gap-6 rounded-3xl bg-[#3f67bf] px-8 py-7">
-                    <div className="flex justify-between gap-20 border-b-2 border-white/10 pb-6">
+                <div className="col relative z-10 h-full gap-4 rounded-3xl bg-[#3f67bf] px-8 py-7 lg:gap-6">
+                    <div className="flex justify-between border-b-2 border-white/10 pb-4 lg:pb-6">
                         <div className="row gap-2.5">
                             <img src={Logo} alt="Logo" className="h-7 filter" />
                             <div className="text-lg font-medium text-white">Rewards</div>
                         </div>
-
-                        {/* <Button className="h-9" color="primary" size="sm" variant="faded" onPress={debug}>
-                            <div className="text-sm">Debug</div>
-                        </Button> */}
 
                         <Button
                             className="h-9"
@@ -134,34 +132,20 @@ function LicensesPageHeader({
                         </Button>
                     </div>
 
-                    <div className="col gap-10">
-                        <div className="row justify-between">
-                            <div className="col gap-1">
-                                <div className="text-sm font-medium text-white/85">Claimable ($R1)</div>
-                                <div className="text-xl font-medium text-white">
-                                    {isLoadingRewards ? '...' : Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)}
-                                </div>
-                            </div>
-
-                            <div className="col gap-1">
-                                <div className="text-sm font-medium text-white/85">Earned ($R1)</div>
-                                <div className="text-xl font-medium text-white">{fBI(earnedAmount, 18)}</div>
-                            </div>
-
-                            <div className="col gap-1">
-                                <div className="text-sm font-medium text-white/85">Future Claimable ($R1)</div>
-                                <div className="text-xl font-medium text-white">{fBI(futureClaimableAmount, 18)}</div>
-                            </div>
-
-                            <div className="col gap-1">
-                                <div className="text-sm font-medium text-white/85">Future Claimable ($)</div>
-                                <div className="text-xl font-medium text-white">$862.825k</div>
-                            </div>
+                    <div className="col gap-8 lg:gap-10">
+                        <div className="grid grid-cols-2 gap-4 lg:flex lg:flex-row lg:justify-between">
+                            {renderItem(
+                                'Claimable ($R1)',
+                                isLoadingRewards ? '...' : Number(formatUnits(rewards ?? 0n, 18)).toFixed(2),
+                            )}
+                            {renderItem('Earned ($R1)', fBI(earnedAmount, 18))}
+                            {renderItem('Future Claimable ($R1)', fBI(futureClaimableAmount, 18))}
+                            {renderItem('Future Claimable ($)', '-')}
                         </div>
 
-                        <div className="flex items-end justify-between">
+                        <div className="flex flex-col-reverse justify-between gap-4 lg:flex-row lg:items-end lg:gap-0">
                             <div className="col gap-1.5">
-                                <div className="text-lg font-medium text-white">Licenses</div>
+                                <div className="text-base font-medium text-white lg:text-lg">Licenses</div>
 
                                 <Tabs
                                     aria-label="Tabs"
@@ -199,7 +183,7 @@ function LicensesPageHeader({
                             </div>
 
                             <div className="row gap-3">
-                                <div className="font-medium text-white">Next rewards in</div>
+                                <div className="text-sm font-medium text-white lg:text-base">Next rewards in</div>
                                 <Timer
                                     timestamp={timestamp}
                                     callback={() => {

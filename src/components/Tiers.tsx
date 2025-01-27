@@ -92,30 +92,35 @@ export default function Tiers() {
 
     return (
         <>
-            <div className="col gap-[1.75rem]">
+            <div className="col gap-5 lg:gap-7">
                 <div className="flex justify-between">
-                    <div className="flex w-full justify-between gap-28">
-                        <div className="col">
-                            <div className="text-xl font-semibold">Current Price (T{currentStage})</div>
-                            <div className="text-[22px] font-bold text-primary">${stages[currentStage - 1].usdPrice}</div>
+                    <div className="col flex w-full justify-between gap-8 lg:flex-row lg:gap-28">
+                        <div className="col text-center lg:text-left">
+                            <div className="text-lg font-semibold lg:text-xl">Current Price (T{currentStage})</div>
+                            <div className="text-[20px] font-bold text-primary lg:text-[22px]">
+                                ${stages[currentStage - 1].usdPrice}
+                            </div>
                         </div>
 
-                        <div className="col">
-                            <div className="text-xl font-semibold">Remaining Units</div>
-                            <div className="text-[22px] font-bold text-primary">
+                        <div className="col text-center lg:text-left">
+                            <div className="text-lg font-semibold lg:text-xl">Remaining Units</div>
+                            <div className="text-[20px] font-bold text-primary lg:text-[22px]">
                                 {stages[currentStage - 1].totalUnits - stages[currentStage - 1].soldUnits}/
                                 {stages[currentStage - 1].totalUnits}
                             </div>
                         </div>
 
-                        <div className="col">
-                            <div className="text-xl font-semibold">Next Price (T{currentStage + 1})</div>
-                            <div className="text-[22px] font-bold text-primary">${stages[currentStage].usdPrice}</div>
+                        <div className="col text-center lg:text-left">
+                            <div className="text-lg font-semibold lg:text-xl">Next Price (T{currentStage + 1})</div>
+                            <div className="text-[20px] font-bold text-primary lg:text-[22px]">
+                                ${stages[currentStage].usdPrice}
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex justify-between">
+                {/* Web */}
+                <div className="larger:flex hidden justify-between">
                     {stages.map((stage) => (
                         <div
                             key={stage.index}
@@ -156,6 +161,66 @@ export default function Tiers() {
                                 })}
                             >
                                 T{stage.index}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Mobile */}
+                <div className="larger:hidden col flex">
+                    {stages.map((stage) => (
+                        <div
+                            key={stage.index}
+                            className={clsx(
+                                'relative -mx-2 flex flex-row-reverse items-center gap-4 rounded-full px-3 py-2.5',
+                                {
+                                    'bg-slate-200': stage.index === currentStage,
+                                },
+                            )}
+                        >
+                            <div className="flex min-w-[62px] justify-end">
+                                <div
+                                    className={clsx(
+                                        'w-full rounded-full px-2.5 py-0.5 text-center text-sm font-medium lg:text-[15px]',
+                                        {
+                                            'bg-gray-300 text-body': stage.index != currentStage,
+                                            'bg-body text-white': stage.index === currentStage,
+                                        },
+                                    )}
+                                >
+                                    ${fN(stage.usdPrice)}
+                                </div>
+                            </div>
+
+                            <div className="flex h-1 w-full flex-row overflow-hidden rounded-full bg-gray-300">
+                                <div
+                                    className={clsx('overflow-hidden rounded-full bg-primary transition-all duration-500', {
+                                        '!bg-green-300': stage.totalUnits === stage.soldUnits,
+                                    })}
+                                    style={{ width: `${(100 * stage.soldUnits) / stage.totalUnits}%` }}
+                                ></div>
+                            </div>
+
+                            <div
+                                className={clsx('text-sm', {
+                                    'text-primary': stage.index === currentStage,
+                                })}
+                            >
+                                {stage.index >= currentStage ? stage.totalUnits - stage.soldUnits : '-'}
+                            </div>
+
+                            <div className="flex w-9">
+                                <div
+                                    className={clsx(
+                                        'center-all h-9 w-9 rounded-full text-sm font-medium tracking-wider lg:text-[15px]',
+                                        {
+                                            'bg-gray-300 text-body': stage.index != currentStage,
+                                            'bg-body text-white': stage.index === currentStage,
+                                        },
+                                    )}
+                                >
+                                    T{stage.index}
+                                </div>
                             </div>
                         </div>
                     ))}

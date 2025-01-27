@@ -21,6 +21,30 @@ body {
     @apply row justify-center;
 }
 
+.web-only-block {
+    @apply hidden md:block;
+}
+
+.mobile-only-block {
+    @apply block md:hidden;
+}
+
+.web-only-flex {
+    @apply hidden md:flex;
+}
+
+.mobile-only-flex {
+    @apply flex md:hidden;
+}
+
+.web-only-xl-flex {
+    @apply hidden xl:flex;
+}
+
+.mobile-only-xl-flex {
+    @apply flex xl:hidden;
+}
+
 /* Scrollbar */
 *::-webkit-scrollbar {
     width: 8px;
@@ -49,6 +73,7 @@ input[type='number'] {
     -moz-appearance: textfield;
 }
 
+/* Primitives */
 button {
     font-weight: 500 !important;
     letter-spacing: 0 !important;

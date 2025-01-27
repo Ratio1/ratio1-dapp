@@ -86,14 +86,14 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
         icon: <RiCpuLine />,
     },
     {
-        path: routePath.profileKyc,
-        page: Profile,
-        icon: <RiShieldUserLine />,
-    },
-    {
         path: routePath.search,
         page: Search,
         icon: <RiFileSearchLine />,
+    },
+    {
+        path: routePath.profileKyc,
+        page: Profile,
+        icon: <RiShieldUserLine />,
     },
     {
         path: routePath.termsAndConditions,

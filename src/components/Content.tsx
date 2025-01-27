@@ -1,6 +1,8 @@
+import Logo from '@assets/token.svg';
 import { mainRoutesInfo } from '@lib/routes';
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import FooterMobile from './FooterMobile';
 import Wallet from './Wallet';
 
 function Content() {
@@ -22,22 +24,36 @@ function Content() {
     }, [location]);
 
     return (
-        <div className="mx-auto flex h-full max-w-6xl flex-col gap-12 px-10">
-            <div className="flex items-start justify-between">
+        <div className="col mx-auto h-full max-w-6xl gap-6 px-4 md:gap-8 md:px-8 lg:gap-12 lg:px-10">
+            <div className="flex flex-col-reverse items-center justify-between gap-8 lg:flex-row lg:items-start lg:gap-0">
                 <div className="col gap-2">
                     {!!title && (
-                        <div className="row h-[40.8px]">
-                            <div className="text-[36px] font-bold leading-9">{title}</div>
+                        <div className="row justify-center lg:h-[40.8px] lg:justify-start">
+                            <div className="text-[28px] font-bold leading-9 lg:text-[36px]">{title}</div>
                         </div>
                     )}
 
-                    {!!description && <div className="text-lg leading-5 text-slate-500">{description}</div>}
+                    {!!description && (
+                        <div className="text-center text-base leading-5 text-slate-500 lg:text-left lg:text-lg">
+                            {description}
+                        </div>
+                    )}
                 </div>
 
-                <Wallet />
+                <div className="row w-full justify-between lg:w-auto">
+                    <div className="mobile-only-block">
+                        <img src={Logo} alt="Logo" className="h-10" />
+                    </div>
+
+                    <Wallet />
+                </div>
             </div>
 
             <Outlet />
+
+            <div className="layoutBreak:hidden">
+                <FooterMobile />
+            </div>
         </div>
     );
 }
