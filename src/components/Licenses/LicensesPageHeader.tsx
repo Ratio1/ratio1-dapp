@@ -1,14 +1,14 @@
 import Logo from '@assets/token_white.svg';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { getNodeEpochsRange } from '@lib/api/oracles';
-import { genesisDate, ndContractAddress } from '@lib/config';
+import { epochDurationInSeconds, genesisDate, ndContractAddress } from '@lib/config';
 import { GeneralContextType, useGeneralContext } from '@lib/general';
 import useAwait from '@lib/useAwait';
 import { fBI, getCurrentEpoch } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Tab, Tabs } from '@nextui-org/tabs';
 import { Timer } from '@shared/Timer';
-import { addDays, differenceInDays } from 'date-fns';
+import { addSeconds, differenceInSeconds } from 'date-fns';
 import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { ComputeParam, License } from 'types';
@@ -31,7 +31,6 @@ function LicensesPageHeader({
 
     const { watchTx } = useGeneralContext() as GeneralContextType;
 
-    const [timestamp] = useState<Date>(addDays(genesisDate, 1 + differenceInDays(new Date(), genesisDate)));
     const rewardsPromise = useMemo(
         () =>
             Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then((rewards) =>
@@ -50,6 +49,15 @@ function LicensesPageHeader({
 
     const publicClient = usePublicClient();
     const { data: walletClient } = useWalletClient();
+
+    const getNextEpochTimestamp = (): Date =>
+        addSeconds(
+            genesisDate,
+            epochDurationInSeconds * Math.floor(differenceInSeconds(new Date(), genesisDate) / epochDurationInSeconds) +
+                epochDurationInSeconds,
+        );
+
+    const [timestamp, setTimestamp] = useState<Date>(getNextEpochTimestamp());
 
     const claimAll = async () => {
         if (!walletClient || !publicClient) {
@@ -187,7 +195,7 @@ function LicensesPageHeader({
                                 <Timer
                                     timestamp={timestamp}
                                     callback={() => {
-                                        console.log('Timer');
+                                        setTimestamp(getNextEpochTimestamp());
                                     }}
                                 />
                             </div>

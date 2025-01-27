@@ -1,5 +1,5 @@
-import * as types from 'types';
 import axios from 'axios';
+import * as types from 'types';
 
 const backendUrl = 'https://ratio1-backend.ngrok.app';
 
@@ -15,6 +15,8 @@ export const emailSubscribe = async () => _doGet<types.ApiAccount>('accounts/sub
 export const emailUnsubscribe = async () => _doGet<types.ApiAccount>('accounts/unsubscribe');
 
 export const confirmEmail = async (token: string) => _doGet<types.ApiAccount>(`accounts/email/confirm?token=${token}`);
+
+export const ping = async () => _doGet<any>('/auth/nodeData');
 
 // *****
 // POST
