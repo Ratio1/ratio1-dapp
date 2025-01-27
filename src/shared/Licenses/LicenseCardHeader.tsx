@@ -268,7 +268,15 @@ export const LicenseCardHeader = ({
                     'bg-white': isLicenseLinked(license),
                 })}
             >
-                <div className="flex w-full flex-col-reverse gap-4 min-[522px]:flex-row min-[522px]:items-center min-[522px]:justify-between">
+                <div
+                    className={clsx(
+                        'flex w-full gap-4 min-[522px]:flex-row min-[522px]:items-center min-[522px]:justify-between',
+                        {
+                            'flex-col-reverse': isLicenseLinked(license),
+                            'flex-direction-row justify-between': !isLicenseLinked(license),
+                        },
+                    )}
+                >
                     {isLicenseLinked(license) ? (
                         <div className="min-[522px]:max-w-44 lg:max-w-max">{getNodeAlias()}</div>
                     ) : (
