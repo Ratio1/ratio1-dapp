@@ -136,7 +136,7 @@ function LicensesPageHeader({
                         <div className="grid grid-cols-2 gap-4 lg:flex lg:flex-row lg:justify-between">
                             {renderItem(
                                 'Claimable ($R1)',
-                                isLoadingRewards ? '...' : Number(formatUnits(rewards ?? 0n, 18)).toFixed(2),
+                                isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)),
                             )}
                             {renderItem('Earned ($R1)', fBI(earnedAmount, 18))}
                             {renderItem('Future Claimable ($R1)', fBI(futureClaimableAmount, 18))}

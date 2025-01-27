@@ -48,7 +48,7 @@ export const mainRoutesInfo = {
     },
     [routePath.licenses]: {
         title: 'Licenses & Nodes',
-        description: 'Organize & assign your licenses to nodes',
+        description: 'View, organize & assign your licenses to nodes',
     },
     [routePath.profileKyc]: {
         title: 'Profile & KYC',

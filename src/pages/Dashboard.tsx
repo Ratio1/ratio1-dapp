@@ -2,22 +2,37 @@ import { ERC20Abi } from '@blockchain/ERC20';
 import Buy from '@components/Buy';
 import Tiers from '@components/Tiers';
 import { genesisDate, r1ContractAddress } from '@lib/config';
+import { GeneralContextType, useGeneralContext } from '@lib/general';
+import useAwait from '@lib/useAwait';
 import { useDisclosure } from '@lib/useDisclosure';
 import { Button } from '@nextui-org/button';
 import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
 import { BigCard } from '@shared/BigCard';
 import { addDays, differenceInDays, formatDistanceToNow } from 'date-fns';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { RiArrowRightUpLine, RiTimeLine } from 'react-icons/ri';
+import { License } from 'types';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 
 function Dashboard() {
+    const { fetchLicenses } = useGeneralContext() as GeneralContextType;
+
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [r1Balance, setR1Balance] = useState<bigint>(0n);
+    const [licenses, setLicenses] = useState<Array<License>>([]);
 
     const { address } = useAccount();
     const publicClient = usePublicClient();
+
+    const rewardsPromise = useMemo(
+        () =>
+            Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then((rewards) =>
+                rewards.reduce((acc, reward) => acc + reward, 0n),
+            ),
+        [licenses],
+    );
+    const [rewards, isLoadingRewards] = useAwait(rewardsPromise);
 
     useEffect(() => {
         if (!publicClient) {
@@ -26,6 +41,8 @@ function Dashboard() {
         if (!address) {
             setR1Balance(0n);
             return;
+        } else {
+            fetchLicenses().then(setLicenses);
         }
 
         publicClient
@@ -47,7 +64,9 @@ function Dashboard() {
                             <div className="text-base font-semibold leading-6 lg:text-xl">Claimable $R1</div>
 
                             <div className="row gap-2.5">
-                                <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">1287.45</div>
+                                <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">
+                                    {isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2))}
+                                </div>
                             </div>
                         </div>
                     </BigCard>
@@ -58,16 +77,7 @@ function Dashboard() {
 
                             <div className="row gap-2.5">
                                 <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">
-                                    {Number(formatUnits(r1Balance, 18)).toFixed(3)}
-                                </div>
-
-                                <div className="rounded-md bg-[#cff9de] px-2 py-1 text-sm font-medium tracking-wider text-green-700">
-                                    <div className="row gap-1">
-                                        <div className="-ml-0.5 text-[18px]">
-                                            <RiArrowRightUpLine />
-                                        </div>
-                                        <div>7.25%</div>
-                                    </div>
+                                    {parseFloat(Number(formatUnits(r1Balance, 18)).toFixed(3))}
                                 </div>
                             </div>
                         </div>

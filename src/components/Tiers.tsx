@@ -11,18 +11,78 @@ const INITIAL_STATE: {
     totalUnits: number;
     soldUnits: number;
 }[] = [
-    { index: 1, usdPrice: 500, totalUnits: 89, soldUnits: 0 },
-    { index: 2, usdPrice: 750, totalUnits: 144, soldUnits: 0 },
-    { index: 3, usdPrice: 1000, totalUnits: 233, soldUnits: 0 },
-    { index: 4, usdPrice: 1500, totalUnits: 377, soldUnits: 0 },
-    { index: 5, usdPrice: 2000, totalUnits: 610, soldUnits: 0 },
-    { index: 6, usdPrice: 2500, totalUnits: 987, soldUnits: 0 },
-    { index: 7, usdPrice: 3000, totalUnits: 1597, soldUnits: 0 },
-    { index: 8, usdPrice: 3500, totalUnits: 2584, soldUnits: 0 },
-    { index: 9, usdPrice: 4000, totalUnits: 4181, soldUnits: 0 },
-    { index: 10, usdPrice: 5000, totalUnits: 6765, soldUnits: 0 },
-    { index: 11, usdPrice: 10000, totalUnits: 10946, soldUnits: 0 },
-    { index: 12, usdPrice: 20000, totalUnits: 17711, soldUnits: 0 },
+    {
+        index: 1,
+        usdPrice: 500,
+        totalUnits: 89,
+        soldUnits: 0,
+    },
+    {
+        index: 2,
+        usdPrice: 750,
+        totalUnits: 144,
+        soldUnits: 0,
+    },
+    {
+        index: 3,
+        usdPrice: 1000,
+        totalUnits: 233,
+        soldUnits: 0,
+    },
+    {
+        index: 4,
+        usdPrice: 1500,
+        totalUnits: 377,
+        soldUnits: 0,
+    },
+    {
+        index: 5,
+        usdPrice: 2000,
+        totalUnits: 610,
+        soldUnits: 0,
+    },
+    {
+        index: 6,
+        usdPrice: 2500,
+        totalUnits: 987,
+        soldUnits: 0,
+    },
+    {
+        index: 7,
+        usdPrice: 3000,
+        totalUnits: 1597,
+        soldUnits: 0,
+    },
+    {
+        index: 8,
+        usdPrice: 3500,
+        totalUnits: 2584,
+        soldUnits: 0,
+    },
+    {
+        index: 9,
+        usdPrice: 4000,
+        totalUnits: 4181,
+        soldUnits: 0,
+    },
+    {
+        index: 10,
+        usdPrice: 5000,
+        totalUnits: 6765,
+        soldUnits: 0,
+    },
+    {
+        index: 11,
+        usdPrice: 7000,
+        totalUnits: 10946,
+        soldUnits: 0,
+    },
+    {
+        index: 12,
+        usdPrice: 9500,
+        totalUnits: 17711,
+        soldUnits: 0,
+    },
 ];
 
 export default function Tiers() {
@@ -37,27 +97,6 @@ export default function Tiers() {
     >(INITIAL_STATE);
 
     const publicClient = usePublicClient();
-
-    /*
-    useEffect(() => {
-        setTimeout(() => {
-            setStages([
-                { index: 1, usdPrice: 500, totalUnits: 89, soldUnits: 89 },
-                { index: 2, usdPrice: 750, totalUnits: 144, soldUnits: 144 },
-                { index: 3, usdPrice: 1000, totalUnits: 233, soldUnits: 233 },
-                { index: 4, usdPrice: 1500, totalUnits: 377, soldUnits: 262 },
-                { index: 5, usdPrice: 2000, totalUnits: 610, soldUnits: 0 },
-                { index: 6, usdPrice: 2500, totalUnits: 987, soldUnits: 0 },
-                { index: 7, usdPrice: 3000, totalUnits: 1597, soldUnits: 0 },
-                { index: 8, usdPrice: 3500, totalUnits: 2584, soldUnits: 0 },
-                { index: 9, usdPrice: 4000, totalUnits: 4181, soldUnits: 0 },
-                { index: 10, usdPrice: 5000, totalUnits: 6765, soldUnits: 0 },
-                { index: 11, usdPrice: 10000, totalUnits: 10946, soldUnits: 0 },
-                { index: 12, usdPrice: 20000, totalUnits: 17711, soldUnits: 0 },
-            ]);
-        }, 500);
-    }, []);
-    */
 
     useEffect(() => {
         if (!publicClient) {

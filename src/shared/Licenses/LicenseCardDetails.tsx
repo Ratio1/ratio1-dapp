@@ -1,10 +1,11 @@
 import useAwait from '@lib/useAwait';
 import clsx from 'clsx';
+import { useState } from 'react';
 import { RiTimeLine } from 'react-icons/ri';
 import { License } from 'types';
 import { formatUnits } from 'viem';
 
-const nodePerformance = [
+const nodePerformanceItems = [
     {
         label: 'Last Epoch',
         classes: 'bg-teal-100 text-teal-600',
@@ -21,6 +22,7 @@ const nodePerformance = [
 
 export const LicenseCardDetails = ({ license }: { license: License }) => {
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
+    const [nodePerformance, setNodePerformance] = useState<[number, number, number]>([0, 0, 0]);
 
     const getTitle = (text: string) => <div className="text-base font-medium lg:text-lg">{text}</div>;
 
@@ -37,8 +39,8 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
         </div>
     );
 
-    const getNodePerformanceItem = (label: string, value: number, classes: string) => (
-        <div className="row gap-2 sm:gap-3">
+    const getNodePerformanceItem = (key: number, label: string, value: number, classes: string) => (
+        <div key={key} className="row gap-2 sm:gap-3">
             <div className={`rounded-full p-1.5 sm:p-3.5 ${classes}`}>
                 <RiTimeLine className="text-2xl" />
             </div>
@@ -89,18 +91,20 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                                     {getLine('Proof of AI', '0')}
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
 
-                            <div className="col -mt-0.5 gap-3">
-                                {getTitle('Node performance')}
+                <div className="col -mt-0.5 gap-3">
+                    {getTitle('Node performance')}
 
-                                <div className="row gap-4 sm:gap-8">
-                                    <div className="text-sm text-slate-500 sm:text-base">Uptime per epoch</div>
+                    <div className="row gap-4 sm:gap-8">
+                        <div className="text-sm text-slate-500 sm:text-base">Uptime per epoch</div>
 
-                                    <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
-                                        {nodePerformance.map(({ label, classes }) => getNodePerformanceItem(label, 0, classes))}
-                                    </div>
-                                </div>
-                            </div>
+                        <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
+                            {nodePerformanceItems.map(({ label, classes }, index) =>
+                                getNodePerformanceItem(index, label, nodePerformance[index], classes),
+                            )}
                         </div>
                     </div>
                 </div>
