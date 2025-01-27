@@ -104,4 +104,4 @@ export const siweConfig = createSIWEConfig({
     },
 });
 
-export const ND_LICENSE_CAP = 46_224n * 10n ** 18n;
+export const ND_LICENSE_CAP = 15_752n * 10n ** 18n;
