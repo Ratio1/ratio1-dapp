@@ -61,8 +61,8 @@ export const LicenseCardDetails = () => {
     const getTitle = (text: string) => <div className="text-base font-medium lg:text-lg">{text}</div>;
 
     const getLine = (label: string, value: string | number, isHighlighted: boolean = false) => (
-        <div className="row gap-3">
-            <div className="min-w-[158px] text-slate-500 lg:min-w-[184px]">{label}</div>
+        <div className="row justify-between gap-3 min-[410px]:justify-start">
+            <div className="min-w-[50%] text-slate-500">{label}</div>
             <div
                 className={clsx({
                     'font-medium text-primary': isHighlighted,
@@ -74,14 +74,14 @@ export const LicenseCardDetails = () => {
     );
 
     const getNodePerformanceItem = (label: string, value: number, classes: string) => (
-        <div className="row gap-3">
-            <div className={`rounded-full p-3.5 ${classes}`}>
+        <div className="row gap-2 sm:gap-3">
+            <div className={`rounded-full p-1.5 sm:p-3.5 ${classes}`}>
                 <RiTimeLine className="text-2xl" />
             </div>
 
-            <div className="col">
-                <div className="text-sm text-slate-500 lg:text-base">{label}</div>
-                <div className="text-sm font-medium lg:text-base">{value}h</div>
+            <div className="col gap-1 xl:gap-0">
+                <div className="text-sm leading-4 text-slate-500 xl:text-base">{label}</div>
+                <div className="text-sm font-medium xl:text-base">{value}h</div>
             </div>
         </div>
     );
@@ -89,7 +89,7 @@ export const LicenseCardDetails = () => {
     return (
         <div className="px-5 py-5 md:px-8 md:py-7">
             <div className="col gap-6 lg:gap-8">
-                <div className="flex flex-col justify-between gap-3 border-b-2 border-slate-200 pb-6 text-sm lg:flex-row lg:gap-0 lg:pb-8 lg:text-base">
+                <div className="flex flex-col justify-between gap-3 border-b-2 border-slate-200 pb-6 text-sm lg:pb-8 lg:text-base xl:flex-row xl:gap-0">
                     <div className="col flex-1 gap-6">
                         <div className="col gap-3">
                             {getTitle('Node details')}
@@ -122,8 +122,8 @@ export const LicenseCardDetails = () => {
                 <div className="col -mt-0.5 gap-3">
                     {getTitle('Node performance')}
 
-                    <div className="row gap-8">
-                        <div className="text-slate-500">Uptime per epoch</div>
+                    <div className="row gap-4 sm:gap-8">
+                        <div className="text-sm text-slate-500 sm:text-base">Uptime per epoch</div>
 
                         <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
                             {nodePerformance.map(({ label, value, classes }) => getNodePerformanceItem(label, value, classes))}
