@@ -82,7 +82,7 @@ export default function Tiers() {
                 </div>
 
                 {/* Web */}
-                <div className="web-only-flex flex justify-between">
+                <div className="larger:flex hidden justify-between">
                     {stages.map((stage) => (
                         <div
                             key={stage.index}
@@ -129,7 +129,7 @@ export default function Tiers() {
                 </div>
 
                 {/* Mobile */}
-                <div className="mobile-only-flex col">
+                <div className="larger:hidden col flex">
                     {stages.map((stage) => (
                         <div
                             key={stage.index}

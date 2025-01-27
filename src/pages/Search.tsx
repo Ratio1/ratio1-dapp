@@ -52,8 +52,8 @@ function Search() {
     };
 
     return (
-        <div className="col h-full gap-4 lg:gap-6">
-            <div className="w-full lg:w-[50%]">
+        <div className="col h-full items-center gap-4 lg:gap-6">
+            <div className="larger:w-[50%] w-full">
                 <Input
                     value={value}
                     onKeyDown={(e) => {
