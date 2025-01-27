@@ -1,4 +1,4 @@
-import Logo from '@assets/token.svg';
+import Logo from '@assets/logo_blue.svg';
 import { mainRoutesInfo, routePath } from '@lib/routes';
 import { RiDiscordLine, RiLinkedinBoxLine, RiTwitterXLine, RiYoutubeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
@@ -14,7 +14,7 @@ function FooterMobile() {
     return (
         <div className="col center-all w-full gap-10 rounded-3xl bg-lightAccent px-8 py-12">
             <div className="col gap-4">
-                <img src={Logo} alt="Logo" className="h-16" />
+                <img src={Logo} alt="Logo" className="h-7" />
                 <div className="text-center text-sm font-medium text-slate-500">
                     Ratio1 - The Ultimate AI OS Powered by Blockchain Technology
                 </div>
