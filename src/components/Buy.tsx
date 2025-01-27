@@ -4,7 +4,7 @@ import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
 import { Input } from '@nextui-org/input';
 import { isFinite, isNaN } from 'lodash';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
 import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine } from 'react-icons/ri';
@@ -19,6 +19,7 @@ function Buy({ onClose }) {
     const [tier, setTier] = useState<number>(4);
     const [supply, setSupply] = useState<number>(115);
     const [price, setPrice] = useState<number>(1500);
+    const [licenseTokenPrice, setLicenseTokenPrice] = useState<bigint>(0n);
 
     const [quantity, setQuantity] = useState<string>('1');
 
@@ -27,6 +28,20 @@ function Buy({ onClose }) {
 
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
+
+    useEffect(() => {
+        if (!publicClient) {
+            return;
+        }
+
+        publicClient
+            .readContract({
+                address: ndContractAddress,
+                abi: NDContractAbi,
+                functionName: 'getLicenseTokenPrice',
+            })
+            .then(setLicenseTokenPrice);
+    }, []);
 
     const allowR1Spending = async () => {
         try {
@@ -41,7 +56,7 @@ function Buy({ onClose }) {
                 address: r1ContractAddress,
                 abi: ERC20Abi,
                 functionName: 'approve',
-                args: [ndContractAddress, 20000_000000000000000000n],
+                args: [ndContractAddress, (BigInt(quantity) * licenseTokenPrice * 110n) / 100n], // 10% slippage
             });
 
             await watchTx(txHash, publicClient);
@@ -203,7 +218,7 @@ function Buy({ onClose }) {
                         <div className="center-all gap-1">
                             <div className="text-2xl font-semibold text-slate-400">~$R1</div>
                             <div className="text-2xl font-semibold text-primary">
-                                {((Number.parseInt(quantity) * price) / r1Price).toLocaleString('en-US')}
+                                {((BigInt(quantity) * licenseTokenPrice) / 10n ** 18n).toLocaleString('en-US')}
                             </div>
                         </div>
                     </div>

@@ -1,14 +1,41 @@
+import { ERC20Abi } from '@blockchain/ERC20';
 import Buy from '@components/Buy';
 import Tiers from '@components/Tiers';
-import { genesisDate } from '@lib/config';
+import { genesisDate, r1ContractAddress } from '@lib/config';
 import { useDisclosure } from '@lib/useDisclosure';
 import { Button } from '@nextui-org/button';
 import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
 import { addDays, differenceInDays, formatDistanceToNow } from 'date-fns';
+import { useEffect, useState } from 'react';
 import { RiArrowRightUpLine, RiTimeLine } from 'react-icons/ri';
+import { formatUnits } from 'viem';
+import { useAccount, usePublicClient } from 'wagmi';
 
 function Dashboard() {
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const [r1Balance, setR1Balance] = useState<bigint>(0n);
+
+    const { address } = useAccount();
+    const publicClient = usePublicClient();
+
+    useEffect(() => {
+        if (!publicClient) {
+            return;
+        }
+        if (!address) {
+            setR1Balance(0n);
+            return;
+        }
+
+        publicClient
+            .readContract({
+                address: r1ContractAddress,
+                abi: ERC20Abi,
+                functionName: 'balanceOf',
+                args: [address],
+            })
+            .then(setR1Balance);
+    }, [address]);
 
     return (
         <>
@@ -29,7 +56,9 @@ function Dashboard() {
                             <div className="text-xl font-semibold leading-6">$R1 Balance</div>
 
                             <div className="row gap-2.5">
-                                <div className="text-[22px] font-semibold leading-6 text-primary">255.125</div>
+                                <div className="text-[22px] font-semibold leading-6 text-primary">
+                                    {Number(formatUnits(r1Balance, 18)).toFixed(3)}
+                                </div>
 
                                 <div className="rounded-md bg-[#cff9de] px-2 py-1 text-sm font-medium tracking-wider text-green-700">
                                     <div className="row gap-1">
