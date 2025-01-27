@@ -1,21 +1,10 @@
 import Logo from '@assets/token.svg';
-import { ping } from '@lib/api/backend';
-import { routePath } from '@lib/routes';
-import { Spinner } from '@nextui-org/spinner';
-import { useQuery } from '@tanstack/react-query';
-import clsx from 'clsx';
-import { RiFileList3Line } from 'react-icons/ri';
-import { Link, useLocation } from 'react-router-dom';
+import { mainRoutesInfo, routePath } from '@lib/routes';
+import ApiStatusCard from '@shared/ApiStatusCard';
+import { NavLink } from 'react-router-dom';
 import Navigation from './Navigation';
 
 function Sider() {
-    const location = useLocation();
-
-    const { data, error, isLoading } = useQuery({
-        queryKey: ['ping'],
-        queryFn: ping,
-    });
-
     return (
         <div className="col fixed bottom-0 left-0 top-0 h-full w-[256px] justify-between bg-lightAccent px-6 pb-6 pt-12">
             <div className="col gap-8">
@@ -26,63 +15,16 @@ function Sider() {
                 <Navigation />
             </div>
 
-            <div className="col gap-2.5">
-                <div className="row mx-auto gap-2 rounded-lg bg-[#e8ebf6] px-3.5 py-2.5">
-                    <div className="center-all">
-                        {isLoading ? (
-                            <Spinner size="sm" className="scale-75" />
-                        ) : (
-                            <div
-                                className={clsx('h-2.5 w-2.5 rounded-full', {
-                                    'bg-green-500': !error,
-                                    'bg-red-500': data?.status === 'error' || !!error,
-                                })}
-                            ></div>
-                        )}
-                    </div>
+            <div className="col gap-6 pb-2 text-center">
+                <ApiStatusCard />
 
-                    <div className="text-sm font-medium text-slate-600">API Status</div>
-                </div>
+                <NavLink to={routePath.privacyPolicy} className="text-[15px] font-medium leading-none hover:opacity-70">
+                    {mainRoutesInfo[routePath.privacyPolicy].title}
+                </NavLink>
 
-                <div className="center-all">
-                    <Link to={routePath.privacyPolicy}>
-                        <div
-                            className={clsx(
-                                'cursor-pointer rounded-lg bg-[#e8ebf6] px-3.5 py-2.5 transition-all hover:bg-[#e2eefb]',
-                                {
-                                    'bg-[#e2eefb] text-primary': location.pathname.includes(routePath.privacyPolicy),
-                                },
-                            )}
-                        >
-                            <div className="row gap-2.5">
-                                <div className="text-[22px]">
-                                    <RiFileList3Line />
-                                </div>
-                                <div className="text-[15px] font-medium">Privacy Policy</div>
-                            </div>
-                        </div>
-                    </Link>
-                </div>
-
-                <div className="center-all">
-                    <Link to={routePath.termsAndConditions}>
-                        <div
-                            className={clsx(
-                                'cursor-pointer rounded-lg bg-[#e8ebf6] px-3.5 py-2.5 transition-all hover:bg-[#e2eefb]',
-                                {
-                                    'bg-[#e2eefb] text-primary': location.pathname.includes(routePath.termsAndConditions),
-                                },
-                            )}
-                        >
-                            <div className="row gap-2.5">
-                                <div className="text-[22px]">
-                                    <RiFileList3Line />
-                                </div>
-                                <div className="text-[15px] font-medium">Terms & Conditions</div>
-                            </div>
-                        </div>
-                    </Link>
-                </div>
+                <NavLink to={routePath.termsAndConditions} className="text-[15px] font-medium leading-none hover:opacity-70">
+                    {mainRoutesInfo[routePath.termsAndConditions].title}
+                </NavLink>
             </div>
         </div>
     );

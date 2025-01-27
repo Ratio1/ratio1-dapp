@@ -45,6 +45,10 @@ body {
     @apply flex xl:hidden;
 }
 
+.active {
+    @apply text-primary;
+}
+
 /* Scrollbar */
 *::-webkit-scrollbar {
     width: 8px;
