@@ -30,7 +30,10 @@ function Search() {
     }, [licenseId]);
 
     const onSearch = async () => {
+        console.log('onSearch');
+
         if (!publicClient) {
+            console.log('No publicClient available');
             return;
         }
         const sanitizedNumber = value.replace('License', '').replace('Licence', '').replace('#', '').trim();
