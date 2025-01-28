@@ -17,6 +17,17 @@ export const contractAddress = '0x799319c30eCdA0fA9E678FbA217047f03E92527F';
 export const r1ContractAddress = '0x6764E348ad3190DC90f6767C4BF38D7479a77981';
 export const ndContractAddress = '0xdF58793EB6c8862d81B76810239652f0aAEEDbF8';
 export const mndContractAddress = '0xc2F47468Fd614b63dCe00205153748aE801114f2';
+
+export const getContractAddress = (type: 'ND' | 'MND' | 'GND') => {
+    switch (type) {
+        case 'ND':
+            return ndContractAddress;
+
+        default:
+            return mndContractAddress;
+    }
+};
+
 export const explorerUrl = 'https://sepolia.basescan.org';
 
 export const queryClient = new QueryClient();

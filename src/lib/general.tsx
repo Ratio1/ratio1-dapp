@@ -17,6 +17,7 @@ export interface GeneralContextType {
 
 const GeneralContext = createContext<GeneralContextType | null>(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useGeneralContext = () => useContext(GeneralContext);
 
 export const GeneralProvider = ({ children }) => {
@@ -126,6 +127,8 @@ export const GeneralProvider = ({ children }) => {
                     });
                 }),
         ]);
+
+        console.log({ mndLicense, ndLicenses });
 
         if (mndLicense.totalAssignedAmount) {
             return [mndLicense, ...ndLicenses];

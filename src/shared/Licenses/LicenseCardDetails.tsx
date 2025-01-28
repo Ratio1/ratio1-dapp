@@ -66,8 +66,14 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
                             {getTitle('Proof of Availability')}
 
-                            {getLine('Initial amount', Number(formatUnits(license.totalAssignedAmount ?? 0n, 18)).toFixed(2))}
-                            {getLine('Remaining amount', Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2))}
+                            {getLine(
+                                'Initial amount',
+                                parseFloat(Number(formatUnits(license.totalAssignedAmount ?? 0n, 18)).toFixed(2)),
+                            )}
+                            {getLine(
+                                'Remaining amount',
+                                parseFloat(Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2)),
+                            )}
                         </div>
 
                         <div className="col flex-1 gap-3">

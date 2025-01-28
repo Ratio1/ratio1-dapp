@@ -6,26 +6,28 @@ import { GeneralContextType, useGeneralContext } from '@lib/general';
 import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
 import { Input } from '@nextui-org/input';
+import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
 import { isFinite, isNaN } from 'lodash';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
 import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine } from 'react-icons/ri';
 import { Stage } from 'types';
-import { usePublicClient, useWalletClient } from 'wagmi';
+import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentStage: number; stage: Stage }) {
     const { watchTx } = useGeneralContext() as GeneralContextType;
 
     const [licenseTokenPrice, setLicenseTokenPrice] = useState<bigint>(0n);
+    const [allowance, setAllowance] = useState<bigint | undefined>();
 
     const [quantity, setQuantity] = useState<string>('1');
 
-    const [isLoadingApprove, setLoadingApprove] = useState<boolean>(false);
     const [isLoading, setLoading] = useState<boolean>(false);
 
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
+    const { address } = useAccount();
 
     useEffect(() => {
         if (!publicClient) {
@@ -41,11 +43,31 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
             .then(setLicenseTokenPrice);
     }, []);
 
-    const allowR1Spending = async () => {
-        try {
-            setLoadingApprove(true);
+    useEffect(() => {
+        if (publicClient && address) {
+            fetchAllowance(publicClient, address);
+        }
+    }, [address, publicClient]);
 
-            if (!walletClient || !publicClient) {
+    const getTokenAmount = (): bigint => (BigInt(quantity) * licenseTokenPrice * 110n) / 100n; // 10% slippage
+
+    const isApprovalRequired = (): boolean => allowance !== undefined && allowance < getTokenAmount();
+
+    const fetchAllowance = (publicClient, address: string) =>
+        publicClient
+            .readContract({
+                address: r1ContractAddress,
+                abi: ERC20Abi,
+                functionName: 'allowance',
+                args: [address, ndContractAddress],
+            })
+            .then(setAllowance);
+
+    const approve = async () => {
+        try {
+            setLoading(true);
+
+            if (!walletClient || !publicClient || !address) {
                 toast.error('Unexpected error, please try again.');
                 return;
             }
@@ -54,12 +76,13 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                 address: r1ContractAddress,
                 abi: ERC20Abi,
                 functionName: 'approve',
-                args: [ndContractAddress, (BigInt(quantity) * licenseTokenPrice * 110n) / 100n], // 10% slippage
+                args: [ndContractAddress, getTokenAmount()],
             });
 
             await watchTx(txHash, publicClient);
+            fetchAllowance(publicClient, address);
 
-            setLoadingApprove(false);
+            setLoading(false);
         } catch (err: any) {
             console.error(err.message || 'An error occurred');
             toast.error(`An error occurred: ${err.message}\nPlease try again.`);
@@ -110,6 +133,14 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
             console.error(err.message || 'An error occurred');
             toast.error(`An error occurred: ${err.message}\nPlease try again.`);
             setLoading(false);
+        }
+    };
+
+    const onPress = async () => {
+        if (isApprovalRequired()) {
+            await approve();
+        } else {
+            await buy();
         }
     };
 
@@ -242,16 +273,18 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                         </>
                     )}
 
-                    <div className="mt-6 w-full">
-                        <Button className="w-full" color="primary" onPress={allowR1Spending} isLoading={isLoadingApprove}>
-                            Allow R1 spending
-                        </Button>
-                    </div>
-
-                    <div className="mt-2 w-full">
-                        <Button className="w-full" color="primary" onPress={buy} isLoading={isLoading}>
-                            Buy
-                        </Button>
+                    <div className="mt-6">
+                        <ConnectWalletWrapper isFullWidth>
+                            <Button
+                                fullWidth
+                                color="primary"
+                                onPress={onPress}
+                                isLoading={isLoading}
+                                isDisabled={allowance === undefined}
+                            >
+                                {isApprovalRequired() ? 'Approve $R1' : 'Buy'}
+                            </Button>
+                        </ConnectWalletWrapper>
                     </div>
                 </div>
             </div>

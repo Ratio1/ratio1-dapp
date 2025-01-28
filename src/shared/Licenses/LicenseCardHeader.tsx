@@ -1,3 +1,4 @@
+import { explorerUrl, getContractAddress } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { fBI, getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
@@ -6,6 +7,7 @@ import clsx from 'clsx';
 import { addDays, isBefore } from 'date-fns';
 import { round } from 'lodash';
 import { RiCpuLine, RiForbid2Line, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine, RiWalletLine } from 'react-icons/ri';
+import { Link } from 'react-router-dom';
 import { License } from 'types';
 import { formatUnits } from 'viem';
 
@@ -33,7 +35,10 @@ export const LicenseCardHeader = ({
     );
 
     const getLicenseIdTag = () => (
-        <div
+        <Link
+            to={`${explorerUrl}/token/${getContractAddress(license.type)}?a=${Number(license.licenseId)}`}
+            target="_blank"
+            onClick={(e) => e.stopPropagation()}
             className={clsx('rounded-full px-3 py-2 text-sm font-medium', {
                 'bg-[#e0eeff] text-primary': license.isLinked,
                 'bg-purple-100 text-purple-600': !license.isLinked,
@@ -43,7 +48,7 @@ export const LicenseCardHeader = ({
                 <RiCpuLine className="text-base" />
                 <div>License #{Number(license.licenseId)}</div>
             </div>
-        </div>
+        </Link>
     );
 
     const getLicenseCooldownTag = () => (
@@ -62,12 +67,17 @@ export const LicenseCardHeader = ({
     const getNodeAddressTag = () => (
         <>
             {license.isLinked && (
-                <div className="rounded-full bg-orange-100 px-3 py-2 text-sm font-medium text-orange-600">
+                <Link
+                    to={`${explorerUrl}/address/${license.nodeAddress}`}
+                    target="_blank"
+                    onClick={(e) => e.stopPropagation()}
+                    className="rounded-full bg-orange-100 px-3 py-2 text-sm font-medium text-orange-600"
+                >
                     <div className="row gap-1">
                         <RiWalletLine className="text-base" />
                         <div>{getShortAddress(license.nodeAddress)}</div>
                     </div>
-                </div>
+                </Link>
             )}
         </>
     );
