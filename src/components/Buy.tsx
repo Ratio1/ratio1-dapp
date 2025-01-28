@@ -1,5 +1,8 @@
-import { ndContractAddress, r1ContractAddress, r1Price } from '@lib/config';
+import { ERC20Abi } from '@blockchain/ERC20';
 import { NDContractAbi } from '@blockchain/NDContract';
+import { buyLicense } from '@lib/api/backend';
+import { ndContractAddress, r1ContractAddress } from '@lib/config';
+import { GeneralContextType, useGeneralContext } from '@lib/general';
 import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
 import { Input } from '@nextui-org/input';
@@ -8,17 +11,12 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
 import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine } from 'react-icons/ri';
+import { Stage } from 'types';
 import { usePublicClient, useWalletClient } from 'wagmi';
-import { useGeneralContext, GeneralContextType } from '@lib/general';
-import { buyLicense } from '@lib/api/backend';
-import { ERC20Abi } from '@blockchain/ERC20';
 
-function Buy({ onClose }) {
+function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentStage: number; stage: Stage }) {
     const { watchTx } = useGeneralContext() as GeneralContextType;
 
-    const [tier, setTier] = useState<number>(4);
-    const [supply, setSupply] = useState<number>(115);
-    const [price, setPrice] = useState<number>(1500);
     const [licenseTokenPrice, setLicenseTokenPrice] = useState<bigint>(0n);
 
     const [quantity, setQuantity] = useState<string>('1');
@@ -93,12 +91,7 @@ function Buy({ onClose }) {
                 address: ndContractAddress,
                 abi: NDContractAbi,
                 functionName: 'buyLicense',
-                args: [
-                    BigInt(quantity),
-                    1, // tier TODO get correct tier
-                    `0x${Buffer.from(uuid).toString('hex')}`,
-                    `0x${signature}`,
-                ],
+                args: [BigInt(quantity), currentStage, `0x${Buffer.from(uuid).toString('hex')}`, `0x${signature}`],
             });
 
             await watchTx(txHash, publicClient);
@@ -143,7 +136,7 @@ function Buy({ onClose }) {
 
                         <div className="flex">
                             <div className="rounded-md bg-orange-100 px-2 py-1 text-sm font-medium tracking-wider text-orange-600">
-                                ~{supply} left
+                                ~{stage.totalUnits - stage.soldUnits} left
                             </div>
                         </div>
                     </div>
@@ -176,7 +169,12 @@ function Buy({ onClose }) {
 
                                         if (value === '') {
                                             setQuantity('');
-                                        } else if (isFinite(n) && !isNaN(n) && n > 0 && n <= supply) {
+                                        } else if (
+                                            isFinite(n) &&
+                                            !isNaN(n) &&
+                                            n > 0 &&
+                                            n <= stage.totalUnits - stage.soldUnits
+                                        ) {
                                             setQuantity(n.toString());
                                         }
                                     }}
@@ -199,7 +197,7 @@ function Buy({ onClose }) {
                                     onPress={() => {
                                         const n = Number.parseInt(quantity);
 
-                                        if (isFinite(n) && !isNaN(n) && n < supply) {
+                                        if (isFinite(n) && !isNaN(n) && n < stage.totalUnits - stage.soldUnits) {
                                             setQuantity((n + 1).toString());
                                         }
                                     }}
@@ -233,10 +231,10 @@ function Buy({ onClose }) {
                                 <div className="col gap-2">
                                     <div className="row justify-between">
                                         <div className="text-sm font-medium">
-                                            {quantity} x License{Number.parseInt(quantity) > 1 ? 's' : ''} (Tier {tier})
+                                            {quantity} x License{Number.parseInt(quantity) > 1 ? 's' : ''} (Tier {currentStage})
                                         </div>
                                         <div className="text-sm font-medium">
-                                            ${(Number.parseInt(quantity) * price).toLocaleString('en-US')}
+                                            ${(Number.parseInt(quantity) * stage.usdPrice).toLocaleString('en-US')}
                                         </div>
                                     </div>
                                 </div>

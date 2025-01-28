@@ -100,16 +100,24 @@ type ApiAccount = {
     receiveUpdates: boolean;
 };
 
+type Stage = {
+    index: number;
+    usdPrice: number;
+    totalUnits: number;
+    soldUnits: number;
+};
+
 export type {
-    R1Address,
-    EthAddress,
-    License,
-    NDLicense,
-    MNDLicense,
-    GNDLicense,
-    ComputeParam,
-    OraclesAvailabilityResult,
-    BuyLicenseRequest,
-    OraclesDefaultResult,
     ApiAccount,
+    BuyLicenseRequest,
+    ComputeParam,
+    EthAddress,
+    GNDLicense,
+    License,
+    MNDLicense,
+    NDLicense,
+    OraclesAvailabilityResult,
+    OraclesDefaultResult,
+    R1Address,
+    Stage,
 };

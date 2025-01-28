@@ -1,149 +1,23 @@
-import { NDContractAbi } from '@blockchain/NDContract';
-import { ndContractAddress } from '@lib/config';
 import { fN } from '@lib/utils';
 import clsx from 'clsx';
-import { useEffect, useState } from 'react';
-import { usePublicClient } from 'wagmi';
+import { Stage } from 'types';
 
-const INITIAL_STATE: {
-    index: number;
-    usdPrice: number;
-    totalUnits: number;
-    soldUnits: number;
-}[] = [
-    {
-        index: 1,
-        usdPrice: 500,
-        totalUnits: 89,
-        soldUnits: 0,
-    },
-    {
-        index: 2,
-        usdPrice: 750,
-        totalUnits: 144,
-        soldUnits: 0,
-    },
-    {
-        index: 3,
-        usdPrice: 1000,
-        totalUnits: 233,
-        soldUnits: 0,
-    },
-    {
-        index: 4,
-        usdPrice: 1500,
-        totalUnits: 377,
-        soldUnits: 0,
-    },
-    {
-        index: 5,
-        usdPrice: 2000,
-        totalUnits: 610,
-        soldUnits: 0,
-    },
-    {
-        index: 6,
-        usdPrice: 2500,
-        totalUnits: 987,
-        soldUnits: 0,
-    },
-    {
-        index: 7,
-        usdPrice: 3000,
-        totalUnits: 1597,
-        soldUnits: 0,
-    },
-    {
-        index: 8,
-        usdPrice: 3500,
-        totalUnits: 2584,
-        soldUnits: 0,
-    },
-    {
-        index: 9,
-        usdPrice: 4000,
-        totalUnits: 4181,
-        soldUnits: 0,
-    },
-    {
-        index: 10,
-        usdPrice: 5000,
-        totalUnits: 6765,
-        soldUnits: 0,
-    },
-    {
-        index: 11,
-        usdPrice: 7000,
-        totalUnits: 10946,
-        soldUnits: 0,
-    },
-    {
-        index: 12,
-        usdPrice: 9500,
-        totalUnits: 17711,
-        soldUnits: 0,
-    },
-];
-
-export default function Tiers() {
-    const [currentStage, setCurrentStage] = useState<number>(1);
-    const [stages, setStages] = useState<
-        {
-            index: number;
-            usdPrice: number;
-            totalUnits: number;
-            soldUnits: number;
-        }[]
-    >(INITIAL_STATE);
-
-    const publicClient = usePublicClient();
-
-    useEffect(() => {
-        if (!publicClient) {
-            return;
-        }
-
-        publicClient
-            .readContract({
-                address: ndContractAddress,
-                abi: NDContractAbi,
-                functionName: 'currentPriceTier',
-            })
-            .then(setCurrentStage);
-
-        publicClient
-            .readContract({
-                address: ndContractAddress,
-                abi: NDContractAbi,
-                functionName: 'getPriceTiers',
-            })
-            .then((priceTiers) => {
-                setStages(
-                    priceTiers.map((tier, index) => ({
-                        index: index + 1,
-                        usdPrice: Number(tier.usdPrice),
-                        totalUnits: Number(tier.totalUnits),
-                        soldUnits: Number(tier.soldUnits),
-                    })),
-                );
-            });
-    }, []);
-
+export default function Tiers({ currentStage, stages }: { currentStage: number; stages: Stage[] }) {
     return (
         <>
-            <div className="col gap-5 lg:gap-7">
+            <div className="col gap-5 lg:gap-6">
                 <div className="flex justify-between">
                     <div className="col flex w-full justify-between gap-8 lg:flex-row lg:gap-28">
                         <div className="col text-center lg:text-left">
                             <div className="text-lg font-semibold lg:text-xl">Current Price (T{currentStage})</div>
-                            <div className="text-[20px] font-bold text-primary lg:text-[22px]">
+                            <div className="text-[20px] font-semibold text-primary lg:text-[22px]">
                                 ${stages[currentStage - 1].usdPrice}
                             </div>
                         </div>
 
                         <div className="col text-center lg:text-left">
                             <div className="text-lg font-semibold lg:text-xl">Remaining Units</div>
-                            <div className="text-[20px] font-bold text-primary lg:text-[22px]">
+                            <div className="text-[20px] font-semibold text-primary lg:text-[22px]">
                                 {stages[currentStage - 1].totalUnits - stages[currentStage - 1].soldUnits}/
                                 {stages[currentStage - 1].totalUnits}
                             </div>
@@ -151,7 +25,7 @@ export default function Tiers() {
 
                         <div className="col text-center lg:text-left">
                             <div className="text-lg font-semibold lg:text-xl">Next Price (T{currentStage + 1})</div>
-                            <div className="text-[20px] font-bold text-primary lg:text-[22px]">
+                            <div className="text-[20px] font-semibold text-primary lg:text-[22px]">
                                 ${stages[currentStage].usdPrice}
                             </div>
                         </div>
@@ -159,7 +33,7 @@ export default function Tiers() {
                 </div>
 
                 {/* Web */}
-                <div className="larger:flex hidden justify-between">
+                <div className="hidden justify-between larger:flex">
                     {stages.map((stage) => (
                         <div
                             key={stage.index}
@@ -206,7 +80,7 @@ export default function Tiers() {
                 </div>
 
                 {/* Mobile */}
-                <div className="larger:hidden col flex">
+                <div className="col flex larger:hidden">
                     {stages.map((stage) => (
                         <div
                             key={stage.index}
