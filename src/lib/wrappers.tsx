@@ -1,6 +1,7 @@
+import ScrollToTop from '@components/ScrollToTop';
 import { metadata, projectId, queryClient, siweConfig, wagmiAdapter } from '@lib/config';
 import { NextUIProvider } from '@nextui-org/system';
-import { arbitrum, baseSepolia, mainnet, sepolia } from '@reown/appkit/networks';
+import { baseSepolia, mainnet } from '@reown/appkit/networks';
 import { createAppKit } from '@reown/appkit/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
@@ -12,7 +13,7 @@ import { GeneralProvider } from './general';
 createAppKit({
     adapters: [wagmiAdapter],
     projectId,
-    networks: [arbitrum, sepolia, mainnet, baseSepolia],
+    networks: [baseSepolia],
     defaultNetwork: mainnet,
     metadata,
     features: {
@@ -42,6 +43,7 @@ export function Wrappers({ children }: { children: React.ReactNode }) {
                         <AuthenticationProvider>
                             <GeneralProvider>{children}</GeneralProvider>
                         </AuthenticationProvider>
+
                         <Toaster
                             position="bottom-right"
                             containerStyle={{
@@ -51,6 +53,8 @@ export function Wrappers({ children }: { children: React.ReactNode }) {
                                 right: 30,
                             }}
                         />
+
+                        <ScrollToTop />
                     </NextUIProvider>
                 </QueryClientProvider>
             </WagmiProvider>

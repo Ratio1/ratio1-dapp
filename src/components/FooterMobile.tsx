@@ -1,9 +1,6 @@
 import Logo from '@assets/logo_blue.svg';
-import { ping } from '@lib/api/backend';
 import { mainRoutesInfo, routePath } from '@lib/routes';
-import { Spinner } from '@nextui-org/spinner';
-import { useQuery } from '@tanstack/react-query';
-import clsx from 'clsx';
+import ApiStatusCard from '@shared/ApiStatusCard';
 import { RiDiscordLine, RiLinkedinBoxLine, RiTwitterXLine, RiYoutubeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
 
@@ -15,11 +12,6 @@ const socialLinks = [
 ];
 
 function FooterMobile() {
-    const { data, error, isLoading } = useQuery({
-        queryKey: ['ping'],
-        queryFn: ping,
-    });
-
     return (
         <div className="col center-all w-full gap-10 rounded-3xl bg-lightAccent px-8 py-12">
             <div className="col gap-4">
@@ -54,22 +46,7 @@ function FooterMobile() {
                 </Link>
             </div>
 
-            <div className="row mx-auto gap-2 rounded-lg bg-[#e8ebf6] px-3.5 py-2.5">
-                <div className="center-all">
-                    {isLoading ? (
-                        <Spinner size="sm" className="scale-75" />
-                    ) : (
-                        <div
-                            className={clsx('h-2.5 w-2.5 rounded-full', {
-                                'bg-green-500': !error,
-                                'bg-red-500': data?.status === 'error' || !!error,
-                            })}
-                        ></div>
-                    )}
-                </div>
-
-                <div className="text-sm font-medium text-slate-600">API Status</div>
-            </div>
+            <ApiStatusCard />
         </div>
     );
 }
