@@ -119,10 +119,10 @@ function Licenses() {
         }
     };
 
-    const onLicenseExpand = (id: bigint) => {
+    const onLicenseExpand = (id: bigint, type: License['type']) => {
         setLicenses((prevLicenses) =>
             prevLicenses.map((license) =>
-                license.licenseId === id
+                license.licenseId === id && license.type === type
                     ? {
                           ...license,
                           isExpanded: !license.isExpanded,
