@@ -12,7 +12,7 @@ export const LicenseCard = ({
     license: License;
     isExpanded: boolean;
     action?: (type: 'link' | 'unlink' | 'claim', license: License) => void;
-    toggle?: (id: bigint) => void;
+    toggle?: (id: bigint, type: License['type']) => void;
     disableActions?: boolean;
 }) => {
     return (
@@ -20,7 +20,7 @@ export const LicenseCard = ({
             className="mx-auto flex max-w-2xl cursor-pointer flex-col overflow-hidden rounded-3xl border-3 border-lightAccent bg-lightAccent transition-all hover:border-[#e9ebf1] xl:max-w-none"
             onClick={() => {
                 if (toggle) {
-                    toggle(license.licenseId);
+                    toggle(license.licenseId, license.type);
                 }
             }}
         >
