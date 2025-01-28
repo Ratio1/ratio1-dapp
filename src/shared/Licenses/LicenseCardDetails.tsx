@@ -58,11 +58,12 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                 <div className="border-b-2 border-slate-200 pb-6 text-sm lg:pb-8 lg:text-base xl:gap-0">
                     <div className="flex w-full flex-col gap-6 xl:flex-row">
                         <div className="col flex-1 gap-3">
-                            {getTitle('Node details')}
+                            {getTitle('Details')}
 
+                            {getLine('License type', license.type)}
                             {getLine('Assign timestamp', new Date(Number(license.assignTimestamp) * 1000).toLocaleString())}
                             {getLine('Last claimed epoch', Number(license.lastClaimEpoch))}
-                            {getLine('Claimable epochs', Number(license.claimableEpochs), true)}
+                            {getLine('Claimable epochs', Number(license.claimableEpochs), Number(license.claimableEpochs) > 0)}
 
                             {getTitle('Proof of Availability')}
 
