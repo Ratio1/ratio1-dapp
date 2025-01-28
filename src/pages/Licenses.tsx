@@ -160,7 +160,7 @@ function Licenses() {
                     >
                         <LicenseCard
                             license={license}
-                            isExpanded={license.isLinked ? !!license.isExpanded : false}
+                            isExpanded={license.isExpanded as boolean}
                             toggle={onLicenseExpand}
                             action={onAction}
                         />

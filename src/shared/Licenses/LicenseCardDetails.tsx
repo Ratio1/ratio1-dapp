@@ -55,9 +55,9 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
     return (
         <div className="px-5 py-5 md:px-8 md:py-7">
             <div className="col gap-6 lg:gap-8">
-                <div className="flex flex-col justify-between gap-3 border-b-2 border-slate-200 pb-6 text-sm lg:pb-8 lg:text-base xl:flex-row xl:gap-0">
-                    <div className="col flex-1 gap-6">
-                        <div className="col gap-3">
+                <div className="border-b-2 border-slate-200 pb-6 text-sm lg:pb-8 lg:text-base xl:gap-0">
+                    <div className="flex w-full flex-col gap-6 xl:flex-row">
+                        <div className="col flex-1 gap-3">
                             {getTitle('Node details')}
 
                             {getLine('Assign timestamp', new Date(Number(license.assignTimestamp) * 1000).toLocaleString())}
@@ -70,26 +70,24 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                             {getLine('Remaining amount', Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2))}
                         </div>
 
-                        <div className="col flex-1 gap-6">
+                        <div className="col flex-1 gap-3">
+                            {getTitle('Rewards')}
+
+                            {getLine(
+                                'Total amount ($R1)',
+                                isLoadingRewards ? '...' : Number(formatUnits(rewards ?? 0n, 18)).toFixed(2),
+                                true,
+                            )}
+
                             <div className="col gap-3">
-                                {getTitle('Rewards')}
+                                {getTitle('Summary')}
 
                                 {getLine(
-                                    'Total amount ($R1)',
+                                    'Proof of Availability',
                                     isLoadingRewards ? '...' : Number(formatUnits(rewards ?? 0n, 18)).toFixed(2),
-                                    true,
                                 )}
 
-                                <div className="col gap-3">
-                                    {getTitle('Summary')}
-
-                                    {getLine(
-                                        'Proof of Availability',
-                                        isLoadingRewards ? '...' : Number(formatUnits(rewards ?? 0n, 18)).toFixed(2),
-                                    )}
-
-                                    {getLine('Proof of AI', '0')}
-                                </div>
+                                {getLine('Proof of AI', '0')}
                             </div>
                         </div>
                     </div>

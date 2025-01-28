@@ -1,4 +1,3 @@
-import clsx from 'clsx';
 import { License } from 'types';
 import { LicenseCardDetails } from './LicenseCardDetails';
 import { LicenseCardHeader } from './LicenseCardHeader';
@@ -18,14 +17,9 @@ export const LicenseCard = ({
 }) => {
     return (
         <div
-            className={clsx(
-                'mx-auto flex max-w-2xl flex-col overflow-hidden rounded-3xl border-3 border-lightAccent bg-lightAccent transition-all xl:max-w-none',
-                {
-                    'cursor-pointer hover:border-[#e9ebf1]': license.isLinked,
-                },
-            )}
+            className="mx-auto flex max-w-2xl cursor-pointer flex-col overflow-hidden rounded-3xl border-3 border-lightAccent bg-lightAccent transition-all hover:border-[#e9ebf1] xl:max-w-none"
             onClick={() => {
-                if (license.isLinked && toggle) {
+                if (toggle) {
                     toggle(license.licenseId);
                 }
             }}
