@@ -1,4 +1,4 @@
-import { GNDLicense, License, MNDLicense, NDLicense } from 'types';
+import { GNDLicense, License, MNDLicense, NDLicense } from 'typedefs/blockchain';
 import { getNodeAlias, getNodeEpochsRange } from './api/oracles';
 import {
     epochDurationInSeconds,

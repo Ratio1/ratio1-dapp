@@ -1,0 +1,51 @@
+import clsx from 'clsx';
+import { FunctionComponent, PropsWithChildren } from 'react';
+
+interface Props {
+    variant?: 'primary' | 'red';
+    icon: JSX.Element;
+    title: string;
+    description: JSX.Element;
+    largeTitle?: boolean;
+}
+
+export const DetailedAlert: FunctionComponent<PropsWithChildren<Props>> = ({
+    children,
+    variant = 'primary',
+    icon,
+    title,
+    description,
+    largeTitle = false,
+}) => {
+    const bgColorClass = {
+        primary: 'bg-primary-100',
+        red: 'bg-red-100',
+    };
+
+    const textColorClass = {
+        primary: 'text-primary-500',
+        red: 'text-red-500',
+    };
+
+    return (
+        <div className="center-all col gap-6 p-6">
+            <div className={`center-all rounded-full ${bgColorClass[variant]} p-4`}>
+                <div className={`text-4xl ${textColorClass[variant]}`}>{icon}</div>
+            </div>
+
+            <div className="col gap-1 text-center">
+                <div
+                    className={clsx('font-bold uppercase tracking-wider text-primary-800', {
+                        'text-3xl': largeTitle,
+                    })}
+                >
+                    {title}
+                </div>
+
+                <div className="text-slate-400">{description}</div>
+
+                {!!children && <div className="mx-auto pt-4">{children}</div>}
+            </div>
+        </div>
+    );
+};

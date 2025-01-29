@@ -17,6 +17,7 @@ export default defineConfig({
             '@assets': path.resolve(__dirname, './src/assets'),
             '@shared': path.resolve(__dirname, './src/shared'),
             '@blockchain': path.resolve(__dirname, './src/blockchain'),
+            '@typedefs': path.resolve(__dirname, './src/typedefs'),
         },
     },
 });

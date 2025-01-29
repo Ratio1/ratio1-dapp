@@ -1,4 +1,4 @@
-import { License } from 'types';
+import { License } from 'typedefs/blockchain';
 import { LicenseCardDetails } from './LicenseCardDetails';
 import { LicenseCardHeader } from './LicenseCardHeader';
 

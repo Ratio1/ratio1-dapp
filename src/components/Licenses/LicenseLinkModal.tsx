@@ -1,7 +1,7 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { BlockchainContextType, useBlockchainContext } from '@lib/blockchain';
 import { mndContractAddress, ndContractAddress } from '@lib/config';
+import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Form } from '@nextui-org/form';
@@ -11,7 +11,7 @@ import { Spinner } from '@nextui-org/spinner';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiWalletLine } from 'react-icons/ri';
-import { EthAddress, License } from 'types';
+import { EthAddress, License } from 'typedefs/blockchain';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
 interface Props {

@@ -1,8 +1,8 @@
 import { NDContractAbi } from '@blockchain/NDContract';
 import Buy from '@components/Buy';
 import Tiers from '@components/Tiers';
-import { BlockchainContextType, useBlockchainContext } from '@lib/blockchain';
 import { epochDurationInSeconds, genesisDate, ndContractAddress } from '@lib/config';
+import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
 import { useDisclosure } from '@lib/useDisclosure';
 import { Button } from '@nextui-org/button';
@@ -11,7 +11,7 @@ import { BigCard } from '@shared/BigCard';
 import { addSeconds, differenceInSeconds, formatDistanceToNow } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { RiArrowRightUpLine, RiTimeLine } from 'react-icons/ri';
-import { License, Stage } from 'types';
+import { License, Stage } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 

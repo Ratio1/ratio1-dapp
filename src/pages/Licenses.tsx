@@ -4,13 +4,13 @@ import LicenseLinkModal from '@components/Licenses/LicenseLinkModal';
 import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
 import LicenseUnlinkModal from '@components/Licenses/LicenseUnlinkModal';
 import { getNodeEpochsRange } from '@lib/api/oracles';
-import { BlockchainContextType, useBlockchainContext } from '@lib/blockchain';
 import { mndContractAddress, ndContractAddress } from '@lib/config';
+import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { getCurrentEpoch } from '@lib/utils';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { License } from 'types';
+import { License } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 function Licenses() {

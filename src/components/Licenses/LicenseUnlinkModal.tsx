@@ -1,7 +1,7 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { BlockchainContextType, useBlockchainContext } from '@lib/blockchain';
 import { mndContractAddress, ndContractAddress } from '@lib/config';
+import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
@@ -10,7 +10,7 @@ import { Spinner } from '@nextui-org/spinner';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiLinkUnlink } from 'react-icons/ri';
-import { License } from 'types';
+import { License } from 'typedefs/blockchain';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
 const LicenseUnlinkModal = forwardRef((_props, ref) => {

@@ -1,8 +1,8 @@
 import Logo from '@assets/token_white.svg';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { getNodeEpochsRange } from '@lib/api/oracles';
-import { BlockchainContextType, useBlockchainContext } from '@lib/blockchain';
 import { epochDurationInSeconds, genesisDate, ndContractAddress } from '@lib/config';
+import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
 import { fBI, getCurrentEpoch } from '@lib/utils';
 import { Button } from '@nextui-org/button';
@@ -11,7 +11,7 @@ import { Timer } from '@shared/Timer';
 import { addSeconds, differenceInSeconds } from 'date-fns';
 import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { ComputeParam, License } from 'types';
+import { ComputeParam, License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
 

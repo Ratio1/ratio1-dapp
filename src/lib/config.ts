@@ -1,23 +1,14 @@
 import Favicon from '@assets/favicon.png';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
-import {
-    SIWECreateMessageArgs,
-    SIWEVerifyMessageArgs,
-    createSIWEConfig,
-    formatMessage,
-    getAddressFromMessage,
-    getChainIdFromMessage,
-} from '@reown/appkit-siwe';
 import { baseSepolia } from '@reown/appkit/networks';
 import { QueryClient } from '@tanstack/react-query';
-import { accessAuth } from './api/backend';
 
-export const contractAddress = '0x799319c30eCdA0fA9E678FbA217047f03E92527F';
+// ERC20Mock: 0x97b198628cEBB6d8e743fd0015b4cac92A3B1c08
 
 export const r1ContractAddress = '0xBbcbD433Cc666d0Cd11644B6a3954D7C09C0E060';
 export const ndContractAddress = '0x0421b7c9A3B1a4f99F56131b65d15085C7cCACB0';
 export const mndContractAddress = '0xB79fb53ABd43427be6995C194a502bC5AC82D512';
-const safeAddress = '0xE37562D1Da0F8447bD3cf476906774Cb68501189';
+export const safeAddress = '0xE37562D1Da0F8447bD3cf476906774Cb68501189';
 
 export const getContractAddress = (type: 'ND' | 'MND' | 'GND') => {
     switch (type) {
@@ -55,71 +46,6 @@ export const wagmiAdapter = new WagmiAdapter({
     networks: [baseSepolia],
     projectId,
     ssr: false,
-});
-
-async function getSession() {
-    const accessToken = localStorage.getItem('accessToken');
-    const chainId = localStorage.getItem('chainId');
-    const address = localStorage.getItem('address');
-    if (accessToken && chainId && address) {
-        return { chainId: parseInt(chainId), address };
-    }
-    return null;
-}
-
-//TODO handle properly
-const verifyMessage = async ({ message, signature }: SIWEVerifyMessageArgs) => {
-    try {
-        const chainId = getChainIdFromMessage(message).replace('eip155:', '');
-        const address = getAddressFromMessage(message);
-        if (address === safeAddress) {
-            localStorage.setItem('chainId', chainId);
-            localStorage.setItem('address', address);
-            localStorage.setItem('accessToken', 'safe');
-            return true;
-        }
-        const response = await accessAuth({ message, signature });
-        localStorage.setItem('accessToken', response.accessToken);
-        localStorage.setItem('refreshToken', response.refreshToken);
-        localStorage.setItem('expiration', response.expiration.toString());
-        localStorage.setItem('chainId', chainId);
-        localStorage.setItem('address', address);
-        return true;
-    } catch (error) {
-        return false;
-    }
-};
-
-export const siweConfig = createSIWEConfig({
-    signOutOnAccountChange: true,
-    signOutOnNetworkChange: true,
-    signOutOnDisconnect: true,
-    getMessageParams: async () => ({
-        domain: window.location.host,
-        uri: window.location.origin,
-        chains: [baseSepolia.id],
-        statement: 'Please sign with your account.',
-        iat: new Date().toISOString(),
-    }),
-    createMessage: ({ address, ...args }: SIWECreateMessageArgs) => formatMessage(args, address),
-    getNonce: async () => {
-        const nonce = 'ZHa67TjiuP3NwIJ9Y'; //TODO nonce generation
-        return nonce;
-    },
-    getSession,
-    verifyMessage,
-    signOut: async () => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('chainId');
-        localStorage.removeItem('address');
-        return true;
-    },
-    onSignOut() {
-        // Called after sign-out
-    },
-    onSignIn() {
-        // Called afer sign-in
-    },
 });
 
 export const ND_LICENSE_CAP = 15_752n * 10n ** 18n;

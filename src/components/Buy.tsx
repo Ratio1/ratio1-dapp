@@ -1,8 +1,8 @@
 import { ERC20Abi } from '@blockchain/ERC20';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { buyLicense } from '@lib/api/backend';
-import { BlockchainContextType, useBlockchainContext } from '@lib/blockchain';
 import { ndContractAddress, r1ContractAddress } from '@lib/config';
+import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
 import { Input } from '@nextui-org/input';
@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
 import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine } from 'react-icons/ri';
-import { Stage } from 'types';
+import { Stage } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentStage: number; stage: Stage }) {
@@ -48,6 +48,13 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
             fetchAllowance(publicClient, address);
         }
     }, [address, publicClient]);
+
+    useEffect(() => {
+        if (allowance !== undefined) {
+            const divisor = 10n ** BigInt(18);
+            console.log('Allowance', Number(allowance / divisor));
+        }
+    }, [allowance]);
 
     const getTokenAmount = (): bigint => (BigInt(quantity) * licenseTokenPrice * 110n) / 100n; // 10% slippage
 
@@ -102,7 +109,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
             setLoading(true);
 
-            if (!walletClient || !publicClient) {
+            if (!walletClient || !publicClient || !address) {
                 toast.error('Unexpected error, please try again.');
                 return;
             }
@@ -127,6 +134,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
             await watchTx(txHash, publicClient);
 
+            fetchAllowance(publicClient, address);
             fetchR1Balance();
 
             setLoading(false);
