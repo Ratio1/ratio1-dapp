@@ -1,0 +1,5 @@
+export enum RegistrationStatus {
+    NOT_REGISTERED = 'NOT_REGISTERED',
+    NOT_CONFIRMED = 'NOT_CONFIRMED',
+    REGISTERED = 'REGISTERED',
+}

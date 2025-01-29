@@ -1,6 +1,6 @@
 import { fN } from '@lib/utils';
 import clsx from 'clsx';
-import { Stage } from 'types';
+import { Stage } from 'typedefs/blockchain';
 
 export default function Tiers({ currentStage, stages }: { currentStage: number; stages: Stage[] }) {
     return (

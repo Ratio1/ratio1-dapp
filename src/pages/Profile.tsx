@@ -1,18 +1,17 @@
+import RegistrationCard from '@components/Profile/RegistrationCard';
 import { getAccount } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { Alert } from '@nextui-org/alert';
-import { Button } from '@nextui-org/button';
-import { Form } from '@nextui-org/form';
-import { Input } from '@nextui-org/input';
-import { Modal, ModalBody, ModalContent, useDisclosure } from '@nextui-org/modal';
+import { useDisclosure } from '@nextui-org/modal';
 import { Spinner } from '@nextui-org/spinner';
 import { Switch } from '@nextui-org/switch';
 import { Card } from '@shared/Card';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { useQuery } from '@tanstack/react-query';
+import { ApiAccount } from '@typedefs/blockchain';
+import { RegistrationStatus } from '@typedefs/profile';
 import { useEffect, useState } from 'react';
-import { RiCloseLargeLine, RiMailLine, RiMailSendLine, RiNewsLine, RiUserFollowLine, RiWalletLine } from 'react-icons/ri';
-import { ApiAccount } from 'types';
+import { RiCloseLargeLine, RiNewsLine, RiUserFollowLine, RiWalletLine } from 'react-icons/ri';
 
 const ACCOUNT: ApiAccount = {
     email: '', // Or any placeholder you prefer
@@ -26,12 +25,6 @@ const ACCOUNT: ApiAccount = {
     blacklistedReason: '', // Or a default reason if needed
     receiveUpdates: false,
 };
-
-enum RegistrationStatus {
-    NOT_REGISTERED = 'NOT_REGISTERED',
-    NOT_CONFIRMED = 'NOT_CONFIRMED',
-    REGISTERED = 'REGISTERED',
-}
 
 function Profile() {
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
@@ -49,6 +42,8 @@ function Profile() {
         queryKey: ['fetchAccount'],
         queryFn: async () => {
             const data = await getAccount();
+
+            console.log();
 
             if (!data) {
                 throw new Error('Internal server error');
@@ -96,11 +91,15 @@ function Profile() {
         }
     };
 
-    return isFetchingAccount ? (
-        <div className="center-all p-6">
-            <Spinner />
-        </div>
-    ) : (
+    if (isFetchingAccount) {
+        return (
+            <div className="center-all p-6">
+                <Spinner />
+            </div>
+        );
+    }
+
+    return (
         <div className="col w-full gap-6">
             {accountFetchError ? (
                 <DetailedAlert
@@ -122,119 +121,38 @@ function Profile() {
                     <appkit-connect-button />
                 </DetailedAlert>
             ) : (
-                <>
-                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
-                        <Card
-                            icon={<RiMailLine />}
-                            title="Registration"
-                            label={
-                                getRegistrationStatus() !== RegistrationStatus.REGISTERED ? (
-                                    <div className="rounded-md bg-red-100 px-2 py-1 text-xs font-medium tracking-wider text-red-700 larger:text-sm">
-                                        {getRegistrationStatus() === RegistrationStatus.NOT_REGISTERED
-                                            ? 'Not Registered'
-                                            : 'Not Confirmed'}
-                                    </div>
-                                ) : (
-                                    <></>
-                                )
-                            }
-                        >
-                            <div className="flex h-full w-full items-center justify-between">
-                                <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>
-                                    <div className="col w-full gap-4">
-                                        <div className="flex w-full gap-2">
-                                            <Input
-                                                id="email"
-                                                name="email"
-                                                type="email"
-                                                value={email}
-                                                onValueChange={setEmail}
-                                                size="md"
-                                                classNames={{
-                                                    inputWrapper: 'bg-[#fcfcfd] border rounded-lg',
-                                                    input: 'font-medium rounded-lg',
-                                                }}
-                                                variant="bordered"
-                                                color="primary"
-                                                labelPlacement="outside"
-                                                placeholder="Email"
-                                            />
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
+                    <RegistrationCard account={account} getRegistrationStatus={getRegistrationStatus} />
 
-                                            <div className="flex">
-                                                <Button
-                                                    color="primary"
-                                                    className="rounded-lg"
-                                                    isLoading={false} // TODO:
-                                                    type="submit"
-                                                >
-                                                    <div className="text-sm font-medium">Register</div>
-                                                </Button>
-                                            </div>
-                                        </div>
+                    <Card
+                        icon={<RiUserFollowLine />}
+                        title="KYC"
+                        label={
+                            <div className="rounded-md bg-red-100 px-2 py-1 text-xs font-medium tracking-wider text-red-700 larger:text-sm">
+                                Not Started
+                            </div>
+                        }
+                    >
+                        <div className="row h-full justify-between">
+                            <Alert
+                                color="primary"
+                                title="You need to register and confirm your email first."
+                                classNames={{
+                                    base: 'items-center',
+                                }}
+                            />
+                        </div>
+                    </Card>
 
-                                        <div className="row gap-2">
-                                            <Switch defaultSelected={true} size="sm" />
-                                            <div className="text-sm font-medium text-slate-700">
-                                                Subscribe to receive updates on email
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Form>
+                    {getRegistrationStatus() === RegistrationStatus.REGISTERED && (
+                        <Card icon={<RiNewsLine />} title="Subscription">
+                            <div className="row justify-between">
+                                <div>Send me email updates.</div>
+                                <Switch defaultSelected={true} size="sm" />
                             </div>
                         </Card>
-
-                        <Card
-                            icon={<RiUserFollowLine />}
-                            title="KYC"
-                            label={
-                                <div className="rounded-md bg-red-100 px-2 py-1 text-xs font-medium tracking-wider text-red-700 larger:text-sm">
-                                    Not Started
-                                </div>
-                            }
-                        >
-                            <div className="row h-full justify-between">
-                                <Alert
-                                    color="primary"
-                                    title="You need to register and confirm your email first."
-                                    classNames={{
-                                        base: 'items-center',
-                                    }}
-                                />
-                            </div>
-                        </Card>
-
-                        {getRegistrationStatus() === RegistrationStatus.REGISTERED && (
-                            <Card icon={<RiNewsLine />} title="Subscription">
-                                <div className="row justify-between">
-                                    <div>Send me email updates.</div>
-                                    <Switch defaultSelected={true} size="sm" />
-                                </div>
-                            </Card>
-                        )}
-                    </div>
-
-                    <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur" size="lg">
-                        <ModalContent>
-                            {() => (
-                                <>
-                                    <ModalBody>
-                                        <DetailedAlert
-                                            icon={<RiMailSendLine />}
-                                            title="Email Confirmation"
-                                            description={
-                                                <div>
-                                                    We've sent a confirmation email to{' '}
-                                                    <span className="text-primary">{email}</span>. Please follow the link inside
-                                                    the email to confirm your address.
-                                                </div>
-                                            }
-                                        />
-                                    </ModalBody>
-                                </>
-                            )}
-                        </ModalContent>
-                    </Modal>
-                </>
+                    )}
+                </div>
             )}
         </div>
     );

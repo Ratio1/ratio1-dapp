@@ -11,7 +11,7 @@ import { Spinner } from '@nextui-org/spinner';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiWalletLine } from 'react-icons/ri';
-import { EthAddress, License } from 'types';
+import { EthAddress, License } from 'typedefs/blockchain';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
 interface Props {

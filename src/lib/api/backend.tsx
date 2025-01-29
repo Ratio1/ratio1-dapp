@@ -1,5 +1,5 @@
 import axios from 'axios';
-import * as types from 'types';
+import * as types from 'typedefs/blockchain';
 
 const backendUrl = 'https://ratio1-backend.ngrok.app';
 

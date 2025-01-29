@@ -8,7 +8,7 @@ import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { useEffect, useState } from 'react';
 import { RiSearchLine } from 'react-icons/ri';
 import { useSearchParams } from 'react-router-dom';
-import { NDLicense } from 'types';
+import { NDLicense } from 'typedefs/blockchain';
 import { usePublicClient } from 'wagmi';
 
 function Search() {
@@ -86,7 +86,7 @@ function Search() {
 
     return (
         <div className="col h-full items-center gap-4 lg:gap-6">
-            <div className="larger:w-[50%] w-full">
+            <div className="w-full larger:w-[50%]">
                 <Input
                     value={value}
                     onKeyDown={(e) => {

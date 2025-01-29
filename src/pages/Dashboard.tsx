@@ -11,7 +11,7 @@ import { BigCard } from '@shared/BigCard';
 import { addSeconds, differenceInSeconds, formatDistanceToNow } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { RiArrowRightUpLine, RiTimeLine } from 'react-icons/ri';
-import { License, Stage } from 'types';
+import { License, Stage } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 

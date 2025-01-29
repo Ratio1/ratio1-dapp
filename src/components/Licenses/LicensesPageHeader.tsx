@@ -11,7 +11,7 @@ import { Timer } from '@shared/Timer';
 import { addSeconds, differenceInSeconds } from 'date-fns';
 import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { ComputeParam, License } from 'types';
+import { ComputeParam, License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
 

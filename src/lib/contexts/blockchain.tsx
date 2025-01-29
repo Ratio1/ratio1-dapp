@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiExternalLinkLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
-import { License } from 'types';
+import { License } from 'typedefs/blockchain';
 import { TransactionReceipt } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 import { explorerUrl, mndContractAddress, ND_LICENSE_CAP, ndContractAddress, r1ContractAddress } from '../config';

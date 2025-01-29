@@ -1,5 +1,5 @@
-import * as types from 'types';
 import axios from 'axios';
+import * as types from 'typedefs/blockchain';
 
 const oraclesUrl = 'https://naeural-oracle.ngrok.app';
 

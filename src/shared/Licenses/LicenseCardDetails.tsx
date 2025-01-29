@@ -2,7 +2,7 @@ import useAwait from '@lib/useAwait';
 import clsx from 'clsx';
 import { useState } from 'react';
 import { RiTimeLine } from 'react-icons/ri';
-import { License } from 'types';
+import { License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 
 const nodePerformanceItems = [

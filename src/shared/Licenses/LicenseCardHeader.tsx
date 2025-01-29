@@ -8,7 +8,7 @@ import { addDays, isBefore } from 'date-fns';
 import { round } from 'lodash';
 import { RiCpuLine, RiForbid2Line, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine, RiWalletLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
-import { License } from 'types';
+import { License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 
 export const LicenseCardHeader = ({
