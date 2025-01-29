@@ -17,6 +17,7 @@ export const contractAddress = '0x799319c30eCdA0fA9E678FbA217047f03E92527F';
 export const r1ContractAddress = '0xBbcbD433Cc666d0Cd11644B6a3954D7C09C0E060';
 export const ndContractAddress = '0x0421b7c9A3B1a4f99F56131b65d15085C7cCACB0';
 export const mndContractAddress = '0xB79fb53ABd43427be6995C194a502bC5AC82D512';
+const safeAddress = '0xE37562D1Da0F8447bD3cf476906774Cb68501189';
 
 export const getContractAddress = (type: 'ND' | 'MND' | 'GND') => {
     switch (type) {
@@ -69,13 +70,19 @@ async function getSession() {
 //TODO handle properly
 const verifyMessage = async ({ message, signature }: SIWEVerifyMessageArgs) => {
     try {
+        const chainId = getChainIdFromMessage(message).replace('eip155:', '');
+        const address = getAddressFromMessage(message);
+        if (address === safeAddress) {
+            localStorage.setItem('chainId', chainId);
+            localStorage.setItem('address', address);
+            localStorage.setItem('accessToken', 'safe');
+            return true;
+        }
         const response = await accessAuth({ message, signature });
         localStorage.setItem('accessToken', response.accessToken);
         localStorage.setItem('refreshToken', response.refreshToken);
         localStorage.setItem('expiration', response.expiration.toString());
-        const chainId = getChainIdFromMessage(message);
-        const address = getAddressFromMessage(message);
-        localStorage.setItem('chainId', chainId.replace('eip155:', ''));
+        localStorage.setItem('chainId', chainId);
         localStorage.setItem('address', address);
         return true;
     } catch (error) {
