@@ -2,7 +2,7 @@ import Layout from '@components/Layout';
 import { metadata, projectId, wagmiAdapter } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { isParentRoute, isSimpleRoute, routePath, routes } from '@lib/routes';
-import { createAppKit } from '@reown/appkit';
+import { createAppKit } from '@reown/appkit/react';
 import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { baseSepolia } from 'viem/chains';

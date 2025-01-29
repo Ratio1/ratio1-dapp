@@ -49,6 +49,13 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
         }
     }, [address, publicClient]);
 
+    useEffect(() => {
+        if (allowance !== undefined) {
+            const divisor = 10n ** BigInt(18);
+            console.log('Allowance', Number(allowance / divisor));
+        }
+    }, [allowance]);
+
     const getTokenAmount = (): bigint => (BigInt(quantity) * licenseTokenPrice * 110n) / 100n; // 10% slippage
 
     const isApprovalRequired = (): boolean => allowance !== undefined && allowance < getTokenAmount();
@@ -102,7 +109,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
             setLoading(true);
 
-            if (!walletClient || !publicClient) {
+            if (!walletClient || !publicClient || !address) {
                 toast.error('Unexpected error, please try again.');
                 return;
             }
@@ -127,6 +134,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
             await watchTx(txHash, publicClient);
 
+            fetchAllowance(publicClient, address);
             fetchR1Balance();
 
             setLoading(false);

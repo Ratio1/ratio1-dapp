@@ -19,13 +19,15 @@ function RegistrationCard({
     getRegistrationStatus: () => RegistrationStatus;
 }) {
     const [email, setEmail] = useState<string>('');
+    const [isSelected, setSelected] = useState(true);
+
     const { isOpen, onOpen, onOpenChange } = useDisclosure(); // Confirmation email
 
     const [isLoading, setLoading] = useState<boolean>(false);
 
     const onSubmit = (e) => {
         e.preventDefault();
-        console.log('register');
+        console.log('register', email, isSelected);
         onOpen();
     };
 
@@ -69,7 +71,7 @@ function RegistrationCard({
                             </div>
 
                             <div className="row gap-2">
-                                <Switch defaultSelected={true} size="sm" />
+                                <Switch isSelected={isSelected} onValueChange={setSelected} size="sm" />
                                 <div className="text-sm font-medium text-slate-700">Subscribe to receive updates on email</div>
                             </div>
                         </div>
