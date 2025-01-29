@@ -58,15 +58,15 @@ function Profile() {
     }, [authenticated]);
 
     const getRegistrationStatus = (): RegistrationStatus => {
-        if (account && account.email) {
-            if (account.emailConfirmed) {
-                return RegistrationStatus.REGISTERED;
-            } else {
-                return RegistrationStatus.NOT_CONFIRMED;
-            }
-        } else {
-            return RegistrationStatus.NOT_REGISTERED;
+        if (account && account.email && account.emailConfirmed) {
+            return RegistrationStatus.REGISTERED;
         }
+
+        if (account && account.pendingEmail && !account.emailConfirmed) {
+            return RegistrationStatus.NOT_CONFIRMED;
+        }
+
+        return RegistrationStatus.NOT_REGISTERED;
     };
 
     if (!authenticated) {
@@ -110,7 +110,12 @@ function Profile() {
 
     return (
         <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
-            <RegistrationCard account={account} getRegistrationStatus={getRegistrationStatus} />
+            <RegistrationCard
+                account={account}
+                getRegistrationStatus={getRegistrationStatus}
+                fetchAccount={fetchAccount}
+                setAccount={setAccount}
+            />
 
             <KycCard account={account} getRegistrationStatus={getRegistrationStatus} />
 
