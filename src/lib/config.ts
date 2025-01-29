@@ -15,9 +15,9 @@ import { safe } from 'wagmi/connectors';
 
 export const contractAddress = '0x799319c30eCdA0fA9E678FbA217047f03E92527F';
 
-export const r1ContractAddress = '0x6764E348ad3190DC90f6767C4BF38D7479a77981';
-export const ndContractAddress = '0xdF58793EB6c8862d81B76810239652f0aAEEDbF8';
-export const mndContractAddress = '0xc2F47468Fd614b63dCe00205153748aE801114f2';
+export const r1ContractAddress = '0xBbcbD433Cc666d0Cd11644B6a3954D7C09C0E060';
+export const ndContractAddress = '0x0421b7c9A3B1a4f99F56131b65d15085C7cCACB0';
+export const mndContractAddress = '0xB79fb53ABd43427be6995C194a502bC5AC82D512';
 
 export const getContractAddress = (type: 'ND' | 'MND' | 'GND') => {
     switch (type) {
@@ -35,12 +35,12 @@ export const queryClient = new QueryClient();
 
 export const projectId = '6fb791d3d18d57d28ae7677e4cff8c6e';
 
-export const genesisDate = new Date('2025-01-24T00:00:00.000Z');
+export const genesisDate = new Date('2025-01-28T20:00:00.000Z');
 export const epochDurationInSeconds = 3600; // 1 hour
 export const mndCliffEpochs = 120;
-export const gndVestingEpochs = 1825;
-export const mndVestingEpochs = 1825;
-export const ndVestingEpochs = 1800;
+export const gndVestingEpochs = 365;
+export const mndVestingEpochs = 900;
+export const ndVestingEpochs = 1080;
 export const r1Price = 12.5; // in $USD
 
 export const metadata = {
