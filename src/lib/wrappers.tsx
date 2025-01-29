@@ -8,7 +8,7 @@ import { Toaster } from 'react-hot-toast';
 import { BrowserRouter } from 'react-router-dom';
 import { WagmiProvider } from 'wagmi';
 import { AuthenticationProvider } from './authentication';
-import { GeneralProvider } from './general';
+import { BlockchainProvider } from './blockchain';
 
 createAppKit({
     adapters: [wagmiAdapter],
@@ -41,7 +41,7 @@ export function Wrappers({ children }: { children: React.ReactNode }) {
                 <QueryClientProvider client={queryClient}>
                     <NextUIProvider>
                         <AuthenticationProvider>
-                            <GeneralProvider>{children}</GeneralProvider>
+                            <BlockchainProvider>{children}</BlockchainProvider>
                         </AuthenticationProvider>
 
                         <Toaster

@@ -1,7 +1,7 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { ndContractAddress, mndContractAddress } from '@lib/config';
-import { useGeneralContext, GeneralContextType } from '@lib/general';
+import { BlockchainContextType, useBlockchainContext } from '@lib/blockchain';
+import { mndContractAddress, ndContractAddress } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
@@ -10,15 +10,15 @@ import { Spinner } from '@nextui-org/spinner';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiLinkUnlink } from 'react-icons/ri';
-import { EthAddress, License } from 'types';
-import { useWalletClient, usePublicClient } from 'wagmi';
+import { License } from 'types';
+import { usePublicClient, useWalletClient } from 'wagmi';
 
 const LicenseUnlinkModal = forwardRef((_props, ref) => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const [license, setLicense] = useState<License>();
     const [rewards] = useAwait(license?.isLinked ? license.rewards : 0n);
 
-    const { watchTx } = useGeneralContext() as GeneralContextType;
+    const { watchTx } = useBlockchainContext() as BlockchainContextType;
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
 

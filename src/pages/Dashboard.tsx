@@ -1,9 +1,8 @@
-import { ERC20Abi } from '@blockchain/ERC20';
 import { NDContractAbi } from '@blockchain/NDContract';
 import Buy from '@components/Buy';
 import Tiers from '@components/Tiers';
-import { epochDurationInSeconds, genesisDate, ndContractAddress, r1ContractAddress } from '@lib/config';
-import { GeneralContextType, useGeneralContext } from '@lib/general';
+import { BlockchainContextType, useBlockchainContext } from '@lib/blockchain';
+import { epochDurationInSeconds, genesisDate, ndContractAddress } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { useDisclosure } from '@lib/useDisclosure';
 import { Button } from '@nextui-org/button';
@@ -92,11 +91,10 @@ const INITIAL_STAGES_STATE: Stage[] = [
 ];
 
 function Dashboard() {
-    const { fetchLicenses } = useGeneralContext() as GeneralContextType;
+    const { fetchLicenses, r1Balance } = useBlockchainContext() as BlockchainContextType;
     const [isLoading, setLoading] = useState<boolean>(true);
 
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const [r1Balance, setR1Balance] = useState<bigint>(0n);
     const [licenses, setLicenses] = useState<Array<License>>([]);
 
     const { address } = useAccount();
@@ -154,20 +152,10 @@ function Dashboard() {
             return;
         }
         if (!address) {
-            setR1Balance(0n);
             return;
         }
 
         fetchLicenses().then(setLicenses);
-
-        publicClient
-            .readContract({
-                address: r1ContractAddress,
-                abi: ERC20Abi,
-                functionName: 'balanceOf',
-                args: [address],
-            })
-            .then(setR1Balance);
     }, [address]);
 
     return (

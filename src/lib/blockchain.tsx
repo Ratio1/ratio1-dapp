@@ -1,28 +1,57 @@
+import { ERC20Abi } from '@blockchain/ERC20';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiExternalLinkLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
 import { License } from 'types';
 import { TransactionReceipt } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
-import { explorerUrl, mndContractAddress, ND_LICENSE_CAP, ndContractAddress } from './config';
+import { explorerUrl, mndContractAddress, ND_LICENSE_CAP, ndContractAddress, r1ContractAddress } from './config';
 import { getLicenseRewardsAndName } from './utils';
 
-export interface GeneralContextType {
+export interface BlockchainContextType {
     watchTx: (txHash: string, publicClient: any) => Promise<void>;
     fetchLicenses: () => Promise<Array<License>>;
+
+    // R1 Balance
+    r1Balance: bigint;
+    setR1Balance: React.Dispatch<React.SetStateAction<bigint>>;
+    fetchR1Balance: () => void;
 }
 
-const GeneralContext = createContext<GeneralContextType | null>(null);
+const BlockchainContext = createContext<BlockchainContextType | null>(null);
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const useGeneralContext = () => useContext(GeneralContext);
+export const useBlockchainContext = () => useContext(BlockchainContext);
 
-export const GeneralProvider = ({ children }) => {
+export const BlockchainProvider = ({ children }) => {
+    const [r1Balance, setR1Balance] = useState<bigint>(0n);
+
     const { address } = useAccount();
     const publicClient = usePublicClient();
+
+    useEffect(() => {
+        if (publicClient && address) {
+            fetchR1Balance();
+        }
+    }, [address, publicClient]);
+
+    const fetchR1Balance = () => {
+        console.log('Fetching R1 balance');
+
+        if (publicClient && address) {
+            publicClient
+                .readContract({
+                    address: r1ContractAddress,
+                    abi: ERC20Abi,
+                    functionName: 'balanceOf',
+                    args: [address],
+                })
+                .then(setR1Balance);
+        }
+    };
 
     const watchTx = async (txHash: string, publicClient) => {
         const waitForTx = async (): Promise<TransactionReceipt> => {
@@ -138,13 +167,16 @@ export const GeneralProvider = ({ children }) => {
     };
 
     return (
-        <GeneralContext.Provider
+        <BlockchainContext.Provider
             value={{
                 watchTx,
                 fetchLicenses,
+                r1Balance,
+                setR1Balance,
+                fetchR1Balance,
             }}
         >
             {children}
-        </GeneralContext.Provider>
+        </BlockchainContext.Provider>
     );
 };

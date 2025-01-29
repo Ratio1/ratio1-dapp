@@ -4,8 +4,8 @@ import LicenseLinkModal from '@components/Licenses/LicenseLinkModal';
 import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
 import LicenseUnlinkModal from '@components/Licenses/LicenseUnlinkModal';
 import { getNodeEpochsRange } from '@lib/api/oracles';
+import { BlockchainContextType, useBlockchainContext } from '@lib/blockchain';
 import { mndContractAddress, ndContractAddress } from '@lib/config';
-import { GeneralContextType, useGeneralContext } from '@lib/general';
 import { getCurrentEpoch } from '@lib/utils';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -38,7 +38,7 @@ function Licenses() {
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
 
-    const { watchTx, fetchLicenses } = useGeneralContext() as GeneralContextType;
+    const { watchTx, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
 
     useEffect(() => {
         fetchLicenses().then(setLicenses);

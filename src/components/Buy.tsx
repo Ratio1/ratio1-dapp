@@ -1,8 +1,8 @@
 import { ERC20Abi } from '@blockchain/ERC20';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { buyLicense } from '@lib/api/backend';
+import { BlockchainContextType, useBlockchainContext } from '@lib/blockchain';
 import { ndContractAddress, r1ContractAddress } from '@lib/config';
-import { GeneralContextType, useGeneralContext } from '@lib/general';
 import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
 import { Input } from '@nextui-org/input';
@@ -16,7 +16,7 @@ import { Stage } from 'types';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentStage: number; stage: Stage }) {
-    const { watchTx } = useGeneralContext() as GeneralContextType;
+    const { watchTx, r1Balance, fetchR1Balance } = useBlockchainContext() as BlockchainContextType;
 
     const [licenseTokenPrice, setLicenseTokenPrice] = useState<bigint>(0n);
     const [allowance, setAllowance] = useState<bigint | undefined>();
@@ -80,6 +80,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
             });
 
             await watchTx(txHash, publicClient);
+
             fetchAllowance(publicClient, address);
 
             setLoading(false);
@@ -92,6 +93,13 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
     const buy = async () => {
         try {
+            if (getTokenAmount() > r1Balance) {
+                toast.error('Not enough $R1 in your wallet.', {
+                    position: 'top-center',
+                });
+                return;
+            }
+
             setLoading(true);
 
             if (!walletClient || !publicClient) {
@@ -119,16 +127,9 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
             await watchTx(txHash, publicClient);
 
-            setLoading(false);
+            fetchR1Balance();
 
-            /*
-            setTimeout(() => {
-                toast.error('Not enough $R1 in your wallet.', {
-                    position: 'top-center',
-                });
-                setLoading(false);
-            }, 300);
-            */
+            setLoading(false);
         } catch (err: any) {
             console.error(err.message || 'An error occurred');
             toast.error(`An error occurred: ${err.message}\nPlease try again.`);

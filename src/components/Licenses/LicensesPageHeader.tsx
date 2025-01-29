@@ -1,8 +1,8 @@
 import Logo from '@assets/token_white.svg';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { getNodeEpochsRange } from '@lib/api/oracles';
+import { BlockchainContextType, useBlockchainContext } from '@lib/blockchain';
 import { epochDurationInSeconds, genesisDate, ndContractAddress } from '@lib/config';
-import { GeneralContextType, useGeneralContext } from '@lib/general';
 import useAwait from '@lib/useAwait';
 import { fBI, getCurrentEpoch } from '@lib/utils';
 import { Button } from '@nextui-org/button';
@@ -29,7 +29,7 @@ function LicensesPageHeader({
         </div>
     );
 
-    const { watchTx } = useGeneralContext() as GeneralContextType;
+    const { watchTx } = useBlockchainContext() as BlockchainContextType;
 
     const rewardsPromise = useMemo(
         () =>

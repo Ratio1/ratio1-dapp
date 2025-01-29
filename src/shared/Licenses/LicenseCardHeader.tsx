@@ -39,7 +39,7 @@ export const LicenseCardHeader = ({
             to={`${explorerUrl}/token/${getContractAddress(license.type)}?a=${Number(license.licenseId)}`}
             target="_blank"
             onClick={(e) => e.stopPropagation()}
-            className={clsx('rounded-full px-3 py-2 text-sm font-medium', {
+            className={clsx('rounded-full px-3 py-2 text-sm font-medium transition-all hover:opacity-60', {
                 'bg-[#e0eeff] text-primary': license.isLinked,
                 'bg-purple-100 text-purple-600': !license.isLinked,
             })}
@@ -71,7 +71,7 @@ export const LicenseCardHeader = ({
                     to={`${explorerUrl}/address/${license.nodeAddress}`}
                     target="_blank"
                     onClick={(e) => e.stopPropagation()}
-                    className="rounded-full bg-orange-100 px-3 py-2 text-sm font-medium text-orange-600"
+                    className="rounded-full bg-orange-100 px-3 py-2 text-sm font-medium text-orange-600 transition-all hover:opacity-60"
                 >
                     <div className="row gap-1">
                         <RiWalletLine className="text-base" />

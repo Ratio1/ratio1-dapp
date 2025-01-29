@@ -1,7 +1,7 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
+import { BlockchainContextType, useBlockchainContext } from '@lib/blockchain';
 import { mndContractAddress, ndContractAddress } from '@lib/config';
-import { GeneralContextType, useGeneralContext } from '@lib/general';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Form } from '@nextui-org/form';
@@ -22,7 +22,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [license, setLicense] = useState<License>();
 
-    const { watchTx } = useGeneralContext() as GeneralContextType;
+    const { watchTx } = useBlockchainContext() as BlockchainContextType;
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
 
