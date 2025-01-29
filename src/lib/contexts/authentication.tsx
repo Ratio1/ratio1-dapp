@@ -1,4 +1,5 @@
 import { accessAuth } from '@lib/api/backend';
+import { safeAddress } from '@lib/config';
 import {
     AppKitSIWEClient,
     createSIWEConfig,
@@ -94,16 +95,20 @@ export const AuthenticationProvider = ({ children }) => {
     //TODO handle properly
     const verifyMessage = async ({ message, signature }: SIWEVerifyMessageArgs) => {
         try {
+            const chainId = getChainIdFromMessage(message).replace('eip155:', '');
+            const address = getAddressFromMessage(message);
+            if (address === safeAddress) {
+                localStorage.setItem('chainId', chainId);
+                localStorage.setItem('address', address);
+                localStorage.setItem('accessToken', 'safe');
+                return true;
+            }
             const response = await accessAuth({ message, signature });
             localStorage.setItem('accessToken', response.accessToken);
             localStorage.setItem('refreshToken', response.refreshToken);
             localStorage.setItem('expiration', response.expiration.toString());
-
-            const chainId = getChainIdFromMessage(message);
-            const address = getAddressFromMessage(message);
-            localStorage.setItem('chainId', chainId.replace('eip155:', ''));
+            localStorage.setItem('chainId', chainId);
             localStorage.setItem('address', address);
-
             return true;
         } catch (error) {
             return false;
