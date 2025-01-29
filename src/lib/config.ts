@@ -11,6 +11,7 @@ import {
 import { baseSepolia } from '@reown/appkit/networks';
 import { QueryClient } from '@tanstack/react-query';
 import { accessAuth } from './api/backend';
+import { safe } from 'wagmi/connectors';
 
 export const contractAddress = '0x799319c30eCdA0fA9E678FbA217047f03E92527F';
 
@@ -54,6 +55,7 @@ export const wagmiAdapter = new WagmiAdapter({
     networks: [baseSepolia],
     projectId,
     ssr: false,
+    connectors: [safe()],
 });
 
 async function getSession() {
