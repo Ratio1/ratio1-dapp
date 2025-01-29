@@ -35,12 +35,15 @@ function RegistrationCard({
 
     const onSubmit = async (e) => {
         e.preventDefault();
-        console.log('Register', email, isSelected);
+        // console.log('Register', email, isSelected);
+        register(email, isSelected);
+    };
 
+    const register = async (email: string, receiveUpdates: boolean) => {
         setLoading(true);
 
         try {
-            const accountResponse: ApiAccount = await registerEmail({ email, receiveUpdates: isSelected });
+            const accountResponse: ApiAccount = await registerEmail({ email, receiveUpdates });
             setAccount(accountResponse);
 
             onOpen();
@@ -61,7 +64,13 @@ function RegistrationCard({
             <Card
                 icon={<RiMailLine />}
                 title="Registration"
-                label={getRegistrationStatus() === RegistrationStatus.NOT_REGISTERED ? <Label text="Not Registered" /> : <></>}
+                label={
+                    getRegistrationStatus() === RegistrationStatus.REGISTERED ? (
+                        <Label text="Registered" variant="green" />
+                    ) : (
+                        <Label text="Not Registered" />
+                    )
+                }
             >
                 <div className="flex h-full w-full items-center justify-between">
                     {getRegistrationStatus() === RegistrationStatus.NOT_REGISTERED && (
@@ -109,10 +118,9 @@ function RegistrationCard({
                     )}
 
                     {getRegistrationStatus() === RegistrationStatus.NOT_CONFIRMED && (
-                        <div>
+                        <div className="col">
                             <Alert
                                 color="warning"
-                                // title="Please confirm your email"
                                 description={
                                     <div>
                                         We've sent a confirmation email to{' '}
@@ -120,10 +128,30 @@ function RegistrationCard({
                                         the link inside the email to confirm your address.
                                     </div>
                                 }
+                                endContent={
+                                    <Button
+                                        color="warning"
+                                        size="sm"
+                                        variant="flat"
+                                        disabled={isLoading}
+                                        onPress={() => {
+                                            register(account.pendingEmail, account.receiveUpdates);
+                                        }}
+                                    >
+                                        Resend
+                                    </Button>
+                                }
                                 classNames={{
                                     base: 'items-center',
                                 }}
                             />
+                        </div>
+                    )}
+
+                    {getRegistrationStatus() === RegistrationStatus.REGISTERED && (
+                        <div className="col">
+                            <div className="text-sm font-medium text-slate-500">Email Address</div>
+                            <div className="font-medium">{account.email}</div>
                         </div>
                     )}
                 </div>
