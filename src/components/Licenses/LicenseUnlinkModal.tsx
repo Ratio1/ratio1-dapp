@@ -26,7 +26,6 @@ const LicenseUnlinkModal = forwardRef((_props, ref) => {
         //TODO this does not work as expected
         if (license.isLinked && (rewards ?? 0n) > 0n) {
             toast.error('Rewards must be claimed before unlinking license.', {
-                position: 'top-center',
                 style: {
                     minWidth: '426px',
                 },

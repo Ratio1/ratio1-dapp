@@ -36,9 +36,7 @@ function SubscriptionCard({
             const accountResponse = await apiCall();
 
             setSelected(accountResponse.receiveUpdates);
-            toast.success('Subscription preference updated!', {
-                position: 'top-center',
-            });
+            toast.success('Subscription preference updated!');
         } catch (error) {
             console.error('Error', error);
             toast.error('Unexpected error, please try again.');

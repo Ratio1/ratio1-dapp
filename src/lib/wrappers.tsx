@@ -19,7 +19,6 @@ export function Wrappers({ children }: { children: React.ReactNode }) {
                         </AuthenticationProvider>
 
                         <Toaster
-                            position="bottom-right"
                             containerStyle={{
                                 top: 30,
                                 left: 30,

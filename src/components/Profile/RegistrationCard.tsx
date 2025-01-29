@@ -118,33 +118,36 @@ function RegistrationCard({
                     )}
 
                     {getRegistrationStatus() === RegistrationStatus.NOT_CONFIRMED && (
-                        <div className="col">
+                        <div className="col gap-3">
                             <Alert
-                                color="warning"
+                                color="primary"
                                 description={
-                                    <div>
-                                        We've sent a confirmation email to{' '}
-                                        <span className="font-semibold">{account.pendingEmail || email}</span>. Please follow
-                                        the link inside the email to confirm your address.
+                                    <div className="col gap-2">
+                                        <div>
+                                            We've sent an email to{' '}
+                                            <span className="font-semibold">{account.pendingEmail || email}</span>. Please
+                                            follow the link inside the confirmation email to confirm your address.
+                                        </div>
                                     </div>
-                                }
-                                endContent={
-                                    <Button
-                                        color="warning"
-                                        size="sm"
-                                        variant="flat"
-                                        disabled={isLoading}
-                                        onPress={() => {
-                                            register(account.pendingEmail, account.receiveUpdates);
-                                        }}
-                                    >
-                                        Resend
-                                    </Button>
                                 }
                                 classNames={{
                                     base: 'items-center',
                                 }}
                             />
+
+                            <div className="center-all">
+                                <Button
+                                    color="primary"
+                                    size="sm"
+                                    variant="solid"
+                                    isLoading={isLoading}
+                                    onPress={() => {
+                                        register(account.pendingEmail, account.receiveUpdates);
+                                    }}
+                                >
+                                    Resend
+                                </Button>
+                            </div>
                         </div>
                     )}
 
@@ -167,8 +170,9 @@ function RegistrationCard({
                                     title="Email Confirmation"
                                     description={
                                         <div>
-                                            We've sent a confirmation email to <span className="text-primary">{email}</span>.
-                                            Please follow the link inside the email to confirm your address.
+                                            We've sent an email to{' '}
+                                            <span className="text-primary">{account.pendingEmail || email}</span>. Please follow
+                                            the link inside the confirmation email to confirm your address.
                                         </div>
                                     }
                                 />
