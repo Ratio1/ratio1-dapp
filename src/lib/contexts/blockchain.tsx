@@ -8,8 +8,8 @@ import { Link } from 'react-router-dom';
 import { License } from 'types';
 import { TransactionReceipt } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
-import { explorerUrl, mndContractAddress, ND_LICENSE_CAP, ndContractAddress, r1ContractAddress } from './config';
-import { getLicenseRewardsAndName } from './utils';
+import { explorerUrl, mndContractAddress, ND_LICENSE_CAP, ndContractAddress, r1ContractAddress } from '../config';
+import { getLicenseRewardsAndName } from '../utils';
 
 export interface BlockchainContextType {
     watchTx: (txHash: string, publicClient: any) => Promise<void>;
@@ -39,8 +39,6 @@ export const BlockchainProvider = ({ children }) => {
     }, [address, publicClient]);
 
     const fetchR1Balance = () => {
-        console.log('Fetching R1 balance');
-
         if (publicClient && address) {
             publicClient
                 .readContract({

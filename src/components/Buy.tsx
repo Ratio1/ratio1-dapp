@@ -1,8 +1,8 @@
 import { ERC20Abi } from '@blockchain/ERC20';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { buyLicense } from '@lib/api/backend';
-import { BlockchainContextType, useBlockchainContext } from '@lib/blockchain';
 import { ndContractAddress, r1ContractAddress } from '@lib/config';
+import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
 import { Input } from '@nextui-org/input';

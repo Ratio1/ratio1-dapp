@@ -1,7 +1,7 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { BlockchainContextType, useBlockchainContext } from '@lib/blockchain';
 import { mndContractAddress, ndContractAddress } from '@lib/config';
+import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';

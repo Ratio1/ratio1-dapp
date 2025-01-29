@@ -1,3 +1,4 @@
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Form } from '@nextui-org/form';
@@ -7,17 +8,15 @@ import { Switch } from '@nextui-org/switch';
 import { Card } from '@shared/Card';
 import { useState } from 'react';
 import { RiMailLine, RiMailSendLine, RiNewsLine, RiUserFollowLine, RiWalletLine } from 'react-icons/ri';
-import { useAccount } from 'wagmi';
 
 function Profile() {
+    const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
+
     const [email, setEmail] = useState<string>('');
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const { isOpen, onOpen, onOpenChange } = useDisclosure(); // Confirmation email modal
 
     const [isLoading, setLoading] = useState<boolean>(false);
-
     const [isRegistered] = useState<boolean>(true);
-
-    const { isConnected } = useAccount();
 
     const register = () => {
         setLoading(true);
@@ -36,7 +35,7 @@ function Profile() {
 
     return (
         <div className="col w-full gap-6">
-            {!isConnected ? (
+            {!authenticated ? (
                 <div className="center-all col gap-6 p-6">
                     <div className="center-all rounded-full bg-primary-50 p-6">
                         <RiWalletLine className="text-4xl text-primary-300" />
@@ -46,7 +45,7 @@ function Profile() {
                         <div className="font-bold uppercase tracking-wider text-primary-800">Connect Wallet</div>
 
                         <div className="text-slate-400">
-                            To proceed, please connect your wallet so we can identify and display your profile.
+                            To proceed, please connect & sign in using your wallet so we can identify and display your profile.
                         </div>
 
                         <div className="mx-auto pt-4">

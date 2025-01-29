@@ -1,8 +1,8 @@
 import Logo from '@assets/token_white.svg';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { getNodeEpochsRange } from '@lib/api/oracles';
-import { BlockchainContextType, useBlockchainContext } from '@lib/blockchain';
 import { epochDurationInSeconds, genesisDate, ndContractAddress } from '@lib/config';
+import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
 import { fBI, getCurrentEpoch } from '@lib/utils';
 import { Button } from '@nextui-org/button';
