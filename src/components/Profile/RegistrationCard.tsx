@@ -5,6 +5,7 @@ import { Modal, ModalBody, ModalContent, useDisclosure } from '@nextui-org/modal
 import { Switch } from '@nextui-org/switch';
 import { Card } from '@shared/Card';
 import { DetailedAlert } from '@shared/DetailedAlert';
+import { Label } from '@shared/Label';
 import { ApiAccount } from '@typedefs/blockchain';
 import { RegistrationStatus } from '@typedefs/profile';
 import { useState } from 'react';
@@ -18,7 +19,7 @@ function RegistrationCard({
     getRegistrationStatus: () => RegistrationStatus;
 }) {
     const [email, setEmail] = useState<string>('');
-    const { isOpen, onOpen, onOpenChange } = useDisclosure(); // Confirmation email modal
+    const { isOpen, onOpen, onOpenChange } = useDisclosure(); // Confirmation email
 
     const [isLoading, setLoading] = useState<boolean>(false);
 
@@ -28,20 +29,16 @@ function RegistrationCard({
         onOpen();
     };
 
+    if (!account) {
+        return null;
+    }
+
     return (
         <>
             <Card
                 icon={<RiMailLine />}
                 title="Registration"
-                label={
-                    getRegistrationStatus() !== RegistrationStatus.REGISTERED ? (
-                        <div className="rounded-md bg-red-100 px-2 py-1 text-xs font-medium tracking-wider text-red-700 larger:text-sm">
-                            {getRegistrationStatus() === RegistrationStatus.NOT_REGISTERED ? 'Not Registered' : 'Not Confirmed'}
-                        </div>
-                    ) : (
-                        <></>
-                    )
-                }
+                label={getRegistrationStatus() === RegistrationStatus.NOT_REGISTERED ? <Label text="Not Registered" /> : <></>}
             >
                 <div className="flex h-full w-full items-center justify-between">
                     <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>
