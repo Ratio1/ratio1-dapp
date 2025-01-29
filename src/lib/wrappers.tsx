@@ -24,7 +24,7 @@ createAppKit({
         socials: [],
     },
     siweConfig,
-    enableWalletConnect: false,
+    enableWalletConnect: true,
     allWallets: 'HIDE',
     termsConditionsUrl: 'https://ratio1.ai/terms-and-conditions',
     themeMode: 'light',
