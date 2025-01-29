@@ -26,6 +26,15 @@ export const AuthenticationProvider = ({ children }) => {
     const [siweConfig, setSiweConfig] = useState<AppKitSIWEClient>();
 
     useEffect(() => {
+        (async () => {
+            const session = await getSession();
+            console.log('Session', session);
+
+            if (session) {
+                setAuthenticated(true);
+            }
+        })();
+
         setSiweConfig(
             createSIWEConfig({
                 signOutOnAccountChange: true,
@@ -49,6 +58,7 @@ export const AuthenticationProvider = ({ children }) => {
                     localStorage.removeItem('accessToken');
                     localStorage.removeItem('chainId');
                     localStorage.removeItem('address');
+
                     return true;
                 },
                 onSignOut() {
@@ -67,11 +77,17 @@ export const AuthenticationProvider = ({ children }) => {
 
     async function getSession() {
         const accessToken = localStorage.getItem('accessToken');
+        const expiration = localStorage.getItem('expiration');
         const chainId = localStorage.getItem('chainId');
         const address = localStorage.getItem('address');
-        if (accessToken && chainId && address) {
+
+        const currentTimestamp = Math.floor(Date.now() / 1000);
+
+        if (chainId && address && accessToken && expiration && parseInt(expiration) > currentTimestamp) {
+            console.log('Valid token, expiration:', new Date(1000 * parseInt(expiration)));
             return { chainId: parseInt(chainId), address };
         }
+
         return null;
     }
 
@@ -82,10 +98,12 @@ export const AuthenticationProvider = ({ children }) => {
             localStorage.setItem('accessToken', response.accessToken);
             localStorage.setItem('refreshToken', response.refreshToken);
             localStorage.setItem('expiration', response.expiration.toString());
+
             const chainId = getChainIdFromMessage(message);
             const address = getAddressFromMessage(message);
             localStorage.setItem('chainId', chainId.replace('eip155:', ''));
             localStorage.setItem('address', address);
+
             return true;
         } catch (error) {
             return false;

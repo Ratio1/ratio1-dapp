@@ -1,13 +1,18 @@
+import { getAccount } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
 import { Modal, ModalBody, ModalContent, useDisclosure } from '@nextui-org/modal';
+import { Spinner } from '@nextui-org/spinner';
 import { Switch } from '@nextui-org/switch';
 import { Card } from '@shared/Card';
-import { useState } from 'react';
-import { RiMailLine, RiMailSendLine, RiNewsLine, RiUserFollowLine, RiWalletLine } from 'react-icons/ri';
+import { DetailedAlert } from '@shared/DetailedAlert';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { RiCloseLargeLine, RiMailLine, RiMailSendLine, RiNewsLine, RiUserFollowLine, RiWalletLine } from 'react-icons/ri';
+import { ApiAccount } from 'types';
 
 function Profile() {
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
@@ -15,16 +20,29 @@ function Profile() {
     const [email, setEmail] = useState<string>('');
     const { isOpen, onOpen, onOpenChange } = useDisclosure(); // Confirmation email modal
 
-    const [isLoading, setLoading] = useState<boolean>(false);
-    const [isRegistered] = useState<boolean>(true);
+    const [account, setAccount] = useState<ApiAccount>();
+
+    const {
+        refetch: fetchAccount,
+        error: accountFetchError,
+        isLoading: isFetchingAccount,
+    } = useQuery({
+        queryKey: ['fetchAccount'],
+        queryFn: async () => {
+            const data = await getAccount();
+
+            if (!data) {
+                throw new Error('Internal server error');
+            }
+
+            return data;
+        },
+        enabled: false,
+        retry: false,
+    });
 
     const register = () => {
-        setLoading(true);
-
-        setTimeout(() => {
-            setLoading(false);
-            onOpen();
-        }, 300);
+        onOpen();
     };
 
     const onSubmit = (e) => {
@@ -33,26 +51,45 @@ function Profile() {
         register();
     };
 
-    return (
+    useEffect(() => {
+        if (authenticated) {
+            fetchAccount();
+        }
+    }, [authenticated]);
+
+    useEffect(() => {
+        if (account) {
+            console.log('Account', account);
+        }
+    }, [account]);
+
+    const isRegistered = (): boolean => false;
+
+    return isFetchingAccount ? (
+        <div className="center-all p-6">
+            <Spinner />
+        </div>
+    ) : (
         <div className="col w-full gap-6">
-            {!authenticated ? (
-                <div className="center-all col gap-6 p-6">
-                    <div className="center-all rounded-full bg-primary-50 p-6">
-                        <RiWalletLine className="text-4xl text-primary-300" />
-                    </div>
-
-                    <div className="col gap-1 text-center">
-                        <div className="font-bold uppercase tracking-wider text-primary-800">Connect Wallet</div>
-
-                        <div className="text-slate-400">
+            {accountFetchError ? (
+                <DetailedAlert
+                    variant="red"
+                    icon={<RiCloseLargeLine />}
+                    title="Error"
+                    description={<div>The was an error fetching your profile information, please try again later.</div>}
+                />
+            ) : !authenticated ? (
+                <DetailedAlert
+                    icon={<RiWalletLine />}
+                    title="Connect Wallet"
+                    description={
+                        <div>
                             To proceed, please connect & sign in using your wallet so we can identify and display your profile.
                         </div>
-
-                        <div className="mx-auto pt-4">
-                            <appkit-connect-button />
-                        </div>
-                    </div>
-                </div>
+                    }
+                >
+                    <appkit-connect-button />
+                </DetailedAlert>
             ) : (
                 <>
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
@@ -95,7 +132,7 @@ function Profile() {
                                                 <Button
                                                     color="primary"
                                                     className="rounded-lg"
-                                                    isLoading={isLoading}
+                                                    isLoading={false} // TODO:
                                                     type="submit"
                                                 >
                                                     <div className="text-sm font-medium">Register</div>
@@ -132,7 +169,7 @@ function Profile() {
                             </div>
                         </Card>
 
-                        {isRegistered && (
+                        {isRegistered() && (
                             <Card icon={<RiNewsLine />} title="Subscription">
                                 <div className="row justify-between">
                                     <div>Send me email updates.</div>
@@ -147,25 +184,17 @@ function Profile() {
                             {() => (
                                 <>
                                     <ModalBody>
-                                        <div className="col gap-6 px-4 py-8">
-                                            <div className="center-all">
-                                                <div className="center-all rounded-full bg-primary-50 p-6">
-                                                    <RiMailSendLine className="text-4xl text-primary-300" />
-                                                </div>
-                                            </div>
-
-                                            <div className="col gap-1 text-center">
-                                                <div className="font-bold uppercase tracking-wider text-primary-800">
-                                                    Email Confirmation
-                                                </div>
-
-                                                <div className="text-slate-400">
+                                        <DetailedAlert
+                                            icon={<RiMailSendLine />}
+                                            title="Email Confirmation"
+                                            description={
+                                                <div>
                                                     We've sent a confirmation email to{' '}
                                                     <span className="text-primary">{email}</span>. Please follow the link inside
                                                     the email to confirm your address.
                                                 </div>
-                                            </div>
-                                        </div>
+                                            }
+                                        />
                                     </ModalBody>
                                 </>
                             )}
