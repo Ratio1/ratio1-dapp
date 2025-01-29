@@ -84,7 +84,7 @@ export const AuthenticationProvider = ({ children }) => {
         const currentTimestamp = Math.floor(Date.now() / 1000);
 
         if (chainId && address && accessToken && expiration && parseInt(expiration) > currentTimestamp) {
-            console.log('Valid token, expiration:', new Date(1000 * parseInt(expiration)));
+            // console.log('Valid token, expiration:', new Date(1000 * parseInt(expiration)));
             return { chainId: parseInt(chainId), address };
         }
 

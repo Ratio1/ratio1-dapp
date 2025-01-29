@@ -14,6 +14,25 @@ import { useEffect, useState } from 'react';
 import { RiCloseLargeLine, RiMailLine, RiMailSendLine, RiNewsLine, RiUserFollowLine, RiWalletLine } from 'react-icons/ri';
 import { ApiAccount } from 'types';
 
+const ACCOUNT: ApiAccount = {
+    email: '', // Or any placeholder you prefer
+    emailConfirmed: false,
+    pendingEmail: '', // Or any placeholder
+    address: '', // Replace with a real address or placeholder
+    uuid: '', // Replace with a generated UUID
+    kycStatus: 'NOT_STARTED', // Or any other appropriate initial value
+    isActive: false,
+    isBlacklisted: false,
+    blacklistedReason: '', // Or a default reason if needed
+    receiveUpdates: false,
+};
+
+enum RegistrationStatus {
+    NOT_REGISTERED = 'NOT_REGISTERED',
+    NOT_CONFIRMED = 'NOT_CONFIRMED',
+    REGISTERED = 'REGISTERED',
+}
+
 function Profile() {
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
@@ -34,6 +53,8 @@ function Profile() {
             if (!data) {
                 throw new Error('Internal server error');
             }
+
+            setAccount(data);
 
             return data;
         },
@@ -63,7 +84,17 @@ function Profile() {
         }
     }, [account]);
 
-    const isRegistered = (): boolean => false;
+    const getRegistrationStatus = (): RegistrationStatus => {
+        if (account && account.email) {
+            if (account.emailConfirmed) {
+                return RegistrationStatus.REGISTERED;
+            } else {
+                return RegistrationStatus.NOT_CONFIRMED;
+            }
+        } else {
+            return RegistrationStatus.NOT_REGISTERED;
+        }
+    };
 
     return isFetchingAccount ? (
         <div className="center-all p-6">
@@ -97,16 +128,17 @@ function Profile() {
                             icon={<RiMailLine />}
                             title="Registration"
                             label={
-                                !isRegistered ? (
-                                    <div className="rounded-md bg-red-100 px-2 py-1 text-xs font-medium tracking-wider text-red-700 lg:text-sm">
-                                        Not Registered
+                                getRegistrationStatus() !== RegistrationStatus.REGISTERED ? (
+                                    <div className="rounded-md bg-red-100 px-2 py-1 text-xs font-medium tracking-wider text-red-700 larger:text-sm">
+                                        {getRegistrationStatus() === RegistrationStatus.NOT_REGISTERED
+                                            ? 'Not Registered'
+                                            : 'Not Confirmed'}
                                     </div>
                                 ) : (
                                     <></>
                                 )
                             }
                         >
-                            {/* TODO: If registered display email without controls */}
                             <div className="flex h-full w-full items-center justify-between">
                                 <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>
                                     <div className="col w-full gap-4">
@@ -142,7 +174,9 @@ function Profile() {
 
                                         <div className="row gap-2">
                                             <Switch defaultSelected={true} size="sm" />
-                                            <div className="text-sm font-medium">Subscribe to receive updates on email</div>
+                                            <div className="text-sm font-medium text-slate-700">
+                                                Subscribe to receive updates on email
+                                            </div>
                                         </div>
                                     </div>
                                 </Form>
@@ -153,7 +187,7 @@ function Profile() {
                             icon={<RiUserFollowLine />}
                             title="KYC"
                             label={
-                                <div className="rounded-md bg-red-100 px-2 py-1 text-xs font-medium tracking-wider text-red-700 lg:text-sm">
+                                <div className="rounded-md bg-red-100 px-2 py-1 text-xs font-medium tracking-wider text-red-700 larger:text-sm">
                                     Not Started
                                 </div>
                             }
@@ -169,7 +203,7 @@ function Profile() {
                             </div>
                         </Card>
 
-                        {isRegistered() && (
+                        {getRegistrationStatus() === RegistrationStatus.REGISTERED && (
                             <Card icon={<RiNewsLine />} title="Subscription">
                                 <div className="row justify-between">
                                     <div>Send me email updates.</div>
