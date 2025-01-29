@@ -101,9 +101,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
     const buy = async () => {
         try {
             if (getTokenAmount() > r1Balance) {
-                toast.error('Not enough $R1 in your wallet.', {
-                    position: 'top-center',
-                });
+                toast.error('Not enough $R1 in your wallet.');
                 return;
             }
 

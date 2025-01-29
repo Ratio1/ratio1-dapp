@@ -29,8 +29,8 @@ export const DetailedAlert: FunctionComponent<PropsWithChildren<Props>> = ({
 
     return (
         <div className="center-all col gap-6 p-6">
-            <div className={`center-all rounded-full ${bgColorClass[variant]} p-4`}>
-                <div className={`text-4xl ${textColorClass[variant]}`}>{icon}</div>
+            <div className={`center-all rounded-full ${bgColorClass[variant]} p-5`}>
+                <div className={`text-3xl ${textColorClass[variant]}`}>{icon}</div>
             </div>
 
             <div className="col gap-1 text-center">

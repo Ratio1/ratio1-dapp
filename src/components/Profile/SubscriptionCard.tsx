@@ -1,7 +1,10 @@
+import { emailSubscribe, emailUnsubscribe } from '@lib/api/backend';
 import { Switch } from '@nextui-org/switch';
 import { Card } from '@shared/Card';
 import { ApiAccount } from '@typedefs/blockchain';
 import { RegistrationStatus } from '@typedefs/profile';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { RiNewsLine } from 'react-icons/ri';
 
 function SubscriptionCard({
@@ -15,11 +18,38 @@ function SubscriptionCard({
         return null;
     }
 
+    const [isSelected, setSelected] = useState<boolean>(account.receiveUpdates);
+    const [isLoading, setLoading] = useState<boolean>(false);
+
+    const toggle = async () => {
+        if (isLoading) {
+            return;
+        }
+
+        // We set the new value optimistically
+        setSelected(!isSelected);
+
+        const apiCall: () => Promise<ApiAccount> = isSelected ? emailUnsubscribe : emailSubscribe;
+
+        try {
+            setLoading(true);
+            const accountResponse = await apiCall();
+
+            setSelected(accountResponse.receiveUpdates);
+            toast.success('Subscription preference updated!');
+        } catch (error) {
+            console.error('Error', error);
+            toast.error('Unexpected error, please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <Card icon={<RiNewsLine />} title="Subscription">
             <div className="row justify-between">
                 <div>Send me email updates.</div>
-                <Switch defaultSelected={account.receiveUpdates} size="sm" />
+                <Switch isSelected={isSelected} onValueChange={toggle} size="sm" />
             </div>
         </Card>
     );
