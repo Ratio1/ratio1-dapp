@@ -4,11 +4,11 @@ import { getNodeEpochsRange } from '@lib/api/oracles';
 import { getNextEpochTimestamp, ndContractAddress } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
-import { fBI, getCurrentEpoch } from '@lib/utils';
+import { fBI, fN, getCurrentEpoch } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Tab, Tabs } from '@nextui-org/tabs';
 import { Timer } from '@shared/Timer';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { ComputeParam, License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
@@ -23,10 +23,9 @@ function LicensesPageHeader({
     licenses: Array<License>;
     getLicenses: () => Promise<void>;
 }) {
-    const { watchTx, fetchR1Price } = useBlockchainContext() as BlockchainContextType;
+    const { watchTx, r1Price, fetchR1Price } = useBlockchainContext() as BlockchainContextType;
 
-    fetchR1Price().then(console.log);
-
+    const [r1PriceUsd, setR1PriceUsd] = useState<number>();
     const [isLoading, setLoading] = useState<boolean>(false);
     const [timestamp, setTimestamp] = useState<Date>(getNextEpochTimestamp());
 
@@ -44,10 +43,28 @@ function LicensesPageHeader({
     const [rewards, isLoadingRewards] = useAwait(rewardsPromise);
 
     const earnedAmount = useMemo(() => licenses.reduce((acc, license) => acc + license.totalClaimedAmount, 0n), [licenses]);
-    const futureClaimableAmount = useMemo(
+    const futureClaimableR1Amount: bigint = useMemo(
         () => licenses.reduce((acc, license) => acc + license.remainingAmount, 0n),
         [licenses],
     );
+
+    const futureClaimableUsd: number = useMemo(() => {
+        if (!r1PriceUsd) return 0;
+        return Number(formatUnits(futureClaimableR1Amount, 18)) * r1PriceUsd;
+    }, [futureClaimableR1Amount, r1PriceUsd]);
+
+    // Init
+    useEffect(() => {
+        fetchR1Price();
+    }, []);
+
+    useEffect(() => {
+        if (r1Price) {
+            const divisor = 10n ** BigInt(18);
+            const scale = 1000000n;
+            setR1PriceUsd(Number((r1Price * scale) / divisor) / Number(scale));
+        }
+    }, [r1Price]);
 
     const claimAll = async () => {
         if (!walletClient || !publicClient) {
@@ -144,8 +161,8 @@ function LicensesPageHeader({
                                 isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)),
                             )}
                             {renderItem('Earned ($R1)', fBI(earnedAmount, 18))}
-                            {renderItem('Future Claimable ($R1)', fBI(futureClaimableAmount, 18))}
-                            {renderItem('Future Claimable ($)', '-')}
+                            {renderItem('Future Claimable ($R1)', fBI(futureClaimableR1Amount, 18))}
+                            {renderItem('Future Claimable ($)', fN(futureClaimableUsd))}
                         </div>
 
                         <div className="flex flex-col-reverse justify-between gap-4 lg:flex-row lg:items-end lg:gap-0">

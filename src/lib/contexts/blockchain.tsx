@@ -1,4 +1,5 @@
 import { ERC20Abi } from '@blockchain/ERC20';
+import { LiquidityManagerAbi } from '@blockchain/LiquidityManager';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { createContext, useContext, useEffect, useState } from 'react';
@@ -17,17 +18,19 @@ import {
     r1ContractAddress,
 } from '../config';
 import { getLicenseRewardsAndName } from '../utils';
-import { LiquidityManagerAbi } from '@blockchain/LiquidityManager';
 
 export interface BlockchainContextType {
     watchTx: (txHash: string, publicClient: any) => Promise<void>;
     fetchLicenses: () => Promise<Array<License>>;
-    fetchR1Price: () => Promise<bigint>;
 
     // R1 Balance
     r1Balance: bigint;
     setR1Balance: React.Dispatch<React.SetStateAction<bigint>>;
     fetchR1Balance: () => void;
+
+    // R1 Price
+    r1Price: bigint;
+    fetchR1Price: () => void;
 }
 
 const BlockchainContext = createContext<BlockchainContextType | null>(null);
@@ -37,6 +40,7 @@ export const useBlockchainContext = () => useContext(BlockchainContext);
 
 export const BlockchainProvider = ({ children }) => {
     const [r1Balance, setR1Balance] = useState<bigint>(0n);
+    const [r1Price, setR1Price] = useState<bigint>(0n);
 
     const { address } = useAccount();
     const publicClient = usePublicClient();
@@ -174,18 +178,16 @@ export const BlockchainProvider = ({ children }) => {
         return ndLicenses;
     };
 
-    const fetchR1Price = async (): Promise<bigint> => {
-        if (!publicClient) {
-            return 0n;
+    const fetchR1Price = async () => {
+        if (publicClient) {
+            const price = await publicClient.readContract({
+                address: liquidityManagerContractAddress,
+                abi: LiquidityManagerAbi,
+                functionName: 'getTokenPrice',
+            });
+
+            setR1Price(price);
         }
-
-        const price = await publicClient.readContract({
-            address: liquidityManagerContractAddress,
-            abi: LiquidityManagerAbi,
-            functionName: 'getTokenPrice',
-        });
-
-        return price;
     };
 
     return (
@@ -193,10 +195,13 @@ export const BlockchainProvider = ({ children }) => {
             value={{
                 watchTx,
                 fetchLicenses,
-                fetchR1Price,
+                // R1 Balance
                 r1Balance,
                 setR1Balance,
                 fetchR1Balance,
+                // R1 Price
+                r1Price,
+                fetchR1Price,
             }}
         >
             {children}
