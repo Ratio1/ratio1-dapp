@@ -6,6 +6,11 @@ export const NDContractAbi = [
                 name: 'tokenAddress',
                 type: 'address',
             },
+            {
+                internalType: 'address',
+                name: 'newOwner',
+                type: 'address',
+            },
         ],
         stateMutability: 'nonpayable',
         type: 'constructor',
@@ -104,6 +109,12 @@ export const NDContractAbi = [
                 indexed: false,
                 internalType: 'uint256',
                 name: 'unitUsdPrice',
+                type: 'uint256',
+            },
+            {
+                indexed: false,
+                internalType: 'uint256',
+                name: 'totalR1Cost',
                 type: 'uint256',
             },
         ],
@@ -750,6 +761,25 @@ export const NDContractAbi = [
     {
         inputs: [
             {
+                internalType: 'address',
+                name: 'nodeAddress',
+                type: 'address',
+            },
+        ],
+        name: 'isNodeAlreadyLinked',
+        outputs: [
+            {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
                 internalType: 'uint256',
                 name: '',
                 type: 'uint256',
@@ -843,6 +873,25 @@ export const NDContractAbi = [
                 internalType: 'string',
                 name: '',
                 type: 'string',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: '',
+                type: 'address',
+            },
+        ],
+        name: 'nodeToUser',
+        outputs: [
+            {
+                internalType: 'address',
+                name: '',
+                type: 'address',
             },
         ],
         stateMutability: 'view',
