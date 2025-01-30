@@ -1,4 +1,4 @@
-import { accessAuth } from '@lib/api/backend';
+import { accessAuth, getAccount } from '@lib/api/backend';
 import { safeAddress } from '@lib/config';
 import {
     AppKitSIWEClient,
@@ -9,12 +9,21 @@ import {
     SIWECreateMessageArgs,
     SIWEVerifyMessageArgs,
 } from '@reown/appkit-siwe';
+import { QueryObserverResult, RefetchOptions, useQuery } from '@tanstack/react-query';
+import { ApiAccount } from '@typedefs/blockchain';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { baseSepolia } from 'viem/chains';
 
 export interface AuthenticationContextType {
+    // SIWE
     authenticated: boolean;
     siweConfig: AppKitSIWEClient | undefined;
+    // Account
+    account: ApiAccount | undefined;
+    setAccount: React.Dispatch<React.SetStateAction<ApiAccount | undefined>>;
+    fetchAccount: (options?: RefetchOptions) => Promise<QueryObserverResult<ApiAccount, Error>>;
+    isFetchingAccount: boolean;
+    accountFetchError: Error | null;
 }
 
 const AuthenticationContext = createContext<AuthenticationContextType | null>(null);
@@ -25,7 +34,9 @@ export const useAuthenticationContext = () => useContext(AuthenticationContext);
 export const AuthenticationProvider = ({ children }) => {
     const [authenticated, setAuthenticated] = useState<boolean>(false);
     const [siweConfig, setSiweConfig] = useState<AppKitSIWEClient>();
+    const [account, setAccount] = useState<ApiAccount>();
 
+    // SIWE
     useEffect(() => {
         (async () => {
             const session = await getSession();
@@ -76,6 +87,35 @@ export const AuthenticationProvider = ({ children }) => {
         );
     }, []);
 
+    useEffect(() => {
+        if (authenticated) {
+            fetchAccount();
+        }
+    }, [authenticated]);
+
+    const {
+        refetch: fetchAccount,
+        error: accountFetchError,
+        isLoading: isFetchingAccount,
+    } = useQuery({
+        queryKey: ['fetchAccount'],
+        queryFn: async () => {
+            const data = await getAccount();
+
+            console.log('fetchAccount', data);
+
+            if (!data) {
+                throw new Error('Internal server error');
+            }
+
+            setAccount(data);
+
+            return data;
+        },
+        enabled: false,
+        retry: false,
+    });
+
     async function getSession() {
         const accessToken = localStorage.getItem('accessToken');
         const expiration = localStorage.getItem('expiration');
@@ -118,8 +158,15 @@ export const AuthenticationProvider = ({ children }) => {
     return (
         <AuthenticationContext.Provider
             value={{
+                // SIWE
                 authenticated,
                 siweConfig,
+                // Account
+                account,
+                setAccount,
+                fetchAccount,
+                isFetchingAccount,
+                accountFetchError,
             }}
         >
             {children}

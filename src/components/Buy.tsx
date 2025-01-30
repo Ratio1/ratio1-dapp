@@ -3,23 +3,32 @@ import { NDContractAbi } from '@blockchain/NDContract';
 import { buyLicense } from '@lib/api/backend';
 import { ndContractAddress, r1ContractAddress } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
+import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
+import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
+import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
 import { isFinite, isNaN } from 'lodash';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
-import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine } from 'react-icons/ri';
+import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine, RiEqualizer2Line } from 'react-icons/ri';
 import { Stage } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
+
+const DANGEROUS_SLIPPAGE = 0.5;
 
 function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentStage: number; stage: Stage }) {
     const { watchTx, r1Balance, fetchR1Balance } = useBlockchainContext() as BlockchainContextType;
 
     const [licenseTokenPrice, setLicenseTokenPrice] = useState<bigint>(0n);
     const [allowance, setAllowance] = useState<bigint | undefined>();
+
+    const [slippageValue, setSlippageValue] = useState<string>('');
+    const [slippage, setSlippage] = useState<number>(10);
+    const { isOpen, onOpen, onClose: onCloseSlippageModal, onOpenChange } = useDisclosure(); // Slippage modal
 
     const [quantity, setQuantity] = useState<string>('1');
 
@@ -50,13 +59,14 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
     }, [address, publicClient]);
 
     useEffect(() => {
-        if (allowance !== undefined) {
-            const divisor = 10n ** BigInt(18);
-            console.log('Allowance', Number(allowance / divisor));
-        }
-    }, [allowance]);
+        const divisor = 10n ** BigInt(18);
+        console.log('getTokenAmount', Number(getTokenAmount() / divisor));
+    }, [quantity, slippage]);
 
-    const getTokenAmount = (): bigint => (BigInt(quantity) * licenseTokenPrice * 110n) / 100n; // 10% slippage
+    const getTokenAmount = (): bigint => {
+        const slippageValue = Math.floor(slippage * 100) / 100; // Rounds down to 2 decimal places
+        return (BigInt(quantity) * licenseTokenPrice * BigInt(Math.floor(100 + slippageValue))) / 100n;
+    };
 
     const isApprovalRequired = (): boolean => allowance !== undefined && allowance < getTokenAmount();
 
@@ -151,69 +161,205 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
         }
     };
 
+    const onSubmitSlippage = async (e) => {
+        e.preventDefault();
+
+        const n = Number.parseFloat(slippageValue);
+
+        setSlippage(n);
+        onCloseSlippageModal();
+    };
+
+    const isSlippageTooSmall = (): boolean => {
+        const n = Number.parseFloat(slippageValue);
+        const isInputValueTooSmall: boolean = isFinite(n) && !isNaN(n) && n < DANGEROUS_SLIPPAGE;
+
+        return slippage < DANGEROUS_SLIPPAGE || isInputValueTooSmall;
+    };
+
     return (
-        <div className="my-4 flex flex-col gap-6">
-            <div className="row gap-2">
-                <Button isIconOnly variant="flat" className="bg-lightAccent" onPress={onClose}>
-                    <div className="text-[22px]">
-                        <RiArrowRightDoubleLine />
+        <>
+            <div className="my-4 flex flex-col gap-6">
+                <div className="row justify-between gap-4">
+                    <Button isIconOnly variant="flat" className="bg-lightAccent" onPress={onClose}>
+                        <div className="text-[22px]">
+                            <RiArrowRightDoubleLine />
+                        </div>
+                    </Button>
+
+                    <Button
+                        className="rounded-lg border border-default-200 bg-[#fcfcfd]"
+                        color="default"
+                        variant="bordered"
+                        onPress={() => {
+                            setSlippageValue(slippage.toString());
+                            onOpen();
+                        }}
+                    >
+                        <div className="row gap-1">
+                            <RiEqualizer2Line className="pr-0.5 text-xl text-gray-500" />
+
+                            <span className="text-gray-500">Slippage:</span>
+                            <span className="font-medium">{slippage}%</span>
+                        </div>
+                    </Button>
+                </div>
+
+                <div className="col gap-4">
+                    <div className="col overflow-hidden rounded-md border border-slate-200 bg-lightAccent">
+                        <div className="row justify-between p-4">
+                            <div className="row gap-2.5">
+                                <div className="rounded-md bg-primary p-1.5 text-white">
+                                    <RiCpuLine className="text-xl" />
+                                </div>
+
+                                <div className="text-base font-medium">Node Licenses</div>
+                            </div>
+
+                            <div className="flex">
+                                <div className="rounded-md bg-orange-100 px-2 py-1 text-sm font-medium tracking-wider text-orange-600">
+                                    ~{stage.totalUnits - stage.soldUnits} left
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex border-t border-slate-200 bg-white p-4">
+                            <div className="row justify-between gap-12">
+                                <div className="font-medium">Quantity</div>
+
+                                <div className="flex gap-1">
+                                    <Button
+                                        className="min-w-10 rounded-lg border border-default-200 bg-[#fcfcfd] p-0"
+                                        color="default"
+                                        variant="bordered"
+                                        size="md"
+                                        onPress={() => {
+                                            const n = Number.parseInt(quantity);
+
+                                            if (isFinite(n) && !isNaN(n) && n >= 2) {
+                                                setQuantity((n - 1).toString());
+                                            }
+                                        }}
+                                    >
+                                        <BiMinus className="text-[18px] text-[#71717a]" />
+                                    </Button>
+
+                                    <Input
+                                        value={quantity}
+                                        onValueChange={(value) => {
+                                            const n = Number.parseInt(value);
+
+                                            if (value === '') {
+                                                setQuantity('');
+                                            } else if (
+                                                isFinite(n) &&
+                                                !isNaN(n) &&
+                                                n > 0 &&
+                                                n <= stage.totalUnits - stage.soldUnits
+                                            ) {
+                                                setQuantity(n.toString());
+                                            }
+                                        }}
+                                        size="md"
+                                        classNames={{
+                                            inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                                            input: 'font-medium',
+                                        }}
+                                        variant="bordered"
+                                        color="primary"
+                                        labelPlacement="outside"
+                                        placeholder="0"
+                                    />
+
+                                    <Button
+                                        className="min-w-10 rounded-lg border border-default-200 bg-[#fcfcfd] p-0"
+                                        color="default"
+                                        variant="bordered"
+                                        size="md"
+                                        onPress={() => {
+                                            const n = Number.parseInt(quantity);
+
+                                            if (isFinite(n) && !isNaN(n) && n < stage.totalUnits - stage.soldUnits) {
+                                                setQuantity((n + 1).toString());
+                                            }
+                                        }}
+                                    >
+                                        <RiAddFill className="text-[18px] text-[#71717a]" />
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </Button>
+
+                    <div className="flex w-full flex-col rounded-md bg-lightAccent px-10 py-8">
+                        <div className="col gap-1.5 text-center">
+                            <div className="text-sm font-medium text-slate-500">Total amount due</div>
+
+                            <div className="center-all gap-1">
+                                <div className="text-2xl font-semibold text-slate-400">~$R1</div>
+                                <div className="text-2xl font-semibold text-primary">
+                                    {((BigInt(quantity) * licenseTokenPrice) / 10n ** 18n).toLocaleString('en-US')}
+                                </div>
+                            </div>
+                        </div>
+
+                        {!!quantity && Number.parseInt(quantity) > 0 && (
+                            <>
+                                <Divider className="my-6 bg-slate-200" />
+
+                                <div className="col gap-4">
+                                    <div className="text-sm font-medium text-slate-500">Summary</div>
+
+                                    <div className="col gap-2">
+                                        <div className="row justify-between">
+                                            <div className="text-sm font-medium">
+                                                {quantity} x License{Number.parseInt(quantity) > 1 ? 's' : ''} (Tier{' '}
+                                                {currentStage})
+                                            </div>
+                                            <div className="text-sm font-medium">
+                                                ${(Number.parseInt(quantity) * stage.usdPrice).toLocaleString('en-US')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        <div className="mt-6">
+                            <ConnectWalletWrapper isFullWidth>
+                                <Button
+                                    fullWidth
+                                    color="primary"
+                                    onPress={onPress}
+                                    isLoading={isLoading}
+                                    isDisabled={allowance === undefined}
+                                >
+                                    {isApprovalRequired() ? 'Approve $R1' : 'Buy'}
+                                </Button>
+                            </ConnectWalletWrapper>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div className="col gap-4">
-                <div className="col overflow-hidden rounded-md border border-slate-200 bg-lightAccent">
-                    <div className="row justify-between p-4">
-                        <div className="row gap-2.5">
-                            <div className="rounded-md bg-primary p-1.5 text-white">
-                                <RiCpuLine className="text-xl" />
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm" shouldBlockScroll={false}>
+                <ModalContent>
+                    <ModalHeader>Set slippage tolerance (%)</ModalHeader>
+
+                    <ModalBody>
+                        <div className="col gap-2 pb-2">
+                            <div className="text-sm text-slate-500">
+                                This is the maximum amount of slippage you are willing to accept when transactioning.
                             </div>
 
-                            <div className="text-base font-medium">Node Licenses</div>
-                        </div>
-
-                        <div className="flex">
-                            <div className="rounded-md bg-orange-100 px-2 py-1 text-sm font-medium tracking-wider text-orange-600">
-                                ~{stage.totalUnits - stage.soldUnits} left
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex border-t border-slate-200 bg-white p-4">
-                        <div className="row justify-between gap-12">
-                            <div className="font-medium">Quantity</div>
-
-                            <div className="flex gap-1">
-                                <Button
-                                    className="min-w-10 rounded-lg border border-default-200 bg-[#fcfcfd] p-0"
-                                    color="default"
-                                    variant="bordered"
-                                    size="md"
-                                    onPress={() => {
-                                        const n = Number.parseInt(quantity);
-
-                                        if (isFinite(n) && !isNaN(n) && n >= 2) {
-                                            setQuantity((n - 1).toString());
-                                        }
-                                    }}
-                                >
-                                    <BiMinus className="text-[18px] text-[#71717a]" />
-                                </Button>
-
+                            <Form className="w-full" validationBehavior="native" onSubmit={onSubmitSlippage}>
                                 <Input
-                                    value={quantity}
+                                    value={slippageValue}
                                     onValueChange={(value) => {
-                                        const n = Number.parseInt(value);
+                                        const n = Number.parseFloat(value);
 
-                                        if (value === '') {
-                                            setQuantity('');
-                                        } else if (
-                                            isFinite(n) &&
-                                            !isNaN(n) &&
-                                            n > 0 &&
-                                            n <= stage.totalUnits - stage.soldUnits
-                                        ) {
-                                            setQuantity(n.toString());
+                                        if (value === '' || (isFinite(n) && !isNaN(n) && n >= 0 && n < 100)) {
+                                            setSlippageValue(value);
                                         }
                                     }}
                                     size="md"
@@ -225,77 +371,41 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                                     color="primary"
                                     labelPlacement="outside"
                                     placeholder="0"
+                                    type="number"
+                                    validate={(value) => {
+                                        const n = Number.parseFloat(value);
+
+                                        if (!(isFinite(n) && !isNaN(n) && n > 0 && n < 100)) {
+                                            return 'Value must be a number between 0 and 100.';
+                                        }
+
+                                        return null;
+                                    }}
                                 />
 
-                                <Button
-                                    className="min-w-10 rounded-lg border border-default-200 bg-[#fcfcfd] p-0"
-                                    color="default"
-                                    variant="bordered"
-                                    size="md"
-                                    onPress={() => {
-                                        const n = Number.parseInt(quantity);
+                                <div className="col w-full gap-2">
+                                    {isSlippageTooSmall() && (
+                                        <Alert
+                                            color="danger"
+                                            title="Your transaction may fail"
+                                            classNames={{
+                                                base: 'items-center py-2 mt-1',
+                                            }}
+                                        />
+                                    )}
 
-                                        if (isFinite(n) && !isNaN(n) && n < stage.totalUnits - stage.soldUnits) {
-                                            setQuantity((n + 1).toString());
-                                        }
-                                    }}
-                                >
-                                    <RiAddFill className="text-[18px] text-[#71717a]" />
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex w-full flex-col rounded-md bg-lightAccent px-10 py-8">
-                    <div className="col gap-1.5 text-center">
-                        <div className="text-sm font-medium text-slate-500">Total amount due</div>
-
-                        <div className="center-all gap-1">
-                            <div className="text-2xl font-semibold text-slate-400">~$R1</div>
-                            <div className="text-2xl font-semibold text-primary">
-                                {((BigInt(quantity) * licenseTokenPrice) / 10n ** 18n).toLocaleString('en-US')}
-                            </div>
-                        </div>
-                    </div>
-
-                    {!!quantity && Number.parseInt(quantity) > 0 && (
-                        <>
-                            <Divider className="my-6 bg-slate-200" />
-
-                            <div className="col gap-4">
-                                <div className="text-sm font-medium text-slate-500">Summary</div>
-
-                                <div className="col gap-2">
-                                    <div className="row justify-between">
-                                        <div className="text-sm font-medium">
-                                            {quantity} x License{Number.parseInt(quantity) > 1 ? 's' : ''} (Tier {currentStage})
-                                        </div>
-                                        <div className="text-sm font-medium">
-                                            ${(Number.parseInt(quantity) * stage.usdPrice).toLocaleString('en-US')}
-                                        </div>
+                                    <div className="mt-1 flex justify-end">
+                                        <Button type="submit" color="primary">
+                                            Confirm
+                                        </Button>
                                     </div>
                                 </div>
-                            </div>
-                        </>
-                    )}
-
-                    <div className="mt-6">
-                        <ConnectWalletWrapper isFullWidth>
-                            <Button
-                                fullWidth
-                                color="primary"
-                                onPress={onPress}
-                                isLoading={isLoading}
-                                isDisabled={allowance === undefined}
-                            >
-                                {isApprovalRequired() ? 'Approve $R1' : 'Buy'}
-                            </Button>
-                        </ConnectWalletWrapper>
-                    </div>
-                </div>
-            </div>
-        </div>
+                            </Form>
+                        </div>
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
+        </>
     );
 }
 

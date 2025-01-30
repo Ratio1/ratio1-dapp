@@ -1,4 +1,5 @@
 import { emailSubscribe, emailUnsubscribe } from '@lib/api/backend';
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { Switch } from '@nextui-org/switch';
 import { Card } from '@shared/Card';
 import { ApiAccount } from '@typedefs/blockchain';
@@ -7,13 +8,9 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiNewsLine } from 'react-icons/ri';
 
-function SubscriptionCard({
-    account,
-    getRegistrationStatus,
-}: {
-    account?: ApiAccount;
-    getRegistrationStatus: () => RegistrationStatus;
-}) {
+function SubscriptionCard({ getRegistrationStatus }: { getRegistrationStatus: () => RegistrationStatus }) {
+    const { account } = useAuthenticationContext() as AuthenticationContextType;
+
     if (!account || getRegistrationStatus() !== RegistrationStatus.REGISTERED) {
         return null;
     }

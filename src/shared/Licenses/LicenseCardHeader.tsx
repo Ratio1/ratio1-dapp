@@ -3,6 +3,7 @@ import useAwait from '@lib/useAwait';
 import { fBI, getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
+import { Skeleton } from '@nextui-org/skeleton';
 import clsx from 'clsx';
 import { addDays, isBefore } from 'date-fns';
 import { round } from 'lodash';
@@ -31,7 +32,9 @@ export const LicenseCardHeader = ({
     };
 
     const getNodeAlias = () => (
-        <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">{isLoadingAlias ? '...' : alias}</div>
+        <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">
+            {isLoadingAlias ? <Skeleton className="h-4 w-full max-w-36 rounded-lg" /> : alias}
+        </div>
     );
 
     const getLicenseIdTag = () => (
@@ -109,12 +112,12 @@ export const LicenseCardHeader = ({
             return undefined;
         }
 
-        return (
+        return isLoadingRewards ? (
+            <Skeleton className="h-4 min-w-20 rounded-lg" />
+        ) : (
             <div className="row gap-1.5">
                 <div className="text-base font-semibold text-slate-400 xl:text-lg">$R1</div>
-                <div className="text-base font-semibold text-primary xl:text-lg">
-                    {isLoadingRewards ? '...' : rewardsN.toFixed(2)}
-                </div>
+                <div className="text-base font-semibold text-primary xl:text-lg">{parseFloat(rewardsN.toFixed(2))}</div>
             </div>
         );
     };

@@ -1,4 +1,5 @@
 import { registerEmail } from '@lib/api/backend';
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Form } from '@nextui-org/form';
@@ -8,24 +9,15 @@ import { Switch } from '@nextui-org/switch';
 import { Card } from '@shared/Card';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { Label } from '@shared/Label';
-import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 import { ApiAccount } from '@typedefs/blockchain';
 import { RegistrationStatus } from '@typedefs/profile';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiMailLine, RiMailSendLine } from 'react-icons/ri';
 
-function RegistrationCard({
-    account,
-    getRegistrationStatus,
-    fetchAccount,
-    setAccount,
-}: {
-    account?: ApiAccount;
-    getRegistrationStatus: () => RegistrationStatus;
-    fetchAccount: (options?: RefetchOptions) => Promise<QueryObserverResult<ApiAccount, Error>>;
-    setAccount: React.Dispatch<React.SetStateAction<ApiAccount | undefined>>;
-}) {
+function RegistrationCard({ getRegistrationStatus }: { getRegistrationStatus: () => RegistrationStatus }) {
+    const { account, setAccount } = useAuthenticationContext() as AuthenticationContextType;
+
     const [email, setEmail] = useState<string>('');
     const [isSelected, setSelected] = useState(true);
 
@@ -91,7 +83,7 @@ function RegistrationCard({
                                         color="primary"
                                         labelPlacement="outside"
                                         placeholder="Email"
-                                        disabled={isLoading}
+                                        isDisabled={isLoading}
                                     />
 
                                     <div className="flex">
@@ -106,7 +98,7 @@ function RegistrationCard({
                                         isSelected={isSelected}
                                         onValueChange={setSelected}
                                         size="sm"
-                                        disabled={isLoading}
+                                        isDisabled={isLoading}
                                     />
                                     <div className="text-sm font-medium text-slate-700">
                                         Subscribe to receive updates on email

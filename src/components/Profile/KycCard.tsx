@@ -1,48 +1,74 @@
 import { initSumsubSession } from '@lib/api/backend';
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Modal, ModalBody, ModalContent, useDisclosure } from '@nextui-org/modal';
 import { Card } from '@shared/Card';
 import { Label } from '@shared/Label';
-import { ApiAccount } from '@typedefs/blockchain';
+import SumsubWebSdk from '@sumsub/websdk-react';
 import { RegistrationStatus } from '@typedefs/profile';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiUserFollowLine } from 'react-icons/ri';
 
-function KycCard({
-    account,
-    getRegistrationStatus,
-}: {
-    account?: ApiAccount;
-    getRegistrationStatus: () => RegistrationStatus;
-}) {
-    if (!account) {
-        return null;
-    }
+function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => RegistrationStatus }) {
+    const { account, fetchAccount } = useAuthenticationContext() as AuthenticationContextType;
 
     const [isLoading, setLoading] = useState<boolean>(false);
-    const [url, setUrl] = useState<string>();
+    const [token, setToken] = useState<string>();
 
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+
+    // Function to adjust iframe height
+    const adjustIframeHeight = () => {
+        if (iframeRef.current) {
+            const iframe = iframeRef.current;
+            if (iframe.contentWindow) {
+                try {
+                    const newHeight = iframe.contentWindow.document.body.scrollHeight;
+                    console.log(`${newHeight}px`);
+                } catch (error) {
+                    console.warn('Cross-origin restriction prevents auto-sizing.');
+                }
+            }
+        }
+    };
 
     useEffect(() => {
-        if (url) {
+        // Try adjusting height whenever the iframe loads
+        const iframe = iframeRef.current;
+        if (iframe) {
+            iframe.addEventListener('load', adjustIframeHeight);
+        }
+
+        return () => {
+            if (iframe) {
+                iframe.removeEventListener('load', adjustIframeHeight);
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        if (token) {
             onOpen();
         }
-    }, [url]);
+    }, [token]);
 
     const init = async () => {
         setLoading(true);
 
         try {
-            const response: string = await initSumsubSession('individual');
+            const tokenResponse: string = await initSumsubSession('individual');
 
-            if (!response) {
+            if (!tokenResponse) {
                 throw new Error('Unexpected error, please try again.');
             }
 
-            setUrl(response);
+            console.log(tokenResponse);
+
+            setToken(tokenResponse);
         } catch (error) {
             console.error('Error', error);
             toast.error('Unexpected error, please try again.');
@@ -50,6 +76,10 @@ function KycCard({
             setLoading(false);
         }
     };
+
+    if (!account) {
+        return null;
+    }
 
     return (
         <>
@@ -79,21 +109,34 @@ function KycCard({
                 </div>
             </Card>
 
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={(value) => {
+                    if (value) {
+                        onOpen();
+                    } else {
+                        fetchAccount();
+                        onClose();
+                    }
+                }}
+                size="lg"
+            >
                 <ModalContent>
                     {() => (
-                        <ModalBody className="center-all min-h-[500px]">
-                            {!url ? (
+                        <ModalBody className="center-all min-h-[400px]">
+                            {!token ? (
                                 <div>Please close this window and try again</div>
                             ) : (
-                                <div className="flex-grow">
-                                    <iframe
-                                        src={url}
-                                        className="h-[638px] w-full"
-                                        allow="camera; microphone; autoplay"
-                                        title="Sumsub KYC"
-                                    ></iframe>
-                                </div>
+                                <SumsubWebSdk
+                                    accessToken={token}
+                                    expirationHandler={() => initSumsubSession('individual')}
+                                    config={{
+                                        lang: 'en',
+                                        email: account.email,
+                                    }}
+                                    options={{ addViewportTag: false, adaptIframeHeight: true }}
+                                    onError={(data) => console.log('onError', data)}
+                                />
                             )}
                         </ModalBody>
                     )}

@@ -13,7 +13,13 @@ import { RiLinkUnlink } from 'react-icons/ri';
 import { License } from 'typedefs/blockchain';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
-const LicenseUnlinkModal = forwardRef((_props, ref) => {
+interface Props {
+    getLicenses: () => void;
+}
+
+const LicenseUnlinkModal = forwardRef(({ getLicenses }: Props, ref) => {
+    const [isLoading, setLoading] = useState<boolean>(false);
+
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const [license, setLicense] = useState<License>();
     const [rewards] = useAwait(license?.isLinked ? license.rewards : 0n);
@@ -22,9 +28,9 @@ const LicenseUnlinkModal = forwardRef((_props, ref) => {
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
 
-    const trigger = (license: License) => {
-        //TODO this does not work as expected
-        if (license.isLinked && (rewards ?? 0n) > 0n) {
+    const trigger = (licenseArg: License) => {
+        // TODO: This does not work as expected
+        if (licenseArg.isLinked && (rewards ?? 0n) > 0n) {
             toast.error('Rewards must be claimed before unlinking license.', {
                 style: {
                     minWidth: '426px',
@@ -33,7 +39,7 @@ const LicenseUnlinkModal = forwardRef((_props, ref) => {
             return;
         }
 
-        setLicense(license);
+        setLicense(licenseArg);
 
         onOpen();
     };
@@ -48,13 +54,19 @@ const LicenseUnlinkModal = forwardRef((_props, ref) => {
             return;
         }
 
+        setLoading(true);
+
         const txHash = await walletClient.writeContract({
             address: license.type === 'ND' ? ndContractAddress : mndContractAddress,
             abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
             functionName: 'unlinkNode',
             args: [license.licenseId],
         });
+
         await watchTx(txHash, publicClient);
+        getLicenses();
+        setLoading(false);
+        onClose();
     };
 
     return (
@@ -93,9 +105,11 @@ const LicenseUnlinkModal = forwardRef((_props, ref) => {
                                 </div>
 
                                 <div className="row w-full justify-end gap-2 py-2">
-                                    <Button onPress={onClose}>Cancel</Button>
+                                    <Button onPress={onClose} isDisabled={isLoading}>
+                                        Cancel
+                                    </Button>
 
-                                    <Button color="danger" onPress={onConfirm}>
+                                    <Button color="danger" onPress={onConfirm} isLoading={isLoading}>
                                         Unlink
                                     </Button>
                                 </div>
