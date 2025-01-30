@@ -4,10 +4,9 @@ import { Button } from '@nextui-org/button';
 import { Modal, ModalBody, ModalContent, useDisclosure } from '@nextui-org/modal';
 import { Card } from '@shared/Card';
 import { Label } from '@shared/Label';
-import snsWebSdk from '@sumsub/websdk';
 import { ApiAccount } from '@typedefs/blockchain';
 import { RegistrationStatus } from '@typedefs/profile';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiUserFollowLine } from 'react-icons/ri';
 
@@ -18,56 +17,38 @@ function KycCard({
     account?: ApiAccount;
     getRegistrationStatus: () => RegistrationStatus;
 }) {
-    const [isLoading, setLoading] = useState<boolean>(false);
-    const [accessToken, setAccessToken] = useState<string>();
-
-    const { isOpen, onOpen, onOpenChange } = useDisclosure(); // Sumsub
-
     if (!account) {
         return null;
     }
 
-    // Obtain the Sumsub access token
+    const [isLoading, setLoading] = useState<boolean>(false);
+    const [url, setUrl] = useState<string>();
+
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+    useEffect(() => {
+        if (url) {
+            onOpen();
+        }
+    }, [url]);
+
     const init = async () => {
         setLoading(true);
 
         try {
-            const response = await initSumsubSession('individual');
-            console.log('Response', response);
-            setAccessToken(response);
+            const response: string = await initSumsubSession('individual');
+
+            if (!response) {
+                throw new Error('Unexpected error, please try again.');
+            }
+
+            setUrl(response);
         } catch (error) {
             console.error('Error', error);
             toast.error('Unexpected error, please try again.');
         } finally {
             setLoading(false);
         }
-    };
-
-    const start = async () => {
-        if (!accessToken) {
-            toast.error('Unexpected error, please try again.');
-            return;
-        }
-
-        const snsWebSdkInstance = snsWebSdk
-            .init(accessToken, () => initSumsubSession('individual'))
-            .withConf({
-                lang: 'en',
-                email: account.email,
-                theme: 'light',
-            })
-            .withOptions({ addViewportTag: false, adaptIframeHeight: true })
-            .on('idCheck.onStepCompleted', (payload) => {
-                console.log('onStepCompleted', payload);
-            })
-            .on('idCheck.onError', (error) => {
-                console.log('onError', error);
-            })
-            .build();
-
-        onOpen();
-
-        snsWebSdkInstance.launch('#sumsub-websdk-container');
     };
 
     return (
@@ -84,7 +65,7 @@ function KycCard({
                         />
                     ) : (
                         <div className="col gap-2.5">
-                            <div className="flex">
+                            <div className="flex gap-2.5">
                                 <Button color="secondary" variant="solid" isLoading={isLoading} onPress={init}>
                                     Start KYC
                                 </Button>
@@ -98,14 +79,23 @@ function KycCard({
                 </div>
             </Card>
 
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur" size="lg">
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
                 <ModalContent>
                     {() => (
-                        <>
-                            <ModalBody>
-                                <div id="sumsub-websdk-container"></div>
-                            </ModalBody>
-                        </>
+                        <ModalBody className="center-all min-h-[500px]">
+                            {!url ? (
+                                <div>Please close this window and try again</div>
+                            ) : (
+                                <div className="flex-grow">
+                                    <iframe
+                                        src={url}
+                                        className="h-[638px] w-full"
+                                        allow="camera; microphone; autoplay"
+                                        title="Sumsub KYC"
+                                    ></iframe>
+                                </div>
+                            )}
+                        </ModalBody>
                     )}
                 </ModalContent>
             </Modal>

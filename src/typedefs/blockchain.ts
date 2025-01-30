@@ -1,3 +1,5 @@
+import { KycStatus } from './profile';
+
 type R1Address = `0xai${string}`;
 type EthAddress = `0x${string}`;
 
@@ -93,7 +95,7 @@ type ApiAccount = {
     pendingEmail: string;
     address: string;
     uuid: string;
-    kycStatus: string; //TODO check real types
+    kycStatus: KycStatus;
     isActive: boolean;
     isBlacklisted: boolean;
     blacklistedReason: string;
