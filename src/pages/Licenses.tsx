@@ -168,7 +168,7 @@ function Licenses() {
         <div>
             <div className="col gap-3">
                 <div className="mb-3">
-                    <LicensesPageHeader onFilterChange={setFilter} licenses={licenses} />
+                    <LicensesPageHeader onFilterChange={setFilter} licenses={licenses} getLicenses={getLicenses} />
                 </div>
 
                 {licensesToShow.map((license) => (

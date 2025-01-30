@@ -72,6 +72,8 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, getLicenses }: Props, ref)
         });
 
         await watchTx(txHash, publicClient);
+
+        setAddress('');
         getLicenses();
         setLoading(false);
         onClose();

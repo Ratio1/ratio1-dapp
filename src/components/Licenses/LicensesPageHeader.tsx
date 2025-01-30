@@ -17,9 +17,11 @@ import { usePublicClient, useWalletClient } from 'wagmi';
 function LicensesPageHeader({
     onFilterChange,
     licenses,
+    getLicenses,
 }: {
     onFilterChange: (key: 'all' | 'linked' | 'unlinked') => void;
     licenses: Array<License>;
+    getLicenses: () => Promise<void>;
 }) {
     const { watchTx } = useBlockchainContext() as BlockchainContextType;
     const [isLoading, setLoading] = useState<boolean>(false);
@@ -53,7 +55,7 @@ function LicensesPageHeader({
         try {
             setLoading(true);
 
-            // TODO: check if we can do another transaction for MNDs
+            // TODO: Check if we can do another transaction for MNDs
             const txParameters = await Promise.all(
                 licenses
                     .filter((license) => license.type === 'ND')
@@ -78,6 +80,7 @@ function LicensesPageHeader({
             ).then((a) => a.filter((x): x is { computeParam: ComputeParam; eth_signatures: `0x${string}`[] } => !!x));
 
             if (!txParameters.length) {
+                toast.error('No rewards to claim at the moment.');
                 throw new Error('No rewards to claim');
             }
 
@@ -92,8 +95,7 @@ function LicensesPageHeader({
             });
 
             await watchTx(txHash, publicClient);
-
-            // TODO: update fetched data
+            getLicenses();
 
             console.log('Finished watching transaction.');
         } catch (err: any) {
@@ -188,6 +190,7 @@ function LicensesPageHeader({
                                     timestamp={timestamp}
                                     callback={() => {
                                         setTimestamp(getNextEpochTimestamp());
+                                        getLicenses();
                                     }}
                                 />
                             </div>
