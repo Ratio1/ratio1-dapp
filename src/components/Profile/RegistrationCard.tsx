@@ -88,7 +88,7 @@ function RegistrationCard({
                                         color="primary"
                                         labelPlacement="outside"
                                         placeholder="Email"
-                                        disabled={isLoading}
+                                        isDisabled={isLoading}
                                     />
 
                                     <div className="flex">
@@ -103,7 +103,7 @@ function RegistrationCard({
                                         isSelected={isSelected}
                                         onValueChange={setSelected}
                                         size="sm"
-                                        disabled={isLoading}
+                                        isDisabled={isLoading}
                                     />
                                     <div className="text-sm font-medium text-slate-700">
                                         Subscribe to receive updates on email

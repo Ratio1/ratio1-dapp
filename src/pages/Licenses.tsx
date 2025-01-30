@@ -175,7 +175,7 @@ function Licenses() {
                 getLicenses={getLicenses}
             />
 
-            <LicenseUnlinkModal ref={unlinkModalRef} />
+            <LicenseUnlinkModal ref={unlinkModalRef} getLicenses={getLicenses} />
         </div>
     );
 }
