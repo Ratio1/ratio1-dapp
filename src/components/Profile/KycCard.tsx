@@ -4,18 +4,21 @@ import { Button } from '@nextui-org/button';
 import { Modal, ModalBody, ModalContent, useDisclosure } from '@nextui-org/modal';
 import { Card } from '@shared/Card';
 import { Label } from '@shared/Label';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 import { ApiAccount } from '@typedefs/blockchain';
 import { RegistrationStatus } from '@typedefs/profile';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiUserFollowLine } from 'react-icons/ri';
 
 function KycCard({
     account,
     getRegistrationStatus,
+    fetchAccount,
 }: {
     account?: ApiAccount;
     getRegistrationStatus: () => RegistrationStatus;
+    fetchAccount: (options?: RefetchOptions) => Promise<QueryObserverResult<ApiAccount, Error>>;
 }) {
     if (!account) {
         return null;
@@ -24,7 +27,38 @@ function KycCard({
     const [isLoading, setLoading] = useState<boolean>(false);
     const [url, setUrl] = useState<string>();
 
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+
+    // Function to adjust iframe height
+    const adjustIframeHeight = () => {
+        if (iframeRef.current) {
+            const iframe = iframeRef.current;
+            if (iframe.contentWindow) {
+                try {
+                    const newHeight = iframe.contentWindow.document.body.scrollHeight;
+                    console.log(`${newHeight}px`);
+                } catch (error) {
+                    console.warn('Cross-origin restriction prevents auto-sizing.');
+                }
+            }
+        }
+    };
+
+    useEffect(() => {
+        // Try adjusting height whenever the iframe loads
+        const iframe = iframeRef.current;
+        if (iframe) {
+            iframe.addEventListener('load', adjustIframeHeight);
+        }
+
+        return () => {
+            if (iframe) {
+                iframe.removeEventListener('load', adjustIframeHeight);
+            }
+        };
+    }, []);
 
     useEffect(() => {
         if (url) {
@@ -79,17 +113,29 @@ function KycCard({
                 </div>
             </Card>
 
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={(value) => {
+                    if (value) {
+                        onOpen();
+                    } else {
+                        fetchAccount();
+                        onClose();
+                    }
+                }}
+                size="lg"
+            >
                 <ModalContent>
                     {() => (
-                        <ModalBody className="center-all min-h-[500px]">
+                        <ModalBody className="center-all min-h-[400px]">
                             {!url ? (
                                 <div>Please close this window and try again</div>
                             ) : (
                                 <div className="flex-grow">
                                     <iframe
+                                        ref={iframeRef}
                                         src={url}
-                                        className="h-[638px] w-full"
+                                        // className="min-h-[730px] w-[90vw] md:w-[460px]"
                                         allow="camera; microphone; autoplay"
                                         title="Sumsub KYC"
                                     ></iframe>

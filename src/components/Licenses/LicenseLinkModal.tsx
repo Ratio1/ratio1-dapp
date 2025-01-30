@@ -16,10 +16,13 @@ import { usePublicClient, useWalletClient } from 'wagmi';
 
 interface Props {
     nodeAddresses: string[];
+    getLicenses: () => void;
 }
 
-const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+const LicenseLinkModal = forwardRef(({ nodeAddresses, getLicenses }: Props, ref) => {
+    const [isLoading, setLoading] = useState<boolean>(false);
+
+    const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const [license, setLicense] = useState<License>();
 
     const { watchTx } = useBlockchainContext() as BlockchainContextType;
@@ -39,10 +42,13 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
+
         if (!walletClient || !license) {
             toast.error('Unexpected error, please try again.');
             return;
         }
+
+        setLoading(true);
 
         const txHash = await walletClient.writeContract({
             address: license.type === 'ND' ? ndContractAddress : mndContractAddress,
@@ -50,7 +56,11 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
             functionName: 'linkNode',
             args: [license.licenseId, address as EthAddress],
         });
+
         await watchTx(txHash, publicClient);
+        getLicenses();
+        setLoading(false);
+        onClose();
     };
 
     return (
@@ -105,7 +115,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
                                     </div>
 
                                     <div className="flex w-full justify-end py-2">
-                                        <Button type="submit" color="primary">
+                                        <Button type="submit" color="primary" isLoading={isLoading}>
                                             Confirm
                                         </Button>
                                     </div>

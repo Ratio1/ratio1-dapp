@@ -7,22 +7,9 @@ import { Spinner } from '@nextui-org/spinner';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { useQuery } from '@tanstack/react-query';
 import { ApiAccount } from '@typedefs/blockchain';
-import { KycStatus, RegistrationStatus } from '@typedefs/profile';
+import { RegistrationStatus } from '@typedefs/profile';
 import { useEffect, useState } from 'react';
 import { RiCloseLargeLine, RiWalletLine } from 'react-icons/ri';
-
-const ACCOUNT: ApiAccount = {
-    email: '', // Or any placeholder you prefer
-    emailConfirmed: false,
-    pendingEmail: 'alessandro.defranceschi@ratio1.ai', // Or any placeholder
-    address: '', // Replace with a real address or placeholder
-    uuid: '', // Replace with a generated UUID
-    kycStatus: KycStatus.Init,
-    isActive: false,
-    isBlacklisted: false,
-    blacklistedReason: '', // Or a default reason if needed
-    receiveUpdates: false,
-};
 
 function Profile() {
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
@@ -37,7 +24,7 @@ function Profile() {
         queryFn: async () => {
             const data = await getAccount();
 
-            console.log('Account', data);
+            console.log('fetchAccount', data);
 
             if (!data) {
                 throw new Error('Internal server error');
@@ -110,14 +97,9 @@ function Profile() {
 
     return (
         <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
-            <RegistrationCard
-                account={account}
-                getRegistrationStatus={getRegistrationStatus}
-                fetchAccount={fetchAccount}
-                setAccount={setAccount}
-            />
+            <RegistrationCard account={account} getRegistrationStatus={getRegistrationStatus} setAccount={setAccount} />
 
-            <KycCard account={account} getRegistrationStatus={getRegistrationStatus} />
+            <KycCard account={account} getRegistrationStatus={getRegistrationStatus} fetchAccount={fetchAccount} />
 
             <SubscriptionCard account={account} getRegistrationStatus={getRegistrationStatus} />
         </div>

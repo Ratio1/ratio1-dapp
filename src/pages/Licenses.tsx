@@ -16,6 +16,7 @@ import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 function Licenses() {
     const [licenses, setLicenses] = useState<Array<License>>([]);
     const [filter, setFilter] = useState<'all' | 'linked' | 'unlinked'>('all');
+
     const licensesToShow = useMemo(() => {
         switch (filter) {
             case 'linked':
@@ -41,8 +42,10 @@ function Licenses() {
     const { watchTx, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
 
     useEffect(() => {
-        fetchLicenses().then(setLicenses);
+        getLicenses();
     }, [address]);
+
+    const getLicenses = () => fetchLicenses().then(setLicenses);
 
     const onClaim = async (license: License) => {
         try {
@@ -80,9 +83,7 @@ function Licenses() {
                       });
 
             await watchTx(txHash, publicClient);
-
-            const updatedLicenses = await fetchLicenses();
-            setLicenses(updatedLicenses);
+            getLicenses();
         } catch (err: any) {
             toast.error(`An error occurred: ${err.message}\nPlease try again.`);
         }
@@ -171,6 +172,7 @@ function Licenses() {
             <LicenseLinkModal
                 ref={linkModalRef}
                 nodeAddresses={licenses.filter((license) => license.isLinked).map((license) => license.nodeAddress)}
+                getLicenses={getLicenses}
             />
 
             <LicenseUnlinkModal ref={unlinkModalRef} />

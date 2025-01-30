@@ -8,7 +8,6 @@ import { Switch } from '@nextui-org/switch';
 import { Card } from '@shared/Card';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { Label } from '@shared/Label';
-import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 import { ApiAccount } from '@typedefs/blockchain';
 import { RegistrationStatus } from '@typedefs/profile';
 import { useState } from 'react';
@@ -18,12 +17,10 @@ import { RiMailLine, RiMailSendLine } from 'react-icons/ri';
 function RegistrationCard({
     account,
     getRegistrationStatus,
-    fetchAccount,
     setAccount,
 }: {
     account?: ApiAccount;
     getRegistrationStatus: () => RegistrationStatus;
-    fetchAccount: (options?: RefetchOptions) => Promise<QueryObserverResult<ApiAccount, Error>>;
     setAccount: React.Dispatch<React.SetStateAction<ApiAccount | undefined>>;
 }) {
     const [email, setEmail] = useState<string>('');
