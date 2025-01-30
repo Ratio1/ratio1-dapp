@@ -1,5 +1,6 @@
 import { initSumsubSession } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
+import { routePath } from '@lib/routes';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Modal, ModalBody, ModalContent, useDisclosure } from '@nextui-org/modal';
@@ -10,9 +11,11 @@ import { RegistrationStatus } from '@typedefs/profile';
 import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiUserFollowLine } from 'react-icons/ri';
+import { useNavigate } from 'react-router-dom';
 
 function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => RegistrationStatus }) {
     const { account, fetchAccount } = useAuthenticationContext() as AuthenticationContextType;
+    const navigate = useNavigate();
 
     const [isLoading, setLoading] = useState<boolean>(false);
     const [token, setToken] = useState<string>();
@@ -68,7 +71,9 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
 
             console.log(tokenResponse);
 
-            setToken(tokenResponse);
+            navigate(`${routePath.kyc}?token=${tokenResponse}`);
+
+            // setToken(tokenResponse);
         } catch (error) {
             console.error('Error', error);
             toast.error('Unexpected error, please try again.');
@@ -120,7 +125,6 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
                     }
                 }}
                 size="lg"
-                shouldBlockScroll={false}
             >
                 <ModalContent>
                     {() => (
@@ -137,6 +141,7 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
                                     }}
                                     options={{ addViewportTag: false, adaptIframeHeight: true }}
                                     onError={(data) => console.log('onError', data)}
+                                    className="max-h-[calc(100vh-200px)] w-full"
                                 />
                             )}
                         </ModalBody>

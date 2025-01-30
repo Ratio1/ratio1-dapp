@@ -29,7 +29,7 @@ function Content() {
                 <div className="col gap-2">
                     {!!title && (
                         <div className="row justify-center lg:h-[40.8px] lg:justify-start">
-                            <div className="text-[28px] font-bold leading-9 lg:text-[36px]">{title}</div>
+                            <div className="text-[28px] font-bold leading-9 lg:text-[30px] larger:text-[34px]">{title}</div>
                         </div>
                     )}
 

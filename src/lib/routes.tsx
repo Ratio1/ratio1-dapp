@@ -1,6 +1,7 @@
 import NotFound from '@pages/404';
 import Dashboard from '@pages/Dashboard';
 import EmailConfirmation from '@pages/EmailConfirmation';
+import KYC from '@pages/KYC';
 import Licenses from '@pages/Licenses';
 import PrivacyPolicy from '@pages/PrivacyPolicy';
 import Profile from '@pages/Profile';
@@ -39,6 +40,7 @@ export const routePath = {
     privacyPolicy: '/privacy-policy',
     confirmEmail: '/confirm-email',
     notFound: '/404',
+    kyc: '/kyc',
 };
 
 export const mainRoutesInfo = {
@@ -69,11 +71,16 @@ export const mainRoutesInfo = {
     [routePath.confirmEmail]: {
         title: 'Email Confirmation',
     },
+    [routePath.kyc]: {
+        title: 'KYC',
+        description: 'Ensure compliance and security with identity verification',
+    },
     [routePath.notFound]: {
         title: 'Not Found',
     },
 };
 
+// Routes with icons are displayed in the main navigation
 export const routes: Array<SimpleRoute | ParentRoute> = [
     {
         path: routePath.dashboard,
@@ -106,6 +113,10 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
     {
         path: routePath.confirmEmail,
         page: EmailConfirmation,
+    },
+    {
+        path: routePath.kyc,
+        page: KYC,
     },
     {
         path: routePath.notFound,
