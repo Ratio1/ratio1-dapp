@@ -6,6 +6,11 @@ export const MNDContractAbi = [
                 name: 'tokenAddress',
                 type: 'address',
             },
+            {
+                internalType: 'address',
+                name: 'newOwner',
+                type: 'address',
+            },
         ],
         stateMutability: 'nonpayable',
         type: 'constructor',
@@ -504,6 +509,25 @@ export const MNDContractAbi = [
             },
         ],
         name: 'isApprovedForAll',
+        outputs: [
+            {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'nodeAddress',
+                type: 'address',
+            },
+        ],
+        name: 'isNodeAlreadyLinked',
         outputs: [
             {
                 internalType: 'bool',

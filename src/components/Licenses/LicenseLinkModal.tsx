@@ -8,7 +8,7 @@ import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
 import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
 import { Spinner } from '@nextui-org/spinner';
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiWalletLine } from 'react-icons/ri';
 import { EthAddress, License } from 'typedefs/blockchain';
@@ -35,6 +35,20 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, getLicenses }: Props, ref)
         setLicense(license);
         onOpen();
     };
+
+    useEffect(() => {
+        if (!publicClient || !address || !address.startsWith('0x') || address.length !== 42) return;
+        publicClient
+            .readContract({
+                address: ndContractAddress,
+                abi: NDContractAbi,
+                functionName: 'isNodeAlreadyLinked',
+                args: [address as EthAddress],
+            })
+            .then((isNodeAlreadyLinked) => {
+                console.log(isNodeAlreadyLinked);
+            });
+    }, [address]);
 
     useImperativeHandle(ref, () => ({
         trigger,
