@@ -39,6 +39,7 @@ export default {
             },
         },
         screens: {
+            xs: '400px',
             sm: '480px',
             md: '768px',
             layoutBreak: '836px',

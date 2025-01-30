@@ -3,14 +3,17 @@ import Buy from '@components/Buy';
 import Tiers from '@components/Tiers';
 import { epochDurationInSeconds, genesisDate, ndContractAddress } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
+import { routePath } from '@lib/routes';
 import useAwait from '@lib/useAwait';
 import { useDisclosure } from '@lib/useDisclosure';
+import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
 import { BigCard } from '@shared/BigCard';
 import { addSeconds, differenceInSeconds, formatDistanceToNow } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { RiArrowRightUpLine, RiTimeLine } from 'react-icons/ri';
+import { Link } from 'react-router-dom';
 import { License, Stage } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
@@ -221,7 +224,7 @@ function Dashboard() {
                 </div>
 
                 <BigCard fullWidth>
-                    <div className="row justify-between">
+                    <div className="row justify-between gap-2">
                         <div className="text-xl font-bold leading-7 lg:text-[26px]">Licenses & Tiers</div>
 
                         <Button color="primary" onPress={onOpen} isDisabled={isLoading}>
@@ -230,6 +233,26 @@ function Dashboard() {
                                 <RiArrowRightUpLine className="text-[18px]" />
                             </div>
                         </Button>
+                    </div>
+
+                    <div className="-my-1">
+                        <Alert
+                            color="secondary"
+                            title="Purchasing licenses is only available after completing KYC."
+                            endContent={
+                                <div className="ml-2">
+                                    <Link to={routePath.profileKyc}>
+                                        <Button color="secondary" size="sm" variant="solid">
+                                            Go to KYC
+                                        </Button>
+                                    </Link>
+                                </div>
+                            }
+                            classNames={{
+                                title: 'text-xs xs:text-sm',
+                                base: 'items-center',
+                            }}
+                        />
                     </div>
 
                     <div className="col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-6 lg:p-7">

@@ -18,6 +18,8 @@ import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine, RiEqualizer2Line } from '
 import { Stage } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
+const DANGEROUS_SLIPPAGE = 0.5;
+
 function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentStage: number; stage: Stage }) {
     const { watchTx, r1Balance, fetchR1Balance } = useBlockchainContext() as BlockchainContextType;
 
@@ -164,17 +166,15 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
         const n = Number.parseFloat(slippageValue);
 
-        console.log('onSubmitSlippage', n);
         setSlippage(n);
         onCloseSlippageModal();
     };
 
     const isSlippageTooSmall = (): boolean => {
         const n = Number.parseFloat(slippageValue);
+        const isInputValueTooSmall: boolean = isFinite(n) && !isNaN(n) && n < DANGEROUS_SLIPPAGE;
 
-        const isInputValueTooSmall: boolean = isFinite(n) && !isNaN(n) && n < 4;
-
-        return slippage < 4 || isInputValueTooSmall;
+        return slippage < DANGEROUS_SLIPPAGE || isInputValueTooSmall;
     };
 
     return (
