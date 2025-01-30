@@ -29,8 +29,9 @@ function LicensesPageHeader({
         </div>
     );
 
-    const { watchTx } = useBlockchainContext() as BlockchainContextType;
+    const { watchTx, fetchR1Price } = useBlockchainContext() as BlockchainContextType;
 
+    fetchR1Price().then(console.log);
     const rewardsPromise = useMemo(
         () =>
             Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then((rewards) =>
