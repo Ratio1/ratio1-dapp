@@ -35,7 +35,6 @@ function RegistrationCard({
 
     const onSubmit = async (e) => {
         e.preventDefault();
-        // console.log('Register', email, isSelected);
         register(email, isSelected);
     };
 
@@ -152,7 +151,7 @@ function RegistrationCard({
                     )}
 
                     {getRegistrationStatus() === RegistrationStatus.REGISTERED && (
-                        <div className="col">
+                        <div className="col gap-1">
                             <div className="text-sm font-medium text-slate-500">Email Address</div>
                             <div className="font-medium">{account.email}</div>
                         </div>
