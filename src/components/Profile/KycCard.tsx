@@ -4,12 +4,14 @@ import { Button } from '@nextui-org/button';
 import { Modal, ModalBody, ModalContent, useDisclosure } from '@nextui-org/modal';
 import { Card } from '@shared/Card';
 import { Label } from '@shared/Label';
-import snsWebSdk from '@sumsub/websdk';
+import SumsubWebSdk from '@sumsub/websdk-react';
 import { ApiAccount } from '@typedefs/blockchain';
 import { RegistrationStatus } from '@typedefs/profile';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiUserFollowLine } from 'react-icons/ri';
+
+const TOKEN = 'sbx_X0hvjB2NDl6xcFmT';
 
 function KycCard({
     account,
@@ -19,7 +21,7 @@ function KycCard({
     getRegistrationStatus: () => RegistrationStatus;
 }) {
     const [isLoading, setLoading] = useState<boolean>(false);
-    const [accessToken, setAccessToken] = useState<string>();
+    const [accessToken, setAccessToken] = useState<string>(TOKEN);
 
     const { isOpen, onOpen, onOpenChange } = useDisclosure(); // Sumsub
 
@@ -49,25 +51,25 @@ function KycCard({
             return;
         }
 
-        const snsWebSdkInstance = snsWebSdk
-            .init(accessToken, () => initSumsubSession('individual'))
-            .withConf({
-                lang: 'en',
-                email: account.email,
-                theme: 'light',
-            })
-            .withOptions({ addViewportTag: false, adaptIframeHeight: true })
-            .on('idCheck.onStepCompleted', (payload) => {
-                console.log('onStepCompleted', payload);
-            })
-            .on('idCheck.onError', (error) => {
-                console.log('onError', error);
-            })
-            .build();
-
         onOpen();
 
-        snsWebSdkInstance.launch('#sumsub-websdk-container');
+        // const snsWebSdkInstance = snsWebSdk
+        //     .init(accessToken, () => initSumsubSession('individual'))
+        //     .withConf({
+        //         lang: 'en',
+        //         email: account.email,
+        //         theme: 'light',
+        //     })
+        //     .withOptions({ addViewportTag: false, adaptIframeHeight: true })
+        //     .on('idCheck.onStepCompleted', (payload) => {
+        //         console.log('onStepCompleted', payload);
+        //     })
+        //     .on('idCheck.onError', (error) => {
+        //         console.log('onError', error);
+        //     })
+        //     .build();
+
+        // snsWebSdkInstance.launch('#sumsub-websdk-container');
     };
 
     return (
@@ -84,10 +86,14 @@ function KycCard({
                         />
                     ) : (
                         <div className="col gap-2.5">
-                            <div className="flex">
-                                <Button color="secondary" variant="solid" isLoading={isLoading} onPress={init}>
+                            <div className="flex gap-2.5">
+                                <Button color="secondary" variant="solid" isLoading={isLoading} onPress={start}>
                                     Start KYC
                                 </Button>
+
+                                {/* <Button variant="solid" onPress={start}>
+                                    Debug
+                                </Button> */}
                             </div>
 
                             <div className="text-sm text-slate-500">
@@ -98,14 +104,25 @@ function KycCard({
                 </div>
             </Card>
 
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur" size="lg">
+            {/* <div id="sumsub-websdk-container"></div> */}
+
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
                 <ModalContent>
                     {() => (
-                        <>
-                            <ModalBody>
-                                <div id="sumsub-websdk-container"></div>
-                            </ModalBody>
-                        </>
+                        <ModalBody className="center-all min-h-[400px]">
+                            {!!accessToken && (
+                                <SumsubWebSdk
+                                    accessToken={accessToken}
+                                    expirationHandler={() => Promise.resolve(accessToken)}
+                                    config={{
+                                        lang: 'en',
+                                        email: account.email,
+                                    }}
+                                    options={{ addViewportTag: false, adaptIframeHeight: true }}
+                                    onError={(data) => console.log('onError', data)}
+                                />
+                            )}
+                        </ModalBody>
                     )}
                 </ModalContent>
             </Modal>

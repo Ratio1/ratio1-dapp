@@ -7,7 +7,7 @@ import { Spinner } from '@nextui-org/spinner';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { useQuery } from '@tanstack/react-query';
 import { ApiAccount } from '@typedefs/blockchain';
-import { RegistrationStatus } from '@typedefs/profile';
+import { KycStatus, RegistrationStatus } from '@typedefs/profile';
 import { useEffect, useState } from 'react';
 import { RiCloseLargeLine, RiWalletLine } from 'react-icons/ri';
 
@@ -17,7 +17,7 @@ const ACCOUNT: ApiAccount = {
     pendingEmail: 'alessandro.defranceschi@ratio1.ai', // Or any placeholder
     address: '', // Replace with a real address or placeholder
     uuid: '', // Replace with a generated UUID
-    kycStatus: 'NOT_STARTED', // Or any other appropriate initial value
+    kycStatus: KycStatus.Init,
     isActive: false,
     isBlacklisted: false,
     blacklistedReason: '', // Or a default reason if needed

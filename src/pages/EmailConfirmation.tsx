@@ -64,7 +64,7 @@ function EmailConfirmation() {
                         </div>
 
                         <div className="text-slate-400">
-                            <div>Your email has been successfully confirmed.</div>
+                            <div>Your account has been successfully activated.</div>
                             <div>You may now proceed with completing your KYC (Know Your Customer) verification.</div>
                         </div>
                     </div>
