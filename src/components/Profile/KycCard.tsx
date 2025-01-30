@@ -1,29 +1,18 @@
 import { initSumsubSession } from '@lib/api/backend';
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Modal, ModalBody, ModalContent, useDisclosure } from '@nextui-org/modal';
 import { Card } from '@shared/Card';
 import { Label } from '@shared/Label';
 import SumsubWebSdk from '@sumsub/websdk-react';
-import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
-import { ApiAccount } from '@typedefs/blockchain';
 import { RegistrationStatus } from '@typedefs/profile';
 import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiUserFollowLine } from 'react-icons/ri';
 
-function KycCard({
-    account,
-    getRegistrationStatus,
-    fetchAccount,
-}: {
-    account?: ApiAccount;
-    getRegistrationStatus: () => RegistrationStatus;
-    fetchAccount: (options?: RefetchOptions) => Promise<QueryObserverResult<ApiAccount, Error>>;
-}) {
-    if (!account) {
-        return null;
-    }
+function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => RegistrationStatus }) {
+    const { account, fetchAccount } = useAuthenticationContext() as AuthenticationContextType;
 
     const [isLoading, setLoading] = useState<boolean>(false);
     const [token, setToken] = useState<string>();
@@ -87,6 +76,10 @@ function KycCard({
             setLoading(false);
         }
     };
+
+    if (!account) {
+        return null;
+    }
 
     return (
         <>

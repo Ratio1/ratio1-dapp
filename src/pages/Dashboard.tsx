@@ -2,6 +2,7 @@ import { NDContractAbi } from '@blockchain/NDContract';
 import Buy from '@components/Buy';
 import Tiers from '@components/Tiers';
 import { epochDurationInSeconds, genesisDate, ndContractAddress } from '@lib/config';
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes';
 import useAwait from '@lib/useAwait';
@@ -10,6 +11,7 @@ import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
 import { BigCard } from '@shared/BigCard';
+import { KycStatus } from '@typedefs/profile';
 import { addSeconds, differenceInSeconds, formatDistanceToNow } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { RiArrowRightUpLine, RiTimeLine } from 'react-icons/ri';
@@ -95,6 +97,8 @@ const INITIAL_STAGES_STATE: Stage[] = [
 
 function Dashboard() {
     const { fetchLicenses, r1Balance } = useBlockchainContext() as BlockchainContextType;
+    const { account } = useAuthenticationContext() as AuthenticationContextType;
+
     const [isLoading, setLoading] = useState<boolean>(true);
 
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -160,6 +164,10 @@ function Dashboard() {
 
         fetchLicenses().then(setLicenses);
     }, [address]);
+
+    const isKycNotCompleted = !account || account.kycStatus !== KycStatus.Completed;
+
+    const isBuyingDisabled = (): boolean => isLoading || isKycNotCompleted;
 
     return (
         <>
@@ -227,6 +235,7 @@ function Dashboard() {
                     <div className="row justify-between gap-2">
                         <div className="text-xl font-bold leading-7 lg:text-[26px]">Licenses & Tiers</div>
 
+                        {/* TODO: isDisabled={isBuyingDisabled()} */}
                         <Button color="primary" onPress={onOpen} isDisabled={isLoading}>
                             <div className="row gap-1.5">
                                 <div className="text-sm font-medium lg:text-base">Buy License</div>
@@ -235,25 +244,27 @@ function Dashboard() {
                         </Button>
                     </div>
 
-                    <div className="-my-1">
-                        <Alert
-                            color="secondary"
-                            title="Purchasing licenses is only available after completing KYC."
-                            endContent={
-                                <div className="ml-2">
-                                    <Link to={routePath.profileKyc}>
-                                        <Button color="secondary" size="sm" variant="solid">
-                                            Go to KYC
-                                        </Button>
-                                    </Link>
-                                </div>
-                            }
-                            classNames={{
-                                title: 'text-xs xs:text-sm',
-                                base: 'items-center',
-                            }}
-                        />
-                    </div>
+                    {isKycNotCompleted && (
+                        <div className="-my-1">
+                            <Alert
+                                color="secondary"
+                                title="Purchasing licenses is only available after completing KYC."
+                                endContent={
+                                    <div className="ml-2">
+                                        <Link to={routePath.profileKyc}>
+                                            <Button color="secondary" size="sm" variant="solid">
+                                                Go to KYC
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                }
+                                classNames={{
+                                    title: 'text-xs xs:text-sm',
+                                    base: 'items-center',
+                                }}
+                            />
+                        </div>
+                    )}
 
                     <div className="col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-6 lg:p-7">
                         <Tiers currentStage={currentStage} stages={stages} />

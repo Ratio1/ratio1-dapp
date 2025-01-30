@@ -1,4 +1,5 @@
 import { registerEmail } from '@lib/api/backend';
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Form } from '@nextui-org/form';
@@ -14,15 +15,9 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiMailLine, RiMailSendLine } from 'react-icons/ri';
 
-function RegistrationCard({
-    account,
-    getRegistrationStatus,
-    setAccount,
-}: {
-    account?: ApiAccount;
-    getRegistrationStatus: () => RegistrationStatus;
-    setAccount: React.Dispatch<React.SetStateAction<ApiAccount | undefined>>;
-}) {
+function RegistrationCard({ getRegistrationStatus }: { getRegistrationStatus: () => RegistrationStatus }) {
+    const { account, setAccount } = useAuthenticationContext() as AuthenticationContextType;
+
     const [email, setEmail] = useState<string>('');
     const [isSelected, setSelected] = useState(true);
 
