@@ -7,6 +7,7 @@ function ApiStatusCard() {
     const { data, error, isLoading } = useQuery({
         queryKey: ['ping'],
         queryFn: ping,
+        retry: false,
     });
 
     return (
