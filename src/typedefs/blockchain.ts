@@ -14,6 +14,7 @@ type BaseLicense = {
     lastClaimOracle: EthAddress;
     totalAssignedAmount: bigint;
     isExpanded?: boolean;
+    isClaimingRewards?: boolean;
 } & (
     | {
           isLinked: true;

@@ -2,6 +2,7 @@ import Favicon from '@assets/favicon.png';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 import { baseSepolia } from '@reown/appkit/networks';
 import { QueryClient } from '@tanstack/react-query';
+import { addSeconds, differenceInSeconds } from 'date-fns';
 
 // ERC20Mock: 0x97b198628cEBB6d8e743fd0015b4cac92A3B1c08
 
@@ -28,11 +29,14 @@ export const projectId = '6fb791d3d18d57d28ae7677e4cff8c6e';
 
 export const genesisDate = new Date('2025-01-28T20:00:00.000Z');
 export const epochDurationInSeconds = 3600; // 1 hour
+
+export const getCurrentEpoch = (): number => Math.floor(differenceInSeconds(new Date(), genesisDate) / epochDurationInSeconds);
+export const getNextEpochTimestamp = (): Date => addSeconds(genesisDate, (getCurrentEpoch() + 1) * epochDurationInSeconds);
+
 export const mndCliffEpochs = 120;
 export const gndVestingEpochs = 365;
 export const mndVestingEpochs = 900;
 export const ndVestingEpochs = 1080;
-export const r1Price = 12.5; // in $USD
 
 export const metadata = {
     name: 'Ratio1',

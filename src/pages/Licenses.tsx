@@ -5,6 +5,7 @@ import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
 import LicenseUnlinkModal from '@components/Licenses/LicenseUnlinkModal';
 import { getNodeEpochsRange } from '@lib/api/oracles';
 import { mndContractAddress, ndContractAddress } from '@lib/config';
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { getCurrentEpoch } from '@lib/utils';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
@@ -14,6 +15,9 @@ import { License } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 function Licenses() {
+    const { watchTx, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
+    const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
+
     const [licenses, setLicenses] = useState<Array<License>>([]);
     const [filter, setFilter] = useState<'all' | 'linked' | 'unlinked'>('all');
 
@@ -39,11 +43,11 @@ function Licenses() {
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
 
-    const { watchTx, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
-
     useEffect(() => {
-        getLicenses();
-    }, [address]);
+        if (authenticated) {
+            getLicenses();
+        }
+    }, [authenticated]);
 
     const getLicenses = () => fetchLicenses().then(setLicenses);
 
@@ -53,6 +57,8 @@ function Licenses() {
                 toast.error('Unexpected error, please try again.');
                 return;
             }
+
+            setClaimingRewards(license.licenseId, license.type, true);
 
             //TODO decide if we want to store this data in the license object
             const { epochs, epochs_vals, eth_signatures } = await getNodeEpochsRange(
@@ -83,9 +89,11 @@ function Licenses() {
                       });
 
             await watchTx(txHash, publicClient);
+
+            setClaimingRewards(license.licenseId, license.type, false);
             getLicenses();
         } catch (err: any) {
-            toast.error(`An error occurred: ${err.message}\nPlease try again.`);
+            toast.error('An error occurred, pease try again.');
         }
     };
 
@@ -118,6 +126,19 @@ function Licenses() {
         if (unlinkModalRef.current) {
             unlinkModalRef.current.trigger(license);
         }
+    };
+
+    const setClaimingRewards = (id: bigint, type: License['type'], value: boolean) => {
+        setLicenses((prevLicenses) =>
+            prevLicenses.map((license) =>
+                license.licenseId === id && license.type === type
+                    ? {
+                          ...license,
+                          isClaimingRewards: value,
+                      }
+                    : license,
+            ),
+        );
     };
 
     const onLicenseExpand = (id: bigint, type: License['type']) => {

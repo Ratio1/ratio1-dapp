@@ -108,7 +108,7 @@ export const LicenseCardHeader = ({
         const rewardsN: number = Number(formatUnits(rewards ?? 0n, 18));
         const hasRewards = rewardsN > 0;
 
-        if (!hasRewards) {
+        if (!isLoadingRewards && !hasRewards) {
             return undefined;
         }
 
@@ -137,7 +137,8 @@ export const LicenseCardHeader = ({
                         action('claim', license);
                     }
                 }}
-                isDisabled={!hasRewards}
+                isLoading={license.isClaimingRewards}
+                isDisabled={isLoadingRewards || !hasRewards}
             >
                 <div className="text-sm">Claim</div>
             </Button>

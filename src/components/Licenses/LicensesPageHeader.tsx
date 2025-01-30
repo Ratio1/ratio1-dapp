@@ -1,14 +1,13 @@
 import Logo from '@assets/token_white.svg';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { getNodeEpochsRange } from '@lib/api/oracles';
-import { epochDurationInSeconds, genesisDate, ndContractAddress } from '@lib/config';
+import { getNextEpochTimestamp, ndContractAddress } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
 import { fBI, getCurrentEpoch } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Tab, Tabs } from '@nextui-org/tabs';
 import { Timer } from '@shared/Timer';
-import { addSeconds, differenceInSeconds } from 'date-fns';
 import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { ComputeParam, License } from 'typedefs/blockchain';
@@ -22,15 +21,14 @@ function LicensesPageHeader({
     onFilterChange: (key: 'all' | 'linked' | 'unlinked') => void;
     licenses: Array<License>;
 }) {
-    const renderItem = (label: string, value) => (
-        <div className="col gap-1">
-            <div className="text-sm font-medium text-white/85">{label}</div>
-            <div className="text-lg font-medium text-white lg:text-xl">{value}</div>
-        </div>
-    );
-
     const { watchTx } = useBlockchainContext() as BlockchainContextType;
+    const [isLoading, setLoading] = useState<boolean>(false);
+    const [timestamp, setTimestamp] = useState<Date>(getNextEpochTimestamp());
 
+    const publicClient = usePublicClient();
+    const { data: walletClient } = useWalletClient();
+
+    // Data
     const rewardsPromise = useMemo(
         () =>
             Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then((rewards) =>
@@ -39,25 +37,12 @@ function LicensesPageHeader({
         [licenses],
     );
     const [rewards, isLoadingRewards] = useAwait(rewardsPromise);
-    const [isLoading, setLoading] = useState<boolean>(false);
 
     const earnedAmount = useMemo(() => licenses.reduce((acc, license) => acc + license.totalClaimedAmount, 0n), [licenses]);
     const futureClaimableAmount = useMemo(
         () => licenses.reduce((acc, license) => acc + license.remainingAmount, 0n),
         [licenses],
     );
-
-    const publicClient = usePublicClient();
-    const { data: walletClient } = useWalletClient();
-
-    const getNextEpochTimestamp = (): Date =>
-        addSeconds(
-            genesisDate,
-            epochDurationInSeconds * Math.floor(differenceInSeconds(new Date(), genesisDate) / epochDurationInSeconds) +
-                epochDurationInSeconds,
-        );
-
-    const [timestamp, setTimestamp] = useState<Date>(getNextEpochTimestamp());
 
     const claimAll = async () => {
         if (!walletClient || !publicClient) {
@@ -68,7 +53,7 @@ function LicensesPageHeader({
         try {
             setLoading(true);
 
-            //TODO check if we can do another transaction for MNDs
+            // TODO: check if we can do another transaction for MNDs
             const txParameters = await Promise.all(
                 licenses
                     .filter((license) => license.type === 'ND')
@@ -108,7 +93,7 @@ function LicensesPageHeader({
 
             await watchTx(txHash, publicClient);
 
-            //TODO update fetched data
+            // TODO: update fetched data
 
             console.log('Finished watching transaction.');
         } catch (err: any) {
@@ -117,6 +102,13 @@ function LicensesPageHeader({
             setLoading(false);
         }
     };
+
+    const renderItem = (label: string, value) => (
+        <div className="col gap-1">
+            <div className="text-sm font-medium text-white/85">{label}</div>
+            <div className="text-lg font-medium text-white lg:text-xl">{value}</div>
+        </div>
+    );
 
     return (
         <div className="flex gap-6">

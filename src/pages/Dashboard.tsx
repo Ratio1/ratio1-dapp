@@ -1,7 +1,7 @@
 import { NDContractAbi } from '@blockchain/NDContract';
 import Buy from '@components/Buy';
 import Tiers from '@components/Tiers';
-import { epochDurationInSeconds, genesisDate, ndContractAddress } from '@lib/config';
+import { epochDurationInSeconds, genesisDate, getCurrentEpoch, ndContractAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes';
@@ -202,9 +202,7 @@ function Dashboard() {
                             <div className="text-base font-semibold leading-6 lg:text-xl">Current Epoch</div>
 
                             <div className="row gap-2.5">
-                                <div className="text-xl font-semibold leading-6 lg:text-[22px]">
-                                    {Math.floor(differenceInSeconds(new Date(), genesisDate) / epochDurationInSeconds)}
-                                </div>
+                                <div className="text-xl font-semibold leading-6 lg:text-[22px]">{getCurrentEpoch()}</div>
 
                                 <div className="web-only-block rounded-md bg-orange-100 px-2 py-1 text-sm font-medium tracking-wider text-orange-600">
                                     <div className="row gap-1">
