@@ -23,7 +23,10 @@ function LicensesPageHeader({
     licenses: Array<License>;
     getLicenses: () => Promise<void>;
 }) {
-    const { watchTx } = useBlockchainContext() as BlockchainContextType;
+    const { watchTx, fetchR1Price } = useBlockchainContext() as BlockchainContextType;
+
+    fetchR1Price().then(console.log);
+
     const [isLoading, setLoading] = useState<boolean>(false);
     const [timestamp, setTimestamp] = useState<Date>(getNextEpochTimestamp());
 

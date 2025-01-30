@@ -9,6 +9,7 @@ import { addSeconds, differenceInSeconds } from 'date-fns';
 export const r1ContractAddress = '0xBbcbD433Cc666d0Cd11644B6a3954D7C09C0E060';
 export const ndContractAddress = '0x0421b7c9A3B1a4f99F56131b65d15085C7cCACB0';
 export const mndContractAddress = '0xB79fb53ABd43427be6995C194a502bC5AC82D512';
+export const liquidityManagerContractAddress = '0x11Dcb4Fe7B22fd201bcd3da400134e2bf8083f79';
 export const safeAddress = '0xE37562D1Da0F8447bD3cf476906774Cb68501189';
 
 export const getContractAddress = (type: 'ND' | 'MND' | 'GND') => {

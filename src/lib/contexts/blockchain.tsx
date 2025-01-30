@@ -8,12 +8,21 @@ import { Link } from 'react-router-dom';
 import { License } from 'typedefs/blockchain';
 import { TransactionReceipt } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
-import { explorerUrl, mndContractAddress, ND_LICENSE_CAP, ndContractAddress, r1ContractAddress } from '../config';
+import {
+    explorerUrl,
+    liquidityManagerContractAddress,
+    mndContractAddress,
+    ND_LICENSE_CAP,
+    ndContractAddress,
+    r1ContractAddress,
+} from '../config';
 import { getLicenseRewardsAndName } from '../utils';
+import { LiquidityManagerAbi } from '@blockchain/LiquidityManager';
 
 export interface BlockchainContextType {
     watchTx: (txHash: string, publicClient: any) => Promise<void>;
     fetchLicenses: () => Promise<Array<License>>;
+    fetchR1Price: () => Promise<bigint>;
 
     // R1 Balance
     r1Balance: bigint;
@@ -165,11 +174,26 @@ export const BlockchainProvider = ({ children }) => {
         return ndLicenses;
     };
 
+    const fetchR1Price = async (): Promise<bigint> => {
+        if (!publicClient) {
+            return 0n;
+        }
+
+        const price = await publicClient.readContract({
+            address: liquidityManagerContractAddress,
+            abi: LiquidityManagerAbi,
+            functionName: 'getTokenPrice',
+        });
+
+        return price;
+    };
+
     return (
         <BlockchainContext.Provider
             value={{
                 watchTx,
                 fetchLicenses,
+                fetchR1Price,
                 r1Balance,
                 setR1Balance,
                 fetchR1Balance,
