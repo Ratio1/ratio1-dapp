@@ -120,6 +120,7 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
                     }
                 }}
                 size="lg"
+                shouldBlockScroll={false}
             >
                 <ModalContent>
                     {() => (

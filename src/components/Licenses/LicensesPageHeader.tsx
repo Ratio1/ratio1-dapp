@@ -1,7 +1,8 @@
 import Logo from '@assets/token_white.svg';
+import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { getNodeEpochsRange } from '@lib/api/oracles';
-import { getNextEpochTimestamp, ndContractAddress } from '@lib/config';
+import { getNextEpochTimestamp, mndContractAddress, ndContractAddress } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
 import { fBI, fN, getCurrentEpoch } from '@lib/utils';
@@ -75,48 +76,40 @@ function LicensesPageHeader({
         try {
             setLoading(true);
 
-            // TODO: Check if we can do another transaction for MNDs
-            const txParameters = await Promise.all(
-                licenses
-                    .filter((license) => license.type === 'ND')
-                    .map(async (license) => {
-                        if (!license.isLinked || (await license.rewards) === 0n) {
-                            return;
-                        }
-                        //TODO decide if we want to store this data in the license object
-                        const { epochs, epochs_vals, eth_signatures } = await getNodeEpochsRange(
-                            license.nodeAddress,
-                            Number(license.lastClaimEpoch),
-                            getCurrentEpoch() - 1,
-                        );
-                        const computeParam = {
-                            licenseId: license.licenseId,
-                            nodeAddress: license.nodeAddress,
-                            epochs: epochs.map((epoch) => BigInt(epoch)),
-                            availabilies: epochs_vals,
-                        };
-                        return { computeParam, eth_signatures };
-                    }),
-            ).then((a) => a.filter((x): x is { computeParam: ComputeParam; eth_signatures: `0x${string}`[] } => !!x));
+            const txParamsND = await getClaimTxParams('ND');
+            const txParamsMND = await getClaimTxParams('MND');
 
-            if (!txParameters.length) {
+            if (!txParamsND.length && !txParamsMND.length) {
                 toast.error('No rewards to claim at the moment.');
                 throw new Error('No rewards to claim');
             }
 
-            const txHash = await walletClient.writeContract({
-                address: ndContractAddress,
-                abi: NDContractAbi,
-                functionName: 'claimRewards',
-                args: [
-                    [...txParameters.map(({ computeParam }) => computeParam)],
-                    [...txParameters.map(({ eth_signatures }) => eth_signatures)],
-                ],
-            });
+            if (txParamsND.length) {
+                const txHashND = await walletClient.writeContract({
+                    address: ndContractAddress,
+                    abi: NDContractAbi,
+                    functionName: 'claimRewards',
+                    args: [
+                        [...txParamsND.map(({ computeParam }) => computeParam)],
+                        [...txParamsND.map(({ eth_signatures }) => eth_signatures)],
+                    ],
+                });
 
-            await watchTx(txHash, publicClient);
+                await watchTx(txHashND, publicClient);
+            }
+
+            if (txParamsMND.length) {
+                const txHashMND = await walletClient.writeContract({
+                    address: mndContractAddress,
+                    abi: MNDContractAbi,
+                    functionName: 'claimRewards',
+                    args: [txParamsMND[0].computeParam, txParamsMND[0].eth_signatures],
+                });
+
+                await watchTx(txHashMND, publicClient);
+            }
+
             getLicenses();
-
             console.log('Finished watching transaction.');
         } catch (err: any) {
             console.error(err.message || 'An error occurred');
@@ -124,6 +117,37 @@ function LicensesPageHeader({
             setLoading(false);
         }
     };
+
+    const getClaimTxParams = async (
+        type: License['type'],
+    ): Promise<
+        {
+            computeParam: ComputeParam;
+            eth_signatures: `0x${string}`[];
+        }[]
+    > =>
+        await Promise.all(
+            licenses
+                .filter((license) => license.type === type)
+                .map(async (license) => {
+                    if (!license.isLinked || (await license.rewards) === 0n) {
+                        return;
+                    }
+                    //TODO decide if we want to store this data in the license object
+                    const { epochs, epochs_vals, eth_signatures } = await getNodeEpochsRange(
+                        license.nodeAddress,
+                        Number(license.lastClaimEpoch),
+                        getCurrentEpoch() - 1,
+                    );
+                    const computeParam = {
+                        licenseId: license.licenseId,
+                        nodeAddress: license.nodeAddress,
+                        epochs: epochs.map((epoch) => BigInt(epoch)),
+                        availabilies: epochs_vals,
+                    };
+                    return { computeParam, eth_signatures };
+                }),
+        ).then((a) => a.filter((x): x is { computeParam: ComputeParam; eth_signatures: `0x${string}`[] } => !!x));
 
     const renderItem = (label: string, value) => (
         <div className="col gap-1">
@@ -162,7 +186,7 @@ function LicensesPageHeader({
                             )}
                             {renderItem('Earned ($R1)', fBI(earnedAmount, 18))}
                             {renderItem('Future Claimable ($R1)', fBI(futureClaimableR1Amount, 18))}
-                            {renderItem('Future Claimable ($)', fN(futureClaimableUsd))}
+                            {renderItem('Current Potential Value ($)', fN(futureClaimableUsd))}
                         </div>
 
                         <div className="flex flex-col-reverse justify-between gap-4 lg:flex-row lg:items-end lg:gap-0">

@@ -90,10 +90,11 @@ function Licenses() {
 
             await watchTx(txHash, publicClient);
 
-            setClaimingRewards(license.licenseId, license.type, false);
             getLicenses();
         } catch (err: any) {
             toast.error('An error occurred, pease try again.');
+        } finally {
+            setClaimingRewards(license.licenseId, license.type, false);
         }
     };
 
