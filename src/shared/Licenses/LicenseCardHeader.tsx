@@ -25,15 +25,28 @@ export const LicenseCardHeader = ({
 }) => {
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
     const [alias, isLoadingAlias] = useAwait(license.isLinked ? license.alias : '');
+    const [isOnline, isLoadingState] = useAwait(license.isLinked ? license.isOnline : false);
 
     // The license can only be linked once every 24h
     const hasCooldown = () => {
         return isBefore(new Date(), addDays(Number(license.assignTimestamp), 1));
     };
 
-    const getNodeAlias = () => (
+    const getNodeInfoSection = () => (
         <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">
-            {isLoadingAlias ? <Skeleton className="h-4 w-full max-w-36 rounded-lg" /> : alias}
+            {isLoadingAlias || isLoadingState ? (
+                <Skeleton className="h-4 w-full max-w-36 rounded-lg" />
+            ) : (
+                <div className="row gap-2">
+                    <div
+                        className={clsx('h-2.5 w-2.5 rounded-full', {
+                            'bg-green-500': isOnline,
+                            'bg-red-500': !isOnline,
+                        })}
+                    ></div>
+                    <div>{alias}</div>
+                </div>
+            )}
         </div>
     );
 
@@ -245,7 +258,7 @@ export const LicenseCardHeader = ({
             >
                 <div className="row">
                     <div className="row gap-3 lg:min-w-[522px]">
-                        {license.isLinked && <div className="w-[184px]">{getNodeAlias()}</div>}
+                        {license.isLinked && <div className="w-[184px]">{getNodeInfoSection()}</div>}
 
                         <div
                             className={clsx('flex', {
@@ -298,7 +311,7 @@ export const LicenseCardHeader = ({
                     )}
                 >
                     {license.isLinked ? (
-                        <div className="min-[522px]:max-w-44 lg:max-w-max">{getNodeAlias()}</div>
+                        <div className="min-[522px]:max-w-44 lg:max-w-max">{getNodeInfoSection()}</div>
                     ) : (
                         <div className="flex">{getLicenseIdTag()}</div>
                     )}

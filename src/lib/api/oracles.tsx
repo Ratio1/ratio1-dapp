@@ -16,8 +16,12 @@ export const getNodeLastEpoch = (nodeAddress: types.EthAddress) =>
     _doGet<types.OraclesAvailabilityResult>(`/node_last_epoch?eth_node_addr=${nodeAddress}`);
 
 //TODO ask if we can have an endpoint for this
-export const getNodeAlias = (nodeAddress: types.EthAddress) =>
-    getNodeLastEpoch(nodeAddress).then(({ node_alias }) => node_alias);
+export const getNodeInfo = (
+    nodeAddress: types.EthAddress,
+): Promise<{
+    node_alias: string;
+    node_is_online: boolean;
+}> => getNodeLastEpoch(nodeAddress).then(({ node_alias, node_is_online }) => ({ node_alias, node_is_online }));
 
 // *****
 // INTERNAL HELPERS

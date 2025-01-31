@@ -20,6 +20,7 @@ type BaseLicense = {
           isLinked: true;
           alias: Promise<string>;
           rewards: Promise<bigint>;
+          isOnline: Promise<boolean>;
       }
     | {
           isLinked: false;
@@ -59,6 +60,7 @@ type OraclesAvailabilityResult = {
     eth_signed_data: EthSignedData;
     eth_signatures: EthAddress[];
     eth_addresses: EthAddress[];
+    node_is_online: boolean;
 };
 
 type EthSignedData = {

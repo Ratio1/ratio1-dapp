@@ -1,7 +1,7 @@
 import Empty from '@assets/empty.png';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { ND_LICENSE_CAP, ndContractAddress } from '@lib/config';
-import { getLicenseRewardsAndName } from '@lib/utils';
+import { getLicenseRewardsAndNodeInfo } from '@lib/utils';
 import { Input } from '@nextui-org/input';
 import { Spinner } from '@nextui-org/spinner';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
@@ -66,18 +66,23 @@ function Search() {
             lastClaimOracle,
             totalAssignedAmount: ND_LICENSE_CAP,
             isBanned,
+            isLinked,
         };
         if (!isLinked) {
             setResult({
                 ...license,
-                isLinked,
+                isLinked: false,
             });
         } else {
-            const licenseDataPromise = getLicenseRewardsAndName(license);
+            const licenseDataPromise = getLicenseRewardsAndNodeInfo({
+                ...license,
+                isLinked: false, // Enforcing base license type here
+            });
             return {
                 ...license,
                 rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
                 alias: licenseDataPromise.then(({ node_alias }) => node_alias),
+                isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
             };
         }
 

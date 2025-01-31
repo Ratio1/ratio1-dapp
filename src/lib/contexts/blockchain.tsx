@@ -17,7 +17,7 @@ import {
     ndContractAddress,
     r1ContractAddress,
 } from '../config';
-import { getLicenseRewardsAndName } from '../utils';
+import { getLicenseRewardsAndNodeInfo } from '../utils';
 
 export interface BlockchainContextType {
     watchTx: (txHash: string, publicClient: any) => Promise<void>;
@@ -128,9 +128,11 @@ export const BlockchainProvider = ({ children }) => {
                     if (!isLinked) {
                         return { ...userLicense, type, isLinked, isBanned: false as const };
                     }
-                    const licenseDataPromise = getLicenseRewardsAndName({
+                    const licenseDataPromise = getLicenseRewardsAndNodeInfo({
                         ...userLicense,
                         type,
+                        isLinked: false,
+                        isBanned: false,
                     });
                     return {
                         ...userLicense,
@@ -138,6 +140,7 @@ export const BlockchainProvider = ({ children }) => {
                         isLinked,
                         rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
                         alias: licenseDataPromise.then(({ node_alias }) => node_alias),
+                        isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
                         isBanned: false as const,
                     };
                 }),
@@ -156,7 +159,12 @@ export const BlockchainProvider = ({ children }) => {
                         if (!isLinked) {
                             return { ...license, type, totalAssignedAmount, isLinked };
                         }
-                        const licenseDataPromise = getLicenseRewardsAndName({ ...license, type, totalAssignedAmount });
+                        const licenseDataPromise = getLicenseRewardsAndNodeInfo({
+                            ...license,
+                            type,
+                            totalAssignedAmount,
+                            isLinked: false,
+                        });
                         return {
                             ...license,
                             type,
@@ -164,6 +172,7 @@ export const BlockchainProvider = ({ children }) => {
                             isLinked,
                             rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
                             alias: licenseDataPromise.then(({ node_alias }) => node_alias),
+                            isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
                         };
                     });
                 }),
