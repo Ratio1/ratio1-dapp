@@ -60,10 +60,10 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
         }
     }, [address, publicClient]);
 
-    useEffect(() => {
-        const divisor = 10n ** BigInt(18);
-        console.log('getTokenAmount', Number(getTokenAmount() / divisor));
-    }, [quantity, slippage]);
+    // useEffect(() => {
+    //     const divisor = 10n ** BigInt(18);
+    //     console.log('getTokenAmount', Number(getTokenAmount() / divisor));
+    // }, [quantity, slippage]);
 
     const getTokenAmount = (): bigint => {
         const slippageValue = Math.floor(slippage * 100) / 100; // Rounds down to 2 decimal places

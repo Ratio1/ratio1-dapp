@@ -6,7 +6,7 @@ import { Button } from '@nextui-org/button';
 import { Switch } from '@nextui-org/switch';
 import { Card } from '@shared/Card';
 import { Label } from '@shared/Label';
-import { RegistrationStatus } from '@typedefs/profile';
+import { KycStatus, RegistrationStatus } from '@typedefs/profile';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiUserFollowLine } from 'react-icons/ri';
@@ -44,17 +44,76 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
         }
     };
 
+    function getKycStatusInfo(status: KycStatus): { text: string; color: 'yellow' | 'green' | 'red' } | undefined {
+        switch (status) {
+            case KycStatus.Pending:
+                return { text: 'Pending', color: 'yellow' };
+            case KycStatus.Prechecked:
+                return { text: 'Pre-checked', color: 'yellow' };
+            case KycStatus.Queued:
+                return { text: 'In Queue', color: 'yellow' };
+            case KycStatus.Completed:
+                return { text: 'Completed', color: 'green' };
+            case KycStatus.Approved:
+                return { text: 'Approved', color: 'green' };
+            case KycStatus.OnHold:
+                return { text: 'On Hold', color: 'yellow' };
+            case KycStatus.Rejected:
+                return { text: 'Rejected', color: 'red' };
+            case KycStatus.FinalRejected:
+                return { text: 'Rejected', color: 'red' };
+            case KycStatus.NotStarted:
+                return { text: 'Not Started', color: 'yellow' };
+            default:
+        }
+    }
+
     if (!account) {
         return null;
     }
 
     return (
-        <Card icon={<RiUserFollowLine />} title="KYC" label={!account.kycStatus ? <Label text="Not Started" /> : <></>}>
+        <Card
+            icon={<RiUserFollowLine />}
+            title="KYC"
+            label={
+                !getKycStatusInfo(account.kycStatus) ? (
+                    <></>
+                ) : (
+                    <Label
+                        variant={
+                            (
+                                getKycStatusInfo(account.kycStatus) as {
+                                    text: string;
+                                    color: 'yellow' | 'green' | 'red';
+                                }
+                            ).color
+                        }
+                        text={
+                            (
+                                getKycStatusInfo(account.kycStatus) as {
+                                    text: string;
+                                    color: 'yellow' | 'green' | 'red';
+                                }
+                            ).text
+                        }
+                    />
+                )
+            }
+        >
             <div className="row h-full">
                 {getRegistrationStatus() !== RegistrationStatus.REGISTERED ? (
                     <Alert
                         color="primary"
                         title="You need to register and confirm your email first."
+                        classNames={{
+                            base: 'items-center',
+                        }}
+                    />
+                ) : getKycStatusInfo(account.kycStatus) !== undefined ? (
+                    <Alert
+                        color="success"
+                        title="Your KYC submission has been received and is under review."
                         classNames={{
                             base: 'items-center',
                         }}
