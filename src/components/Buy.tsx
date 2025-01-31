@@ -112,6 +112,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
         try {
             if (getTokenAmount() > r1Balance) {
                 toast.error('Not enough $R1 in your wallet.');
+                console.error(`Required $R1 ${getTokenAmount()} > your balance ${r1Balance}`);
                 return;
             }
 

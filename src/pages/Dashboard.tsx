@@ -167,6 +167,7 @@ function Dashboard() {
 
     const isKycNotCompleted = !account || account.kycStatus !== KycStatus.Completed;
 
+    // TODO:
     const isBuyingDisabled = (): boolean => isLoading || isKycNotCompleted;
 
     return (
