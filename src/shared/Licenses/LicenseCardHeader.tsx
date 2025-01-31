@@ -4,6 +4,7 @@ import { fBI, getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
 import { Skeleton } from '@nextui-org/skeleton';
+import { Timer } from '@shared/Timer';
 import clsx from 'clsx';
 import { addDays, isBefore } from 'date-fns';
 import { round } from 'lodash';
@@ -27,9 +28,13 @@ export const LicenseCardHeader = ({
     const [alias, isLoadingAlias] = useAwait(license.isLinked ? license.alias : '');
     const [isOnline, isLoadingState] = useAwait(license.isLinked ? license.isOnline : false);
 
+    const getAssignTimestamp = (): Date => new Date(Number(license.assignTimestamp) * 1000);
+
+    const getCooldownEndTimestamp = (): Date => addDays(getAssignTimestamp(), 1);
+
     // The license can only be linked once every 24h
     const hasCooldown = () => {
-        return isBefore(new Date(), addDays(Number(license.assignTimestamp), 1));
+        return isBefore(new Date(), getCooldownEndTimestamp());
     };
 
     const getNodeInfoSection = () => (
@@ -73,7 +78,27 @@ export const LicenseCardHeader = ({
                 <div className="rounded-full bg-red-100 px-3 py-2 text-sm font-medium text-red-600">
                     <div className="row gap-1">
                         <RiTimeLine className="text-base" />
-                        <div>Linkable after {addDays(Number(license.assignTimestamp), 1).toLocaleString()}</div>
+                        <div>Linkable after {getCooldownEndTimestamp().toLocaleString()}</div>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+
+    const getLicenseCooldownAlternateTag = () => (
+        <>
+            {!license.isLinked && hasCooldown() && (
+                <div className="rounded-full bg-red-100 px-3 py-2 text-sm text-red-600">
+                    <div className="row gap-1 font-medium">
+                        <RiTimeLine className="text-base" />
+                        <span className="font-medium">Linkable in</span>{' '}
+                        <Timer
+                            variant="compact"
+                            timestamp={getCooldownEndTimestamp()}
+                            callback={() => {
+                                console.log('Timer callback');
+                            }}
+                        />
                     </div>
                 </div>
             )}
@@ -269,7 +294,7 @@ export const LicenseCardHeader = ({
                             {getLicenseIdTag()}
                         </div>
 
-                        {getLicenseCooldownTag()}
+                        {getLicenseCooldownAlternateTag()}
 
                         {getNodeAddressTag()}
                     </div>
@@ -344,7 +369,7 @@ export const LicenseCardHeader = ({
                     </div>
                 )}
 
-                {getLicenseCooldownTag()}
+                {getLicenseCooldownAlternateTag()}
 
                 <div className="w-full">{getLicenseUsageStats()}</div>
             </div>

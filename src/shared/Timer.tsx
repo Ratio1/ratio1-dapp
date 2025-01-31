@@ -14,10 +14,11 @@ const labels = ['H', 'M', 'S'];
 
 export const Timer: FunctionComponent<
     PropsWithChildren<{
+        variant?: 'cards' | 'compact';
         timestamp: Date;
         callback: () => void;
     }>
-> = ({ timestamp, callback }) => {
+> = ({ variant = 'cards', timestamp, callback }) => {
     const [duration, setDuration] = useState<Duration>(ZERO_DURATION);
 
     useEffect(() => {
@@ -56,23 +57,31 @@ export const Timer: FunctionComponent<
         return () => {
             clearInterval(timer);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [timestamp]);
 
     return (
-        <div className="font-robotoMono row gap-1">
-            {[
-                String(duration.hours || 0).padStart(2, '0'),
-                String(duration.minutes || 0).padStart(2, '0'),
-                String(duration.seconds || 0).padStart(2, '0'),
-            ].map((item, index) => (
-                <div key={index} className="center-all h-12 w-12 rounded-xl bg-[#345aad] px-1 py-2 text-white">
-                    <div className="leading-none">
-                        {item}
-                        {labels[index]}
-                    </div>
+        <div className="font-robotoMono">
+            {variant === 'cards' ? (
+                <div className="row gap-1">
+                    {[
+                        String(duration.hours || 0).padStart(2, '0'),
+                        String(duration.minutes || 0).padStart(2, '0'),
+                        String(duration.seconds || 0).padStart(2, '0'),
+                    ].map((item, index) => (
+                        <div key={index} className="center-all h-12 w-12 rounded-xl bg-[#345aad] px-1 py-2 text-white">
+                            <div className="leading-none">
+                                {item}
+                                {labels[index]}
+                            </div>
+                        </div>
+                    ))}
                 </div>
-            ))}
+            ) : (
+                <span>
+                    {String(duration.hours || 0).padStart(2, '0')}h{String(duration.minutes || 0).padStart(2, '0')}m
+                    {String(duration.seconds || 0).padStart(2, '0')}s
+                </span>
+            )}
         </div>
     );
 };
