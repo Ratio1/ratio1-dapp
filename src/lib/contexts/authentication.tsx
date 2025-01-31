@@ -9,8 +9,9 @@ import {
     SIWECreateMessageArgs,
     SIWEVerifyMessageArgs,
 } from '@reown/appkit-siwe';
-import { QueryObserverResult, RefetchOptions, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { ApiAccount } from '@typedefs/blockchain';
+import { DebouncedFuncLeading, throttle } from 'lodash';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { baseSepolia } from 'viem/chains';
 
@@ -21,7 +22,7 @@ export interface AuthenticationContextType {
     // Account
     account: ApiAccount | undefined;
     setAccount: React.Dispatch<React.SetStateAction<ApiAccount | undefined>>;
-    fetchAccount: (options?: RefetchOptions) => Promise<QueryObserverResult<ApiAccount, Error>>;
+    fetchAccount: DebouncedFuncLeading<() => Promise<void>>;
     isFetchingAccount: boolean;
     accountFetchError: Error | null;
 }
@@ -92,7 +93,7 @@ export const AuthenticationProvider = ({ children }) => {
     }, [authenticated]);
 
     const {
-        refetch: fetchAccount,
+        refetch,
         error: accountFetchError,
         isLoading: isFetchingAccount,
     } = useQuery({
@@ -114,6 +115,16 @@ export const AuthenticationProvider = ({ children }) => {
         retry: false,
     });
 
+    const fetchAccount = throttle(
+        async () => {
+            if (isFetchingAccount) return;
+            console.log('throttle');
+            await refetch();
+        },
+        2000,
+        { trailing: false },
+    );
+
     async function getSession() {
         const accessToken = localStorage.getItem('accessToken');
         const expiration = localStorage.getItem('expiration');
@@ -123,7 +134,6 @@ export const AuthenticationProvider = ({ children }) => {
         const currentTimestamp = Math.floor(Date.now() / 1000);
 
         if (chainId && address && accessToken && expiration && parseInt(expiration) > currentTimestamp) {
-            // console.log('Valid token, expiration:', new Date(1000 * parseInt(expiration)));
             return { chainId: parseInt(chainId), address };
         }
 

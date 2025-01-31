@@ -3,6 +3,7 @@ import { NDContractAbi } from '@blockchain/NDContract';
 import { buyLicense } from '@lib/api/backend';
 import { ndContractAddress, r1ContractAddress } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
+import { fN } from '@lib/utils';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
@@ -10,11 +11,12 @@ import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
 import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
+import clsx from 'clsx';
 import { isFinite, isNaN } from 'lodash';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
-import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine, RiEqualizer2Line } from 'react-icons/ri';
+import { RiAddFill, RiArrowRightDoubleLine, RiCheckLine, RiCpuLine, RiEqualizer2Line, RiPriceTag3Line } from 'react-icons/ri';
 import { Stage } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
@@ -103,7 +105,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
             setLoading(false);
         } catch (err: any) {
             console.error(err.message || 'An error occurred');
-            toast.error(`An error occurred: ${err.message}\nPlease try again.`);
+            toast.error('An error occurred, please try again.');
             setLoading(false);
         }
     };
@@ -149,7 +151,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
             setLoading(false);
         } catch (err: any) {
             console.error(err.message || 'An error occurred');
-            toast.error(`An error occurred: ${err.message}\nPlease try again.`);
+            toast.error('An error occurred, please try again.');
             setLoading(false);
         }
     };
@@ -292,52 +294,74 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                         </div>
                     </div>
 
-                    <div className="flex w-full flex-col rounded-md bg-lightAccent px-10 py-8">
+                    <div className="flex w-full flex-col rounded-md bg-lightAccent px-8 py-8">
                         <div className="col gap-1.5 text-center">
-                            <div className="text-sm font-medium text-slate-500">Total amount due</div>
+                            <div className="text-sm font-medium text-slate-500">Total amount required</div>
 
                             <div className="center-all gap-1">
                                 <div className="text-2xl font-semibold text-slate-400">~$R1</div>
                                 <div className="text-2xl font-semibold text-primary">
-                                    {((BigInt(quantity) * licenseTokenPrice) / 10n ** 18n).toLocaleString('en-US')}
+                                    {fN(Number(getTokenAmount() / 10n ** BigInt(18)))}
                                 </div>
                             </div>
                         </div>
 
-                        {!!quantity && Number.parseInt(quantity) > 0 && (
-                            <>
-                                <Divider className="my-6 bg-slate-200" />
-
-                                <div className="col gap-4">
-                                    <div className="text-sm font-medium text-slate-500">Summary</div>
+                        <div className="col gap-6">
+                            {!!quantity && Number.parseInt(quantity) > 0 && (
+                                <>
+                                    <Divider className="my-6 bg-slate-200" />
 
                                     <div className="col gap-2">
-                                        <div className="row justify-between">
-                                            <div className="text-sm font-medium">
-                                                {quantity} x License{Number.parseInt(quantity) > 1 ? 's' : ''} (Tier{' '}
-                                                {currentStage})
-                                            </div>
-                                            <div className="text-sm font-medium">
-                                                ${(Number.parseInt(quantity) * stage.usdPrice).toLocaleString('en-US')}
+                                        <div className="text-sm font-medium text-slate-500">Summary</div>
+
+                                        <div className="col gap-2">
+                                            <div className="row justify-between">
+                                                <div className="text-sm font-medium">
+                                                    {quantity} x License{Number.parseInt(quantity) > 1 ? 's' : ''} (Tier{' '}
+                                                    {currentStage})
+                                                </div>
+                                                <div className="text-sm font-medium">
+                                                    ${(Number.parseInt(quantity) * stage.usdPrice).toLocaleString('en-US')}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </>
-                        )}
+                                </>
+                            )}
 
-                        <div className="mt-6">
-                            <ConnectWalletWrapper isFullWidth>
-                                <Button
-                                    fullWidth
-                                    color="primary"
-                                    onPress={onPress}
-                                    isLoading={isLoading}
-                                    isDisabled={allowance === undefined}
-                                >
-                                    {isApprovalRequired() ? 'Approve $R1' : 'Buy'}
-                                </Button>
-                            </ConnectWalletWrapper>
+                            <div className="col gap-2 pt-2 text-sm text-slate-500">
+                                <div className="">You may be asked to sign 2 transactions:</div>
+
+                                <div className="col gap-1">
+                                    <div
+                                        className={clsx('row gap-2', {
+                                            'text-green-600': !isApprovalRequired(),
+                                        })}
+                                    >
+                                        <RiCheckLine className="text-lg" />
+                                        <div>Approval of token spending</div>
+                                    </div>
+
+                                    <div className="row gap-2">
+                                        <RiPriceTag3Line className="text-lg" />
+                                        <div>License purchasing transaction</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <ConnectWalletWrapper isFullWidth>
+                                    <Button
+                                        fullWidth
+                                        color="primary"
+                                        onPress={onPress}
+                                        isLoading={isLoading}
+                                        isDisabled={allowance === undefined}
+                                    >
+                                        {isApprovalRequired() ? 'Approve $R1' : 'Buy'}
+                                    </Button>
+                                </ConnectWalletWrapper>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -40,8 +40,6 @@ function KYC() {
                 <Spinner />
             ) : (
                 <div className="w-full min-[614px]:w-auto">
-                    <div>{type}</div>
-
                     <BigCard fullWidth>
                         <div className="min-w-full rounded-2xl border border-[#e3e4e8] bg-white p-4 min-[614px]:min-w-[540px] lg:p-6">
                             <SumsubWebSdk
