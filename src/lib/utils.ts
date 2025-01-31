@@ -1,3 +1,4 @@
+import { throttle } from 'lodash';
 import toast from 'react-hot-toast';
 import { GNDLicense, License, MNDLicense } from 'typedefs/blockchain';
 import { getNodeEpochsRange, getNodeInfo } from './api/oracles';
@@ -59,7 +60,7 @@ export const getLicenseRewardsAndNodeInfo = async (
         }
     } catch (error) {
         console.error(error);
-        toast.error('Error loading license rewards.');
+        throttledToastError('Error loading license rewards.');
     }
 
     return {
@@ -67,6 +68,14 @@ export const getLicenseRewardsAndNodeInfo = async (
         ...nodeInfo,
     };
 };
+
+export const throttledToastError = throttle(
+    (message: string) => {
+        toast.error(message);
+    },
+    5000,
+    { trailing: false },
+);
 
 const getNdLicenseRewards = async (license: License): Promise<bigint> => {
     const currentEpoch = getCurrentEpoch();
