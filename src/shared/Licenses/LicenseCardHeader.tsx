@@ -8,6 +8,7 @@ import { Timer } from '@shared/Timer';
 import clsx from 'clsx';
 import { addDays, isBefore } from 'date-fns';
 import { round } from 'lodash';
+import { useState } from 'react';
 import { RiCpuLine, RiForbid2Line, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine, RiWalletLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
 import { License } from 'typedefs/blockchain';
@@ -24,18 +25,15 @@ export const LicenseCardHeader = ({
     isExpanded: boolean;
     disableActions?: boolean;
 }) => {
+    // The license can only be linked once every 24h
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
     const [alias, isLoadingAlias] = useAwait(license.isLinked ? license.alias : '');
     const [isOnline, isLoadingState] = useAwait(license.isLinked ? license.isOnline : false);
 
     const getAssignTimestamp = (): Date => new Date(Number(license.assignTimestamp) * 1000);
-
     const getCooldownEndTimestamp = (): Date => addDays(getAssignTimestamp(), 1);
 
-    // The license can only be linked once every 24h
-    const hasCooldown = () => {
-        return isBefore(new Date(), getCooldownEndTimestamp());
-    };
+    const [hasCooldown, setCooldown] = useState<boolean>(isBefore(new Date(), getCooldownEndTimestamp()));
 
     const getNodeInfoSection = () => (
         <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">
@@ -72,22 +70,9 @@ export const LicenseCardHeader = ({
         </Link>
     );
 
-    const getLicenseCooldownTag = () => (
+    const getLicenseCooldownTimer = () => (
         <>
-            {!license.isLinked && hasCooldown() && (
-                <div className="rounded-full bg-red-100 px-3 py-2 text-sm font-medium text-red-600">
-                    <div className="row gap-1">
-                        <RiTimeLine className="text-base" />
-                        <div>Linkable after {getCooldownEndTimestamp().toLocaleString()}</div>
-                    </div>
-                </div>
-            )}
-        </>
-    );
-
-    const getLicenseCooldownAlternateTag = () => (
-        <>
-            {!license.isLinked && hasCooldown() && (
+            {!license.isLinked && hasCooldown && (
                 <div className="rounded-full bg-red-100 px-3 py-2 text-sm text-red-600">
                     <div className="row gap-1 font-medium">
                         <RiTimeLine className="text-base" />
@@ -96,7 +81,7 @@ export const LicenseCardHeader = ({
                             variant="compact"
                             timestamp={getCooldownEndTimestamp()}
                             callback={() => {
-                                console.log('Timer callback');
+                                setCooldown(false);
                             }}
                         />
                     </div>
@@ -200,7 +185,7 @@ export const LicenseCardHeader = ({
             <DropdownMenu
                 aria-label="Dropdown"
                 variant="flat"
-                disabledKeys={['title', ...(hasCooldown() ? ['link'] : [])]}
+                disabledKeys={['title', ...(hasCooldown ? ['link'] : [])]}
                 itemClasses={{
                     base: [
                         'rounded-md',
@@ -294,7 +279,7 @@ export const LicenseCardHeader = ({
                             {getLicenseIdTag()}
                         </div>
 
-                        {getLicenseCooldownAlternateTag()}
+                        {getLicenseCooldownTimer()}
 
                         {getNodeAddressTag()}
                     </div>
@@ -369,7 +354,7 @@ export const LicenseCardHeader = ({
                     </div>
                 )}
 
-                {getLicenseCooldownAlternateTag()}
+                {getLicenseCooldownTimer()}
 
                 <div className="w-full">{getLicenseUsageStats()}</div>
             </div>
