@@ -245,12 +245,12 @@ function Dashboard() {
                     {isKycNotCompleted && (
                         <div className="-my-1">
                             <Alert
-                                color="secondary"
+                                color="primary"
                                 title="Purchasing licenses is only available after completing KYC."
                                 endContent={
                                     <div className="ml-2">
                                         <Link to={routePath.profileKyc}>
-                                            <Button color="secondary" size="sm" variant="solid">
+                                            <Button color="primary" size="sm" variant="solid">
                                                 Go to KYC
                                             </Button>
                                         </Link>

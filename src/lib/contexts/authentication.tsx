@@ -75,12 +75,10 @@ export const AuthenticationProvider = ({ children }) => {
                 },
                 onSignOut() {
                     // Called after sign-out
-                    console.log('Signed out');
                     setAuthenticated(false);
                 },
                 onSignIn() {
                     // Called afer sign-in
-                    console.log('Signed in');
                     setAuthenticated(true);
                 },
             }),

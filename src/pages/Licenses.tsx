@@ -9,6 +9,7 @@ import { AuthenticationContextType, useAuthenticationContext } from '@lib/contex
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { getCurrentEpoch } from '@lib/utils';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
+import { LicenseSkeleton } from '@shared/Licenses/LicenseSkeleton';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { License } from 'typedefs/blockchain';
@@ -34,6 +35,8 @@ function Licenses() {
         }
     }, [licenses, filter]);
 
+    const [isLoading, setLoading] = useState<boolean>(false);
+
     const cardRefs = useRef<Map<bigint, HTMLDivElement>>(new Map());
 
     const linkModalRef = useRef<{ trigger: (_license) => void }>(null);
@@ -49,7 +52,13 @@ function Licenses() {
         }
     }, [authenticated]);
 
-    const getLicenses = () => fetchLicenses().then(setLicenses);
+    const getLicenses = () => {
+        setLoading(true);
+
+        fetchLicenses()
+            .then(setLicenses)
+            .finally(() => setLoading(false));
+    };
 
     const onClaim = async (license: License) => {
         try {
@@ -172,23 +181,37 @@ function Licenses() {
                     <LicensesPageHeader onFilterChange={setFilter} licenses={licenses} getLicenses={getLicenses} />
                 </div>
 
-                {licensesToShow.map((license) => (
-                    <div
-                        key={license.licenseId}
-                        ref={(element) => {
-                            if (element) {
-                                cardRefs.current.set(license.licenseId, element);
-                            }
-                        }}
-                    >
-                        <LicenseCard
-                            license={license}
-                            isExpanded={license.isExpanded as boolean}
-                            toggle={onLicenseExpand}
-                            action={onAction}
-                        />
-                    </div>
-                ))}
+                {isLoading ? (
+                    <>
+                        {Array(3)
+                            .fill(null)
+                            .map((_, index) => (
+                                <div key={index}>
+                                    <LicenseSkeleton />
+                                </div>
+                            ))}
+                    </>
+                ) : (
+                    <>
+                        {licensesToShow.map((license) => (
+                            <div
+                                key={license.licenseId}
+                                ref={(element) => {
+                                    if (element) {
+                                        cardRefs.current.set(license.licenseId, element);
+                                    }
+                                }}
+                            >
+                                <LicenseCard
+                                    license={license}
+                                    isExpanded={license.isExpanded as boolean}
+                                    toggle={onLicenseExpand}
+                                    action={onAction}
+                                />
+                            </div>
+                        ))}
+                    </>
+                )}
             </div>
 
             <LicenseLinkModal

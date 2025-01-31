@@ -22,7 +22,7 @@ function LicensesPageHeader({
 }: {
     onFilterChange: (key: 'all' | 'linked' | 'unlinked') => void;
     licenses: Array<License>;
-    getLicenses: () => Promise<void>;
+    getLicenses: () => void;
 }) {
     const { watchTx, r1Price, fetchR1Price } = useBlockchainContext() as BlockchainContextType;
 
