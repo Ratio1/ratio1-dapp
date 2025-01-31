@@ -8,6 +8,7 @@ import { mndContractAddress, ndContractAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { getCurrentEpoch } from '@lib/utils';
+import { Pagination } from '@nextui-org/pagination';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { LicenseSkeleton } from '@shared/Licenses/LicenseSkeleton';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -15,14 +16,19 @@ import toast from 'react-hot-toast';
 import { License } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
+const PAGE_SIZE = 5;
+
 function Licenses() {
     const { watchTx, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
     const [licenses, setLicenses] = useState<Array<License>>([]);
-    const [filter, setFilter] = useState<'all' | 'linked' | 'unlinked'>('all');
+    const [licensesToShow, setLicensesToShow] = useState<Array<License>>([]);
 
-    const licensesToShow = useMemo(() => {
+    const [filter, setFilter] = useState<'all' | 'linked' | 'unlinked'>('all');
+    const [currentPage, setCurrentPage] = useState<number>(1);
+
+    const filteredLicenses = useMemo(() => {
         switch (filter) {
             case 'linked':
                 return licenses.filter((license) => license.isLinked);
@@ -51,6 +57,23 @@ function Licenses() {
             getLicenses();
         }
     }, [authenticated]);
+
+    useEffect(() => {
+        onPageChange(1);
+    }, [filteredLicenses]);
+
+    useEffect(() => {
+        onPageChange();
+    }, [currentPage]);
+
+    const onPageChange = (page?: number) => {
+        if (page && page !== currentPage) {
+            setCurrentPage(page);
+        }
+
+        const index = page || currentPage;
+        setLicensesToShow(filteredLicenses.slice((index - 1) * PAGE_SIZE, index * PAGE_SIZE));
+    };
 
     const getLicenses = () => {
         setLoading(true);
@@ -175,42 +198,59 @@ function Licenses() {
     };
 
     return (
-        <div>
-            <div className="col gap-3">
-                <div className="mb-3">
-                    <LicensesPageHeader onFilterChange={setFilter} licenses={licenses} getLicenses={getLicenses} />
-                </div>
+        <div className="h-full">
+            <div className="col h-full justify-between gap-3">
+                <div className="col gap-3">
+                    <div className="mb-3">
+                        <LicensesPageHeader onFilterChange={setFilter} licenses={licenses} getLicenses={getLicenses} />
+                    </div>
 
-                {isLoading ? (
-                    <>
-                        {Array(3)
-                            .fill(null)
-                            .map((_, index) => (
-                                <div key={index}>
-                                    <LicenseSkeleton />
+                    {isLoading ? (
+                        <>
+                            {Array(3)
+                                .fill(null)
+                                .map((_, index) => (
+                                    <div key={index}>
+                                        <LicenseSkeleton />
+                                    </div>
+                                ))}
+                        </>
+                    ) : (
+                        <>
+                            {licensesToShow.map((license) => (
+                                <div
+                                    key={license.licenseId}
+                                    ref={(element) => {
+                                        if (element) {
+                                            cardRefs.current.set(license.licenseId, element);
+                                        }
+                                    }}
+                                >
+                                    <LicenseCard
+                                        license={license}
+                                        isExpanded={license.isExpanded as boolean}
+                                        toggle={onLicenseExpand}
+                                        action={onAction}
+                                    />
                                 </div>
                             ))}
-                    </>
-                ) : (
-                    <>
-                        {licensesToShow.map((license) => (
-                            <div
-                                key={license.licenseId}
-                                ref={(element) => {
-                                    if (element) {
-                                        cardRefs.current.set(license.licenseId, element);
-                                    }
-                                }}
-                            >
-                                <LicenseCard
-                                    license={license}
-                                    isExpanded={license.isExpanded as boolean}
-                                    toggle={onLicenseExpand}
-                                    action={onAction}
-                                />
-                            </div>
-                        ))}
-                    </>
+                        </>
+                    )}
+                </div>
+
+                {Math.ceil(filteredLicenses.length / PAGE_SIZE) > 1 && (
+                    <div className="mx-auto pt-12">
+                        <Pagination
+                            page={currentPage}
+                            onChange={setCurrentPage}
+                            classNames={{
+                                wrapper: 'gap-0 overflow-visible h-8 rounded border border-divider',
+                                item: 'w-8 h-8 text-small rounded-none bg-transparent',
+                                cursor: 'bg-gradient-to-b from-primary-500 to-primary-600 rounded-md text-white font-bold',
+                            }}
+                            total={Math.ceil(filteredLicenses.length / PAGE_SIZE)}
+                        />
+                    </div>
                 )}
             </div>
 
