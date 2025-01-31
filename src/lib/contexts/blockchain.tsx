@@ -125,23 +125,48 @@ export const BlockchainProvider = ({ children }) => {
                 .then((userLicense) => {
                     const isLinked = userLicense.nodeAddress !== '0x0000000000000000000000000000000000000000';
                     const type = userLicense.licenseId === 0n ? ('GND' as const) : ('MND' as const);
+
                     if (!isLinked) {
                         return { ...userLicense, type, isLinked, isBanned: false as const };
                     }
-                    const licenseDataPromise = getLicenseRewardsAndNodeInfo({
-                        ...userLicense,
-                        type,
-                        isLinked: false,
-                        isBanned: false,
-                    });
-                    return {
+
+                    let licenseDataPromise: Promise<{
+                        node_alias: string;
+                        node_is_online: boolean;
+                        rewards_amount: bigint;
+                    }>;
+
+                    const licenseObj = {
                         ...userLicense,
                         type,
                         isLinked,
+                        isBanned: false as const,
+                    };
+
+                    try {
+                        licenseDataPromise = getLicenseRewardsAndNodeInfo({
+                            ...userLicense,
+                            type,
+                            isLinked: false,
+                            isBanned: false,
+                        });
+                    } catch (error) {
+                        console.error(error);
+                        toast.error('An error occurred while loading node data.');
+
+                        return {
+                            ...licenseObj,
+                            rewards: Promise.resolve(0n),
+                            alias: Promise.resolve(''),
+                            isOnline: Promise.resolve(false),
+                        };
+                    }
+
+                    return {
+                        ...licenseObj,
                         rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
                         alias: licenseDataPromise.then(({ node_alias }) => node_alias),
                         isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
-                        isBanned: false as const,
                     };
                 }),
             publicClient
@@ -156,20 +181,45 @@ export const BlockchainProvider = ({ children }) => {
                         const type = 'ND' as const;
                         const isLinked = license.nodeAddress !== '0x0000000000000000000000000000000000000000';
                         const totalAssignedAmount = ND_LICENSE_CAP;
+
                         if (!isLinked) {
                             return { ...license, type, totalAssignedAmount, isLinked };
                         }
-                        const licenseDataPromise = getLicenseRewardsAndNodeInfo({
-                            ...license,
-                            type,
-                            totalAssignedAmount,
-                            isLinked: false,
-                        });
-                        return {
+
+                        let licenseDataPromise: Promise<{
+                            node_alias: string;
+                            node_is_online: boolean;
+                            rewards_amount: bigint;
+                        }>;
+
+                        const licenseObj = {
                             ...license,
                             type,
                             totalAssignedAmount,
                             isLinked,
+                        };
+
+                        try {
+                            licenseDataPromise = getLicenseRewardsAndNodeInfo({
+                                ...license,
+                                type,
+                                totalAssignedAmount,
+                                isLinked: false,
+                            });
+                        } catch (error) {
+                            console.error(error);
+                            toast.error('An error occurred while loading one of your licenses.');
+
+                            return {
+                                ...licenseObj,
+                                rewards: Promise.resolve(0n),
+                                alias: Promise.resolve(''),
+                                isOnline: Promise.resolve(false),
+                            };
+                        }
+
+                        return {
+                            ...licenseObj,
                             rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
                             alias: licenseDataPromise.then(({ node_alias }) => node_alias),
                             isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
@@ -177,8 +227,6 @@ export const BlockchainProvider = ({ children }) => {
                     });
                 }),
         ]);
-
-        console.log({ mndLicense, ndLicenses });
 
         if (mndLicense.totalAssignedAmount) {
             return [mndLicense, ...ndLicenses];

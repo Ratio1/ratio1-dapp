@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { GNDLicense, License, MNDLicense } from 'typedefs/blockchain';
 import { getNodeEpochsRange, getNodeInfo } from './api/oracles';
 import {
@@ -40,20 +41,26 @@ export const getLicenseRewardsAndNodeInfo = async (
     const nodeInfo = await getNodeInfo(license.nodeAddress);
     let rewards_amount: bigint = 0n;
 
-    if (license.totalClaimedAmount !== license.totalAssignedAmount) {
-        switch (license.type) {
-            case 'ND':
-                rewards_amount = await getNdLicenseRewards(license);
-                break;
+    try {
+        if (license.totalClaimedAmount !== license.totalAssignedAmount) {
+            switch (license.type) {
+                case 'ND':
+                    rewards_amount = await getNdLicenseRewards(license);
+                    break;
 
-            case 'MND':
-                rewards_amount = await getMndLicenseRewards(license);
-                break;
+                case 'MND':
+                    rewards_amount = await getMndLicenseRewards(license);
+                    break;
 
-            case 'GND':
-                rewards_amount = await getGndLicenseRewards(license);
-                break;
+                case 'GND':
+                    rewards_amount = await getGndLicenseRewards(license);
+                    break;
+            }
         }
+    } catch (error) {
+        console.error(error);
+        toast.error('Error loading license rewards.');
+        // throw new Error('Unable to load license rewards');
     }
 
     return {
