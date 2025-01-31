@@ -60,7 +60,6 @@ export const getLicenseRewardsAndNodeInfo = async (
     } catch (error) {
         console.error(error);
         toast.error('Error loading license rewards.');
-        // throw new Error('Unable to load license rewards');
     }
 
     return {

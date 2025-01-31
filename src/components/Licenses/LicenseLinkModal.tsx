@@ -31,24 +31,18 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, getLicenses }: Props, ref)
 
     const [address, setAddress] = useState('');
 
+    const [isNodeAlreadyLinked, setNodeAlreadyLinked] = useState<boolean>(false);
+
+    // Init
+    useEffect(() => {
+        setLoading(false);
+        setAddress('');
+    }, []);
+
     const trigger = (license: License) => {
         setLicense(license);
         onOpen();
     };
-
-    useEffect(() => {
-        if (!publicClient || !address || !address.startsWith('0x') || address.length !== 42) return;
-        publicClient
-            .readContract({
-                address: ndContractAddress,
-                abi: NDContractAbi,
-                functionName: 'isNodeAlreadyLinked',
-                args: [address as EthAddress],
-            })
-            .then((isNodeAlreadyLinked) => {
-                console.log(isNodeAlreadyLinked);
-            });
-    }, [address]);
 
     useImperativeHandle(ref, () => ({
         trigger,
@@ -57,12 +51,25 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, getLicenses }: Props, ref)
     const onSubmit = async (e) => {
         e.preventDefault();
 
-        if (!walletClient || !license) {
+        if (!walletClient || !license || !publicClient) {
             toast.error('Unexpected error, please try again.');
             return;
         }
 
         setLoading(true);
+
+        const isAlreadyLinked: boolean = await publicClient.readContract({
+            address: ndContractAddress,
+            abi: NDContractAbi,
+            functionName: 'isNodeAlreadyLinked',
+            args: [address as EthAddress],
+        });
+
+        if (isAlreadyLinked) {
+            setNodeAlreadyLinked(true);
+            setLoading(false);
+            return;
+        }
 
         const txHash = await walletClient.writeContract({
             address: license.type === 'ND' ? ndContractAddress : mndContractAddress,
@@ -94,7 +101,13 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, getLicenses }: Props, ref)
                                     <div className="col w-full gap-3">
                                         <Input
                                             value={address}
-                                            onValueChange={setAddress}
+                                            onValueChange={(value: string) => {
+                                                if (isNodeAlreadyLinked) {
+                                                    setNodeAlreadyLinked(false);
+                                                }
+
+                                                setAddress(value);
+                                            }}
                                             label="Node Address"
                                             labelPlacement="outside"
                                             placeholder="0x"
@@ -121,13 +134,23 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, getLicenses }: Props, ref)
                                             }}
                                         />
 
-                                        <Alert
-                                            color="primary"
-                                            title="A license can only be linked once every 24 hours."
-                                            classNames={{
-                                                base: 'items-center',
-                                            }}
-                                        />
+                                        {isNodeAlreadyLinked ? (
+                                            <Alert
+                                                color="danger"
+                                                title="This address is already linked to another license."
+                                                classNames={{
+                                                    base: 'items-center',
+                                                }}
+                                            />
+                                        ) : (
+                                            <Alert
+                                                color="primary"
+                                                title="A license can only be linked once every 24 hours."
+                                                classNames={{
+                                                    base: 'items-center',
+                                                }}
+                                            />
+                                        )}
                                     </div>
 
                                     <div className="flex w-full justify-end py-2">

@@ -258,12 +258,12 @@ export const LicenseCardHeader = ({
             >
                 <div className="row">
                     <div className="row gap-3 lg:min-w-[522px]">
-                        {license.isLinked && <div className="w-[184px]">{getNodeInfoSection()}</div>}
+                        {license.isLinked && <div className="w-[194px]">{getNodeInfoSection()}</div>}
 
                         <div
                             className={clsx('flex', {
                                 'min-w-[150px]': license.isLinked,
-                                'min-w-[184px]': !license.isLinked,
+                                'min-w-[194px]': !license.isLinked,
                             })}
                         >
                             {getLicenseIdTag()}

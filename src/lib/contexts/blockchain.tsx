@@ -228,11 +228,10 @@ export const BlockchainProvider = ({ children }) => {
                 }),
         ]);
 
-        if (mndLicense.totalAssignedAmount) {
-            return [mndLicense, ...ndLicenses];
-        }
+        const licenses = mndLicense.totalAssignedAmount ? [mndLicense, ...ndLicenses] : ndLicenses;
+        console.log('Licenses', licenses);
 
-        return ndLicenses;
+        return licenses;
     };
 
     const fetchR1Price = async () => {
