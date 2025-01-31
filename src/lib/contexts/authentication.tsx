@@ -12,7 +12,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { ApiAccount } from '@typedefs/blockchain';
 import { DebouncedFuncLeading, throttle } from 'lodash';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { baseSepolia } from 'viem/chains';
 
 export interface AuthenticationContextType {
@@ -115,15 +115,16 @@ export const AuthenticationProvider = ({ children }) => {
         retry: false,
     });
 
-    const fetchAccount = throttle(
-        async () => {
-            if (isFetchingAccount) return;
-            console.log('throttle');
-            await refetch();
-        },
-        2000,
-        { trailing: false },
-    );
+    const fetchAccount = useRef(
+        throttle(
+            () => {
+                if (isFetchingAccount) return;
+                refetch();
+            },
+            3000,
+            { trailing: false },
+        ),
+    ).current;
 
     async function getSession() {
         const accessToken = localStorage.getItem('accessToken');
