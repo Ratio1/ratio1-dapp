@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ApiAccount } from '@typedefs/blockchain';
 import { DebouncedFuncLeading, throttle } from 'lodash';
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { generateNonce } from 'siwe';
 import { baseSepolia } from 'viem/chains';
 
 export interface AuthenticationContextType {
@@ -62,7 +63,9 @@ export const AuthenticationProvider = ({ children }) => {
                 }),
                 createMessage: ({ address, ...args }: SIWECreateMessageArgs) => formatMessage(args, address),
                 getNonce: async () => {
-                    const nonce = 'ZHa67TjiuP3NwIJ9Y'; //TODO nonce generation
+                    // const nonce = 'ZHa67TjiuP3NwIJ9Y'; //TODO nonce generation
+                    const nonce = generateNonce();
+                    console.log('Nonce', nonce);
                     return nonce;
                 },
                 getSession,
@@ -153,11 +156,12 @@ export const AuthenticationProvider = ({ children }) => {
                 return true;
             }
             const response = await accessAuth({ message, signature });
-            localStorage.setItem('accessToken', response.accessToken);
-            localStorage.setItem('refreshToken', response.refreshToken);
-            localStorage.setItem('expiration', response.expiration.toString());
             localStorage.setItem('chainId', chainId);
             localStorage.setItem('address', address);
+            localStorage.setItem('accessToken', response.accessToken);
+
+            localStorage.setItem('refreshToken', response.refreshToken);
+            localStorage.setItem('expiration', response.expiration.toString());
             return true;
         } catch (error) {
             return false;

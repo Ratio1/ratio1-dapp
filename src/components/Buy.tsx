@@ -2,6 +2,7 @@ import { ERC20Abi } from '@blockchain/ERC20';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { buyLicense } from '@lib/api/backend';
 import { ndContractAddress, r1ContractAddress } from '@lib/config';
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { fN } from '@lib/utils';
 import { Alert } from '@nextui-org/alert';
@@ -24,6 +25,7 @@ const DANGEROUS_SLIPPAGE = 0.5;
 
 function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentStage: number; stage: Stage }) {
     const { watchTx, r1Balance, fetchR1Balance } = useBlockchainContext() as BlockchainContextType;
+    const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
     const [licenseTokenPrice, setLicenseTokenPrice] = useState<bigint>(0n);
     const [allowance, setAllowance] = useState<bigint | undefined>();
@@ -329,25 +331,27 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                                 </>
                             )}
 
-                            <div className="col gap-2 pt-2 text-sm text-slate-500">
-                                <div className="">You may be asked to sign 2 transactions:</div>
+                            {authenticated && (
+                                <div className="col gap-2 pt-2 text-sm text-slate-500">
+                                    <div className="">You may be asked to sign 2 transactions:</div>
 
-                                <div className="col gap-1">
-                                    <div
-                                        className={clsx('row gap-2', {
-                                            'text-green-600': !isApprovalRequired(),
-                                        })}
-                                    >
-                                        <RiCheckLine className="text-lg" />
-                                        <div>Approval of token spending</div>
-                                    </div>
+                                    <div className="col gap-1">
+                                        <div
+                                            className={clsx('row gap-2', {
+                                                'text-green-600': !isApprovalRequired(),
+                                            })}
+                                        >
+                                            <RiCheckLine className="text-lg" />
+                                            <div>Approval of token spending</div>
+                                        </div>
 
-                                    <div className="row gap-2">
-                                        <RiPriceTag3Line className="text-lg" />
-                                        <div>License purchasing transaction</div>
+                                        <div className="row gap-2">
+                                            <RiPriceTag3Line className="text-lg" />
+                                            <div>License purchasing transaction</div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
 
                             <div>
                                 <ConnectWalletWrapper isFullWidth>
