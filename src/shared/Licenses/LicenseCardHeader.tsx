@@ -192,7 +192,7 @@ export const LicenseCardHeader = ({
                         'text-default-500',
                         'transition-opacity',
                         'data-[hover=true]:text-foreground',
-                        'data-[hover=true]:bg-lightAccent',
+                        'data-[hover=true]:bg-lightBlue',
                         'data-[selectable=true]:focus:bg-default-50',
                         'data-[pressed=true]:opacity-70',
                         'data-[focus-visible=true]:ring-default-500',

@@ -21,17 +21,8 @@ export default {
             colors: {
                 body: '#0b0b47',
                 light: '#fcfcfd',
-                lightAccent: '#F4F5FA',
+                lightBlue: '#F4F5FA',
                 primary: '#1b47f7',
-            },
-            boxShadow: {
-                'sm-light': '0px 3px 4px 0px #00000008',
-            },
-            rotate: {
-                270: '270deg',
-            },
-            brightness: {
-                1000: '100.0',
             },
             outlineWidth: {
                 3: '3px',

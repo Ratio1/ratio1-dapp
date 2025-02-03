@@ -17,7 +17,7 @@ export const LicenseCard = ({
 }) => {
     return (
         <div
-            className="mx-auto flex max-w-2xl cursor-pointer flex-col overflow-hidden rounded-3xl border-3 border-lightAccent bg-lightAccent transition-all hover:border-[#e9ebf1] xl:max-w-none"
+            className="border-lightBlue bg-lightBlue mx-auto flex max-w-2xl cursor-pointer flex-col overflow-hidden rounded-3xl border-3 transition-all hover:border-[#e9ebf1] xl:max-w-none"
             onClick={() => {
                 if (toggle) {
                     toggle(license.licenseId, license.type);

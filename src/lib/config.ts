@@ -1,7 +1,6 @@
 import Favicon from '@assets/favicon.png';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 import { baseSepolia } from '@reown/appkit/networks';
-import { QueryClient } from '@tanstack/react-query';
 import { addSeconds, differenceInSeconds } from 'date-fns';
 
 // ERC20Mock: 0x97b198628cEBB6d8e743fd0015b4cac92A3B1c08
@@ -23,8 +22,6 @@ export const getContractAddress = (type: 'ND' | 'MND' | 'GND') => {
 };
 
 export const explorerUrl = 'https://sepolia.basescan.org';
-
-export const queryClient = new QueryClient();
 
 export const projectId = '6fb791d3d18d57d28ae7677e4cff8c6e';
 

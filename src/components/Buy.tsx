@@ -186,7 +186,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
         <>
             <div className="my-4 flex flex-col gap-6">
                 <div className="row justify-between gap-4">
-                    <Button isIconOnly variant="flat" className="bg-lightAccent" onPress={onClose}>
+                    <Button isIconOnly variant="flat" className="bg-lightBlue" onPress={onClose}>
                         <div className="text-[22px]">
                             <RiArrowRightDoubleLine />
                         </div>
@@ -211,7 +211,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                 </div>
 
                 <div className="col gap-4">
-                    <div className="col overflow-hidden rounded-md border border-slate-200 bg-lightAccent">
+                    <div className="col bg-lightBlue overflow-hidden rounded-md border border-slate-200">
                         <div className="row justify-between p-4">
                             <div className="row gap-2.5">
                                 <div className="rounded-md bg-primary p-1.5 text-white">
@@ -296,7 +296,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                         </div>
                     </div>
 
-                    <div className="flex w-full flex-col rounded-md bg-lightAccent px-8 py-8">
+                    <div className="bg-lightBlue flex w-full flex-col rounded-md px-8 py-8">
                         <div className="col gap-1.5 text-center">
                             <div className="text-sm font-medium text-slate-500">Total amount required</div>
 

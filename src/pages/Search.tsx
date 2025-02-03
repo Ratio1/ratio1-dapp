@@ -105,7 +105,7 @@ function Search() {
                     isDisabled={isLoading}
                     size="lg"
                     classNames={{
-                        inputWrapper: 'h-[52px] bg-lightAccent hover:!bg-[#eceef6] group-data-[focus=true]:bg-lightAccent px-6',
+                        inputWrapper: 'h-[52px] bg-lightBlue hover:!bg-[#eceef6] group-data-[focus=true]:bg-lightBlue px-6',
                     }}
                     variant="flat"
                     radius="full"
