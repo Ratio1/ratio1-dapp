@@ -9,6 +9,7 @@ import { AuthenticationContextType, useAuthenticationContext } from '@lib/contex
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { getCurrentEpoch } from '@lib/utils';
 import { Pagination } from '@nextui-org/pagination';
+import { Skeleton } from '@nextui-org/skeleton';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { LicenseSkeleton } from '@shared/Licenses/LicenseSkeleton';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -66,6 +67,14 @@ function Licenses() {
         onPageChange();
     }, [currentPage]);
 
+    const getLicenses = () => {
+        setLoading(true);
+
+        fetchLicenses()
+            .then(setLicenses)
+            .finally(() => setLoading(false));
+    };
+
     const onPageChange = (page?: number) => {
         if (page && page !== currentPage) {
             setCurrentPage(page);
@@ -75,13 +84,7 @@ function Licenses() {
         setLicensesToShow(filteredLicenses.slice((index - 1) * PAGE_SIZE, index * PAGE_SIZE));
     };
 
-    const getLicenses = () => {
-        setLoading(true);
-
-        fetchLicenses()
-            .then(setLicenses)
-            .finally(() => setLoading(false));
-    };
+    const getPagesCount = (): number => Math.ceil(filteredLicenses.length / PAGE_SIZE);
 
     const onClaim = async (license: License) => {
         try {
@@ -197,16 +200,47 @@ function Licenses() {
         }, 0);
     };
 
+    const getLicenseSectionHeader = (type: License['type']) => (
+        <div className="mx-auto xl:mx-0">
+            <div className="pt-4 text-lg font-semibold xl:text-2xl">{type}</div>
+        </div>
+    );
+
+    const getLicenseElement = (license: License): JSX.Element => (
+        <div
+            key={license.licenseId}
+            ref={(element) => {
+                if (element) {
+                    cardRefs.current.set(license.licenseId, element);
+                }
+            }}
+        >
+            <LicenseCard
+                license={license}
+                isExpanded={license.isExpanded as boolean}
+                toggle={onLicenseExpand}
+                action={onAction}
+            />
+        </div>
+    );
+
+    // Used to split 'licensesToShow' into sections
+    const filterLicensesOfType = (type: License['type']) => licensesToShow.filter((license) => license.type === type);
+
     return (
         <div className="h-full">
             <div className="col h-full justify-between gap-3">
                 <div className="col gap-3">
-                    <div className="mb-3">
+                    <div>
                         <LicensesPageHeader onFilterChange={setFilter} licenses={licenses} getLicenses={getLicenses} />
                     </div>
 
                     {isLoading ? (
                         <>
+                            <div className="mx-auto pt-4 xl:mx-0">
+                                <Skeleton className="h-8 min-w-20 rounded-xl" />
+                            </div>
+
                             {Array(3)
                                 .fill(null)
                                 .map((_, index) => (
@@ -217,28 +251,22 @@ function Licenses() {
                         </>
                     ) : (
                         <>
-                            {licensesToShow.map((license) => (
-                                <div
-                                    key={license.licenseId}
-                                    ref={(element) => {
-                                        if (element) {
-                                            cardRefs.current.set(license.licenseId, element);
-                                        }
-                                    }}
-                                >
-                                    <LicenseCard
-                                        license={license}
-                                        isExpanded={license.isExpanded as boolean}
-                                        toggle={onLicenseExpand}
-                                        action={onAction}
-                                    />
-                                </div>
-                            ))}
+                            {['GND', 'MND', 'ND']
+                                .filter((type) => filterLicensesOfType(type as License['type']).length > 0)
+                                .map((type) => (
+                                    <div key={type} className="col gap-3">
+                                        {getLicenseSectionHeader(type as License['type'])}
+
+                                        {filterLicensesOfType(type as License['type']).map((license) =>
+                                            getLicenseElement(license),
+                                        )}
+                                    </div>
+                                ))}
                         </>
                     )}
                 </div>
 
-                {Math.ceil(filteredLicenses.length / PAGE_SIZE) > 1 && (
+                {getPagesCount() > 1 && (
                     <div className="mx-auto pt-12">
                         <Pagination
                             page={currentPage}
@@ -248,7 +276,7 @@ function Licenses() {
                                 item: 'w-8 h-8 text-small rounded-none bg-transparent',
                                 cursor: 'bg-gradient-to-b from-primary-500 to-primary-600 rounded-md text-white font-bold',
                             }}
-                            total={Math.ceil(filteredLicenses.length / PAGE_SIZE)}
+                            total={getPagesCount()}
                         />
                     </div>
                 )}

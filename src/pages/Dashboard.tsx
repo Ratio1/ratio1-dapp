@@ -97,7 +97,7 @@ const INITIAL_STAGES_STATE: Stage[] = [
 
 function Dashboard() {
     const { fetchLicenses, r1Balance } = useBlockchainContext() as BlockchainContextType;
-    const { account } = useAuthenticationContext() as AuthenticationContextType;
+    const { account, authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
     const [isLoading, setLoading] = useState<boolean>(true);
 
@@ -163,7 +163,7 @@ function Dashboard() {
         }
 
         fetchLicenses().then(setLicenses);
-    }, [address]);
+    }, [authenticated]);
 
     const isKycNotCompleted = !account || account.kycStatus !== KycStatus.Completed;
 
