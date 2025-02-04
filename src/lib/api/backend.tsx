@@ -33,6 +33,7 @@ export const buyLicense = (params: types.BuyLicenseRequest) =>
     _doPost<{
         signature: string;
         uuid: string;
+        usdLimitAmount: number;
     }>('/license/buy', params);
 
 export const initSumsubSession = (type: 'individual' | 'company') => _doPost<string>('/sumsub/init/Kyc', { type });

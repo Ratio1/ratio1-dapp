@@ -69,6 +69,25 @@ export const MNDContractAbi = [
         anonymous: false,
         inputs: [
             {
+                indexed: false,
+                internalType: 'uint256',
+                name: '_fromTokenId',
+                type: 'uint256',
+            },
+            {
+                indexed: false,
+                internalType: 'uint256',
+                name: '_toTokenId',
+                type: 'uint256',
+            },
+        ],
+        name: 'BatchMetadataUpdate',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
                 indexed: true,
                 internalType: 'address',
                 name: 'to',
@@ -119,6 +138,19 @@ export const MNDContractAbi = [
         anonymous: false,
         inputs: [
             {
+                indexed: false,
+                internalType: 'uint256',
+                name: '_tokenId',
+                type: 'uint256',
+            },
+        ],
+        name: 'MetadataUpdate',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
                 indexed: true,
                 internalType: 'address',
                 name: 'previousOwner',
@@ -145,6 +177,37 @@ export const MNDContractAbi = [
             },
         ],
         name: 'Paused',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'to',
+                type: 'address',
+            },
+            {
+                indexed: true,
+                internalType: 'uint256',
+                name: 'licenseId',
+                type: 'uint256',
+            },
+            {
+                indexed: false,
+                internalType: 'uint256',
+                name: 'rewardsAmount',
+                type: 'uint256',
+            },
+            {
+                indexed: false,
+                internalType: 'uint256',
+                name: 'totalEpochs',
+                type: 'uint256',
+            },
+        ],
+        name: 'RewardsClaimed',
         type: 'event',
     },
     {
@@ -235,6 +298,19 @@ export const MNDContractAbi = [
         ],
         name: 'Unpaused',
         type: 'event',
+    },
+    {
+        inputs: [],
+        name: '_baseTokenURI',
+        outputs: [
+            {
+                internalType: 'string',
+                name: '',
+                type: 'string',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
     },
     {
         inputs: [
@@ -424,6 +500,19 @@ export const MNDContractAbi = [
                 internalType: 'uint256',
                 name: '',
                 type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [],
+        name: 'getSigners',
+        outputs: [
+            {
+                internalType: 'address[]',
+                name: '',
+                type: 'address[]',
             },
         ],
         stateMutability: 'view',
@@ -782,6 +871,19 @@ export const MNDContractAbi = [
             },
         ],
         name: 'setApprovalForAll',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'string',
+                name: 'baseURI',
+                type: 'string',
+            },
+        ],
+        name: 'setBaseURI',
         outputs: [],
         stateMutability: 'nonpayable',
         type: 'function',
