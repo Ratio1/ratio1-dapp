@@ -1,7 +1,7 @@
 import { NDContractAbi } from '@blockchain/NDContract';
 import Buy from '@components/Buy';
 import Tiers from '@components/Tiers';
-import { epochDurationInSeconds, genesisDate, getCurrentEpoch, ndContractAddress } from '@lib/config';
+import { getCurrentEpoch, getNextEpochTimestamp, ndContractAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes';
@@ -12,7 +12,7 @@ import { Button } from '@nextui-org/button';
 import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
 import { BigCard } from '@shared/BigCard';
 import { KycStatus } from '@typedefs/profile';
-import { addSeconds, differenceInSeconds, formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { RiArrowRightUpLine, RiTimeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
@@ -210,19 +210,7 @@ function Dashboard() {
                                         <div className="text-[18px]">
                                             <RiTimeLine />
                                         </div>
-                                        <div>
-                                            {formatDistanceToNow(
-                                                addSeconds(
-                                                    genesisDate,
-                                                    epochDurationInSeconds *
-                                                        Math.floor(
-                                                            differenceInSeconds(new Date(), genesisDate) /
-                                                                epochDurationInSeconds,
-                                                        ) +
-                                                        epochDurationInSeconds,
-                                                ),
-                                            )}
-                                        </div>
+                                        <div>{formatDistanceToNow(getNextEpochTimestamp())}</div>
                                     </div>
                                 </div>
                             </div>
