@@ -26,7 +26,7 @@ function App() {
                     socials: [],
                 },
                 siweConfig,
-                enableWalletConnect: false,
+                enableWalletConnect: true,
                 allWallets: 'HIDE',
                 termsConditionsUrl: 'https://app.ratio1.ai/terms-and-conditions',
                 themeMode: 'light',
