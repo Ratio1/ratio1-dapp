@@ -167,7 +167,7 @@ function Dashboard() {
 
     const isKycNotCompleted = !account || account.kycStatus !== KycStatus.Completed;
 
-    // TODO:
+    // TODO: Production
     const isBuyingDisabled = (): boolean => isLoading || isKycNotCompleted;
 
     return (
@@ -222,7 +222,7 @@ function Dashboard() {
                     <div className="row justify-between gap-2">
                         <div className="text-xl font-bold leading-7 lg:text-[26px]">Licenses & Tiers</div>
 
-                        {/* TODO: isDisabled={isBuyingDisabled()} */}
+                        {/* TODO: Production isDisabled={isBuyingDisabled()} */}
                         <Button color="primary" onPress={onOpen} isDisabled={isLoading}>
                             <div className="row gap-1.5">
                                 <div className="text-sm font-medium lg:text-base">Buy License</div>

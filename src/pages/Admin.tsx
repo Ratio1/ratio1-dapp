@@ -10,22 +10,116 @@ import { round } from 'lodash';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { EthAddress, MNDLicense } from 'typedefs/blockchain';
-import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
+import { usePublicClient, useWalletClient } from 'wagmi';
 
 function Admin() {
-    const { address } = useAccount();
+    return (
+        <div className="col gap-4">
+            <CreateMnd />
+            <MndsTable />
+            <AddSigner />
+            <RemoveSigner />
+        </div>
+    );
+}
+
+function CreateMnd() {
+    const { watchTx } = useBlockchainContext() as BlockchainContextType;
+
+    const [address, setAddress] = useState<string>('');
+    const [tokens, setTokens] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const { data: walletClient } = useWalletClient();
+    const publicClient = usePublicClient();
+
+    const onCreate = async () => {
+        if (!walletClient) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        setIsLoading(true);
+
+        const txHash = await walletClient.writeContract({
+            address: mndContractAddress,
+            abi: MNDContractAbi,
+            functionName: 'addLicense',
+            args: [address as EthAddress, BigInt(tokens) * 10n ** 18n],
+        });
+
+        await watchTx(txHash, publicClient);
+
+        setIsLoading(false);
+    };
 
     return (
-        <div className="h-full">
-            <div className="col h-full justify-between gap-3">
-                <div className="col gap-3">
-                    <CreateMnd />
-                    <MndsTable />
-                    <AddSigner />
-                    <RemoveSigner />
+        <BigCard>
+            <div className="text-base font-semibold leading-6 lg:text-xl">Create new MND</div>
+
+            <div className="flex flex-col gap-4 larger:flex-row">
+                <Input
+                    value={address}
+                    onValueChange={setAddress}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Receiver"
+                    labelPlacement="outside"
+                    placeholder="0x..."
+                    validate={(value) => {
+                        if (!(value.startsWith('0x') && value.length === 42)) {
+                            return 'Value must be a valid Ethereum address';
+                        }
+
+                        return null;
+                    }}
+                />
+
+                <Input
+                    value={tokens}
+                    onValueChange={(value) => {
+                        const n = Number.parseInt(value);
+
+                        if (value === '') {
+                            setTokens('');
+                        } else if (isFinite(n) && !isNaN(n) && n > 0) {
+                            setTokens(n.toString());
+                        }
+                    }}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Amount of tokens"
+                    labelPlacement="outside"
+                    placeholder="0"
+                />
+            </div>
+
+            <div className="flex-start flex">
+                <div className="flex">
+                    <Button
+                        fullWidth
+                        color="primary"
+                        onPress={onCreate}
+                        isLoading={isLoading}
+                        isDisabled={isLoading || !address || !tokens || Number.parseInt(tokens) <= 0}
+                    >
+                        Create MND
+                    </Button>
                 </div>
             </div>
-        </div>
+        </BigCard>
     );
 }
 
@@ -182,97 +276,6 @@ function MndsTable() {
     );
 }
 
-function CreateMnd() {
-    const { watchTx } = useBlockchainContext() as BlockchainContextType;
-
-    const [address, setAddress] = useState<string>('');
-    const [tokens, setTokens] = useState<string>('');
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-
-    const { data: walletClient } = useWalletClient();
-    const publicClient = usePublicClient();
-
-    const onCreate = async () => {
-        if (!walletClient) {
-            toast.error('Unexpected error, please try again.');
-            return;
-        }
-
-        setIsLoading(true);
-
-        const txHash = await walletClient.writeContract({
-            address: mndContractAddress,
-            abi: MNDContractAbi,
-            functionName: 'addLicense',
-            args: [address as EthAddress, BigInt(tokens) * 10n ** 18n],
-        });
-
-        await watchTx(txHash, publicClient);
-
-        setIsLoading(false);
-    };
-
-    return (
-        <BigCard>
-            <div className="text-base font-semibold leading-6 lg:text-xl">Create new MND</div>
-
-            <Input
-                value={address}
-                onValueChange={setAddress}
-                size="md"
-                classNames={{
-                    inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
-                    input: 'font-medium',
-                }}
-                variant="bordered"
-                color="primary"
-                label="Receiver"
-                labelPlacement="outside"
-                placeholder="0x..."
-                validate={(value) => {
-                    if (!(value.startsWith('0x') && value.length === 42)) {
-                        return 'Value must be a valid Ethereum address';
-                    }
-
-                    return null;
-                }}
-            />
-            <Input
-                value={tokens}
-                onValueChange={(value) => {
-                    const n = Number.parseInt(value);
-
-                    if (value === '') {
-                        setTokens('');
-                    } else if (isFinite(n) && !isNaN(n) && n > 0) {
-                        setTokens(n.toString());
-                    }
-                }}
-                size="md"
-                classNames={{
-                    inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
-                    input: 'font-medium',
-                }}
-                variant="bordered"
-                color="primary"
-                label="Amount of tokens"
-                labelPlacement="outside"
-                placeholder="0"
-            />
-
-            <Button
-                fullWidth
-                color="primary"
-                onPress={onCreate}
-                isLoading={isLoading}
-                isDisabled={isLoading || !address || !tokens || Number.parseInt(tokens) <= 0}
-            >
-                Create MND
-            </Button>
-        </BigCard>
-    );
-}
-
 function AddSigner() {
     const { watchTx } = useBlockchainContext() as BlockchainContextType;
 
@@ -326,27 +329,49 @@ function AddSigner() {
         <BigCard>
             <div className="text-base font-semibold leading-6 lg:text-xl">Add new signer</div>
 
-            <Input
-                value={address}
-                onValueChange={setAddress}
-                size="md"
-                classNames={{
-                    inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
-                    input: 'font-medium',
-                }}
-                variant="bordered"
-                color="primary"
-                label="Signer"
-                labelPlacement="outside"
-                placeholder="0x..."
-            />
+            <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
+                <Input
+                    value={address}
+                    onValueChange={setAddress}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Signer"
+                    labelPlacement="outside"
+                    placeholder="0x..."
+                />
 
-            <Button fullWidth color="primary" onPress={onAddNd} isLoading={isLoading} isDisabled={isLoading || !address}>
-                Add Signer on ND
-            </Button>
-            <Button fullWidth color="primary" onPress={onAddMnd} isLoading={isLoading} isDisabled={isLoading || !address}>
-                Add Signer on MND
-            </Button>
+                <div className="row justify-start gap-4">
+                    <div className="flex">
+                        <Button
+                            fullWidth
+                            color="secondary"
+                            onPress={onAddNd}
+                            isLoading={isLoading}
+                            isDisabled={isLoading || !address}
+                        >
+                            Add to ND
+                        </Button>
+                    </div>
+
+                    <div className="flex">
+                        <Button
+                            fullWidth
+                            color="primary"
+                            onPress={onAddMnd}
+                            isLoading={isLoading}
+                            isDisabled={isLoading || !address}
+                        >
+                            Add to MND
+                        </Button>
+                    </div>
+                </div>
+            </div>
         </BigCard>
     );
 }
@@ -404,27 +429,49 @@ function RemoveSigner() {
         <BigCard>
             <div className="text-base font-semibold leading-6 lg:text-xl">Remove existing signer</div>
 
-            <Input
-                value={address}
-                onValueChange={setAddress}
-                size="md"
-                classNames={{
-                    inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
-                    input: 'font-medium',
-                }}
-                variant="bordered"
-                color="primary"
-                label="Signer"
-                labelPlacement="outside"
-                placeholder="0x..."
-            />
+            <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
+                <Input
+                    value={address}
+                    onValueChange={setAddress}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Signer"
+                    labelPlacement="outside"
+                    placeholder="0x..."
+                />
 
-            <Button fullWidth color="primary" onPress={onRemoveNd} isLoading={isLoading} isDisabled={isLoading || !address}>
-                Remove Signer on ND
-            </Button>
-            <Button fullWidth color="primary" onPress={onRemoveMnd} isLoading={isLoading} isDisabled={isLoading || !address}>
-                Remove Signer on MND
-            </Button>
+                <div className="row justify-start gap-4">
+                    <div className="flex">
+                        <Button
+                            fullWidth
+                            color="secondary"
+                            onPress={onRemoveNd}
+                            isLoading={isLoading}
+                            isDisabled={isLoading || !address}
+                        >
+                            Remove from ND
+                        </Button>
+                    </div>
+
+                    <div className="flex">
+                        <Button
+                            fullWidth
+                            color="primary"
+                            onPress={onRemoveMnd}
+                            isLoading={isLoading}
+                            isDisabled={isLoading || !address}
+                        >
+                            Remove from MND
+                        </Button>
+                    </div>
+                </div>
+            </div>
         </BigCard>
     );
 }

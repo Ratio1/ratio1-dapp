@@ -1,6 +1,5 @@
-import { ProtectedRoute } from '@components/ProtectedRoute';
+import { ProtectedAdminRoute } from '@components/ProtectedAdminRoute';
 import NotFound from '@pages/404';
-import Admin from '@pages/Admin';
 import Dashboard from '@pages/Dashboard';
 import EmailConfirmation from '@pages/EmailConfirmation';
 import KYC from '@pages/KYC';
@@ -132,11 +131,7 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
     },
     {
         path: routePath.admin,
-        page: () => (
-            <ProtectedRoute hasAccess={() => Promise.resolve(true)}>
-                <Admin />
-            </ProtectedRoute>
-        ),
+        page: ProtectedAdminRoute,
     },
     {
         path: routePath.notFound,
