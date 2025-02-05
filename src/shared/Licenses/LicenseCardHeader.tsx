@@ -9,7 +9,16 @@ import clsx from 'clsx';
 import { addDays, isBefore } from 'date-fns';
 import { round } from 'lodash';
 import { useState } from 'react';
-import { RiCpuLine, RiForbid2Line, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine, RiWalletLine } from 'react-icons/ri';
+import {
+    RiCpuLine,
+    RiExchange2Line,
+    RiForbid2Line,
+    RiLink,
+    RiLinkUnlink,
+    RiMoreFill,
+    RiTimeLine,
+    RiWalletLine,
+} from 'react-icons/ri';
 import { Link } from 'react-router-dom';
 import { License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
@@ -21,7 +30,7 @@ export const LicenseCardHeader = ({
     disableActions,
 }: {
     license: License;
-    action?: (type: 'link' | 'unlink' | 'claim', license: License) => void;
+    action?: (type: 'link' | 'unlink' | 'claim' | 'changeNode', license: License) => void;
     isExpanded: boolean;
     disableActions?: boolean;
 }) => {
@@ -185,7 +194,7 @@ export const LicenseCardHeader = ({
             <DropdownMenu
                 aria-label="Dropdown"
                 variant="flat"
-                disabledKeys={['title', ...(hasCooldown ? ['link'] : [])]}
+                disabledKeys={['title', ...(hasCooldown ? ['link', 'changeNode'] : [])]}
                 itemClasses={{
                     base: [
                         'rounded-md',
@@ -197,6 +206,10 @@ export const LicenseCardHeader = ({
                         'data-[pressed=true]:opacity-70',
                         'data-[focus-visible=true]:ring-default-500',
                     ],
+                }}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
                 }}
             >
                 <DropdownItem key="title" isReadOnly>
@@ -222,23 +235,43 @@ export const LicenseCardHeader = ({
                         </div>
                     </DropdownItem>
                 ) : (
-                    <DropdownItem
-                        key="unlink"
-                        onPress={() => {
-                            if (action) {
-                                action('unlink', license);
-                            }
-                        }}
-                    >
-                        <div className="row gap-2">
-                            <RiLinkUnlink className="pr-0.5 text-[22px] text-slate-500" />
+                    <>
+                        <DropdownItem
+                            key="changeNode"
+                            onPress={() => {
+                                if (action) {
+                                    action('changeNode', license);
+                                }
+                            }}
+                        >
+                            <div className="row gap-2">
+                                <RiExchange2Line className="pr-0.5 text-[22px] text-slate-500" />
 
-                            <div className="col">
-                                <div className="font-medium text-body">Unlink</div>
-                                <div className="text-xs text-slate-500">Remove license from node</div>
+                                <div className="col">
+                                    <div className="font-medium text-body">Change Node</div>
+                                    <div className="text-xs text-slate-500">Switch license to another node</div>
+                                </div>
                             </div>
-                        </div>
-                    </DropdownItem>
+                        </DropdownItem>
+
+                        <DropdownItem
+                            key="unlink"
+                            onPress={() => {
+                                if (action) {
+                                    action('unlink', license);
+                                }
+                            }}
+                        >
+                            <div className="row gap-2">
+                                <RiLinkUnlink className="pr-0.5 text-[22px] text-slate-500" />
+
+                                <div className="col">
+                                    <div className="font-medium text-body">Unlink</div>
+                                    <div className="text-xs text-slate-500">Remove license from node</div>
+                                </div>
+                            </div>
+                        </DropdownItem>
+                    </>
                 )}
             </DropdownMenu>
         </Dropdown>

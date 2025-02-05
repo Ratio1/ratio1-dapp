@@ -133,7 +133,7 @@ function Licenses() {
         }
     };
 
-    const onAction = (type: 'link' | 'unlink' | 'claim', license: License) => {
+    const onAction = (type: 'link' | 'unlink' | 'claim' | 'changeNode', license: License) => {
         switch (type) {
             case 'link':
                 onLink(license);
@@ -145,6 +145,10 @@ function Licenses() {
 
             case 'claim':
                 onClaim(license);
+                break;
+
+            case 'changeNode':
+                onLink(license);
                 break;
 
             default:

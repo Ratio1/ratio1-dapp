@@ -11,7 +11,7 @@ export const LicenseCard = ({
 }: {
     license: License;
     isExpanded: boolean;
-    action?: (type: 'link' | 'unlink' | 'claim', license: License) => void;
+    action?: (type: 'link' | 'unlink' | 'claim' | 'changeNode', license: License) => void;
     toggle?: (id: bigint, type: License['type']) => void;
     disableActions?: boolean;
 }) => {
