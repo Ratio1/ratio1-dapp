@@ -3,8 +3,6 @@ import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 import { baseSepolia } from '@reown/appkit/networks';
 import { addSeconds, differenceInSeconds } from 'date-fns';
 
-// ERC20Mock: 0x97b198628cEBB6d8e743fd0015b4cac92A3B1c08
-
 export const r1ContractAddress = '0x4De05A4705aCd59da041DC70cF989F8111DD414b';
 export const ndContractAddress = '0x2B72b240E74735aF3a731AeD09532320D34b4679';
 export const mndContractAddress = '0x57e5C5409E748807d0ca8a860eCe3F2aCBCcC9B0';

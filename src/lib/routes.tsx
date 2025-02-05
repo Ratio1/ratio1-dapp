@@ -1,3 +1,4 @@
+import { ProtectedRoute } from '@components/ProtectedRoute';
 import NotFound from '@pages/404';
 import Admin from '@pages/Admin';
 import Dashboard from '@pages/Dashboard';
@@ -8,6 +9,7 @@ import PrivacyPolicy from '@pages/PrivacyPolicy';
 import Profile from '@pages/Profile';
 import Search from '@pages/Search';
 import TermsAndConditions from '@pages/T&C';
+import Unauthorized from '@pages/Unauthorized';
 import { RiCpuLine, RiFileSearchLine, RiFunctionLine, RiShieldUserLine } from 'react-icons/ri';
 
 export interface AppRoute {
@@ -41,6 +43,7 @@ export const routePath = {
     privacyPolicy: '/privacy-policy',
     confirmEmail: '/confirm-email',
     notFound: '/404',
+    unauthorized: '/unauthorized',
     kyc: '/kyc',
     admin: '/admin',
 };
@@ -84,6 +87,9 @@ export const mainRoutesInfo = {
     [routePath.notFound]: {
         title: 'Not Found',
     },
+    [routePath.unauthorized]: {
+        title: 'Unauthorized',
+    },
 };
 
 // Routes with icons are displayed in the main navigation
@@ -126,10 +132,18 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
     },
     {
         path: routePath.admin,
-        page: Admin,
+        page: () => (
+            <ProtectedRoute hasAccess={() => Promise.resolve(true)}>
+                <Admin />
+            </ProtectedRoute>
+        ),
     },
     {
         path: routePath.notFound,
         page: NotFound,
+    },
+    {
+        path: routePath.unauthorized,
+        page: Unauthorized,
     },
 ];
