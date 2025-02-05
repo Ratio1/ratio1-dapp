@@ -1,4 +1,5 @@
 import { fN } from '@lib/utils';
+import { LargeValueWithLabel } from '@shared/LargeValueWithLabel';
 import clsx from 'clsx';
 import { Stage } from 'typedefs/blockchain';
 
@@ -7,28 +8,21 @@ export default function Tiers({ currentStage, stages }: { currentStage: number; 
         <>
             <div className="col gap-5 lg:gap-6">
                 <div className="flex justify-between">
-                    <div className="col flex w-full justify-between gap-8 lg:flex-row lg:gap-28">
-                        <div className="col text-center lg:text-left">
-                            <div className="text-lg font-semibold lg:text-xl">Current Price (T{currentStage})</div>
-                            <div className="text-[20px] font-semibold text-primary lg:text-[22px]">
-                                ${stages[currentStage - 1].usdPrice}
-                            </div>
-                        </div>
+                    <div className="col flex w-full justify-between gap-8 lg:flex-row">
+                        <LargeValueWithLabel
+                            label={`Current Price (T${currentStage})`}
+                            value={`$${stages[currentStage - 1].usdPrice}`}
+                        />
 
-                        <div className="col text-center lg:text-left">
-                            <div className="text-lg font-semibold lg:text-xl">Remaining Units</div>
-                            <div className="text-[20px] font-semibold text-primary lg:text-[22px]">
-                                {stages[currentStage - 1].totalUnits - stages[currentStage - 1].soldUnits}/
-                                {stages[currentStage - 1].totalUnits}
-                            </div>
-                        </div>
+                        <LargeValueWithLabel
+                            label="Remaining Units"
+                            value={`${stages[currentStage - 1].totalUnits - stages[currentStage - 1].soldUnits}/${stages[currentStage - 1].totalUnits}`}
+                        />
 
-                        <div className="col text-center lg:text-left">
-                            <div className="text-lg font-semibold lg:text-xl">Next Price (T{currentStage + 1})</div>
-                            <div className="text-[20px] font-semibold text-primary lg:text-[22px]">
-                                ${stages[currentStage].usdPrice}
-                            </div>
-                        </div>
+                        <LargeValueWithLabel
+                            label={`Next Price (T${currentStage + 1})`}
+                            value={`$${stages[currentStage].usdPrice}`}
+                        />
                     </div>
                 </div>
 

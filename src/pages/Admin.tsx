@@ -5,12 +5,24 @@ import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/block
 import { fBI, getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Input } from '@nextui-org/input';
+import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/table';
 import { BigCard } from '@shared/BigCard';
+import { LargeValueWithLabel } from '@shared/LargeValueWithLabel';
 import { round } from 'lodash';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { EthAddress, MNDLicense } from 'typedefs/blockchain';
 import { usePublicClient, useWalletClient } from 'wagmi';
+
+const columns = [
+    { key: 1, label: 'ID' },
+    { key: 2, label: 'Owner' },
+    { key: 3, label: 'Node Address' },
+    { key: 4, label: 'Claimed/Assigned' },
+    { key: 5, label: 'Last Claim Epoch' },
+    { key: 6, label: 'Assigned' },
+    { key: 7, label: 'Last Claim Oracle' },
+];
 
 function Admin() {
     return (
@@ -202,7 +214,72 @@ function MndsTable() {
         <BigCard>
             <div className="text-base font-semibold leading-6 lg:text-xl">Minted MND</div>
 
-            <div className="col gap-3">
+            <div className="col flex w-full justify-between gap-8 lg:flex-row">
+                <LargeValueWithLabel label="Total MND supply" value={mnds.length.toString()} isCompact />
+
+                <LargeValueWithLabel
+                    label="$R1 associated supply"
+                    value={fBI(
+                        mnds.reduce((acc, mnd) => acc + mnd.totalAssignedAmount, 0n),
+                        18,
+                    )}
+                    isCompact
+                />
+
+                <LargeValueWithLabel
+                    label="$R1 minted"
+                    value={fBI(
+                        mnds.reduce((acc, mnd) => acc + mnd.totalClaimedAmount, 0n),
+                        18,
+                    )}
+                    isCompact
+                />
+            </div>
+
+            <div className="rounded-xl border border-[#e3e4e</div>8] bg-light p-3">
+                <Table
+                    aria-label="MNDs Table"
+                    classNames={{
+                        th: 'bg-lightBlue text-body text-[13px]',
+                    }}
+                    removeWrapper
+                >
+                    <TableHeader columns={columns}>
+                        {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+                    </TableHeader>
+                    <TableBody items={mnds}>
+                        {(license) => (
+                            <TableRow key={license.licenseId}>
+                                <TableCell>{license.licenseId.toString()}</TableCell>
+                                <TableCell>
+                                    <a href={`${explorerUrl}/address/${license.owner}`} target="_blank" className="underline">
+                                        {getShortAddress(license.owner)}
+                                    </a>
+                                </TableCell>
+                                <TableCell>
+                                    {license.nodeAddress !== '0x0000000000000000000000000000000000000000'
+                                        ? getShortAddress(license.nodeAddress)
+                                        : '-'}
+                                </TableCell>
+                                <TableCell>{getLicenseUsageStats(license)}</TableCell>
+                                <TableCell>{license.lastClaimEpoch.toString()}</TableCell>
+                                <TableCell>
+                                    {license.assignTimestamp !== 0n
+                                        ? new Date(Number(license.assignTimestamp) * 1000).toLocaleString()
+                                        : '-'}
+                                </TableCell>
+                                <TableCell>
+                                    {license.lastClaimOracle !== '0x0000000000000000000000000000000000000000'
+                                        ? getShortAddress(license.lastClaimOracle)
+                                        : '-'}
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {/* <div className="col gap-3">
                 <table className="w-full">
                     <thead>
                         <tr>
@@ -249,7 +326,6 @@ function MndsTable() {
                     </tbody>
                     <tfoot>
                         <tr>
-                            {/*MND supply, R1 associated supply, R1 minted*/}
                             <td colSpan={2} className="font-bold">
                                 Total MND supply: {mnds.length}
                             </td>
@@ -271,7 +347,7 @@ function MndsTable() {
                         </tr>
                     </tfoot>
                 </table>
-            </div>
+            </div> */}
         </BigCard>
     );
 }
