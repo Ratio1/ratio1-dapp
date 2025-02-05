@@ -229,6 +229,13 @@ function CreateMnd() {
                 label="Receiver"
                 labelPlacement="outside"
                 placeholder="0x..."
+                validate={(value) => {
+                    if (!(value.startsWith('0x') && value.length === 42)) {
+                        return 'Value must be a valid Ethereum address';
+                    }
+
+                    return null;
+                }}
             />
             <Input
                 value={tokens}
