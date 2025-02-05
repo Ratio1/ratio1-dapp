@@ -18,6 +18,7 @@ import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
 import { RiAddFill, RiArrowRightDoubleLine, RiCheckLine, RiCpuLine, RiEqualizer2Line, RiPriceTag3Line } from 'react-icons/ri';
 import { Stage } from 'typedefs/blockchain';
+import { formatUnits } from 'viem';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 const DANGEROUS_SLIPPAGE = 0.5;
@@ -319,7 +320,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                             <div className="center-all gap-1">
                                 <div className="text-2xl font-semibold text-slate-400">~$R1</div>
                                 <div className="text-2xl font-semibold text-primary">
-                                    {parseFloat((Number(getTokenAmount()) / Math.pow(10, 18)).toFixed(2))}
+                                    {parseFloat(Number(formatUnits(getTokenAmount(), 18)).toFixed(2))}
                                 </div>
                             </div>
                         </div>

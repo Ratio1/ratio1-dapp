@@ -6,9 +6,10 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-o
 import { Skeleton } from '@nextui-org/skeleton';
 import { Timer } from '@shared/Timer';
 import clsx from 'clsx';
-import { addDays, isBefore } from 'date-fns';
+import { addDays, formatDistanceToNow, isBefore } from 'date-fns';
 import { round } from 'lodash';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import {
     RiCpuLine,
     RiExchange2Line,
@@ -194,7 +195,7 @@ export const LicenseCardHeader = ({
             <DropdownMenu
                 aria-label="Dropdown"
                 variant="flat"
-                disabledKeys={['title', ...(hasCooldown ? ['link', 'changeNode'] : [])]}
+                disabledKeys={['title', ...(hasCooldown ? ['link'] : [])]}
                 itemClasses={{
                     base: [
                         'rounded-md',
@@ -217,29 +218,37 @@ export const LicenseCardHeader = ({
                 </DropdownItem>
 
                 {!license.isLinked ? (
-                    <DropdownItem
-                        key="link"
-                        onPress={() => {
-                            if (action) {
-                                action('link', license);
-                            }
-                        }}
-                    >
-                        <div className="row gap-2">
-                            <RiLink className="pr-0.5 text-[22px] text-slate-500" />
+                    <>
+                        <DropdownItem
+                            id="link"
+                            aria-label="Link"
+                            key="link"
+                            onPress={() => {
+                                if (action) {
+                                    action('link', license);
+                                }
+                            }}
+                        >
+                            <div className="row gap-2">
+                                <RiLink className="pr-0.5 text-[22px] text-slate-500" />
 
-                            <div className="col">
-                                <div className="font-medium text-body">Link</div>
-                                <div className="text-xs text-slate-500">Assign license to a node</div>
+                                <div className="col">
+                                    <div className="font-medium text-body">Link</div>
+                                    <div className="text-xs text-slate-500">Assign license to a node</div>
+                                </div>
                             </div>
-                        </div>
-                    </DropdownItem>
+                        </DropdownItem>
+                    </>
                 ) : (
                     <>
                         <DropdownItem
                             key="changeNode"
                             onPress={() => {
-                                if (action) {
+                                if (hasCooldown) {
+                                    toast.error(
+                                        `License can be linked again in ${formatDistanceToNow(getCooldownEndTimestamp())}.`,
+                                    );
+                                } else if (action) {
                                     action('changeNode', license);
                                 }
                             }}

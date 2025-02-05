@@ -86,6 +86,29 @@ function Licenses() {
 
     const getPagesCount = (): number => Math.ceil(filteredLicenses.length / PAGE_SIZE);
 
+    const onAction = (type: 'link' | 'unlink' | 'claim' | 'changeNode', license: License) => {
+        switch (type) {
+            case 'link':
+                onLink(license);
+                break;
+
+            case 'unlink':
+                onUnlink(license);
+                break;
+
+            case 'claim':
+                onClaim(license);
+                break;
+
+            case 'changeNode':
+                onLink(license);
+                break;
+
+            default:
+                console.error('Invalid action type');
+        }
+    };
+
     const onClaim = async (license: License) => {
         try {
             if (!publicClient || !address || !walletClient) {
@@ -130,29 +153,6 @@ function Licenses() {
             toast.error('An error occurred, pease try again.');
         } finally {
             setClaimingRewards(license.licenseId, license.type, false);
-        }
-    };
-
-    const onAction = (type: 'link' | 'unlink' | 'claim' | 'changeNode', license: License) => {
-        switch (type) {
-            case 'link':
-                onLink(license);
-                break;
-
-            case 'unlink':
-                onUnlink(license);
-                break;
-
-            case 'claim':
-                onClaim(license);
-                break;
-
-            case 'changeNode':
-                onLink(license);
-                break;
-
-            default:
-                console.error('Invalid action type');
         }
     };
 
@@ -292,7 +292,7 @@ function Licenses() {
                 getLicenses={getLicenses}
             />
 
-            <LicenseUnlinkModal ref={unlinkModalRef} getLicenses={getLicenses} />
+            <LicenseUnlinkModal ref={unlinkModalRef} getLicenses={getLicenses} onClaim={onClaim} />
         </div>
     );
 }
