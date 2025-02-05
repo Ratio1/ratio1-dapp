@@ -1,6 +1,8 @@
+import { getNodeEpochsRange } from '@lib/api/oracles';
 import useAwait from '@lib/useAwait';
+import { arrayAverage, getCurrentEpoch, throttledToastOracleError } from '@lib/utils';
 import clsx from 'clsx';
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { RiTimeLine } from 'react-icons/ri';
 import { License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
@@ -22,7 +24,21 @@ const nodePerformanceItems = [
 
 export const LicenseCardDetails = ({ license }: { license: License }) => {
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
-    const [nodePerformance, setNodePerformance] = useState<[number, number, number]>([0, 0, 0]);
+
+    // TODO: Production getNodeEpochs(license.nodeAddress)
+    const nodeEpochsPromise = useMemo(async () => {
+        try {
+            const result = await getNodeEpochsRange(license.nodeAddress, 8, getCurrentEpoch() - 1);
+            console.log(result);
+            return result.epochs_vals;
+        } catch (error) {
+            console.error(error);
+            throttledToastOracleError();
+            return [];
+        }
+    }, [license]);
+
+    const [nodeEpochs, isLoadingNodeEpochs] = useAwait(nodeEpochsPromise);
 
     const getTitle = (text: string) => <div className="text-base font-medium lg:text-lg">{text}</div>;
 
@@ -39,7 +55,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
         </div>
     );
 
-    const getNodePerformanceItem = (key: number, label: string, value: number, classes: string) => (
+    const getNodePerformanceItem = (key: number, label: string, value: number | undefined, classes: string) => (
         <div key={key} className="row gap-2 sm:gap-3">
             <div className={`rounded-full p-1.5 sm:p-3.5 ${classes}`}>
                 <RiTimeLine className="text-2xl" />
@@ -47,10 +63,32 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
             <div className="col gap-1 xl:gap-0">
                 <div className="text-sm leading-4 text-slate-500 xl:text-base">{label}</div>
-                <div className="text-sm font-medium xl:text-base">{value}h</div>
+                <div className="text-sm font-medium xl:text-base">
+                    {value === undefined ? '...' : `${parseFloat(((value / 255) * 100).toFixed(1))}%`}
+                </div>
             </div>
         </div>
     );
+
+    const getNodePerformanceValue = (index: number): number => {
+        if (!nodeEpochs) {
+            return 0;
+        }
+
+        switch (index) {
+            case 0:
+                return nodeEpochs[nodeEpochs.length - 1];
+
+            case 1:
+                return arrayAverage(nodeEpochs);
+
+            case 2:
+                return arrayAverage(nodeEpochs.slice(-7));
+
+            default:
+                return 0;
+        }
+    };
 
     return (
         <div className="px-5 py-5 md:px-8 md:py-7">
@@ -107,8 +145,18 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                         <div className="text-sm text-slate-500 sm:text-base">Uptime per epoch</div>
 
                         <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
-                            {nodePerformanceItems.map(({ label, classes }, index) =>
-                                getNodePerformanceItem(index, label, nodePerformance[index], classes),
+                            {isLoadingNodeEpochs ? (
+                                <>
+                                    {nodePerformanceItems.map(({ label, classes }, index) =>
+                                        getNodePerformanceItem(index, label, undefined, classes),
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    {nodePerformanceItems.map(({ label, classes }, index) =>
+                                        getNodePerformanceItem(index, label, getNodePerformanceValue(index), classes),
+                                    )}
+                                </>
                             )}
                         </div>
                     </div>

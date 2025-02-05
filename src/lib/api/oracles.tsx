@@ -7,6 +7,9 @@ const oraclesUrl = 'https://naeural-oracle.ngrok.app';
 // GET
 // *****
 
+export const getNodeEpochs = (nodeAddress: types.EthAddress) =>
+    _doGet<types.OraclesAvailabilityResult>(`/node_epochs?eth_node_addr=${nodeAddress}`);
+
 export const getNodeEpochsRange = (nodeAddress: types.EthAddress, startEpoch: number, endEpoch: number) =>
     _doGet<types.OraclesAvailabilityResult>(
         `/node_epochs_range?eth_node_addr=${nodeAddress}&start_epoch=${startEpoch}&end_epoch=${endEpoch}`,

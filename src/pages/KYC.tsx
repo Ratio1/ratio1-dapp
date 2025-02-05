@@ -46,9 +46,6 @@ function KYC() {
                                 className="w-full"
                                 accessToken={accessToken}
                                 expirationHandler={() => initSumsubSession(type as 'individual' | 'company')}
-                                config={{
-                                    lang: 'en',
-                                }}
                                 options={{ addViewportTag: false, adaptIframeHeight: true }}
                                 onError={(data) => console.log('onError', data)}
                             />

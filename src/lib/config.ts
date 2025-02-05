@@ -1,7 +1,8 @@
 import Favicon from '@assets/favicon.png';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 import { baseSepolia } from '@reown/appkit/networks';
-import { addSeconds, differenceInSeconds } from 'date-fns';
+import { addSeconds } from 'date-fns';
+import { getCurrentEpoch } from './utils';
 
 export const r1ContractAddress = '0x4De05A4705aCd59da041DC70cF989F8111DD414b';
 export const ndContractAddress = '0x2B72b240E74735aF3a731AeD09532320D34b4679';
@@ -26,7 +27,7 @@ export const projectId = '6fb791d3d18d57d28ae7677e4cff8c6e';
 export const genesisDate = new Date('2025-02-04T12:00:00.000Z');
 export const epochDurationInSeconds = 3600; // 1 hour
 
-export const getCurrentEpoch = (): number => Math.floor(differenceInSeconds(new Date(), genesisDate) / epochDurationInSeconds);
+// export const getCurrentEpoch = (): number => Math.floor(differenceInSeconds(new Date(), genesisDate) / epochDurationInSeconds);
 export const getNextEpochTimestamp = (): Date => addSeconds(genesisDate, (getCurrentEpoch() + 1) * epochDurationInSeconds);
 
 export const mndCliffEpochs = 120;

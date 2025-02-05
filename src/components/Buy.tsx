@@ -4,7 +4,6 @@ import { buyLicense } from '@lib/api/backend';
 import { ndContractAddress, r1ContractAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
-import { fN } from '@lib/utils';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
@@ -22,6 +21,7 @@ import { Stage } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 const DANGEROUS_SLIPPAGE = 0.5;
+const MAX_ALLOWANCE: bigint = 2n ** 256n - 1n;
 
 function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentStage: number; stage: Stage }) {
     const { watchTx, r1Balance, fetchR1Balance } = useBlockchainContext() as BlockchainContextType;
@@ -62,17 +62,12 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
         }
     }, [address, publicClient]);
 
-    // useEffect(() => {
-    //     const divisor = 10n ** BigInt(18);
-    //     console.log('getTokenAmount', Number(getTokenAmount() / divisor));
-    // }, [quantity, slippage]);
-
     const getTokenAmount = (): bigint => {
         const slippageValue = Math.floor(slippage * 100) / 100; // Rounds down to 2 decimal places
         return (BigInt(quantity) * licenseTokenPrice * BigInt(Math.floor(100 + slippageValue))) / 100n;
     };
 
-    const isApprovalRequired = (): boolean => allowance !== undefined && allowance < getTokenAmount();
+    const isApprovalRequired = (): boolean => allowance !== undefined && allowance < MAX_ALLOWANCE;
 
     const fetchAllowance = (publicClient, address: string) =>
         publicClient
@@ -97,7 +92,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                 address: r1ContractAddress,
                 abi: ERC20Abi,
                 functionName: 'approve',
-                args: [ndContractAddress, getTokenAmount()],
+                args: [ndContractAddress, MAX_ALLOWANCE],
             });
 
             await watchTx(txHash, publicClient);
@@ -310,7 +305,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                             <div className="center-all gap-1">
                                 <div className="text-2xl font-semibold text-slate-400">~$R1</div>
                                 <div className="text-2xl font-semibold text-primary">
-                                    {fN(Number(getTokenAmount() / 10n ** BigInt(18)))}
+                                    {parseFloat(Number(getTokenAmount() / 10n ** BigInt(18)).toFixed(3))}
                                 </div>
                             </div>
                         </div>

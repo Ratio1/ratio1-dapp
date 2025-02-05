@@ -1,5 +1,7 @@
+import { Button } from '@nextui-org/button';
 import { throttle } from 'lodash';
 import toast from 'react-hot-toast';
+import { RiCodeSSlashLine } from 'react-icons/ri';
 import { GNDLicense, License, MNDLicense } from 'typedefs/blockchain';
 import { getNodeEpochsRange, getNodeInfo } from './api/oracles';
 import {
@@ -72,6 +74,34 @@ export const getLicenseRewardsAndNodeInfo = async (
 export const throttledToastError = throttle(
     (message: string) => {
         toast.error(message);
+    },
+    5000,
+    { trailing: false },
+);
+
+export const throttledToastOracleError = throttle(
+    () => {
+        toast(
+            (t) => (
+                <div className="row gap-3">
+                    <div className="flex">
+                        <RiCodeSSlashLine className="text-[28px] text-red-600" />
+                    </div>
+
+                    <div>Oracle state is not valid, please contact the development team.</div>
+
+                    <Button size="sm" color="default" variant="flat" onPress={() => toast.dismiss(t.id)}>
+                        <div className="text-sm">Close</div>
+                    </Button>
+                </div>
+            ),
+            {
+                duration: 10000,
+                style: {
+                    minWidth: '388px',
+                },
+            },
+        );
     },
     5000,
     { trailing: false },
@@ -177,4 +207,9 @@ const getMndLicenseRewards = async (license: MNDLicense): Promise<bigint> => {
     }
 
     return licenseRewards;
+};
+
+export const arrayAverage = (numbers: number[]): number => {
+    if (numbers.length === 0) return 0;
+    return numbers.reduce((sum, num) => sum + num, 0) / numbers.length;
 };
