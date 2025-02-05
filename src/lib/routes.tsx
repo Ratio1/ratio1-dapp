@@ -1,4 +1,5 @@
 import NotFound from '@pages/404';
+import Admin from '@pages/Admin';
 import Dashboard from '@pages/Dashboard';
 import EmailConfirmation from '@pages/EmailConfirmation';
 import KYC from '@pages/KYC';
@@ -41,6 +42,7 @@ export const routePath = {
     confirmEmail: '/confirm-email',
     notFound: '/404',
     kyc: '/kyc',
+    admin: '/admin',
 };
 
 export const mainRoutesInfo = {
@@ -74,6 +76,10 @@ export const mainRoutesInfo = {
     [routePath.kyc]: {
         title: 'KYC',
         description: 'Ensure compliance and security with identity verification',
+    },
+    [routePath.admin]: {
+        title: 'Admin',
+        description: 'Admin panel for managing contracts',
     },
     [routePath.notFound]: {
         title: 'Not Found',
@@ -117,6 +123,10 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
     {
         path: routePath.kyc,
         page: KYC,
+    },
+    {
+        path: routePath.admin,
+        page: Admin,
     },
     {
         path: routePath.notFound,
