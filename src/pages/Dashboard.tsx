@@ -163,13 +163,35 @@ function Dashboard() {
             return;
         }
 
-        fetchLicenses().then(setLicenses);
+        if (authenticated) {
+            fetchLicenses().then(setLicenses);
+        }
     }, [authenticated]);
 
     const isKycNotCompleted = !account || account.kycStatus !== KycStatus.Completed;
 
-    // TODO: Production
-    const isBuyingDisabled = (): boolean => isLoading || isKycNotCompleted;
+    // TODO: Production: add isKycNotCompleted
+    const isBuyingDisabled = (): boolean => isLoading;
+
+    const getKycNotCompletedAlert = () => (
+        <Alert
+            color="danger"
+            title="Buying licenses is available after completing KYC."
+            endContent={
+                <div className="ml-2">
+                    <Link to={routePath.profileKyc}>
+                        <Button color="danger" size="sm" variant="solid">
+                            <div className="text-xs sm:text-sm">Go to KYC</div>
+                        </Button>
+                    </Link>
+                </div>
+            }
+            classNames={{
+                title: 'text-xs sm:text-sm',
+                base: 'items-center py-2 px-3.5',
+            }}
+        />
+    );
 
     return (
         <>
@@ -220,39 +242,24 @@ function Dashboard() {
                 </div>
 
                 <BigCard fullWidth>
-                    <div className="row justify-between gap-2">
+                    <div className="row justify-between gap-3">
                         <div className="text-xl font-bold leading-7 lg:text-[26px]">Licenses & Tiers</div>
 
-                        {/* TODO: Production isDisabled={isBuyingDisabled()} */}
-                        <Button color="primary" onPress={onOpen} isDisabled={isLoading}>
-                            <div className="row gap-1.5">
-                                <div className="text-sm font-medium lg:text-base">Buy License</div>
-                                <RiArrowRightUpLine className="text-[18px]" />
+                        <div className="row gap-3">
+                            <div className="hidden larger:block">{getKycNotCompletedAlert()}</div>
+
+                            <div className="flex">
+                                <Button color="primary" onPress={onOpen} isDisabled={isBuyingDisabled()}>
+                                    <div className="row gap-1.5">
+                                        <div className="text-sm font-medium lg:text-base">Buy License</div>
+                                        <RiArrowRightUpLine className="text-[18px]" />
+                                    </div>
+                                </Button>
                             </div>
-                        </Button>
+                        </div>
                     </div>
 
-                    {isKycNotCompleted && (
-                        <div className="-my-1">
-                            <Alert
-                                color="primary"
-                                title="Purchasing licenses is only available after completing KYC."
-                                endContent={
-                                    <div className="ml-2">
-                                        <Link to={routePath.profileKyc}>
-                                            <Button color="primary" size="sm" variant="solid">
-                                                Go to KYC
-                                            </Button>
-                                        </Link>
-                                    </div>
-                                }
-                                classNames={{
-                                    title: 'text-xs xs:text-sm',
-                                    base: 'items-center',
-                                }}
-                            />
-                        </div>
-                    )}
+                    <div className="block larger:hidden">{getKycNotCompletedAlert()}</div>
 
                     <div className="col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-6 lg:p-7">
                         <Tiers currentStage={currentStage} stages={stages} />

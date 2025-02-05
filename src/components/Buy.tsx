@@ -11,6 +11,7 @@ import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
 import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
+import { KycStatus } from '@typedefs/profile';
 import clsx from 'clsx';
 import { isFinite, isNaN } from 'lodash';
 import { useEffect, useState } from 'react';
@@ -25,7 +26,7 @@ const MAX_ALLOWANCE: bigint = 2n ** 256n - 1n;
 
 function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentStage: number; stage: Stage }) {
     const { watchTx, r1Balance, fetchR1Balance } = useBlockchainContext() as BlockchainContextType;
-    const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
+    const { authenticated, account } = useAuthenticationContext() as AuthenticationContextType;
 
     const [licenseTokenPrice, setLicenseTokenPrice] = useState<bigint>(0n);
     const [allowance, setAllowance] = useState<bigint | undefined>();
@@ -184,6 +185,9 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
         return slippage < DANGEROUS_SLIPPAGE || isInputValueTooSmall;
     };
 
+    const isBuyingDisabled = (): boolean =>
+        !account || !licenseTokenPrice || allowance === undefined || account.kycStatus !== KycStatus.Completed;
+
     return (
         <>
             <div className="my-4 flex flex-col gap-6">
@@ -305,7 +309,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                             <div className="center-all gap-1">
                                 <div className="text-2xl font-semibold text-slate-400">~$R1</div>
                                 <div className="text-2xl font-semibold text-primary">
-                                    {parseFloat(Number(getTokenAmount() / 10n ** BigInt(18)).toFixed(3))}
+                                    {parseFloat((Number(getTokenAmount()) / Math.pow(10, 18)).toFixed(2))}
                                 </div>
                             </div>
                         </div>
@@ -362,7 +366,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                                         color="primary"
                                         onPress={onPress}
                                         isLoading={isLoading}
-                                        isDisabled={allowance === undefined}
+                                        isDisabled={isBuyingDisabled()}
                                     >
                                         {isApprovalRequired() ? 'Approve $R1' : 'Buy'}
                                     </Button>
