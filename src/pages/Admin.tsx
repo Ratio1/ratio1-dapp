@@ -151,7 +151,6 @@ function MndsTable() {
                 functionName: 'totalSupply',
             })
             .then(async (totalSupply) => {
-                console.log(totalSupply);
                 const mnds = await Promise.all(
                     Array.from({ length: Number(totalSupply) }).map((_, i) =>
                         Promise.all([
@@ -159,18 +158,18 @@ function MndsTable() {
                                 address: mndContractAddress,
                                 abi: MNDContractAbi,
                                 functionName: 'ownerOf',
-                                args: [BigInt(i)],
+                                args: [BigInt(i + 1)],
                             }),
                             publicClient
                                 .readContract({
                                     address: mndContractAddress,
                                     abi: MNDContractAbi,
                                     functionName: 'licenses',
-                                    args: [BigInt(i)],
+                                    args: [BigInt(i + 1)],
                                 })
                                 .then((result) => ({
                                     type: 'MND' as const,
-                                    licenseId: BigInt(i),
+                                    licenseId: BigInt(i + 1),
                                     nodeAddress: result[0],
                                     totalAssignedAmount: result[1],
                                     totalClaimedAmount: result[2],

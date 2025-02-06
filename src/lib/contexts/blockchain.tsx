@@ -124,7 +124,7 @@ export const BlockchainProvider = ({ children }) => {
                 })
                 .then((userLicense) => {
                     const isLinked = userLicense.nodeAddress !== '0x0000000000000000000000000000000000000000';
-                    const type = userLicense.licenseId === 0n ? ('GND' as const) : ('MND' as const);
+                    const type = userLicense.licenseId === 1n ? ('GND' as const) : ('MND' as const);
 
                     if (!isLinked) {
                         return { ...userLicense, type, isLinked, isBanned: false as const };

@@ -452,6 +452,19 @@ export const NDContractAbi = [
         inputs: [
             {
                 internalType: 'uint256',
+                name: 'tokenId',
+                type: 'uint256',
+            },
+        ],
+        name: 'burn',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint256',
                 name: 'nLicensesToBuy',
                 type: 'uint256',
             },
@@ -797,6 +810,25 @@ export const NDContractAbi = [
                 type: 'address',
             },
         ],
+        name: 'isNodeActive',
+        outputs: [
+            {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'nodeAddress',
+                type: 'address',
+            },
+        ],
         name: 'isNodeAlreadyLinked',
         outputs: [
             {
@@ -904,12 +936,12 @@ export const NDContractAbi = [
                 type: 'address',
             },
         ],
-        name: 'nodeToUser',
+        name: 'nodeToLicenseId',
         outputs: [
             {
-                internalType: 'address',
+                internalType: 'uint256',
                 name: '',
-                type: 'address',
+                type: 'uint256',
             },
         ],
         stateMutability: 'view',
@@ -1442,6 +1474,11 @@ export const NDContractAbi = [
                 internalType: 'bytes32',
                 name: 'invoiceUuid',
                 type: 'bytes32',
+            },
+            {
+                internalType: 'uint256',
+                name: 'usdMintLimit',
+                type: 'uint256',
             },
             {
                 internalType: 'bytes',
