@@ -4,6 +4,8 @@ import { EthAddress } from '@typedefs/blockchain';
 import { addSeconds } from 'date-fns';
 
 type Config = {
+    backendUrl: string;
+    oraclesUrl: string;
     r1ContractAddress: EthAddress;
     ndContractAddress: EthAddress;
     mndContractAddress: EthAddress;
@@ -24,6 +26,8 @@ const configs: {
     [key in 'mainnet' | 'testnet' | 'devnet']: Config;
 } = {
     mainnet: {
+        backendUrl: 'https://ratio1-backend.ngrok.app',
+        oraclesUrl: 'https://naeural-oracle.ngrok.app',
         r1ContractAddress: '0xCA32aD806BB1e086D77c733656c20334bf2976D6',
         ndContractAddress: '0x9aB4e425c7dFFC7Aa1A7a262727b0b663e047571',
         mndContractAddress: '0x658bE7d73EBd0Ba7DCe26c112d9871B7Bed890EC',
@@ -40,6 +44,8 @@ const configs: {
         ND_LICENSE_CAP: 1575_188843457943924200n,
     },
     testnet: {
+        backendUrl: 'https://ratio1-backend.ngrok.app',
+        oraclesUrl: 'https://naeural-oracle.ngrok.app',
         r1ContractAddress: '0xCA32aD806BB1e086D77c733656c20334bf2976D6',
         ndContractAddress: '0x9aB4e425c7dFFC7Aa1A7a262727b0b663e047571',
         mndContractAddress: '0x658bE7d73EBd0Ba7DCe26c112d9871B7Bed890EC',
@@ -56,6 +62,8 @@ const configs: {
         ND_LICENSE_CAP: 1575_188843457943924200n,
     },
     devnet: {
+        backendUrl: 'https://ratio1-backend.ngrok.app',
+        oraclesUrl: 'https://naeural-oracle.ngrok.app',
         r1ContractAddress: '0xCA32aD806BB1e086D77c733656c20334bf2976D6',
         ndContractAddress: '0x9aB4e425c7dFFC7Aa1A7a262727b0b663e047571',
         mndContractAddress: '0x658bE7d73EBd0Ba7DCe26c112d9871B7Bed890EC',
