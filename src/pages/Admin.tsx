@@ -31,6 +31,8 @@ function Admin() {
             <MndsTable />
             <AddSigner />
             <RemoveSigner />
+            <AllowMndTransfer />
+            <AllowMndBurn />
         </div>
     );
 }
@@ -137,7 +139,8 @@ function CreateMnd() {
 
 function MndsTable() {
     type AdminMndView = Omit<MNDLicense, 'claimableEpochs' | 'isLinked'> & { owner: EthAddress };
-    const [mnds, setMnds] = useState<AdminMndView[]>([]);
+    const [mnds, setMnds] = useState<(AdminMndView | null)[]>([]);
+    const [totalAssignedAmount, setTotalAssignedAmount] = useState<bigint>(0n);
 
     const publicClient = usePublicClient();
 
@@ -179,15 +182,27 @@ function MndsTable() {
                                     remainingAmount: result[1] - result[2],
                                     isBanned: false as const,
                                 })),
-                        ]).then(([owner, license]) => ({
-                            ...license,
-                            owner,
-                        })),
+                        ])
+                            .then(([owner, license]) => ({
+                                ...license,
+                                owner,
+                            }))
+                            .catch(() => {
+                                return null;
+                            }),
                     ),
                 );
                 console.log(mnds);
                 setMnds(mnds);
             });
+
+        publicClient
+            .readContract({
+                address: config.mndContractAddress,
+                abi: MNDContractAbi,
+                functionName: 'totalLicensesAssignedTokensAmount',
+            })
+            .then(setTotalAssignedAmount);
     }, []);
 
     const getLicenseUsageStats = (license: AdminMndView) => (
@@ -214,21 +229,18 @@ function MndsTable() {
             <div className="text-base font-semibold leading-6 lg:text-xl">Minted MND</div>
 
             <div className="col flex w-full justify-between gap-8 lg:flex-row">
-                <LargeValueWithLabel label="Total MND supply" value={mnds.length.toString()} isCompact />
-
                 <LargeValueWithLabel
-                    label="$R1 associated supply"
-                    value={fBI(
-                        mnds.reduce((acc, mnd) => acc + mnd.totalAssignedAmount, 0n),
-                        18,
-                    )}
+                    label="Total MND supply"
+                    value={mnds.filter((mnd) => mnd !== null).length.toString()}
                     isCompact
                 />
+
+                <LargeValueWithLabel label="$R1 assigned supply" value={fBI(totalAssignedAmount, 18)} isCompact />
 
                 <LargeValueWithLabel
                     label="$R1 minted"
                     value={fBI(
-                        mnds.reduce((acc, mnd) => acc + mnd.totalClaimedAmount, 0n),
+                        mnds.reduce((acc, mnd) => acc + (mnd?.totalClaimedAmount ?? 0n), 0n),
                         18,
                     )}
                     isCompact
@@ -247,37 +259,43 @@ function MndsTable() {
                         {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                     </TableHeader>
                     <TableBody items={mnds}>
-                        {(license) => (
-                            <TableRow key={license.licenseId}>
-                                <TableCell>{license.licenseId.toString()}</TableCell>
-                                <TableCell>
-                                    <a
-                                        href={`${config.explorerUrl}/address/${license.owner}`}
-                                        target="_blank"
-                                        className="underline"
-                                    >
-                                        {getShortAddress(license.owner)}
-                                    </a>
-                                </TableCell>
-                                <TableCell>
-                                    {license.nodeAddress !== '0x0000000000000000000000000000000000000000'
-                                        ? getShortAddress(license.nodeAddress)
-                                        : '-'}
-                                </TableCell>
-                                <TableCell>{getLicenseUsageStats(license)}</TableCell>
-                                <TableCell>{license.lastClaimEpoch.toString()}</TableCell>
-                                <TableCell>
-                                    {license.assignTimestamp !== 0n
-                                        ? new Date(Number(license.assignTimestamp) * 1000).toLocaleString()
-                                        : '-'}
-                                </TableCell>
-                                <TableCell>
-                                    {license.lastClaimOracle !== '0x0000000000000000000000000000000000000000'
-                                        ? getShortAddress(license.lastClaimOracle)
-                                        : '-'}
-                                </TableCell>
-                            </TableRow>
-                        )}
+                        {(license) =>
+                            license ? (
+                                <TableRow key={license.licenseId}>
+                                    <TableCell>{license.licenseId.toString()}</TableCell>
+                                    <TableCell>
+                                        <a
+                                            href={`${config.explorerUrl}/address/${license.owner}`}
+                                            target="_blank"
+                                            className="underline"
+                                        >
+                                            {getShortAddress(license.owner)}
+                                        </a>
+                                    </TableCell>
+                                    <TableCell>
+                                        {license.nodeAddress !== '0x0000000000000000000000000000000000000000'
+                                            ? getShortAddress(license.nodeAddress)
+                                            : '-'}
+                                    </TableCell>
+                                    <TableCell>{getLicenseUsageStats(license)}</TableCell>
+                                    <TableCell>{license.lastClaimEpoch.toString()}</TableCell>
+                                    <TableCell>
+                                        {license.assignTimestamp !== 0n
+                                            ? new Date(Number(license.assignTimestamp) * 1000).toLocaleString()
+                                            : '-'}
+                                    </TableCell>
+                                    <TableCell>
+                                        {license.lastClaimOracle !== '0x0000000000000000000000000000000000000000'
+                                            ? getShortAddress(license.lastClaimOracle)
+                                            : '-'}
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                <TableRow key={Math.random().toString()}>
+                                    <TableCell colSpan={7}>Burned NFT</TableCell>
+                                </TableRow>
+                            )
+                        }
                     </TableBody>
                 </Table>
             </div>
@@ -479,6 +497,154 @@ function RemoveSigner() {
                             Remove from MND
                         </Button>
                     </div>
+                </div>
+            </div>
+        </BigCard>
+    );
+}
+
+function AllowMndTransfer() {
+    const { watchTx } = useBlockchainContext() as BlockchainContextType;
+
+    const [sender, setSender] = useState<string>('');
+    const [receiver, setReceiver] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const { data: walletClient } = useWalletClient();
+    const publicClient = usePublicClient();
+
+    const onAllow = async () => {
+        if (!walletClient) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        setIsLoading(true);
+
+        const txHash = await walletClient.writeContract({
+            address: config.mndContractAddress,
+            abi: MNDContractAbi,
+            functionName: 'initiateTransfer',
+            args: [sender as EthAddress, receiver as EthAddress],
+        });
+
+        await watchTx(txHash, publicClient);
+
+        setIsLoading(false);
+    };
+
+    return (
+        <BigCard>
+            <div className="text-base font-semibold leading-6 lg:text-xl">Allow MND Transfer</div>
+
+            <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
+                <Input
+                    value={sender}
+                    onValueChange={setSender}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Sender"
+                    labelPlacement="outside"
+                    placeholder="0x..."
+                />
+                <Input
+                    value={receiver}
+                    onValueChange={setReceiver}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Receiver"
+                    labelPlacement="outside"
+                    placeholder="0x..."
+                />
+
+                <div className="flex">
+                    <Button
+                        fullWidth
+                        color="secondary"
+                        onPress={onAllow}
+                        isLoading={isLoading}
+                        isDisabled={isLoading || !sender || !receiver}
+                    >
+                        Allow Transfer
+                    </Button>
+                </div>
+            </div>
+        </BigCard>
+    );
+}
+
+function AllowMndBurn() {
+    const { watchTx } = useBlockchainContext() as BlockchainContextType;
+
+    const [sender, setSender] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const { data: walletClient } = useWalletClient();
+    const publicClient = usePublicClient();
+
+    const onAllow = async () => {
+        if (!walletClient) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        setIsLoading(true);
+
+        const txHash = await walletClient.writeContract({
+            address: config.mndContractAddress,
+            abi: MNDContractAbi,
+            functionName: 'initiateBurn',
+            args: [sender as EthAddress],
+        });
+
+        await watchTx(txHash, publicClient);
+
+        setIsLoading(false);
+    };
+
+    return (
+        <BigCard>
+            <div className="text-base font-semibold leading-6 lg:text-xl">Allow MND Burn</div>
+
+            <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
+                <Input
+                    value={sender}
+                    onValueChange={setSender}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Sender"
+                    labelPlacement="outside"
+                    placeholder="0x..."
+                />
+
+                <div className="flex">
+                    <Button
+                        fullWidth
+                        color="secondary"
+                        onPress={onAllow}
+                        isLoading={isLoading}
+                        isDisabled={isLoading || !sender}
+                    >
+                        Allow Burn
+                    </Button>
                 </div>
             </div>
         </BigCard>

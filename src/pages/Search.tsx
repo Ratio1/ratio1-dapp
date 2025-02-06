@@ -1,6 +1,6 @@
 import Empty from '@assets/empty.png';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { config } from '@lib/config';
+import { config, getCurrentEpoch } from '@lib/config';
 import { getLicenseRewardsAndNodeInfo } from '@lib/utils';
 import { Input } from '@nextui-org/input';
 import { Spinner } from '@nextui-org/spinner';
@@ -44,7 +44,6 @@ function Search() {
 
         setSearchParams({ licenseId: sanitizedNumber });
 
-        //TODO we should have an endpoint to get the license data?
         const [nodeAddress, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle, isBanned] =
             await publicClient.readContract({
                 address: config.ndContractAddress,
@@ -61,7 +60,6 @@ function Search() {
             totalClaimedAmount,
             remainingAmount: config.ND_LICENSE_CAP - totalClaimedAmount,
             lastClaimEpoch,
-            claimableEpochs: BigInt(0),
             assignTimestamp,
             lastClaimOracle,
             totalAssignedAmount: config.ND_LICENSE_CAP,
@@ -71,19 +69,22 @@ function Search() {
         if (!isLinked) {
             setResult({
                 ...license,
+                claimableEpochs: 0n,
                 isLinked: false,
             });
         } else {
             const licenseDataPromise = getLicenseRewardsAndNodeInfo({
                 ...license,
+                claimableEpochs: 0n,
                 isLinked: false, // Enforcing base license type here
             });
-            return {
+            setResult({
                 ...license,
+                claimableEpochs: BigInt(getCurrentEpoch()) - lastClaimEpoch,
                 rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
                 alias: licenseDataPromise.then(({ node_alias }) => node_alias),
                 isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
-            };
+            });
         }
 
         setLoading(false);
