@@ -14,7 +14,6 @@ import { ApiAccount } from '@typedefs/blockchain';
 import { DebouncedFuncLeading, throttle } from 'lodash';
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { generateNonce } from 'siwe';
-import { baseSepolia } from 'viem/chains';
 
 export interface AuthenticationContextType {
     // SIWE
@@ -57,7 +56,7 @@ export const AuthenticationProvider = ({ children }) => {
                 getMessageParams: async () => ({
                     domain: window.location.host,
                     uri: window.location.origin,
-                    chains: [baseSepolia.id],
+                    chains: config.networks.map((network) => Number(network.id)),
                     statement: 'Please sign with your account.',
                     iat: new Date().toISOString(),
                 }),
