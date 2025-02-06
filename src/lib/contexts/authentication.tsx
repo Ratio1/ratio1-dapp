@@ -1,5 +1,5 @@
 import { accessAuth, getAccount } from '@lib/api/backend';
-import { safeAddress } from '@lib/config';
+import { config } from '@lib/config';
 import {
     AppKitSIWEClient,
     createSIWEConfig,
@@ -149,7 +149,7 @@ export const AuthenticationProvider = ({ children }) => {
         try {
             const chainId = getChainIdFromMessage(message).replace('eip155:', '');
             const address = getAddressFromMessage(message);
-            if (address === safeAddress) {
+            if (address === config.safeAddress) {
                 localStorage.setItem('chainId', chainId);
                 localStorage.setItem('address', address);
                 localStorage.setItem('accessToken', 'safe');

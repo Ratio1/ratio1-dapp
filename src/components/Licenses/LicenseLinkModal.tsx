@@ -1,6 +1,6 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { mndContractAddress, ndContractAddress } from '@lib/config';
+import { config } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
@@ -59,7 +59,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, getLicenses }: Props, ref)
         setLoading(true);
 
         const isAlreadyLinked: boolean = await publicClient.readContract({
-            address: ndContractAddress,
+            address: config.ndContractAddress,
             abi: NDContractAbi,
             functionName: 'isNodeAlreadyLinked',
             args: [address as EthAddress],
@@ -72,7 +72,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, getLicenses }: Props, ref)
         }
 
         const txHash = await walletClient.writeContract({
-            address: license.type === 'ND' ? ndContractAddress : mndContractAddress,
+            address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
             abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
             functionName: 'linkNode',
             args: [license.licenseId, address as EthAddress],

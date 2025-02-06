@@ -1,4 +1,4 @@
-import { explorerUrl, getContractAddress } from '@lib/config';
+import { config } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { fBI, getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
@@ -45,6 +45,16 @@ export const LicenseCardHeader = ({
 
     const [hasCooldown, setCooldown] = useState<boolean>(isBefore(new Date(), getCooldownEndTimestamp()));
 
+    const getContractAddress = (type: 'ND' | 'MND' | 'GND') => {
+        switch (type) {
+            case 'ND':
+                return config.ndContractAddress;
+
+            default:
+                return config.mndContractAddress;
+        }
+    };
+
     const getNodeInfoSection = () => (
         <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">
             {isLoadingAlias || isLoadingState ? (
@@ -65,7 +75,7 @@ export const LicenseCardHeader = ({
 
     const getLicenseIdTag = () => (
         <Link
-            to={`${explorerUrl}/token/${getContractAddress(license.type)}?a=${Number(license.licenseId)}`}
+            to={`${config.explorerUrl}/token/${getContractAddress(license.type)}?a=${Number(license.licenseId)}`}
             target="_blank"
             onClick={(e) => e.stopPropagation()}
             className={clsx('rounded-full px-3 py-2 text-sm font-medium transition-all hover:opacity-60', {
@@ -104,7 +114,7 @@ export const LicenseCardHeader = ({
         <>
             {license.isLinked && (
                 <Link
-                    to={`${explorerUrl}/address/${license.nodeAddress}`}
+                    to={`${config.explorerUrl}/address/${license.nodeAddress}`}
                     target="_blank"
                     onClick={(e) => e.stopPropagation()}
                     className="rounded-full bg-orange-100 px-3 py-2 text-sm font-medium text-orange-600 transition-all hover:opacity-60"

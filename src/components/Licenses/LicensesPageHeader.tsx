@@ -2,10 +2,10 @@ import Logo from '@assets/token_white.svg';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { getNodeEpochsRange } from '@lib/api/oracles';
-import { getNextEpochTimestamp, mndContractAddress, ndContractAddress } from '@lib/config';
+import { config, getCurrentEpoch, getNextEpochTimestamp } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
-import { fBI, fN, getCurrentEpoch } from '@lib/utils';
+import { fBI, fN } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Tab, Tabs } from '@nextui-org/tabs';
 import { Timer } from '@shared/Timer';
@@ -86,7 +86,7 @@ function LicensesPageHeader({
 
             if (txParamsND.length) {
                 const txHashND = await walletClient.writeContract({
-                    address: ndContractAddress,
+                    address: config.ndContractAddress,
                     abi: NDContractAbi,
                     functionName: 'claimRewards',
                     args: [
@@ -100,7 +100,7 @@ function LicensesPageHeader({
 
             if (txParamsMND.length) {
                 const txHashMND = await walletClient.writeContract({
-                    address: mndContractAddress,
+                    address: config.mndContractAddress,
                     abi: MNDContractAbi,
                     functionName: 'claimRewards',
                     args: [txParamsMND[0].computeParam, txParamsMND[0].eth_signatures],

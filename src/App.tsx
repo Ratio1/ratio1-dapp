@@ -1,11 +1,20 @@
+import Favicon from '@assets/favicon.png';
 import Layout from '@components/Layout';
-import { metadata, projectId, wagmiAdapter } from '@lib/config';
+import { projectId, wagmiAdapter } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { isParentRoute, isSimpleRoute, routePath, routes } from '@lib/routes';
 import { createAppKit } from '@reown/appkit/react';
 import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { baseSepolia } from 'viem/chains';
+
+const metadata = {
+    name: 'Ratio1',
+    description:
+        'Experience the power of Ratio1 AI OS, built on Ratio1 Protocol and powered by blockchain, democratizing AI to empower limitless innovation.',
+    url: 'https://app.ratio1.ai',
+    icons: [Favicon],
+};
 
 function App() {
     const { siweConfig } = useAuthenticationContext() as AuthenticationContextType;

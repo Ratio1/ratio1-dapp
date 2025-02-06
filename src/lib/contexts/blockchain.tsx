@@ -9,14 +9,7 @@ import { Link } from 'react-router-dom';
 import { License } from 'typedefs/blockchain';
 import { TransactionReceipt } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
-import {
-    explorerUrl,
-    liquidityManagerContractAddress,
-    mndContractAddress,
-    ND_LICENSE_CAP,
-    ndContractAddress,
-    r1ContractAddress,
-} from '../config';
+import { config } from '../config';
 import { getLicenseRewardsAndNodeInfo } from '../utils';
 
 export interface BlockchainContextType {
@@ -55,7 +48,7 @@ export const BlockchainProvider = ({ children }) => {
         if (publicClient && address) {
             publicClient
                 .readContract({
-                    address: r1ContractAddress,
+                    address: config.r1ContractAddress,
                     abi: ERC20Abi,
                     functionName: 'balanceOf',
                     args: [address],
@@ -90,7 +83,11 @@ export const BlockchainProvider = ({ children }) => {
                         <div className="font-medium">Transaction confirmed</div>
                         <div className="row gap-1 text-sm">
                             <div className="text-slate-500">View transaction details</div>
-                            <Link to={`${explorerUrl}/tx/${receipt.transactionHash}`} target="_blank" className="text-primary">
+                            <Link
+                                to={`${config.explorerUrl}/tx/${receipt.transactionHash}`}
+                                target="_blank"
+                                className="text-primary"
+                            >
                                 <RiExternalLinkLine className="text-lg" />
                             </Link>
                         </div>
@@ -117,7 +114,7 @@ export const BlockchainProvider = ({ children }) => {
         const [mndLicense, ndLicenses] = await Promise.all([
             publicClient
                 .readContract({
-                    address: mndContractAddress,
+                    address: config.mndContractAddress,
                     abi: MNDContractAbi,
                     functionName: 'getUserLicense',
                     args: [address],
@@ -171,7 +168,7 @@ export const BlockchainProvider = ({ children }) => {
                 }),
             publicClient
                 .readContract({
-                    address: ndContractAddress,
+                    address: config.ndContractAddress,
                     abi: NDContractAbi,
                     functionName: 'getLicenses',
                     args: [address],
@@ -180,7 +177,7 @@ export const BlockchainProvider = ({ children }) => {
                     return userLicenses.map((license) => {
                         const type = 'ND' as const;
                         const isLinked = license.nodeAddress !== '0x0000000000000000000000000000000000000000';
-                        const totalAssignedAmount = ND_LICENSE_CAP;
+                        const totalAssignedAmount = config.ND_LICENSE_CAP;
 
                         if (!isLinked) {
                             return { ...license, type, totalAssignedAmount, isLinked };
@@ -237,7 +234,7 @@ export const BlockchainProvider = ({ children }) => {
     const fetchR1Price = async () => {
         if (publicClient) {
             const price = await publicClient.readContract({
-                address: liquidityManagerContractAddress,
+                address: config.liquidityManagerContractAddress,
                 abi: LiquidityManagerAbi,
                 functionName: 'getTokenPrice',
             });

@@ -1,6 +1,6 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { mndContractAddress, ndContractAddress } from '@lib/config';
+import { config } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
 import { Alert } from '@nextui-org/alert';
@@ -58,7 +58,7 @@ const LicenseUnlinkModal = forwardRef(({ getLicenses, onClaim }: Props, ref) => 
         setLoading(true);
 
         const txHash = await walletClient.writeContract({
-            address: license.type === 'ND' ? ndContractAddress : mndContractAddress,
+            address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
             abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
             functionName: 'unlinkNode',
             args: [license.licenseId],

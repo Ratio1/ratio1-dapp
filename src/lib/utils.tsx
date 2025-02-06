@@ -4,14 +4,7 @@ import toast from 'react-hot-toast';
 import { RiCodeSSlashLine } from 'react-icons/ri';
 import { GNDLicense, License, MNDLicense } from 'typedefs/blockchain';
 import { getNodeEpochsRange, getNodeInfo } from './api/oracles';
-import {
-    epochDurationInSeconds,
-    genesisDate,
-    gndVestingEpochs,
-    mndCliffEpochs,
-    mndVestingEpochs,
-    ndVestingEpochs,
-} from './config';
+import { config, getCurrentEpoch } from './config';
 
 export const getShortAddress = (address: string, size = 4) => `${address.slice(0, size)}...${address.slice(-size)}`;
 
@@ -35,8 +28,6 @@ export function fBI(num: bigint, decimals: number): string {
     }
     return num.toString();
 }
-
-export const getCurrentEpoch = () => Math.floor((Date.now() / 1000 - genesisDate.getTime() / 1000) / epochDurationInSeconds);
 
 export const getLicenseRewardsAndNodeInfo = async (
     license: License,
@@ -121,7 +112,7 @@ const getNdLicenseRewards = async (license: License): Promise<bigint> => {
         throw new Error('Invalid epochs array length');
     }
 
-    const maxRewardsPerEpoch = license.totalAssignedAmount / BigInt(ndVestingEpochs);
+    const maxRewardsPerEpoch = license.totalAssignedAmount / BigInt(config.ndVestingEpochs);
     let rewards_amount = 0n;
 
     for (let i = 0; i < epochsToClaim; i++) {
@@ -155,7 +146,7 @@ const getGndLicenseRewards = async (license: GNDLicense): Promise<bigint> => {
         throw new Error('Invalid epochs array length');
     }
 
-    const maxRewardsPerEpoch = license.totalAssignedAmount / BigInt(gndVestingEpochs);
+    const maxRewardsPerEpoch = license.totalAssignedAmount / BigInt(config.gndVestingEpochs);
     let rewards_amount = 0n;
 
     for (let i = 0; i < epochsToClaim; i++) {
@@ -172,11 +163,12 @@ const getGndLicenseRewards = async (license: GNDLicense): Promise<bigint> => {
 
 const getMndLicenseRewards = async (license: MNDLicense): Promise<bigint> => {
     const currentEpoch = getCurrentEpoch();
-    if (currentEpoch < mndCliffEpochs) {
+    if (currentEpoch < config.mndCliffEpochs) {
         return 0n;
     }
 
-    const firstEpochToClaim = license.lastClaimEpoch >= mndCliffEpochs ? Number(license.lastClaimEpoch) : mndCliffEpochs;
+    const firstEpochToClaim =
+        license.lastClaimEpoch >= config.mndCliffEpochs ? Number(license.lastClaimEpoch) : config.mndCliffEpochs;
     const epochsToClaim = currentEpoch - firstEpochToClaim;
 
     if (epochsToClaim === 0) {
@@ -193,7 +185,7 @@ const getMndLicenseRewards = async (license: MNDLicense): Promise<bigint> => {
         throw new Error('Invalid epochs array length');
     }
 
-    const maxRewardsPerEpoch = license.totalAssignedAmount / BigInt(mndVestingEpochs);
+    const maxRewardsPerEpoch = license.totalAssignedAmount / BigInt(config.mndVestingEpochs);
     let licenseRewards = 0n;
 
     for (let i = 0; i < epochsToClaim; i++) {

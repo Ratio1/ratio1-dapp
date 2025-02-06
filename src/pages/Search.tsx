@@ -1,6 +1,6 @@
 import Empty from '@assets/empty.png';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { ND_LICENSE_CAP, ndContractAddress } from '@lib/config';
+import { config } from '@lib/config';
 import { getLicenseRewardsAndNodeInfo } from '@lib/utils';
 import { Input } from '@nextui-org/input';
 import { Spinner } from '@nextui-org/spinner';
@@ -47,7 +47,7 @@ function Search() {
         //TODO we should have an endpoint to get the license data?
         const [nodeAddress, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle, isBanned] =
             await publicClient.readContract({
-                address: ndContractAddress,
+                address: config.ndContractAddress,
                 abi: NDContractAbi,
                 functionName: 'licenses',
                 args: [BigInt(sanitizedNumber)],
@@ -59,12 +59,12 @@ function Search() {
             licenseId: BigInt(sanitizedNumber),
             nodeAddress,
             totalClaimedAmount,
-            remainingAmount: ND_LICENSE_CAP - totalClaimedAmount,
+            remainingAmount: config.ND_LICENSE_CAP - totalClaimedAmount,
             lastClaimEpoch,
             claimableEpochs: BigInt(0),
             assignTimestamp,
             lastClaimOracle,
-            totalAssignedAmount: ND_LICENSE_CAP,
+            totalAssignedAmount: config.ND_LICENSE_CAP,
             isBanned,
             isLinked,
         };

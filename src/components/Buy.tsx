@@ -1,7 +1,7 @@
 import { ERC20Abi } from '@blockchain/ERC20';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { buyLicense } from '@lib/api/backend';
-import { ndContractAddress, r1ContractAddress } from '@lib/config';
+import { config } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { Alert } from '@nextui-org/alert';
@@ -52,7 +52,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
         publicClient
             .readContract({
-                address: ndContractAddress,
+                address: config.ndContractAddress,
                 abi: NDContractAbi,
                 functionName: 'getLicenseTokenPrice',
             })
@@ -65,7 +65,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
             publicClient
                 .readContract({
-                    address: ndContractAddress,
+                    address: config.ndContractAddress,
                     abi: NDContractAbi,
                     functionName: 'userUsdMintedAmount',
                     args: [address],
@@ -84,10 +84,10 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
     const fetchAllowance = (publicClient, address: string) =>
         publicClient
             .readContract({
-                address: r1ContractAddress,
+                address: config.r1ContractAddress,
                 abi: ERC20Abi,
                 functionName: 'allowance',
-                args: [address, ndContractAddress],
+                args: [address, config.ndContractAddress],
             })
             .then(setAllowance);
 
@@ -101,10 +101,10 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
             }
 
             const txHash = await walletClient.writeContract({
-                address: r1ContractAddress,
+                address: config.r1ContractAddress,
                 abi: ERC20Abi,
                 functionName: 'approve',
-                args: [ndContractAddress, MAX_ALLOWANCE],
+                args: [config.ndContractAddress, MAX_ALLOWANCE],
             });
 
             await watchTx(txHash, publicClient);
@@ -146,7 +146,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
             });
 
             const txHash = await walletClient.writeContract({
-                address: ndContractAddress,
+                address: config.ndContractAddress,
                 abi: NDContractAbi,
                 functionName: 'buyLicense',
                 args: [
@@ -228,7 +228,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                 </div>
 
                 <div className="col gap-4">
-                    <div className="col bg-lightBlue overflow-hidden rounded-md border border-slate-200">
+                    <div className="col overflow-hidden rounded-md border border-slate-200 bg-lightBlue">
                         <div className="row justify-between p-4">
                             <div className="row gap-2.5">
                                 <div className="rounded-md bg-primary p-1.5 text-white">
@@ -313,7 +313,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                         </div>
                     </div>
 
-                    <div className="bg-lightBlue flex w-full flex-col rounded-md px-8 py-8">
+                    <div className="flex w-full flex-col rounded-md bg-lightBlue px-8 py-8">
                         <div className="col gap-1.5 text-center">
                             <div className="text-sm font-medium text-slate-500">Total amount required</div>
 

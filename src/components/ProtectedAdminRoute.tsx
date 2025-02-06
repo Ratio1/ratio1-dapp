@@ -1,3 +1,4 @@
+import { config } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { Spinner } from '@nextui-org/spinner';
 import Admin from '@pages/Admin';
@@ -17,10 +18,7 @@ export const ProtectedAdminRoute = () => {
 
     useEffect(() => {
         if (authenticated && address) {
-            // TODO: Production
-            // setAuthorized(address === safeAddress);
-
-            setAuthorized(true);
+            setAuthorized(address === config.safeAddress);
             setLoading(false);
         }
     }, [authenticated, address]);

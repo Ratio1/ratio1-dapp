@@ -4,10 +4,9 @@ import LicenseLinkModal from '@components/Licenses/LicenseLinkModal';
 import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
 import LicenseUnlinkModal from '@components/Licenses/LicenseUnlinkModal';
 import { getNodeEpochsRange } from '@lib/api/oracles';
-import { mndContractAddress, ndContractAddress } from '@lib/config';
+import { config, getCurrentEpoch } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
-import { getCurrentEpoch } from '@lib/utils';
 import { Pagination } from '@nextui-org/pagination';
 import { Skeleton } from '@nextui-org/skeleton';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
@@ -134,13 +133,13 @@ function Licenses() {
             const txHash =
                 license.type === 'ND'
                     ? await walletClient.writeContract({
-                          address: ndContractAddress,
+                          address: config.ndContractAddress,
                           abi: NDContractAbi,
                           functionName: 'claimRewards',
                           args: [[computeParam], [eth_signatures]],
                       })
                     : await walletClient.writeContract({
-                          address: mndContractAddress,
+                          address: config.mndContractAddress,
                           abi: MNDContractAbi,
                           functionName: 'claimRewards',
                           args: [computeParam, eth_signatures],

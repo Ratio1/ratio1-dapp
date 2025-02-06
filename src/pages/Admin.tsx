@@ -1,6 +1,6 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { explorerUrl, mndContractAddress, ndContractAddress } from '@lib/config';
+import { config } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { fBI, getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
@@ -54,7 +54,7 @@ function CreateMnd() {
         setIsLoading(true);
 
         const txHash = await walletClient.writeContract({
-            address: mndContractAddress,
+            address: config.mndContractAddress,
             abi: MNDContractAbi,
             functionName: 'addLicense',
             args: [address as EthAddress, BigInt(tokens) * 10n ** 18n],
@@ -146,7 +146,7 @@ function MndsTable() {
 
         publicClient
             .readContract({
-                address: mndContractAddress,
+                address: config.mndContractAddress,
                 abi: MNDContractAbi,
                 functionName: 'totalSupply',
             })
@@ -155,14 +155,14 @@ function MndsTable() {
                     Array.from({ length: Number(totalSupply) }).map((_, i) =>
                         Promise.all([
                             publicClient.readContract({
-                                address: mndContractAddress,
+                                address: config.mndContractAddress,
                                 abi: MNDContractAbi,
                                 functionName: 'ownerOf',
                                 args: [BigInt(i + 1)],
                             }),
                             publicClient
                                 .readContract({
-                                    address: mndContractAddress,
+                                    address: config.mndContractAddress,
                                     abi: MNDContractAbi,
                                     functionName: 'licenses',
                                     args: [BigInt(i + 1)],
@@ -251,7 +251,11 @@ function MndsTable() {
                             <TableRow key={license.licenseId}>
                                 <TableCell>{license.licenseId.toString()}</TableCell>
                                 <TableCell>
-                                    <a href={`${explorerUrl}/address/${license.owner}`} target="_blank" className="underline">
+                                    <a
+                                        href={`${config.explorerUrl}/address/${license.owner}`}
+                                        target="_blank"
+                                        className="underline"
+                                    >
                                         {getShortAddress(license.owner)}
                                     </a>
                                 </TableCell>
@@ -277,76 +281,6 @@ function MndsTable() {
                     </TableBody>
                 </Table>
             </div>
-
-            {/* <div className="col gap-3">
-                <table className="w-full">
-                    <thead>
-                        <tr>
-                            <th className="text-left">ID</th>
-                            <th className="text-left">Owner</th>
-                            <th className="text-left">Node Address</th>
-                            <th className="text-left">Claimed/Assigned</th>
-                            <th className="text-left">Last Claim Epoch</th>
-                            <th className="text-left">Assigned</th>
-                            <th className="text-left">Last Claim Oracle</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {mnds.map((license) => (
-                            <tr
-                                key={license.licenseId.toString()}
-                                className="h-[50px] border-t transition-colors hover:bg-gray-200"
-                            >
-                                <td>{license.licenseId.toString()}</td>
-                                <td>
-                                    <a href={`${explorerUrl}/address/${license.owner}`} target="_blank" className="underline">
-                                        {getShortAddress(license.owner)}
-                                    </a>
-                                </td>
-                                <td>
-                                    {license.nodeAddress !== '0x0000000000000000000000000000000000000000'
-                                        ? getShortAddress(license.nodeAddress)
-                                        : '-'}
-                                </td>
-                                <td>{getLicenseUsageStats(license)}</td>
-                                <td>{license.lastClaimEpoch.toString()}</td>
-                                <td>
-                                    {license.assignTimestamp !== 0n
-                                        ? new Date(Number(license.assignTimestamp) * 1000).toLocaleString()
-                                        : '-'}
-                                </td>
-                                <td>
-                                    {license.lastClaimOracle !== '0x0000000000000000000000000000000000000000'
-                                        ? getShortAddress(license.lastClaimOracle)
-                                        : '-'}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colSpan={2} className="font-bold">
-                                Total MND supply: {mnds.length}
-                            </td>
-                            <td></td>
-                            <td colSpan={3} className="font-bold">
-                                $R1 associated supply:{' '}
-                                {fBI(
-                                    mnds.reduce((acc, mnd) => acc + mnd.totalAssignedAmount, 0n),
-                                    18,
-                                )}
-                            </td>
-                            <td colSpan={3} className="font-bold">
-                                $R1 minted:{' '}
-                                {fBI(
-                                    mnds.reduce((acc, mnd) => acc + mnd.totalClaimedAmount, 0n),
-                                    18,
-                                )}
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div> */}
         </BigCard>
     );
 }
@@ -369,7 +303,7 @@ function AddSigner() {
         setIsLoading(true);
 
         const txHash = await walletClient.writeContract({
-            address: mndContractAddress,
+            address: config.mndContractAddress,
             abi: MNDContractAbi,
             functionName: 'addSigner',
             args: [address as EthAddress],
@@ -389,7 +323,7 @@ function AddSigner() {
         setIsLoading(true);
 
         const txHash = await walletClient.writeContract({
-            address: ndContractAddress,
+            address: config.ndContractAddress,
             abi: NDContractAbi,
             functionName: 'addSigner',
             args: [address as EthAddress],
@@ -469,7 +403,7 @@ function RemoveSigner() {
         setIsLoading(true);
 
         const txHash = await walletClient.writeContract({
-            address: mndContractAddress,
+            address: config.mndContractAddress,
             abi: MNDContractAbi,
             functionName: 'removeSigner',
             args: [address as EthAddress],
@@ -489,7 +423,7 @@ function RemoveSigner() {
         setIsLoading(true);
 
         const txHash = await walletClient.writeContract({
-            address: ndContractAddress,
+            address: config.ndContractAddress,
             abi: NDContractAbi,
             functionName: 'removeSigner',
             args: [address as EthAddress],

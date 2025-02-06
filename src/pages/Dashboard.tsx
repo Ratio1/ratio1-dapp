@@ -1,13 +1,12 @@
 import { NDContractAbi } from '@blockchain/NDContract';
 import Buy from '@components/Buy';
 import Tiers from '@components/Tiers';
-import { getNextEpochTimestamp, ndContractAddress } from '@lib/config';
+import { config, getCurrentEpoch, getNextEpochTimestamp } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes';
 import useAwait from '@lib/useAwait';
 import { useDisclosure } from '@lib/useDisclosure';
-import { getCurrentEpoch } from '@lib/utils';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
@@ -130,12 +129,12 @@ function Dashboard() {
 
         Promise.all([
             publicClient.readContract({
-                address: ndContractAddress,
+                address: config.ndContractAddress,
                 abi: NDContractAbi,
                 functionName: 'currentPriceTier',
             }),
             publicClient.readContract({
-                address: ndContractAddress,
+                address: config.ndContractAddress,
                 abi: NDContractAbi,
                 functionName: 'getPriceTiers',
             }),
