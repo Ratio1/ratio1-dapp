@@ -78,12 +78,12 @@ function Search() {
                 ...license,
                 isLinked: false, // Enforcing base license type here
             });
-            return {
+            setResult({
                 ...license,
                 rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
                 alias: licenseDataPromise.then(({ node_alias }) => node_alias),
                 isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
-            };
+            });
         }
 
         setLoading(false);
