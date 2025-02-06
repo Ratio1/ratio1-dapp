@@ -11,6 +11,7 @@ import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
 import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
+import { KycStatus } from '@typedefs/profile';
 import clsx from 'clsx';
 import { isFinite, isNaN } from 'lodash';
 import { useEffect, useState } from 'react';
@@ -196,8 +197,8 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
         return slippage < DANGEROUS_SLIPPAGE || isInputValueTooSmall;
     };
 
-    // TODO: Production: || account.kycStatus !== KycStatus.Completed
-    const isBuyingDisabled = (): boolean => !account || !licenseTokenPrice || allowance === undefined;
+    const isBuyingDisabled = (): boolean =>
+        !account || !licenseTokenPrice || allowance === undefined || account.kycStatus !== KycStatus.Completed;
 
     return (
         <>
