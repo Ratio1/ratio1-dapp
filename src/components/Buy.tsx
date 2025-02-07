@@ -4,6 +4,7 @@ import { buyLicense } from '@lib/api/backend';
 import { config } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
+import { routePath } from '@lib/routes';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
@@ -19,6 +20,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
 import { RiAddFill, RiArrowRightDoubleLine, RiCheckLine, RiCpuLine, RiEqualizer2Line, RiPriceTag3Line } from 'react-icons/ri';
+import { useNavigate } from 'react-router-dom';
 import { Stage } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
@@ -29,6 +31,7 @@ const MAX_ALLOWANCE: bigint = 2n ** 256n - 1n;
 function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentStage: number; stage: Stage }) {
     const { watchTx, r1Balance, fetchR1Balance } = useBlockchainContext() as BlockchainContextType;
     const { authenticated, account } = useAuthenticationContext() as AuthenticationContextType;
+    const navigate = useNavigate();
 
     const [licenseTokenPrice, setLicenseTokenPrice] = useState<bigint>(0n);
     const [userUsdMintedAmount, setUserUsdMintedAmount] = useState<bigint | undefined>();
@@ -81,7 +84,11 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
         return (BigInt(quantity) * licenseTokenPrice * BigInt(Math.floor(100 + slippageValue))) / 100n;
     };
 
-    const isApprovalRequired = (): boolean => allowance !== undefined && allowance < MAX_ALLOWANCE;
+    /**
+     * Approval is required only if the allowance is less than half of the maximum allowance,
+     * otherwise approving would be triggered after every buy
+     */
+    const isApprovalRequired = (): boolean => allowance !== undefined && allowance < MAX_ALLOWANCE / 2n;
 
     const fetchAllowance = (publicClient, address: string) =>
         publicClient
@@ -167,6 +174,8 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
             fetchR1Balance();
 
             setLoading(false);
+            onClose();
+            navigate(routePath.licenses);
         } catch (err: any) {
             console.error(err.message || 'An error occurred');
             toast.error('An error occurred, please try again.');
