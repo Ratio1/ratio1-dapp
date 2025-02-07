@@ -24,128 +24,37 @@ const columns = [
     { key: 7, label: 'Last Claim Oracle' },
 ];
 
+type AdminMndView = Omit<MNDLicense, 'claimableEpochs' | 'isLinked'> & { owner: EthAddress };
+
 function Admin() {
-    return (
-        <div className="col gap-4">
-            <CreateMnd />
-            <MndsTable />
-            <AddSigner />
-            <RemoveSigner />
-            <AllowMndTransfer />
-            <AllowMndBurn />
-        </div>
-    );
-}
-
-function CreateMnd() {
-    const { watchTx } = useBlockchainContext() as BlockchainContextType;
-
-    const [address, setAddress] = useState<string>('');
-    const [tokens, setTokens] = useState<string>('');
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-
-    const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
 
-    const onCreate = async () => {
-        if (!walletClient) {
-            toast.error('Unexpected error, please try again.');
-            return;
-        }
-
-        setIsLoading(true);
-
-        const txHash = await walletClient.writeContract({
-            address: config.mndContractAddress,
-            abi: MNDContractAbi,
-            functionName: 'addLicense',
-            args: [address as EthAddress, BigInt(tokens) * 10n ** 18n],
-        });
-
-        await watchTx(txHash, publicClient);
-
-        setIsLoading(false);
-    };
-
-    return (
-        <BigCard>
-            <div className="text-base font-semibold leading-6 lg:text-xl">Create new MND</div>
-
-            <div className="flex flex-col gap-4 larger:flex-row">
-                <Input
-                    value={address}
-                    onValueChange={setAddress}
-                    size="md"
-                    classNames={{
-                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
-                        input: 'font-medium',
-                        label: 'font-medium',
-                    }}
-                    variant="bordered"
-                    color="primary"
-                    label="Receiver"
-                    labelPlacement="outside"
-                    placeholder="0x..."
-                    validate={(value) => {
-                        if (!(value.startsWith('0x') && value.length === 42)) {
-                            return 'Value must be a valid Ethereum address';
-                        }
-
-                        return null;
-                    }}
-                />
-
-                <Input
-                    value={tokens}
-                    onValueChange={(value) => {
-                        const n = Number.parseInt(value);
-
-                        if (value === '') {
-                            setTokens('');
-                        } else if (isFinite(n) && !isNaN(n) && n > 0) {
-                            setTokens(n.toString());
-                        }
-                    }}
-                    size="md"
-                    classNames={{
-                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
-                        input: 'font-medium',
-                        label: 'font-medium',
-                    }}
-                    variant="bordered"
-                    color="primary"
-                    label="Amount of tokens"
-                    labelPlacement="outside"
-                    placeholder="0"
-                />
-            </div>
-
-            <div className="flex-start flex">
-                <div className="flex">
-                    <Button
-                        fullWidth
-                        color="primary"
-                        onPress={onCreate}
-                        isLoading={isLoading}
-                        isDisabled={isLoading || !address || !tokens || Number.parseInt(tokens) <= 0}
-                    >
-                        Create MND
-                    </Button>
-                </div>
-            </div>
-        </BigCard>
-    );
-}
-
-function MndsTable() {
-    type AdminMndView = Omit<MNDLicense, 'claimableEpochs' | 'isLinked'> & { owner: EthAddress };
+    const [ndSigners, setNdSigners] = useState<EthAddress[]>([]);
+    const [mndSigners, setMndSigners] = useState<EthAddress[]>([]);
     const [mnds, setMnds] = useState<(AdminMndView | null)[]>([]);
-    const [totalAssignedAmount, setTotalAssignedAmount] = useState<bigint>(0n);
 
-    const publicClient = usePublicClient();
-
-    useEffect(() => {
+    const fetchData = () => {
         if (!publicClient) return;
+
+        publicClient
+            .readContract({
+                address: config.ndContractAddress,
+                abi: NDContractAbi,
+                functionName: 'getSigners',
+            })
+            .then((result) => {
+                setNdSigners([...result]);
+            });
+
+        publicClient
+            .readContract({
+                address: config.mndContractAddress,
+                abi: MNDContractAbi,
+                functionName: 'getSigners',
+            })
+            .then((result) => {
+                setMndSigners([...result]);
+            });
 
         publicClient
             .readContract({
@@ -195,6 +104,141 @@ function MndsTable() {
                 console.log(mnds);
                 setMnds(mnds);
             });
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    return (
+        <div className="col gap-4">
+            <CreateMnd mnds={mnds} fetchData={fetchData} />
+            <MndsTable mnds={mnds} />
+            <AddSigner ndSigners={ndSigners} mndSigners={mndSigners} fetchData={fetchData} />
+            <RemoveSigner ndSigners={ndSigners} mndSigners={mndSigners} fetchData={fetchData} />
+            <AllowMndTransfer />
+            <AllowMndBurn />
+        </div>
+    );
+}
+
+function CreateMnd({ mnds, fetchData }: { mnds: (AdminMndView | null)[]; fetchData: () => void }) {
+    const { watchTx } = useBlockchainContext() as BlockchainContextType;
+
+    const [address, setAddress] = useState<string>('');
+    const [tokens, setTokens] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const { data: walletClient } = useWalletClient();
+    const publicClient = usePublicClient();
+
+    const onCreate = async () => {
+        if (!walletClient) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        setIsLoading(true);
+
+        const txHash = await walletClient.writeContract({
+            address: config.mndContractAddress,
+            abi: MNDContractAbi,
+            functionName: 'addLicense',
+            args: [address as EthAddress, BigInt(tokens) * 10n ** 18n],
+        });
+
+        await watchTx(txHash, publicClient);
+        fetchData();
+
+        setIsLoading(false);
+    };
+
+    return (
+        <BigCard>
+            <div className="text-base font-semibold leading-6 lg:text-xl">Create new MND</div>
+
+            <div className="flex flex-col gap-4 larger:flex-row">
+                <Input
+                    value={address}
+                    onValueChange={setAddress}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Receiver"
+                    labelPlacement="outside"
+                    placeholder="0x..."
+                    validate={(value) => {
+                        if (!(value.startsWith('0x') && value.length === 42)) {
+                            return 'Value must be a valid Ethereum address';
+                        }
+                        if (mnds.some((mnd) => mnd?.owner === value)) {
+                            return 'Address already has a MND';
+                        }
+
+                        return null;
+                    }}
+                />
+
+                <Input
+                    value={tokens}
+                    onValueChange={(value) => {
+                        const n = Number.parseInt(value);
+
+                        if (value === '') {
+                            setTokens('');
+                        } else if (isFinite(n) && !isNaN(n) && n > 0) {
+                            setTokens(n.toString());
+                        }
+                    }}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Amount of tokens"
+                    labelPlacement="outside"
+                    placeholder="0"
+                />
+            </div>
+
+            <div className="flex-start flex">
+                <div className="flex">
+                    <Button
+                        fullWidth
+                        color="primary"
+                        onPress={onCreate}
+                        isLoading={isLoading}
+                        isDisabled={
+                            isLoading ||
+                            !address ||
+                            !tokens ||
+                            Number.parseInt(tokens) <= 0 ||
+                            mnds.some((mnd) => mnd?.owner === address)
+                        }
+                    >
+                        Create MND
+                    </Button>
+                </div>
+            </div>
+        </BigCard>
+    );
+}
+
+function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
+    const [totalAssignedAmount, setTotalAssignedAmount] = useState<bigint>(0n);
+
+    const publicClient = usePublicClient();
+
+    useEffect(() => {
+        if (!publicClient) return;
 
         publicClient
             .readContract({
@@ -303,7 +347,15 @@ function MndsTable() {
     );
 }
 
-function AddSigner() {
+function AddSigner({
+    ndSigners,
+    mndSigners,
+    fetchData,
+}: {
+    ndSigners: EthAddress[];
+    mndSigners: EthAddress[];
+    fetchData: () => void;
+}) {
     const { watchTx } = useBlockchainContext() as BlockchainContextType;
 
     const [address, setAddress] = useState<string>('');
@@ -328,6 +380,7 @@ function AddSigner() {
         });
 
         await watchTx(txHash, publicClient);
+        fetchData();
 
         setIsLoading(false);
     };
@@ -348,6 +401,7 @@ function AddSigner() {
         });
 
         await watchTx(txHash, publicClient);
+        fetchData();
 
         setIsLoading(false);
     };
@@ -380,9 +434,9 @@ function AddSigner() {
                             color="secondary"
                             onPress={onAddNd}
                             isLoading={isLoading}
-                            isDisabled={isLoading || !address}
+                            isDisabled={isLoading || !address || ndSigners.includes(address as EthAddress)}
                         >
-                            Add to ND
+                            {!ndSigners.includes(address as EthAddress) ? 'Add to ND' : 'Added to ND'}
                         </Button>
                     </div>
 
@@ -392,9 +446,9 @@ function AddSigner() {
                             color="primary"
                             onPress={onAddMnd}
                             isLoading={isLoading}
-                            isDisabled={isLoading || !address}
+                            isDisabled={isLoading || !address || mndSigners.includes(address as EthAddress)}
                         >
-                            Add to MND
+                            {!mndSigners.includes(address as EthAddress) ? 'Add to MND' : 'Added to MND'}
                         </Button>
                     </div>
                 </div>
@@ -403,7 +457,15 @@ function AddSigner() {
     );
 }
 
-function RemoveSigner() {
+function RemoveSigner({
+    ndSigners,
+    mndSigners,
+    fetchData,
+}: {
+    ndSigners: EthAddress[];
+    mndSigners: EthAddress[];
+    fetchData: () => void;
+}) {
     const { watchTx } = useBlockchainContext() as BlockchainContextType;
 
     const [address, setAddress] = useState<string>('');
@@ -428,6 +490,7 @@ function RemoveSigner() {
         });
 
         await watchTx(txHash, publicClient);
+        fetchData();
 
         setIsLoading(false);
     };
@@ -448,6 +511,7 @@ function RemoveSigner() {
         });
 
         await watchTx(txHash, publicClient);
+        fetchData();
 
         setIsLoading(false);
     };
@@ -480,9 +544,9 @@ function RemoveSigner() {
                             color="secondary"
                             onPress={onRemoveNd}
                             isLoading={isLoading}
-                            isDisabled={isLoading || !address}
+                            isDisabled={isLoading || !address || !ndSigners.includes(address as EthAddress)}
                         >
-                            Remove from ND
+                            {ndSigners.includes(address as EthAddress) ? 'Remove from ND' : 'Not ND signer'}
                         </Button>
                     </div>
 
@@ -492,9 +556,9 @@ function RemoveSigner() {
                             color="primary"
                             onPress={onRemoveMnd}
                             isLoading={isLoading}
-                            isDisabled={isLoading || !address}
+                            isDisabled={isLoading || !address || !mndSigners.includes(address as EthAddress)}
                         >
-                            Remove from MND
+                            {mndSigners.includes(address as EthAddress) ? 'Remove from MND' : 'Not MND signer'}
                         </Button>
                     </div>
                 </div>
