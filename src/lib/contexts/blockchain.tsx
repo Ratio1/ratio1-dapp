@@ -108,6 +108,7 @@ export const BlockchainProvider = ({ children }) => {
 
     const fetchLicenses = async (): Promise<Array<License>> => {
         if (!publicClient || !address) {
+            toast.error('Unable to fetch licenses.');
             return [];
         }
 

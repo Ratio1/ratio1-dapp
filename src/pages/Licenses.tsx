@@ -56,15 +56,19 @@ function Licenses() {
     useEffect(() => {
         if (!publicClient) {
             return;
-        } else {
-            if (authenticated) {
-                getLicenses();
-            } else {
-                setLicenses([]);
-                setLicensesToShow([]);
-            }
         }
-    }, [authenticated, publicClient]);
+
+        if (!address) {
+            return;
+        }
+
+        if (authenticated) {
+            getLicenses();
+        } else {
+            setLicenses([]);
+            setLicensesToShow([]);
+        }
+    }, [authenticated]);
 
     useEffect(() => {
         onPageChange(1);
