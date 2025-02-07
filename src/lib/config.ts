@@ -10,6 +10,7 @@ type Config = {
     ndContractAddress: EthAddress;
     mndContractAddress: EthAddress;
     liquidityManagerContractAddress: EthAddress;
+    faucetContractAddress?: EthAddress;
     safeAddress: EthAddress;
     explorerUrl: string;
     genesisDate: Date;
@@ -44,13 +45,14 @@ const configs: {
         ND_LICENSE_CAP: 1575_188843457943924200n,
     },
     testnet: {
-        backendUrl: 'https://dapp-api-test.ratio1.ai',
-        oraclesUrl: 'https://oracle-test.ratio1.ai',
-        r1ContractAddress: '0xc992DcaB6D3F8783fBf0c935E7bCeB20aa50A6f1',
-        ndContractAddress: '0xE20198EE2B76eED916A568a47cdea9681f7c79BF',
-        mndContractAddress: '0xfD52a7958088dF734D523d618e583e4d53cD7420',
-        liquidityManagerContractAddress: '0xTODO',
-        safeAddress: '0x591E079f22477906457a4bC246e9Ef4353DB428A',
+        backendUrl: 'https://dapp-api.ratio1.ai',
+        oraclesUrl: 'https://oracle-main.ratio1.ai',
+        r1ContractAddress: '0xCA32aD806BB1e086D77c733656c20334bf2976D6',
+        ndContractAddress: '0x9aB4e425c7dFFC7Aa1A7a262727b0b663e047571',
+        mndContractAddress: '0x658bE7d73EBd0Ba7DCe26c112d9871B7Bed890EC',
+        faucetContractAddress: '0xd9a9B7fd2De5fFAF50695d2f489a56771CA28123',
+        liquidityManagerContractAddress: '0x7ecC3d8519f068D730EEDeCe899C4CdEC7A4E6A1',
+        safeAddress: '0xAEEa4E234096b1AcC16c898B6E057Fb0e33F9cC2',
         explorerUrl: 'https://sepolia.basescan.org',
         genesisDate: new Date('2025-02-05T16:00:00.000Z'),
         epochDurationInSeconds: 86400, // 24 hours
