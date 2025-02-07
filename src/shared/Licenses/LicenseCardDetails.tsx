@@ -65,7 +65,6 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
             <div className="col gap-1 xl:gap-0">
                 <div className="text-sm leading-4 text-slate-500 xl:text-base">{label}</div>
-                {value}
                 <div className="text-sm font-medium xl:text-base">
                     {value === undefined ? '...' : `${parseFloat(((value / 255) * 100).toFixed(1))}%`}
                 </div>
