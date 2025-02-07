@@ -13,7 +13,6 @@ type BaseLicense = {
     assignTimestamp: bigint;
     lastClaimOracle: EthAddress;
     totalAssignedAmount: bigint;
-    isExpanded?: boolean;
     isClaimingRewards?: boolean;
 } & (
     | {

@@ -43,7 +43,7 @@ function Licenses() {
 
     const [isLoading, setLoading] = useState<boolean>(false);
 
-    const cardRefs = useRef<Map<bigint, HTMLDivElement>>(new Map());
+    const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
     const linkModalRef = useRef<{ trigger: (_license) => void }>(null);
     const unlinkModalRef = useRef<{ trigger: (_license) => void }>(null);
@@ -187,20 +187,9 @@ function Licenses() {
         );
     };
 
-    const onLicenseExpand = (id: bigint, type: License['type']) => {
-        setLicenses((prevLicenses) =>
-            prevLicenses.map((license) =>
-                license.licenseId === id && license.type === type
-                    ? {
-                          ...license,
-                          isExpanded: !license.isExpanded,
-                      }
-                    : license,
-            ),
-        );
-
+    const onLicenseClick = (license: License) => {
         setTimeout(() => {
-            const cardRef = cardRefs.current.get(id);
+            const cardRef = cardRefs.current.get(`${license.type}${license.licenseId}`);
             if (cardRef) {
                 cardRef.scrollIntoView({
                     behavior: 'smooth',
@@ -221,20 +210,15 @@ function Licenses() {
             key={license.licenseId}
             ref={(element) => {
                 if (element) {
-                    cardRefs.current.set(license.licenseId, element);
+                    cardRefs.current.set(`${license.type}${license.licenseId}`, element);
                 }
             }}
         >
-            <LicenseCard
-                license={license}
-                isExpanded={license.isExpanded as boolean}
-                toggle={onLicenseExpand}
-                action={onAction}
-            />
+            <LicenseCard license={license} onLicenseClick={onLicenseClick} action={onAction} />
         </div>
     );
 
-    // Used to split 'licensesToShow' into sections
+    // Used in order to split 'licensesToShow' into sections
     const filterLicensesOfType = (type: License['type']) => licensesToShow.filter((license) => license.type === type);
 
     return (

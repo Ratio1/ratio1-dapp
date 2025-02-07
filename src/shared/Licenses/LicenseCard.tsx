@@ -1,26 +1,28 @@
+import { useState } from 'react';
 import { License } from 'typedefs/blockchain';
 import { LicenseCardDetails } from './LicenseCardDetails';
 import { LicenseCardHeader } from './LicenseCardHeader';
 
 export const LicenseCard = ({
     license,
-    isExpanded,
     action,
-    toggle,
+    onLicenseClick,
     disableActions,
 }: {
     license: License;
-    isExpanded: boolean;
     action?: (type: 'link' | 'unlink' | 'claim' | 'changeNode', license: License) => void;
-    toggle?: (id: bigint, type: License['type']) => void;
+    onLicenseClick?: (license: License) => void;
     disableActions?: boolean;
 }) => {
+    const [isExpanded, setExpanded] = useState<boolean>(false);
+
     return (
         <div
-            className="border-lightBlue bg-lightBlue mx-auto flex max-w-2xl cursor-pointer flex-col overflow-hidden rounded-3xl border-3 transition-all hover:border-[#e9ebf1] xl:max-w-none"
+            className="mx-auto flex max-w-2xl cursor-pointer flex-col overflow-hidden rounded-3xl border-3 border-lightBlue bg-lightBlue transition-all hover:border-[#e9ebf1] xl:max-w-none"
             onClick={() => {
-                if (toggle) {
-                    toggle(license.licenseId, license.type);
+                if (onLicenseClick) {
+                    setExpanded(!isExpanded);
+                    onLicenseClick(license);
                 }
             }}
         >
