@@ -93,6 +93,8 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
         }
     };
 
+    const getAssignTimestamp = (): Date => new Date(Number(license.assignTimestamp) * 1000);
+
     return (
         <div className="px-5 py-5 md:px-8 md:py-7">
             <div className="col gap-6 lg:gap-8">
@@ -106,8 +108,16 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                             {getTitle('Details')}
 
                             {getLine('License type', license.type)}
-                            {getLine('Assign timestamp', new Date(Number(license.assignTimestamp) * 1000).toLocaleString())}
-                            {getLine('Last claimed epoch', Number(license.lastClaimEpoch))}
+                            {getLine(
+                                'Assign timestamp',
+                                license.assignTimestamp === 0n
+                                    ? 'N/A'
+                                    : new Date(Number(license.assignTimestamp) * 1000).toLocaleString(),
+                            )}
+                            {getLine(
+                                'Last claimed epoch',
+                                license.lastClaimEpoch === 0n ? 'N/A' : Number(license.lastClaimEpoch),
+                            )}
                             {getLine('Claimable epochs', Number(license.claimableEpochs), Number(license.claimableEpochs) > 0)}
 
                             <div className="mt-3">{getTitle('Proof of Availability')}</div>
@@ -127,8 +137,8 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
                             {getLine(
                                 'Total amount ($R1)',
-                                isLoadingRewards ? '...' : Number(formatUnits(rewards ?? 0n, 18)).toFixed(2),
-                                true,
+                                isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)),
+                                (rewards ?? 0n) > 0,
                             )}
 
                             <div className="col gap-3">
@@ -136,7 +146,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
                                 {getLine(
                                     'Proof of Availability',
-                                    isLoadingRewards ? '...' : Number(formatUnits(rewards ?? 0n, 18)).toFixed(2),
+                                    isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)),
                                 )}
 
                                 {getLine('Proof of AI', '0')}

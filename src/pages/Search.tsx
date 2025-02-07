@@ -1,21 +1,23 @@
 import Empty from '@assets/empty.png';
+import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { config, getCurrentEpoch } from '@lib/config';
-import { getLicenseRewardsAndNodeInfo } from '@lib/utils';
+import { getLicenseRewardsAndNodeInfo, getLicenseSectionHeader } from '@lib/utils';
 import { Input } from '@nextui-org/input';
 import { Spinner } from '@nextui-org/spinner';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { useEffect, useState } from 'react';
 import { RiSearchLine } from 'react-icons/ri';
 import { useSearchParams } from 'react-router-dom';
-import { NDLicense } from 'typedefs/blockchain';
+import { GNDLicense, MNDLicense, NDLicense } from 'typedefs/blockchain';
 import { usePublicClient } from 'wagmi';
 
 function Search() {
     const [value, setValue] = useState<string>('');
     const [isLoading, setLoading] = useState<boolean>(false);
 
-    const [result, setResult] = useState<NDLicense | null>();
+    const [resultNDContract, setResultNDContract] = useState<NDLicense | null>();
+    const [resultMNDContract, setResultMNDContract] = useState<MNDLicense | GNDLicense | null>();
 
     const [searchParams, setSearchParams] = useSearchParams();
     const publicClient = usePublicClient();
@@ -33,28 +35,43 @@ function Search() {
         if (!publicClient) {
             return;
         }
+
         const sanitizedNumber = value.replace('License', '').replace('Licence', '').replace('#', '').trim();
 
         if (!sanitizedNumber) {
             return;
         }
 
+        setSearchParams({ licenseId: sanitizedNumber });
+
         setLoading(true);
 
-        setSearchParams({ licenseId: sanitizedNumber });
+        await onSearchND(BigInt(sanitizedNumber));
+        await onSearchMND(BigInt(sanitizedNumber));
+
+        setLoading(false);
+    };
+
+    const onSearchND = async (licenseId: bigint) => {
+        if (!publicClient) {
+            return;
+        }
 
         const [nodeAddress, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle, isBanned] =
             await publicClient.readContract({
                 address: config.ndContractAddress,
                 abi: NDContractAbi,
                 functionName: 'licenses',
-                args: [BigInt(sanitizedNumber)],
+                args: [licenseId],
             });
 
+        console.log(nodeAddress, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle, isBanned);
+
         const isLinked = nodeAddress !== '0x0000000000000000000000000000000000000000';
-        const license = {
+
+        const baseLicense = {
             type: 'ND' as const,
-            licenseId: BigInt(sanitizedNumber),
+            licenseId,
             nodeAddress,
             totalClaimedAmount,
             remainingAmount: config.ND_LICENSE_CAP - totalClaimedAmount,
@@ -66,27 +83,43 @@ function Search() {
             isLinked,
         };
         if (!isLinked) {
-            setResult({
-                ...license,
+            setResultNDContract({
+                ...baseLicense,
                 claimableEpochs: 0n,
-                isLinked: false,
+                isLinked,
             });
         } else {
             const licenseDataPromise = getLicenseRewardsAndNodeInfo({
-                ...license,
+                ...baseLicense,
                 claimableEpochs: 0n,
-                isLinked: false, // Enforcing base license type here
+                isLinked: false, // Enforcing base license type here as to not pass redunant data
             });
-            setResult({
-                ...license,
+            setResultNDContract({
+                ...baseLicense,
                 claimableEpochs: BigInt(getCurrentEpoch()) - lastClaimEpoch,
                 rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
                 alias: licenseDataPromise.then(({ node_alias }) => node_alias),
                 isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
             });
         }
+    };
 
-        setLoading(false);
+    const onSearchMND = async (licenseId: bigint) => {
+        if (!publicClient) {
+            return;
+        }
+
+        const [nodeAddress, totalAssignedAmount, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle] =
+            await publicClient.readContract({
+                address: config.mndContractAddress,
+                abi: MNDContractAbi,
+                functionName: 'licenses',
+                args: [licenseId],
+            });
+
+        console.log({ nodeAddress, totalAssignedAmount, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle });
+
+        const isLinked = nodeAddress !== '0x0000000000000000000000000000000000000000';
     };
 
     return (
@@ -110,7 +143,7 @@ function Search() {
                     variant="flat"
                     radius="full"
                     labelPlacement="outside"
-                    placeholder="Search by license number"
+                    placeholder="Search by license id/number"
                     endContent={
                         <div className="center-all -mr-2.5 cursor-pointer p-2 text-[22px]">
                             {isLoading ? (
@@ -129,14 +162,32 @@ function Search() {
                 />
             </div>
 
-            {!result ? (
+            {!resultNDContract && !resultMNDContract ? (
                 <div className="center-all col gap-1.5 p-8">
                     <img src={Empty} alt="Empty" className="h-28" />
                     <div className="text-sm text-slate-400">Search for a license</div>
                 </div>
             ) : (
-                <div className="w-full">
-                    <LicenseCard license={result} isExpanded disableActions />
+                <div className="col w-full gap-3">
+                    {!!resultMNDContract && (
+                        <div className="col gap-3">
+                            {getLicenseSectionHeader(resultMNDContract.type)}
+
+                            <div className="w-full">
+                                <LicenseCard license={resultMNDContract} disableActions />
+                            </div>
+                        </div>
+                    )}
+
+                    {!!resultNDContract && (
+                        <div className="col gap-3">
+                            {getLicenseSectionHeader(resultNDContract.type)}
+
+                            <div className="w-full">
+                                <LicenseCard license={resultNDContract} disableActions />
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

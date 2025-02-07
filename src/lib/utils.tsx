@@ -217,3 +217,9 @@ export const arrayAverage = (numbers: number[]): number => {
     if (numbers.length === 0) return 0;
     return numbers.reduce((sum, num) => sum + num, 0) / numbers.length;
 };
+
+export const getLicenseSectionHeader = (type: License['type']) => (
+    <div className="mx-auto xl:mx-0">
+        <div className="pt-4 text-xl font-semibold sm:text-2xl">{type}</div>
+    </div>
+);

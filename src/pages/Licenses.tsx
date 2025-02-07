@@ -7,6 +7,7 @@ import { getNodeEpochsRange } from '@lib/api/oracles';
 import { config, getCurrentEpoch } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
+import { getLicenseSectionHeader } from '@lib/utils';
 import { Pagination } from '@nextui-org/pagination';
 import { Skeleton } from '@nextui-org/skeleton';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
@@ -198,12 +199,6 @@ function Licenses() {
             }
         }, 0);
     };
-
-    const getLicenseSectionHeader = (type: License['type']) => (
-        <div className="mx-auto xl:mx-0">
-            <div className="pt-4 text-lg font-semibold xl:text-2xl">{type}</div>
-        </div>
-    );
 
     const getLicenseElement = (license: License): JSX.Element => (
         <div

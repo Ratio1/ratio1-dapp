@@ -14,7 +14,7 @@ export const LicenseCard = ({
     onLicenseClick?: (license: License) => void;
     disableActions?: boolean;
 }) => {
-    const [isExpanded, setExpanded] = useState<boolean>(false);
+    const [isExpanded, setExpanded] = useState<boolean>(disableActions ? true : false);
 
     return (
         <div
