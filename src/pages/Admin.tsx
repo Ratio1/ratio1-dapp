@@ -8,7 +8,6 @@ import { Input } from '@nextui-org/input';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/table';
 import { BigCard } from '@shared/BigCard';
 import { LargeValueWithLabel } from '@shared/LargeValueWithLabel';
-import { round } from 'lodash';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { EthAddress, MNDLicense } from 'typedefs/blockchain';
@@ -212,7 +211,9 @@ function MndsTable() {
                     {fBI(license.totalClaimedAmount, 18)}/{fBI(license.totalAssignedAmount, 18)}
                 </div>
 
-                <div>{round(Number((license.totalClaimedAmount * 100n) / license.totalAssignedAmount), 1)}%</div>
+                <div>
+                    {parseFloat(((Number(license.totalClaimedAmount) / Number(license.totalAssignedAmount)) * 100).toFixed(2))}%
+                </div>
             </div>
 
             <div className="flex h-1 overflow-hidden rounded-full bg-gray-300">

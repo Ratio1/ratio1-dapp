@@ -7,7 +7,6 @@ import { Skeleton } from '@nextui-org/skeleton';
 import { Timer } from '@shared/Timer';
 import clsx from 'clsx';
 import { addDays, formatDistanceToNow, isBefore } from 'date-fns';
-import { round } from 'lodash';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import {
@@ -137,7 +136,9 @@ export const LicenseCardHeader = ({
                     {fBI(license.totalClaimedAmount, 18)}/{fBI(license.totalAssignedAmount, 18)}
                 </div>
 
-                <div>{round(Number((license.totalClaimedAmount * 100n) / license.totalAssignedAmount), 1)}%</div>
+                <div>
+                    {parseFloat(((Number(license.totalClaimedAmount) / Number(license.totalAssignedAmount)) * 100).toFixed(2))}%
+                </div>
             </div>
 
             <div className="flex h-1 overflow-hidden rounded-full bg-gray-300">
