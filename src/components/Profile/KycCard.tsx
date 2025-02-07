@@ -53,7 +53,7 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
             case KycStatus.Queued:
                 return { text: 'In Queue', color: 'yellow' };
             case KycStatus.Completed:
-                return { text: 'Completed', color: 'green' };
+                return { text: 'Completed', color: 'yellow' };
             case KycStatus.Approved:
                 return { text: 'Approved', color: 'green' };
             case KycStatus.OnHold:
@@ -68,16 +68,47 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
         }
     }
 
+    const getKycAlertCard = (statusInfo: { text: string; color: 'yellow' | 'green' | 'red' }) => {
+        let alertColor: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' = 'warning';
+        let alertTitle = 'Your KYC submission has been received and is under review.';
+
+        switch (statusInfo.color) {
+            case 'green':
+                alertColor = 'success';
+                alertTitle = 'Your KYC submission has been approved.';
+                break;
+
+            case 'red':
+                alertColor = 'danger';
+                alertTitle = 'Your KYC submission has been rejected.';
+                break;
+
+            default:
+        }
+
+        return (
+            <Alert
+                color={alertColor}
+                title={alertTitle}
+                classNames={{
+                    base: 'items-center',
+                }}
+            />
+        );
+    };
+
     if (!account) {
         return null;
     }
+
+    const isKycInitiated: boolean = getKycStatusInfo(account.kycStatus) !== undefined && account.kycStatus !== KycStatus.Init;
 
     return (
         <Card
             icon={<RiUserFollowLine />}
             title="KYC"
             label={
-                !getKycStatusInfo(account.kycStatus) ? (
+                !isKycInitiated ? (
                     <></>
                 ) : (
                     <Label
@@ -105,19 +136,20 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
                 {getRegistrationStatus() !== RegistrationStatus.REGISTERED ? (
                     <Alert
                         color="primary"
-                        title="You need to register and confirm your email first."
+                        title="You need to register and confirm your email address first."
                         classNames={{
                             base: 'items-center',
                         }}
                     />
-                ) : getKycStatusInfo(account.kycStatus) !== undefined ? (
-                    <Alert
-                        color="warning"
-                        title="Your KYC submission has been received and is under review."
-                        classNames={{
-                            base: 'items-center',
-                        }}
-                    />
+                ) : isKycInitiated ? (
+                    <>
+                        {getKycAlertCard(
+                            getKycStatusInfo(account.kycStatus) as {
+                                text: string;
+                                color: 'yellow' | 'green' | 'red';
+                            },
+                        )}
+                    </>
                 ) : (
                     <div className="col gap-4">
                         <div className="row gap-2.5">
