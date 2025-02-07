@@ -10,7 +10,8 @@ import Profile from '@pages/Profile';
 import Search from '@pages/Search';
 import TermsAndConditions from '@pages/T&C';
 import Unauthorized from '@pages/Unauthorized';
-import { RiCpuLine, RiFileSearchLine, RiFunctionLine, RiShieldUserLine } from 'react-icons/ri';
+import { RiCpuLine, RiFileSearchLine, RiFunctionLine, RiShieldUserLine, RiWaterFlashLine } from 'react-icons/ri';
+import { environment } from './config';
 
 export interface AppRoute {
     path: string;
@@ -55,7 +56,7 @@ export const mainRoutesInfo = {
         description: 'An organized view of your key information',
     },
     [routePath.licenses]: {
-        title: 'Licenses & Nodes',
+        title: 'Licenses',
         description: 'View, organize & assign your licenses to nodes',
     },
     [routePath.profileKyc]: {
@@ -85,9 +86,9 @@ export const mainRoutesInfo = {
         title: 'Admin',
         description: 'Admin panel for managing contracts',
     },
-    [routePath.admin]: {
+    [routePath.faucet]: {
         title: 'Faucet',
-        description: 'Get testnet tokens',
+        description: 'Claim testnet $R1 tokens',
     },
     [routePath.notFound]: {
         title: 'Not Found',
@@ -119,6 +120,15 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
         page: Profile,
         icon: <RiShieldUserLine />,
     },
+    ...(environment === 'testnet'
+        ? [
+              {
+                  path: routePath.faucet,
+                  page: Faucet,
+                  icon: <RiWaterFlashLine />,
+              },
+          ]
+        : []),
     {
         path: routePath.termsAndConditions,
         page: TermsAndConditions,
@@ -138,10 +148,6 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
     {
         path: routePath.admin,
         page: ProtectedAdminRoute,
-    },
-    {
-        path: routePath.faucet,
-        page: Faucet,
     },
     {
         path: routePath.notFound,

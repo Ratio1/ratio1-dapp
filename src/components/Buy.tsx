@@ -11,6 +11,7 @@ import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
 import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
+import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
 import { KycStatus } from '@typedefs/profile';
 import clsx from 'clsx';
 import { isFinite, isNaN } from 'lodash';
@@ -236,7 +237,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                                     <RiCpuLine className="text-xl" />
                                 </div>
 
-                                <div className="text-base font-medium">Node Licenses</div>
+                                <div className="text-base font-medium">Licenses</div>
                             </div>
 
                             <div className="flex">
@@ -315,16 +316,11 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                     </div>
 
                     <div className="flex w-full flex-col rounded-md bg-lightBlue px-8 py-8">
-                        <div className="col gap-1.5 text-center">
-                            <div className="text-sm font-medium text-slate-500">Total amount required</div>
-
-                            <div className="center-all gap-1">
-                                <div className="text-2xl font-semibold text-slate-400">~$R1</div>
-                                <div className="text-2xl font-semibold text-primary">
-                                    {parseFloat(Number(formatUnits(getTokenAmount(), 18)).toFixed(2))}
-                                </div>
-                            </div>
-                        </div>
+                        <R1ValueWithLabel
+                            label="Total amount required"
+                            value={parseFloat(Number(formatUnits(getTokenAmount(), 18)).toFixed(2))}
+                            isAproximate
+                        />
 
                         <div className="col gap-6">
                             {!!quantity && Number.parseInt(quantity) > 0 && (

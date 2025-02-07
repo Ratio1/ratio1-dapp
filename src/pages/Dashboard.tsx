@@ -167,12 +167,6 @@ function Dashboard() {
         }
     }, [authenticated]);
 
-    useEffect(() => {
-        console.log('authenticated', authenticated);
-        console.log('isLoading', isLoading);
-        console.log('isKycNotCompleted', isKycNotCompleted);
-    }, [account, authenticated, isLoading]);
-
     const isKycNotCompleted: boolean = !account || account.kycStatus !== KycStatus.Approved;
 
     const isBuyingDisabled = (): boolean => !authenticated || isLoading || isKycNotCompleted;

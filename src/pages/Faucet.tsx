@@ -5,10 +5,11 @@ import { routePath } from '@lib/routes';
 import { fBI } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { BigCard } from '@shared/BigCard';
-import { LargeValueWithLabel } from '@shared/LargeValueWithLabel';
+import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
 import { Timer } from '@shared/Timer';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { RiInformationLine, RiTimeLine } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
@@ -24,7 +25,7 @@ function Faucet() {
     const { address } = useAccount();
     const publicClient = usePublicClient();
 
-    const onCreate = async () => {
+    const onClaim = async () => {
         if (!walletClient || !config.faucetContractAddress) {
             toast.error('Unexpected error, please try again.');
             return;
@@ -39,8 +40,24 @@ function Faucet() {
         });
 
         await watchTx(txHash, publicClient);
+        fetchNextClaimTimestamp();
 
         setIsLoading(false);
+    };
+
+    const fetchNextClaimTimestamp = async () => {
+        if (!publicClient || !address || !config.faucetContractAddress) return;
+
+        publicClient
+            .readContract({
+                address: config.faucetContractAddress,
+                abi: TestnetFaucetContractAbi,
+                functionName: 'getNextClaimTimestamp',
+                args: [address],
+            })
+            .then((timestamp) => {
+                setNextClaimTimestamp(new Date(Number(timestamp) * 1000));
+            });
     };
 
     useEffect(() => {
@@ -59,45 +76,57 @@ function Faucet() {
             })
             .then(setAmountPerClaim);
 
-        if (address) {
-            publicClient
-                .readContract({
-                    address: config.faucetContractAddress,
-                    abi: TestnetFaucetContractAbi,
-                    functionName: 'getNextClaimTimestamp',
-                    args: [address],
-                })
-                .then((timestamp) => {
-                    setNextClaimTimestamp(new Date(Number(timestamp) * 1000));
-                });
-        }
+        fetchNextClaimTimestamp();
     }, [address]);
 
     return (
-        <BigCard>
-            <div className="text-base font-semibold leading-6 lg:text-xl">Claim Testnet Tokens</div>
+        <div className="center-all w-full flex-col">
+            <div className="w-full sm:w-auto">
+                <BigCard fullWidth>
+                    <div className="text-xl font-bold lg:text-2xl">Claim $R1 tokens</div>
 
-            <div className="col flex w-full justify-between gap-8 lg:flex-row">
-                <LargeValueWithLabel label="Amount per claim" value={'$R1 ' + fBI(amountPerClaim, 18)} isCompact />
+                    <div className="col gap-6 rounded-2xl border border-[#e3e4e8] bg-light p-6 lg:p-7">
+                        <div className="col center-all w-full min-w-max gap-6 sm:min-w-[320px]">
+                            <R1ValueWithLabel label="Amount to claim" value={fBI(amountPerClaim, 18)} />
 
-                {nextClaimTimestamp && nextClaimTimestamp.getTime() > new Date().getTime() && (
-                    <div>
-                        <div className="text-base font-semibold leading-6 lg:text-xl">Next claim available in</div>
-                        <Timer timestamp={nextClaimTimestamp} variant="compact" callback={() => {}} />
+                            {nextClaimTimestamp && (
+                                <div>
+                                    {nextClaimTimestamp.getTime() > new Date().getTime() ? (
+                                        <div className="center-all col">
+                                            <div className="row gap-1 text-slate-500">
+                                                <RiTimeLine />
+                                                <div className="text-sm">Next claim available in</div>
+                                            </div>
+
+                                            <Timer timestamp={nextClaimTimestamp} variant="compact" callback={() => {}} />
+                                        </div>
+                                    ) : (
+                                        <div className="row gap-1 text-slate-500">
+                                            <RiInformationLine />
+                                            <div className="text-sm">Can be claimed once every 24 hours</div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="mx-auto flex">
+                            <Button
+                                fullWidth
+                                color="primary"
+                                onPress={onClaim}
+                                isLoading={isLoading}
+                                isDisabled={
+                                    isLoading || !nextClaimTimestamp || nextClaimTimestamp.getTime() > new Date().getTime()
+                                }
+                            >
+                                Claim
+                            </Button>
+                        </div>
                     </div>
-                )}
+                </BigCard>
             </div>
-
-            <Button
-                fullWidth
-                color="primary"
-                onPress={onCreate}
-                isLoading={isLoading}
-                isDisabled={isLoading || !nextClaimTimestamp || nextClaimTimestamp.getTime() > new Date().getTime()}
-            >
-                Claim
-            </Button>
-        </BigCard>
+        </div>
     );
 }
 

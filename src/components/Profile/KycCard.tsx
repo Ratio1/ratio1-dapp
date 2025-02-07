@@ -112,7 +112,7 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
                     />
                 ) : getKycStatusInfo(account.kycStatus) !== undefined ? (
                     <Alert
-                        color="success"
+                        color="warning"
                         title="Your KYC submission has been received and is under review."
                         classNames={{
                             base: 'items-center',

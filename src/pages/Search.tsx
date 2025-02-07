@@ -136,7 +136,9 @@ function Search() {
                     <div className="text-sm text-slate-400">Search for a license</div>
                 </div>
             ) : (
-                <LicenseCard license={result} isExpanded disableActions />
+                <div className="w-full">
+                    <LicenseCard license={result} isExpanded disableActions />
+                </div>
             )}
         </div>
     );
