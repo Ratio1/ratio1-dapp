@@ -8,6 +8,7 @@ import { Button } from '@nextui-org/button';
 import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
 import { Spinner } from '@nextui-org/spinner';
 import { DetailedAlert } from '@shared/DetailedAlert';
+import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
 import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiCurrencyLine, RiLinkUnlink } from 'react-icons/ri';
@@ -40,8 +41,8 @@ const LicenseUnlinkModal = forwardRef(({ getLicenses, onClaim }: Props, ref) => 
     const publicClient = usePublicClient();
 
     const trigger = (license: License) => {
+        setLoading(false);
         setLicense(license);
-
         onOpen();
     };
 
@@ -57,17 +58,22 @@ const LicenseUnlinkModal = forwardRef(({ getLicenses, onClaim }: Props, ref) => 
 
         setLoading(true);
 
-        const txHash = await walletClient.writeContract({
-            address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
-            abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
-            functionName: 'unlinkNode',
-            args: [license.licenseId],
-        });
+        try {
+            const txHash = await walletClient.writeContract({
+                address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
+                abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
+                functionName: 'unlinkNode',
+                args: [license.licenseId],
+            });
 
-        await watchTx(txHash, publicClient);
-        getLicenses();
-        setLoading(false);
-        onClose();
+            await watchTx(txHash, publicClient);
+            getLicenses();
+            onClose();
+        } catch (error) {
+            toast.error('Unexpected error, please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const onConfirmClaiming = async () => {
@@ -77,8 +83,14 @@ const LicenseUnlinkModal = forwardRef(({ getLicenses, onClaim }: Props, ref) => 
         }
 
         setLoading(true);
-        await onClaim(license);
-        setLoading(false);
+
+        try {
+            await onClaim(license);
+        } catch (error) {
+            toast.error('Unexpected error, please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const getUnlinkingContent = () => (
@@ -120,12 +132,11 @@ const LicenseUnlinkModal = forwardRef(({ getLicenses, onClaim }: Props, ref) => 
                     title="Unclaimed rewards"
                     description={<div>Rewards must be claimed before unlinking license.</div>}
                 >
-                    <div className="row gap-1.5">
-                        <div className="text-base font-semibold text-slate-400 xl:text-lg">$R1</div>
-                        <div className="text-base font-semibold text-primary xl:text-lg">
-                            {parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2))}
-                        </div>
-                    </div>
+                    <R1ValueWithLabel
+                        label="Unclaimed rewards"
+                        value={parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2))}
+                        isAproximate
+                    />
                 </DetailedAlert>
             </div>
 

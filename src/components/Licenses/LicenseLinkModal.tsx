@@ -40,6 +40,8 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, getLicenses }: Props, ref)
     }, []);
 
     const trigger = (license: License) => {
+        setAddress('');
+        setLoading(false);
         setLicense(license);
         onOpen();
     };
@@ -71,19 +73,24 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, getLicenses }: Props, ref)
             return;
         }
 
-        const txHash = await walletClient.writeContract({
-            address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
-            abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
-            functionName: 'linkNode',
-            args: [license.licenseId, address as EthAddress],
-        });
+        try {
+            const txHash = await walletClient.writeContract({
+                address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
+                abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
+                functionName: 'linkNode',
+                args: [license.licenseId, address as EthAddress],
+            });
 
-        await watchTx(txHash, publicClient);
+            await watchTx(txHash, publicClient);
 
-        setAddress('');
-        getLicenses();
-        setLoading(false);
-        onClose();
+            setAddress('');
+            getLicenses();
+            onClose();
+        } catch (error) {
+            toast.error('An error occurred, please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -118,6 +125,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, getLicenses }: Props, ref)
                                             classNames={{
                                                 inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
                                                 input: 'font-medium',
+                                                label: 'font-medium',
                                             }}
                                             type="text"
                                             variant="bordered"
