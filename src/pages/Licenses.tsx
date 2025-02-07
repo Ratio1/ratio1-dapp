@@ -53,13 +53,17 @@ function Licenses() {
     const publicClient = usePublicClient();
 
     useEffect(() => {
-        if (authenticated) {
-            getLicenses();
+        if (!publicClient) {
+            return;
         } else {
-            setLicenses([]);
-            setLicensesToShow([]);
+            if (authenticated) {
+                getLicenses();
+            } else {
+                setLicenses([]);
+                setLicensesToShow([]);
+            }
         }
-    }, [authenticated]);
+    }, [authenticated, publicClient]);
 
     useEffect(() => {
         onPageChange(1);
