@@ -93,8 +93,6 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
         }
     };
 
-    const getAssignTimestamp = (): Date => new Date(Number(license.assignTimestamp) * 1000);
-
     return (
         <div className="px-5 py-5 md:px-8 md:py-7">
             <div className="col gap-6 lg:gap-8">
