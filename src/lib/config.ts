@@ -8,6 +8,7 @@ type Config = {
     ndContractAddress: EthAddress;
     mndContractAddress: EthAddress;
     liquidityManagerContractAddress: EthAddress;
+    faucetContractAddress?: EthAddress;
     safeAddress: EthAddress;
     explorerUrl: string;
     genesisDate: Date;
@@ -43,6 +44,7 @@ const configs: {
         r1ContractAddress: '0xCA32aD806BB1e086D77c733656c20334bf2976D6',
         ndContractAddress: '0x9aB4e425c7dFFC7Aa1A7a262727b0b663e047571',
         mndContractAddress: '0x658bE7d73EBd0Ba7DCe26c112d9871B7Bed890EC',
+        faucetContractAddress: "0xd9a9B7fd2De5fFAF50695d2f489a56771CA28123",
         liquidityManagerContractAddress: '0x7ecC3d8519f068D730EEDeCe899C4CdEC7A4E6A1',
         safeAddress: '0xAEEa4E234096b1AcC16c898B6E057Fb0e33F9cC2',
         explorerUrl: 'https://sepolia.basescan.org',

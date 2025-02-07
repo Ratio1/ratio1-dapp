@@ -2,6 +2,7 @@ import { ProtectedAdminRoute } from '@components/ProtectedAdminRoute';
 import NotFound from '@pages/404';
 import Dashboard from '@pages/Dashboard';
 import EmailConfirmation from '@pages/EmailConfirmation';
+import Faucet from '@pages/Faucet';
 import KYC from '@pages/KYC';
 import Licenses from '@pages/Licenses';
 import PrivacyPolicy from '@pages/PrivacyPolicy';
@@ -45,6 +46,7 @@ export const routePath = {
     unauthorized: '/unauthorized',
     kyc: '/kyc',
     admin: '/admin',
+    faucet: '/faucet',
 };
 
 export const mainRoutesInfo = {
@@ -82,6 +84,10 @@ export const mainRoutesInfo = {
     [routePath.admin]: {
         title: 'Admin',
         description: 'Admin panel for managing contracts',
+    },
+    [routePath.admin]: {
+        title: 'Faucet',
+        description: 'Get testnet tokens',
     },
     [routePath.notFound]: {
         title: 'Not Found',
@@ -132,6 +138,10 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
     {
         path: routePath.admin,
         page: ProtectedAdminRoute,
+    },
+    {
+        path: routePath.faucet,
+        page: Faucet,
     },
     {
         path: routePath.notFound,
