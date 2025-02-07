@@ -61,12 +61,14 @@ export const LicenseCardHeader = ({
                 <Skeleton className="h-4 w-full max-w-36 rounded-lg" />
             ) : (
                 <div className="row gap-2">
-                    <div
-                        className={clsx('h-2.5 w-2.5 rounded-full', {
-                            'bg-green-500': isOnline,
-                            'bg-red-500': !isOnline,
-                        })}
-                    ></div>
+                    {!!alias && (
+                        <div
+                            className={clsx('h-2.5 w-2.5 rounded-full', {
+                                'bg-green-500': isOnline,
+                                'bg-red-500': !isOnline,
+                            })}
+                        ></div>
+                    )}
                     <div>{alias}</div>
                 </div>
             )}

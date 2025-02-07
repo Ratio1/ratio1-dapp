@@ -240,7 +240,7 @@ function Licenses() {
 
                     {isLoading ? (
                         <>
-                            <div className="mx-auto pt-4 xl:mx-0">
+                            <div className="mx-auto pt-4 xl:mx-0 xl:flex">
                                 <Skeleton className="h-8 min-w-20 rounded-xl" />
                             </div>
 

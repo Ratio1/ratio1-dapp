@@ -32,28 +32,40 @@ export function fBI(num: bigint, decimals: number): string {
 export const getLicenseRewardsAndNodeInfo = async (
     license: License,
 ): Promise<{ node_alias: string; node_is_online: boolean; rewards_amount: bigint }> => {
-    const nodeInfo = await getNodeInfo(license.nodeAddress);
+    let nodeInfo = {
+        node_alias: '',
+        node_is_online: false,
+    };
     let rewards_amount: bigint = 0n;
 
-    try {
-        if (license.totalClaimedAmount !== license.totalAssignedAmount) {
-            switch (license.type) {
-                case 'ND':
-                    rewards_amount = await getNdLicenseRewards(license);
-                    break;
-
-                case 'MND':
-                    rewards_amount = await getMndLicenseRewards(license);
-                    break;
-
-                case 'GND':
-                    rewards_amount = await getGndLicenseRewards(license);
-                    break;
-            }
+    if (getCurrentEpoch() > 1) {
+        try {
+            nodeInfo = await getNodeInfo(license.nodeAddress);
+        } catch (error) {
+            console.error(error);
+            throttledToastError('Error loading license rewards and node data.');
         }
-    } catch (error) {
-        console.error(error);
-        throttledToastError('Error loading license rewards.');
+
+        try {
+            if (license.totalClaimedAmount !== license.totalAssignedAmount) {
+                switch (license.type) {
+                    case 'ND':
+                        rewards_amount = await getNdLicenseRewards(license);
+                        break;
+
+                    case 'MND':
+                        rewards_amount = await getMndLicenseRewards(license);
+                        break;
+
+                    case 'GND':
+                        rewards_amount = await getGndLicenseRewards(license);
+                        break;
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            throttledToastError('Error loading license rewards and node data.');
+        }
     }
 
     return {
@@ -76,7 +88,7 @@ export const throttledToastOracleError = throttle(
             (t) => (
                 <div className="row gap-3">
                     <div className="flex">
-                        <RiCodeSSlashLine className="text-[28px] text-red-600" />
+                        <RiCodeSSlashLine className="text-2xl text-red-600" />
                     </div>
 
                     <div>Oracle state is not valid, please contact the development team.</div>

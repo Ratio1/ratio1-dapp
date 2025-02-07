@@ -65,6 +65,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
             <div className="col gap-1 xl:gap-0">
                 <div className="text-sm leading-4 text-slate-500 xl:text-base">{label}</div>
+                {value}
                 <div className="text-sm font-medium xl:text-base">
                     {value === undefined ? '...' : `${parseFloat(((value / 255) * 100).toFixed(1))}%`}
                 </div>
@@ -72,9 +73,9 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
         </div>
     );
 
-    const getNodePerformanceValue = (index: number): number => {
-        if (!nodeEpochs) {
-            return 0;
+    const getNodePerformanceValue = (index: number): number | undefined => {
+        if (!nodeEpochs || !nodeEpochs.length) {
+            return;
         }
 
         switch (index) {
@@ -88,7 +89,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                 return arrayAverage(nodeEpochs.slice(-7));
 
             default:
-                return 0;
+                return;
         }
     };
 
