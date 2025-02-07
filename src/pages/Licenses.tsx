@@ -55,6 +55,9 @@ function Licenses() {
     useEffect(() => {
         if (authenticated) {
             getLicenses();
+        } else {
+            setLicenses([]);
+            setLicensesToShow([]);
         }
     }, [authenticated]);
 
