@@ -169,8 +169,7 @@ function Dashboard() {
 
     const isKycNotCompleted = !account || account.kycStatus !== KycStatus.Completed;
 
-    // TODO: Production: add isKycNotCompleted
-    const isBuyingDisabled = (): boolean => isLoading;
+    const isBuyingDisabled = (): boolean => !authenticated || isLoading || isKycNotCompleted;
 
     const getKycNotCompletedAlert = () => (
         <Alert

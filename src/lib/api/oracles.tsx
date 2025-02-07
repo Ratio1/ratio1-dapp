@@ -1,7 +1,8 @@
+import { config } from '@lib/config';
 import axios from 'axios';
 import * as types from 'typedefs/blockchain';
 
-const oraclesUrl = 'https://naeural-oracle.ngrok.app';
+const oraclesUrl = config.oraclesUrl;
 
 // *****
 // GET

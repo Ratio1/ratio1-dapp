@@ -1,12 +1,11 @@
 import Favicon from '@assets/favicon.png';
 import Layout from '@components/Layout';
-import { projectId, wagmiAdapter } from '@lib/config';
+import { config, projectId, wagmiAdapter } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { isParentRoute, isSimpleRoute, routePath, routes } from '@lib/routes';
 import { createAppKit } from '@reown/appkit/react';
 import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { baseSepolia } from 'viem/chains';
 
 const metadata = {
     name: 'Ratio1',
@@ -24,8 +23,8 @@ function App() {
             createAppKit({
                 adapters: [wagmiAdapter],
                 projectId,
-                networks: [baseSepolia],
-                defaultNetwork: baseSepolia,
+                networks: config.networks as any,
+                defaultNetwork: config.networks[0],
                 metadata,
                 features: {
                     analytics: true,

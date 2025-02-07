@@ -1,7 +1,8 @@
+import { config } from '@lib/config';
 import axios from 'axios';
 import * as types from 'typedefs/blockchain';
 
-const backendUrl = 'https://ratio1-backend.ngrok.app';
+const backendUrl = config.backendUrl;
 
 // *****
 // GET
