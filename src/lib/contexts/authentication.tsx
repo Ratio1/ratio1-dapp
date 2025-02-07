@@ -163,7 +163,7 @@ export const AuthenticationProvider = ({ children }) => {
             localStorage.setItem('expiration', response.expiration.toString());
             return true;
         } catch (error) {
-            return true; //TODO false when backend works
+            return false;
         }
     };
 
