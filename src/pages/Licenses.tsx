@@ -56,19 +56,15 @@ function Licenses() {
     useEffect(() => {
         if (!publicClient) {
             return;
-        }
-
-        if (!address) {
-            return;
-        }
-
-        if (authenticated) {
-            getLicenses();
         } else {
-            setLicenses([]);
-            setLicensesToShow([]);
+            if (authenticated) {
+                getLicenses();
+            } else {
+                setLicenses([]);
+                setLicensesToShow([]);
+            }
         }
-    }, [authenticated]);
+    }, [authenticated, address, publicClient]); // Deps must contain address and publicClient
 
     useEffect(() => {
         onPageChange(1);
