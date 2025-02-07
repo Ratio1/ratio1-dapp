@@ -47,7 +47,7 @@ const configs: {
     testnet: {
         backendUrl: 'https://dapp-api-test.ratio1.ai',
         oraclesUrl: 'https://oracle-test.ratio1.ai',
-        r1ContractAddress: '0xc992DcaB6D3F8783fBf0c935E7bCeB20aa50A6f1',
+        r1ContractAddress: '0xCA32aD806BB1e086D77c733656c20334bf2976D6',
         ndContractAddress: '0xE20198EE2B76eED916A568a47cdea9681f7c79BF',
         mndContractAddress: '0xfD52a7958088dF734D523d618e583e4d53cD7420',
         faucetContractAddress: '0xd9a9B7fd2De5fFAF50695d2f489a56771CA28123',
