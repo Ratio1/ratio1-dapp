@@ -198,7 +198,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
     };
 
     const isBuyingDisabled = (): boolean =>
-        !account || !licenseTokenPrice || allowance === undefined || account.kycStatus !== KycStatus.Completed;
+        !account || !licenseTokenPrice || allowance === undefined || account.kycStatus !== KycStatus.Approved;
 
     return (
         <>

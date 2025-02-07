@@ -167,7 +167,13 @@ function Dashboard() {
         }
     }, [authenticated]);
 
-    const isKycNotCompleted = !account || account.kycStatus !== KycStatus.Completed;
+    useEffect(() => {
+        console.log('authenticated', authenticated);
+        console.log('isLoading', isLoading);
+        console.log('isKycNotCompleted', isKycNotCompleted);
+    }, [account, authenticated, isLoading]);
+
+    const isKycNotCompleted: boolean = !account || account.kycStatus !== KycStatus.Approved;
 
     const isBuyingDisabled = (): boolean => !authenticated || isLoading || isKycNotCompleted;
 
@@ -244,7 +250,9 @@ function Dashboard() {
                         <div className="text-xl font-bold leading-7 lg:text-[26px]">Licenses & Tiers</div>
 
                         <div className="row gap-3">
-                            <div className="hidden larger:block">{getKycNotCompletedAlert()}</div>
+                            {!isLoading && isBuyingDisabled() && (
+                                <div className="hidden larger:block">{getKycNotCompletedAlert()}</div>
+                            )}
 
                             <div className="flex">
                                 <Button color="primary" onPress={onOpen} isDisabled={isBuyingDisabled()}>
@@ -257,7 +265,7 @@ function Dashboard() {
                         </div>
                     </div>
 
-                    <div className="block larger:hidden">{getKycNotCompletedAlert()}</div>
+                    {!isLoading && isBuyingDisabled() && <div className="block larger:hidden">{getKycNotCompletedAlert()}</div>}
 
                     <div className="col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-6 lg:p-7">
                         <Tiers currentStage={currentStage} stages={stages} />

@@ -62,9 +62,7 @@ export const AuthenticationProvider = ({ children }) => {
                 }),
                 createMessage: ({ address, ...args }: SIWECreateMessageArgs) => formatMessage(args, address),
                 getNonce: async () => {
-                    // const nonce = 'ZHa67TjiuP3NwIJ9Y'; //TODO nonce generation
                     const nonce = generateNonce();
-                    console.log('Nonce', nonce);
                     return nonce;
                 },
                 getSession,
