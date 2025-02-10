@@ -18,7 +18,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 function Faucet() {
-    const { watchTx } = useBlockchainContext() as BlockchainContextType;
+    const { watchTx, fetchR1Balance } = useBlockchainContext() as BlockchainContextType;
     const navigate = useNavigate();
 
     const [amountPerClaim, setAmountPerClaim] = useState<bigint>(0n);
@@ -45,6 +45,7 @@ function Faucet() {
 
         await watchTx(txHash, publicClient);
         fetchNextClaimTimestamp();
+        fetchR1Balance();
 
         setIsLoading(false);
     };
