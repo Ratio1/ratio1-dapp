@@ -51,7 +51,7 @@ body {
 
 /* Safe padding for mobile devices */
 .nav-safe-padding {
-    @apply pb-[env(safe-area-inset-bottom)];
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Scrollbar */
