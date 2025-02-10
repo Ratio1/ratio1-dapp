@@ -49,6 +49,11 @@ body {
     @apply text-primary;
 }
 
+/* Safe padding for mobile devices */
+.nav-safe-padding {
+    @apply pb-[env(safe-area-inset-bottom)];
+}
+
 /* Scrollbar */
 *::-webkit-scrollbar {
     width: 8px;

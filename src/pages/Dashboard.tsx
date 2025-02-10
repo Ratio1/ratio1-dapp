@@ -173,23 +173,27 @@ function Dashboard() {
     const isBuyingDisabled = (): boolean => !authenticated || isLoading || isKycNotCompleted;
 
     const getKycNotCompletedAlert = () => (
-        <Alert
-            color="danger"
-            title="Buying licenses is available after completing KYC."
-            endContent={
-                <div className="ml-2">
-                    <Link to={routePath.profileKyc}>
-                        <Button color="danger" size="sm" variant="solid">
-                            <div className="text-xs sm:text-sm">Go to KYC</div>
-                        </Button>
-                    </Link>
-                </div>
-            }
-            classNames={{
-                title: 'text-xs sm:text-sm',
-                base: 'items-center py-2 px-3.5',
-            }}
-        />
+        <>
+            {!!authenticated && (
+                <Alert
+                    color="danger"
+                    title="Buying licenses is available after completing KYC."
+                    endContent={
+                        <div className="ml-2">
+                            <Link to={routePath.profileKyc}>
+                                <Button color="danger" size="sm" variant="solid">
+                                    <div className="text-xs sm:text-sm">Go to KYC</div>
+                                </Button>
+                            </Link>
+                        </div>
+                    }
+                    classNames={{
+                        title: 'text-xs sm:text-sm',
+                        base: 'items-center py-2 px-3.5',
+                    }}
+                />
+            )}
+        </>
     );
 
     return (
