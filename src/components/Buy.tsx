@@ -1,7 +1,7 @@
 import { ERC20Abi } from '@blockchain/ERC20';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { buyLicense } from '@lib/api/backend';
-import { config } from '@lib/config';
+import { config, environment } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes';
@@ -208,7 +208,10 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
     };
 
     const isBuyingDisabled = (): boolean =>
-        !account || !licenseTokenPrice || allowance === undefined || account.kycStatus !== KycStatus.Approved;
+        !account ||
+        !licenseTokenPrice ||
+        allowance === undefined ||
+        (account.kycStatus !== KycStatus.Approved && environment === 'mainnet');
 
     return (
         <>

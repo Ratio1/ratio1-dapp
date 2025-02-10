@@ -64,7 +64,7 @@ function Licenses() {
                 setLicensesToShow([]);
             }
         }
-    }, [authenticated, publicClient]);
+    }, [authenticated, address, publicClient]); // Deps must contain address and publicClient
 
     useEffect(() => {
         onPageChange(1);

@@ -158,6 +158,7 @@ function Dashboard() {
         if (!publicClient) {
             return;
         }
+
         if (!address) {
             return;
         }
