@@ -38,9 +38,14 @@ function RegistrationCard({ getRegistrationStatus }: { getRegistrationStatus: ()
             setAccount(accountResponse);
 
             onOpen();
-        } catch (error) {
-            console.error('Error', error);
-            toast.error('Unexpected error, please try again.');
+        } catch (error: any) {
+            console.error(error);
+
+            if (error.message && error.message.includes('already used')) {
+                toast.error('This email address is already registered to another wallet.');
+            } else {
+                toast.error('Unexpected error, please try again.');
+            }
         } finally {
             setLoading(false);
         }
