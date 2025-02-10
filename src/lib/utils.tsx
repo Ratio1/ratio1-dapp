@@ -8,23 +8,29 @@ import { config, getCurrentEpoch } from './config';
 
 export const getShortAddress = (address: string, size = 4) => `${address.slice(0, size)}...${address.slice(-size)}`;
 
-export function fN(num: number): string {
+export function fN(num: number): string | number {
+    if (num >= 1_000_000) {
+        const formattedNum = num / 1_000_000;
+        return formattedNum % 1 === 0 ? `${formattedNum}M` : `${parseFloat(formattedNum.toFixed(2))}M`;
+    }
+
     if (num >= 1000) {
         const formattedNum = num / 1000;
-        return formattedNum % 1 === 0 ? `${formattedNum}K` : `${formattedNum.toFixed(1)}K`;
+        return formattedNum % 1 === 0 ? `${formattedNum}K` : `${parseFloat(formattedNum.toFixed(2))}K`;
     }
-    return num.toString();
+
+    return parseFloat(num.toFixed(2));
 }
 
 export function fBI(num: bigint, decimals: number): string {
     num = num / 10n ** BigInt(decimals);
     if (num >= 1_000_000n) {
         const formattedNum = Number(num) / 1_000_000;
-        return formattedNum % 1 === 0 ? `${formattedNum}M` : `${formattedNum.toFixed(1)}M`;
+        return formattedNum % 1 === 0 ? `${formattedNum}M` : `${parseFloat(formattedNum.toFixed(2))}M`;
     }
     if (num >= 1000n) {
         const formattedNum = Number(num) / 1000;
-        return formattedNum % 1 === 0 ? `${formattedNum}K` : `${formattedNum.toFixed(1)}K`;
+        return formattedNum % 1 === 0 ? `${formattedNum}K` : `${parseFloat(formattedNum.toFixed(2))}K`;
     }
     return num.toString();
 }
