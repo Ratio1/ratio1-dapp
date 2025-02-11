@@ -103,7 +103,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, getLicenses }: Props, ref)
                         <>
                             <ModalHeader>Link License #{Number(license.licenseId)}</ModalHeader>
 
-                            <ModalBody>
+                            <ModalBody className="font-mona">
                                 <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>
                                     <div className="col w-full gap-3">
                                         <Input
