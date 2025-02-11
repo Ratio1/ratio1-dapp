@@ -102,6 +102,7 @@ type ApiAccount = {
     isBlacklisted: boolean;
     blacklistedReason: string;
     receiveUpdates: boolean;
+    usdBuyLimit: number;
 };
 
 type Stage = {

@@ -57,14 +57,14 @@ function Licenses() {
         if (!publicClient) {
             return;
         } else {
-            if (authenticated) {
+            if (authenticated && !!address && publicClient) {
                 getLicenses();
             } else {
                 setLicenses([]);
                 setLicensesToShow([]);
             }
         }
-    }, [authenticated, address, publicClient]); // Deps must contain address and publicClient
+    }, [authenticated, address, publicClient]);
 
     useEffect(() => {
         onPageChange(1);
