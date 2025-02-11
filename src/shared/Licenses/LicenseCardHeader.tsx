@@ -132,9 +132,9 @@ export const LicenseCardHeader = ({
                                     })}
                                 ></div>
 
-                                <div className="col gap-0.5 font-medium">
+                                <div className="col font-medium">
                                     {!!nodeAlias && (
-                                        <div className="max-w-[176px] overflow-hidden text-ellipsis whitespace-nowrap leading-none">
+                                        <div className="max-w-[176px] overflow-hidden text-ellipsis whitespace-nowrap leading-5">
                                             {nodeAlias}
                                         </div>
                                     )}
@@ -145,7 +145,7 @@ export const LicenseCardHeader = ({
                                         onClick={(e) => e.stopPropagation()}
                                         className="cursor-pointer text-sm text-slate-400 transition-all hover:opacity-60"
                                     >
-                                        <div className="leading-none">{getShortAddress(license.nodeAddress)}</div>
+                                        <div className="leading-5">{getShortAddress(license.nodeAddress)}</div>
                                     </Link>
                                 </div>
                             </>

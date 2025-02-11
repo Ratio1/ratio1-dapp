@@ -159,8 +159,8 @@ function Search() {
                 isLinked: false, // Enforcing base license type here as to not pass redunant data
             });
 
-            // MNDs have a 120 epoch cliff period
-            const claimableEpochs: number = Math.max(0, getCurrentEpoch() - 120 - Number(lastClaimEpoch));
+            // MNDs have a cliff period
+            const claimableEpochs: number = Math.max(0, getCurrentEpoch() - config.mndCliffEpochs - Number(lastClaimEpoch));
 
             setResultMNDContract({
                 ...baseLicense,
