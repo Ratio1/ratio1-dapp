@@ -1,6 +1,6 @@
 import { getNodeEpochs } from '@lib/api/oracles';
 import useAwait from '@lib/useAwait';
-import { arrayAverage, throttledToastOracleError } from '@lib/utils';
+import { arrayAverage, getShortAddress, throttledToastOracleError } from '@lib/utils';
 import clsx from 'clsx';
 import { useMemo } from 'react';
 import { RiTimeLine } from 'react-icons/ri';
@@ -26,12 +26,16 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
 
     const nodeEpochsPromise = useMemo(async () => {
+        // console.log('Fetching node epochs', getShortAddress(license.nodeAddress));
+
         if (!license.isLinked) {
+            // console.log('License is not linked', getShortAddress(license.nodeAddress));
             return [];
         }
 
         try {
             const result = await getNodeEpochs(license.nodeAddress);
+            console.log(`[${getShortAddress(license.nodeAddress)}] NodeEpochs`, result);
             return result.epochs_vals;
         } catch (error) {
             console.error(error);
@@ -130,7 +134,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                         </div>
 
                         <div className="col flex-1 gap-3">
-                            {getTitle('Rewards')}
+                            {getTitle('Claimable Rewards')}
 
                             {getLine(
                                 'Total amount ($R1)',

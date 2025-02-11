@@ -25,29 +25,30 @@ function Search() {
     const licenseId = searchParams.get('licenseId');
 
     useEffect(() => {
-        if (licenseId) {
+        if (licenseId && publicClient) {
             setValue(licenseId);
-            onSearch();
+            onSearch(licenseId);
         }
-    }, [licenseId]);
+    }, [licenseId, publicClient]);
 
-    const onSearch = async () => {
+    const onSearch = async (paramValue?: string) => {
         if (!publicClient) {
             return;
         }
 
-        const sanitizedNumber = value.replace('License', '').replace('Licence', '').replace('#', '').trim();
+        const sanitizedNumber = (paramValue || value).replace('License', '').replace('Licence', '').replace('#', '').trim();
 
         if (!sanitizedNumber) {
             return;
         }
 
+        console.log('Searching for license', sanitizedNumber);
+
         setSearchParams({ licenseId: sanitizedNumber });
 
         setLoading(true);
 
-        await onSearchND(BigInt(sanitizedNumber));
-        await onSearchMND(BigInt(sanitizedNumber));
+        await Promise.all([onSearchND(BigInt(sanitizedNumber)), onSearchMND(BigInt(sanitizedNumber))]);
 
         setLoading(false);
     };
@@ -65,7 +66,7 @@ function Search() {
                 args: [licenseId],
             });
 
-        console.log('ND', { nodeAddress, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle, isBanned });
+        // console.log('ND', { nodeAddress, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle, isBanned });
 
         const isLinked = nodeAddress !== '0x0000000000000000000000000000000000000000';
 
@@ -90,6 +91,7 @@ function Search() {
                 isLinked,
             });
         } else {
+            // console.log('ND getLicenseRewardsAndNodeInfo');
             const licenseDataPromise = getLicenseRewardsAndNodeInfo({
                 ...baseLicense,
                 claimableEpochs: 0n,
@@ -119,14 +121,14 @@ function Search() {
                 args: [licenseId],
             });
 
-        console.log('MND', {
-            nodeAddress,
-            totalAssignedAmount,
-            totalClaimedAmount,
-            lastClaimEpoch,
-            assignTimestamp,
-            lastClaimOracle,
-        });
+        // console.log('MND', {
+        //     nodeAddress,
+        //     totalAssignedAmount,
+        //     totalClaimedAmount,
+        //     lastClaimEpoch,
+        //     assignTimestamp,
+        //     lastClaimOracle,
+        // });
 
         const isLinked = nodeAddress !== '0x0000000000000000000000000000000000000000';
 
@@ -151,6 +153,7 @@ function Search() {
                 isLinked,
             });
         } else {
+            // console.log('MND getLicenseRewardsAndNodeInfo');
             const licenseDataPromise = getLicenseRewardsAndNodeInfo({
                 ...baseLicense,
                 claimableEpochs: 0n,
