@@ -28,6 +28,9 @@ export function Wrappers({ children }: { children: React.ReactNode }) {
                                 bottom: 30,
                                 right: 30,
                             }}
+                            toastOptions={{
+                                className: 'font-mona text-sm',
+                            }}
                         />
 
                         <ScrollToTop />

@@ -26,30 +26,29 @@ function Search() {
 
     useEffect(() => {
         if (licenseId && publicClient) {
+            console.log({ licenseId, publicClient });
             setValue(licenseId);
             onSearch(licenseId);
         }
     }, [licenseId, publicClient]);
 
-    const onSearch = async (paramValue?: string) => {
-        if (!publicClient) {
-            return;
-        }
-
-        const sanitizedNumber = (paramValue || value).replace('License', '').replace('Licence', '').replace('#', '').trim();
+    const onSearchBarSubmit = () => {
+        const sanitizedNumber = value.replace('License', '').replace('Licence', '').replace('#', '').trim();
 
         if (!sanitizedNumber) {
             return;
         }
 
-        console.log('Searching for license', sanitizedNumber);
-
         setSearchParams({ licenseId: sanitizedNumber });
+    };
+
+    const onSearch = async (licenseId: string) => {
+        if (!publicClient) {
+            return;
+        }
 
         setLoading(true);
-
-        await Promise.all([onSearchND(BigInt(sanitizedNumber)), onSearchMND(BigInt(sanitizedNumber))]);
-
+        await Promise.all([onSearchND(BigInt(licenseId)), onSearchMND(BigInt(licenseId))]);
         setLoading(false);
     };
 
@@ -180,7 +179,7 @@ function Search() {
                     value={value}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
-                            onSearch();
+                            onSearchBarSubmit();
                         }
                     }}
                     onValueChange={(value) => {
@@ -202,7 +201,7 @@ function Search() {
                             ) : (
                                 <div
                                     onClick={() => {
-                                        onSearch();
+                                        onSearchBarSubmit();
                                     }}
                                 >
                                     <RiSearchLine />

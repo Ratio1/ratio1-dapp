@@ -107,7 +107,7 @@ export const throttledToastOracleError = throttle(
             {
                 duration: 10000,
                 style: {
-                    minWidth: '388px',
+                    minWidth: '360px',
                 },
             },
         );
