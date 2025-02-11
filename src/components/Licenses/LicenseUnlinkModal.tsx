@@ -90,6 +90,8 @@ const LicenseUnlinkModal = forwardRef(({ getLicenses, onClaim }: Props, ref) => 
             toast.error('Unexpected error, please try again.');
         } finally {
             setLoading(false);
+            onClose();
+            // Claiming should also fetch licenses
         }
     };
 
@@ -133,7 +135,7 @@ const LicenseUnlinkModal = forwardRef(({ getLicenses, onClaim }: Props, ref) => 
                     description={<div>Rewards must be claimed before unlinking license.</div>}
                 >
                     <R1ValueWithLabel
-                        label="Unclaimed rewards"
+                        label="Unclaimed Rewards"
                         value={parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2))}
                         isAproximate
                     />
@@ -158,7 +160,9 @@ const LicenseUnlinkModal = forwardRef(({ getLicenses, onClaim }: Props, ref) => 
                         <>
                             <ModalHeader>Unlink License #{Number(license.licenseId)}</ModalHeader>
 
-                            <ModalBody>{rewards > 0n ? getClaimRewardsContent() : getUnlinkingContent()}</ModalBody>
+                            <ModalBody className="font-mona">
+                                {rewards > 0n ? getClaimRewardsContent() : getUnlinkingContent()}
+                            </ModalBody>
                         </>
                     )}
                 </ModalContent>

@@ -162,7 +162,7 @@ export const LicenseCardHeader = ({
             <Skeleton className="h-4 min-w-20 rounded-lg" />
         ) : (
             <div className="row gap-1.5">
-                <div className="text-base font-semibold text-slate-400 xl:text-lg">$R1</div>
+                <div className="text-base font-semibold text-slate-400 xl:text-lg">~$R1</div>
                 <div className="text-base font-semibold text-primary xl:text-lg">{parseFloat(rewardsN.toFixed(2))}</div>
             </div>
         );

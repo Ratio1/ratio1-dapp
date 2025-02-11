@@ -11,10 +11,10 @@ import { Divider } from '@nextui-org/divider';
 import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
 import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
+import { Spinner } from '@nextui-org/spinner';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
 import { KycStatus } from '@typedefs/profile';
-import clsx from 'clsx';
 import { isFinite, isNaN } from 'lodash';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -29,14 +29,19 @@ const DANGEROUS_SLIPPAGE = 0.5;
 const MAX_ALLOWANCE: bigint = 2n ** 256n - 1n;
 
 function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentStage: number; stage: Stage }) {
-    const { watchTx, r1Balance, fetchR1Balance } = useBlockchainContext() as BlockchainContextType;
-    const { authenticated, account } = useAuthenticationContext() as AuthenticationContextType;
     const navigate = useNavigate();
 
-    const [licenseTokenPrice, setLicenseTokenPrice] = useState<bigint>(0n);
-    const [userUsdMintedAmount, setUserUsdMintedAmount] = useState<bigint | undefined>();
+    const { watchTx, r1Balance, fetchR1Balance } = useBlockchainContext() as BlockchainContextType;
+    const { authenticated, account, fetchAccount } = useAuthenticationContext() as AuthenticationContextType;
 
-    const [allowance, setAllowance] = useState<bigint | undefined>();
+    // Loading component state
+    const [isLoading, setLoading] = useState<boolean>(true);
+
+    const [tokenAllowance, setTokenAllowance] = useState<bigint | undefined>();
+    const [licenseTokenPrice, setLicenseTokenPrice] = useState<bigint>(0n);
+
+    const [accountUsdSpendingLimit, setAccountUsdSpendingLimit] = useState<number | undefined>();
+    const [userUsdMintedAmount, setUserUsdMintedAmount] = useState<bigint | undefined>();
 
     const [slippageValue, setSlippageValue] = useState<string>('');
     const [slippage, setSlippage] = useState<number>(10);
@@ -44,7 +49,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
     const [quantity, setQuantity] = useState<string>('1');
 
-    const [isLoading, setLoading] = useState<boolean>(false);
+    const [isLoadingTx, setLoadingTx] = useState<boolean>(false);
 
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
@@ -67,28 +72,29 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
     useEffect(() => {
         if (publicClient && address) {
             fetchAllowance(publicClient, address);
-
-            publicClient
-                .readContract({
-                    address: config.ndContractAddress,
-                    abi: NDContractAbi,
-                    functionName: 'userUsdMintedAmount',
-                    args: [address],
-                })
-                .then(setUserUsdMintedAmount);
+            fetchUserUsdMintedAmount(publicClient, address);
         }
     }, [address, publicClient]);
+
+    useEffect(() => {
+        if (account && userUsdMintedAmount !== undefined) {
+            setAccountUsdSpendingLimit(account.usdBuyLimit - Number(userUsdMintedAmount));
+            setLoading(false);
+        }
+    }, [account, userUsdMintedAmount]);
 
     const getTokenAmount = (): bigint => {
         const slippageValue = Math.floor(slippage * 100) / 100; // Rounds down to 2 decimal places
         return (BigInt(quantity) * licenseTokenPrice * BigInt(Math.floor(100 + slippageValue))) / 100n;
     };
 
+    const hasEnoughAllowance = (): boolean => tokenAllowance !== undefined && tokenAllowance > MAX_ALLOWANCE / 2n;
+
     /**
      * Approval is required only if the allowance is less than half of the maximum allowance,
      * otherwise approving would be triggered after every buy
      */
-    const isApprovalRequired = (): boolean => allowance !== undefined && allowance < MAX_ALLOWANCE / 2n;
+    const isApprovalRequired = (): boolean => !hasEnoughAllowance();
 
     const fetchAllowance = (publicClient, address: string) =>
         publicClient
@@ -98,11 +104,21 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                 functionName: 'allowance',
                 args: [address, config.ndContractAddress],
             })
-            .then(setAllowance);
+            .then(setTokenAllowance);
+
+    const fetchUserUsdMintedAmount = (publicClient, address: string) =>
+        publicClient
+            .readContract({
+                address: config.ndContractAddress,
+                abi: NDContractAbi,
+                functionName: 'userUsdMintedAmount',
+                args: [address],
+            })
+            .then(setUserUsdMintedAmount);
 
     const approve = async () => {
         try {
-            setLoading(true);
+            setLoadingTx(true);
 
             if (!walletClient || !publicClient || !address) {
                 toast.error('Unexpected error, please try again.');
@@ -120,11 +136,11 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
             fetchAllowance(publicClient, address);
 
-            setLoading(false);
+            setLoadingTx(false);
         } catch (err: any) {
             console.error(err.message || 'An error occurred');
             toast.error('An error occurred, please try again.');
-            setLoading(false);
+            setLoadingTx(false);
         }
     };
 
@@ -136,7 +152,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                 return;
             }
 
-            setLoading(true);
+            setLoadingTx(true);
 
             if (!walletClient || !publicClient || !address) {
                 toast.error('Unexpected error, please try again.');
@@ -170,16 +186,24 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
             await watchTx(txHash, publicClient);
 
+            // Refresh buying/tx state
             fetchAllowance(publicClient, address);
             fetchR1Balance();
 
+            setLoadingTx(false);
+
+            // Refresh data about the user's account spending limit
+            setLoading(true);
+            fetchAccount();
+            fetchUserUsdMintedAmount(publicClient, address);
             setLoading(false);
+
             onClose();
             navigate(routePath.licenses);
         } catch (err: any) {
             console.error(err.message || 'An error occurred');
             toast.error('An error occurred, please try again.');
-            setLoading(false);
+            setLoadingTx(false);
         }
     };
 
@@ -207,10 +231,19 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
         return slippage < DANGEROUS_SLIPPAGE || isInputValueTooSmall;
     };
 
+    const isOverAccountUsdSpendingLimit = (): boolean => {
+        if (!accountUsdSpendingLimit) return false;
+
+        return parseInt(quantity) * stage.usdPrice > accountUsdSpendingLimit;
+    };
+
     const isBuyingDisabled = (): boolean =>
+        !quantity ||
         !account ||
         !licenseTokenPrice ||
-        allowance === undefined ||
+        tokenAllowance === undefined ||
+        accountUsdSpendingLimit === undefined ||
+        isOverAccountUsdSpendingLimit() ||
         (account.kycStatus !== KycStatus.Approved && environment === 'mainnet');
 
     return (
@@ -223,25 +256,34 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                         </div>
                     </Button>
 
-                    <Button
-                        className="rounded-lg border border-default-200 bg-[#fcfcfd]"
-                        color="default"
-                        variant="bordered"
-                        onPress={() => {
-                            setSlippageValue(slippage.toString());
-                            onOpen();
-                        }}
-                    >
-                        <div className="row gap-1">
-                            <RiEqualizer2Line className="pr-0.5 text-xl text-gray-500" />
+                    {!isLoading && (
+                        <Button
+                            className="rounded-lg border border-default-200 bg-[#fcfcfd]"
+                            color="default"
+                            variant="bordered"
+                            onPress={() => {
+                                setSlippageValue(slippage.toString());
+                                onOpen();
+                            }}
+                        >
+                            <div className="row gap-1">
+                                <RiEqualizer2Line className="pr-0.5 text-xl text-gray-500" />
 
-                            <span className="text-gray-500">Slippage:</span>
-                            <span className="font-medium">{slippage}%</span>
-                        </div>
-                    </Button>
+                                <span className="text-gray-500">Slippage:</span>
+                                <span className="font-medium">{slippage}%</span>
+                            </div>
+                        </Button>
+                    )}
                 </div>
 
-                <div className="col gap-4">
+                <div className="col relative gap-4">
+                    {/* Loading overlay */}
+                    {isLoading && (
+                        <div className="center-all absolute z-50 h-full w-full overflow-hidden rounded-md bg-white/70">
+                            <Spinner />
+                        </div>
+                    )}
+
                     <div className="col overflow-hidden rounded-md border border-slate-200 bg-lightBlue">
                         <div className="row justify-between p-4">
                             <div className="row gap-2.5">
@@ -259,7 +301,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                             </div>
                         </div>
 
-                        <div className="flex border-t border-slate-200 bg-white p-4">
+                        <div className="flex border-t border-slate-200 bg-white px-6 py-4">
                             <div className="row justify-between gap-12">
                                 <div className="font-medium">Quantity</div>
 
@@ -313,6 +355,10 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                                         variant="bordered"
                                         size="md"
                                         onPress={() => {
+                                            if (quantity === '') {
+                                                setQuantity('1');
+                                            }
+
                                             const n = Number.parseInt(quantity);
 
                                             if (isFinite(n) && !isNaN(n) && n < stage.totalUnits - stage.soldUnits) {
@@ -327,7 +373,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                         </div>
                     </div>
 
-                    <div className="flex w-full flex-col rounded-md bg-lightBlue px-8 py-8">
+                    <div className="flex w-full flex-col rounded-md bg-lightBlue px-6 py-6">
                         <R1ValueWithLabel
                             label="Total amount required"
                             value={parseFloat(Number(formatUnits(getTokenAmount(), 18)).toFixed(2))}
@@ -357,16 +403,12 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                                 </>
                             )}
 
-                            {authenticated && (
+                            {authenticated && !hasEnoughAllowance() && (
                                 <div className="col gap-2 pt-2 text-sm text-slate-500">
                                     <div className="">You may be asked to sign 2 transactions:</div>
 
-                                    <div className="col gap-1">
-                                        <div
-                                            className={clsx('row gap-2', {
-                                                'text-green-600': !isApprovalRequired(),
-                                            })}
-                                        >
+                                    <div className="col gap-0.5">
+                                        <div className="row gap-2">
                                             <RiCheckLine className="text-lg" />
                                             <div>Approval of token spending</div>
                                         </div>
@@ -379,19 +421,35 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                                 </div>
                             )}
 
-                            <div>
+                            <div className={!quantity ? 'mt-6' : ''}>
                                 <ConnectWalletWrapper isFullWidth>
                                     <Button
                                         fullWidth
                                         color="primary"
                                         onPress={onPress}
-                                        isLoading={isLoading}
+                                        isLoading={isLoadingTx}
                                         isDisabled={isBuyingDisabled()}
                                     >
                                         {isApprovalRequired() ? 'Approve $R1' : 'Buy'}
                                     </Button>
                                 </ConnectWalletWrapper>
                             </div>
+
+                            {accountUsdSpendingLimit !== undefined && (
+                                <div className="col gap-3 text-center text-sm">
+                                    <div className="col gap-1">
+                                        <div className="font-medium text-slate-500">Account Spending Limit (USD)</div>
+                                        <div className="text-base font-medium">${accountUsdSpendingLimit}</div>
+                                    </div>
+
+                                    {isOverAccountUsdSpendingLimit() && (
+                                        <div className="text-[13px] text-red-600">
+                                            The amount you're trying to spend exceeds your USD spending limit. You cannot
+                                            complete this purchase because your account has reached its allowed spending amount.
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

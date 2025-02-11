@@ -107,7 +107,7 @@ export const throttledToastOracleError = throttle(
             {
                 duration: 10000,
                 style: {
-                    minWidth: '388px',
+                    minWidth: '360px',
                 },
             },
         );
@@ -117,6 +117,7 @@ export const throttledToastOracleError = throttle(
 );
 
 const getNdLicenseRewards = async (license: License): Promise<bigint> => {
+    // console.log('getNdLicenseRewards', license);
     const currentEpoch = getCurrentEpoch();
     const epochsToClaim = currentEpoch - Number(license.lastClaimEpoch);
 
@@ -180,6 +181,7 @@ const getGndLicenseRewards = async (license: GNDLicense): Promise<bigint> => {
 };
 
 const getMndLicenseRewards = async (license: MNDLicense): Promise<bigint> => {
+    // console.log('getMndLicenseRewards', license);
     const currentEpoch = getCurrentEpoch();
     if (currentEpoch < config.mndCliffEpochs) {
         return 0n;

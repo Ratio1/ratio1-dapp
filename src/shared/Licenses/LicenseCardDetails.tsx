@@ -1,6 +1,6 @@
 import { getNodeEpochs } from '@lib/api/oracles';
 import useAwait from '@lib/useAwait';
-import { arrayAverage, throttledToastOracleError } from '@lib/utils';
+import { arrayAverage, getShortAddress, throttledToastOracleError } from '@lib/utils';
 import clsx from 'clsx';
 import { useMemo } from 'react';
 import { RiTimeLine } from 'react-icons/ri';
@@ -26,12 +26,16 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
 
     const nodeEpochsPromise = useMemo(async () => {
+        // console.log('Fetching node epochs', getShortAddress(license.nodeAddress));
+
         if (!license.isLinked) {
+            // console.log('License is not linked', getShortAddress(license.nodeAddress));
             return [];
         }
 
         try {
             const result = await getNodeEpochs(license.nodeAddress);
+            console.log(`[${getShortAddress(license.nodeAddress)}] NodeEpochs`, result);
             return result.epochs_vals;
         } catch (error) {
             console.error(error);
@@ -44,7 +48,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
     const getTitle = (text: string) => <div className="text-base font-medium lg:text-lg">{text}</div>;
 
-    const getLine = (label: string, value: string | number, isHighlighted: boolean = false) => (
+    const getLine = (label: string, value: string | number, isHighlighted: boolean = false, isAproximate: boolean = false) => (
         <div className="row justify-between gap-3 min-[410px]:justify-start">
             <div className="min-w-[50%] text-slate-500">{label}</div>
             <div
@@ -52,6 +56,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                     'font-medium text-primary': isHighlighted,
                 })}
             >
+                {isAproximate ? '~' : ''}
                 {value}
             </div>
         </div>
@@ -130,11 +135,12 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                         </div>
 
                         <div className="col flex-1 gap-3">
-                            {getTitle('Rewards')}
+                            {getTitle('Claimable Rewards')}
 
                             {getLine(
                                 'Total amount ($R1)',
-                                isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)),
+                                isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)),
+                                (rewards ?? 0n) > 0,
                                 (rewards ?? 0n) > 0,
                             )}
 
@@ -143,7 +149,9 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
                                 {getLine(
                                     'Proof of Availability',
-                                    isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)),
+                                    isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)),
+                                    false,
+                                    (rewards ?? 0n) > 0,
                                 )}
 
                                 {getLine('Proof of AI', '0')}
