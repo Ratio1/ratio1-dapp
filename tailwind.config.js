@@ -14,6 +14,7 @@ export default {
                 robotoMono: ['Roboto Mono', 'serif'],
             },
             flex: {
+                0: '0',
                 2: '2 1 0%',
                 3: '3 1 0%',
                 4: '4 1 0%',

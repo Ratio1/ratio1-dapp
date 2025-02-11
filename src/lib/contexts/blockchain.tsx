@@ -225,17 +225,18 @@ export const BlockchainProvider = ({ children }) => {
                 }),
         ]);
 
-        const licenses = mndLicense.totalAssignedAmount ? [mndLicense, ...ndLicenses] : ndLicenses;
+        // const licenses = mndLicense.totalAssignedAmount ? [mndLicense, ...ndLicenses] : ndLicenses;
 
+        // TODO:
         // Leave here for testing purposes
-        const test: Array<License> = [
+        const licenses: Array<License> = [
             {
                 alias: Promise.resolve('wen-lambo'),
                 assignTimestamp: 1738934984n,
                 claimableEpochs: 2n,
                 isBanned: false,
                 isLinked: true,
-                isOnline: Promise.resolve(false),
+                isOnline: Promise.resolve(true),
                 lastClaimEpoch: 1n,
                 lastClaimOracle: '0x0000000000000000000000000000000000000000',
                 licenseId: 2n,
@@ -247,13 +248,13 @@ export const BlockchainProvider = ({ children }) => {
                 type: 'MND',
             },
             {
-                assignTimestamp: 0n,
+                assignTimestamp: 1739273674n,
                 claimableEpochs: 0n,
                 isBanned: false,
                 isLinked: false,
                 lastClaimEpoch: 0n,
                 lastClaimOracle: '0x0000000000000000000000000000000000000000',
-                licenseId: 4n,
+                licenseId: 4519n,
                 nodeAddress: '0x0000000000000000000000000000000000000000',
                 remainingAmount: 500000000000000000000000n,
                 totalAssignedAmount: 500000000000000000000000n,
@@ -261,24 +262,24 @@ export const BlockchainProvider = ({ children }) => {
                 type: 'ND',
             },
             {
-                alias: Promise.resolve('sm-staking-1'),
-                assignTimestamp: 1738534000n,
+                alias: Promise.resolve('sm-nodex-1'),
+                assignTimestamp: 1739273674n,
                 claimableEpochs: 3n,
-                isBanned: false,
+                isBanned: true,
                 isLinked: true,
-                isOnline: Promise.resolve(true),
+                isOnline: Promise.resolve(false),
                 lastClaimEpoch: 2n,
                 lastClaimOracle: '0x0000000000000000000000000000000000000000',
                 licenseId: 5n,
                 nodeAddress: '0x4cc330fe4BF4E5d45D901c40F9Eb9e3e68d6C855',
                 remainingAmount: 450000000000000000000000n,
-                rewards: Promise.resolve(50000000000000000000000n),
+                rewards: Promise.resolve(57326500000000000000000n),
                 totalAssignedAmount: 500000000000000000000000n,
                 totalClaimedAmount: 50000000000000000000000n,
                 type: 'ND',
             },
             {
-                alias: Promise.resolve('noderunner_x8'),
+                alias: Promise.resolve('noderunner_x8_macos'),
                 assignTimestamp: 1738534500n,
                 claimableEpochs: 2n,
                 isBanned: false,
@@ -289,7 +290,7 @@ export const BlockchainProvider = ({ children }) => {
                 licenseId: 16n,
                 nodeAddress: '0x5dd330fe4BF4E5d45D901c40F9Eb9e3e68d6C966',
                 remainingAmount: 47500000000000000000000n,
-                rewards: Promise.resolve(25000000000000000000000n),
+                rewards: Promise.resolve(2512538672000000000000n),
                 totalAssignedAmount: 500000000000000000000000n,
                 totalClaimedAmount: 295562575342150000000000n,
                 type: 'ND',
@@ -301,7 +302,7 @@ export const BlockchainProvider = ({ children }) => {
                 isLinked: false,
                 lastClaimEpoch: 0n,
                 lastClaimOracle: '0x0000000000000000000000000000000000000000',
-                licenseId: 725n,
+                licenseId: 9999n,
                 nodeAddress: '0x0000000000000000000000000000000000000000',
                 remainingAmount: 500000000000000000000000n,
                 totalAssignedAmount: 500000000000000000000000n,

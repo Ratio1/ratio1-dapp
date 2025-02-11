@@ -105,7 +105,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                         'border-b-2 border-slate-200 pb-6 lg:pb-8': license.isLinked,
                     })}
                 >
-                    <div className="flex w-full flex-col gap-6 xl:flex-row">
+                    <div className="flex w-full flex-col gap-6 larger:flex-row">
                         <div className="col flex-1 gap-3">
                             {getTitle('Details')}
 
@@ -141,7 +141,6 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                                 'Total amount ($R1)',
                                 isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)),
                                 (rewards ?? 0n) > 0,
-                                (rewards ?? 0n) > 0,
                             )}
 
                             <div className="col gap-3">
@@ -151,7 +150,6 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                                     'Proof of Availability',
                                     isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)),
                                     false,
-                                    (rewards ?? 0n) > 0,
                                 )}
 
                                 {getLine('Proof of AI', '0')}

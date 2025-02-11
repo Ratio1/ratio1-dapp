@@ -159,7 +159,7 @@ function LicensesPageHeader({
     return (
         <div className="flex gap-6">
             <div className="relative w-full rounded-3xl">
-                <div className="col relative z-10 h-full gap-4 rounded-3xl bg-[#3f67bf] px-8 py-7 lg:gap-6">
+                <div className="col relative z-10 h-full gap-4 rounded-3xl bg-[#436cc8] px-8 py-7 lg:gap-6">
                     <div className="flex justify-between border-b-2 border-white/10 pb-4 lg:pb-6">
                         <div className="row gap-2.5">
                             <img src={Logo} alt="Logo" className="h-7 filter" />
@@ -199,7 +199,7 @@ function LicensesPageHeader({
                                     radius="lg"
                                     size="lg"
                                     classNames={{
-                                        tabList: 'p-1.5 bg-[#345aad]',
+                                        tabList: 'p-1.5 bg-[#345eba]',
                                         tabContent: 'text-[15px] text-white',
                                     }}
                                     onSelectionChange={(key) => {
