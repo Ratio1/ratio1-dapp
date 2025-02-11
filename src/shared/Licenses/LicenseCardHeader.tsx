@@ -8,7 +8,7 @@ import { Spinner } from '@nextui-org/spinner';
 import { Timer } from '@shared/Timer';
 import clsx from 'clsx';
 import { addDays, formatDistanceToNow, isBefore } from 'date-fns';
-import { useState } from 'react';
+import { FunctionComponent, PropsWithChildren, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiCpuLine, RiExchange2Line, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
@@ -46,51 +46,59 @@ export const LicenseCardHeader = ({
         }
     };
 
-    const getLicenseIdTag = () => (
+    const getLicenseId = () => (
         <Link
             to={`${config.explorerUrl}/token/${getContractAddress(license.type)}?a=${Number(license.licenseId)}`}
             target="_blank"
             onClick={(e) => e.stopPropagation()}
-            className={clsx('text-sm font-medium transition-all hover:opacity-60', {
+            className={clsx('cursor-pointer transition-all hover:opacity-60', {
                 'text-primary': license.isLinked,
-                'text-purple-600': !license.isLinked,
+                'text-red-500': license.isBanned,
+                'text-slate-500': !license.isLinked,
             })}
         >
             <div className="row gap-1">
                 <RiCpuLine className="text-lg" />
-                <div>License #{Number(license.licenseId)}</div>
+                <div className="text-sm font-medium leading-none">License #{Number(license.licenseId)}</div>
             </div>
         </Link>
     );
 
     const getLicenseUsageStats = () => (
-        <div className="col gap-2">
-            <div className="row justify-between text-sm font-medium leading-none">
-                <div>
-                    {fBI(license.totalClaimedAmount, 18)}/{fBI(license.totalAssignedAmount, 18)}
-                </div>
-
-                <div>
-                    {parseFloat(((Number(license.totalClaimedAmount) / Number(license.totalAssignedAmount)) * 100).toFixed(2))}%
-                </div>
+        <div className="row gap-2.5 text-sm font-medium leading-none">
+            <div>
+                {fBI(license.totalClaimedAmount, 18)}/{fBI(license.totalAssignedAmount, 18)}
             </div>
 
-            <div className="flex h-1 overflow-hidden rounded-full bg-gray-300">
+            <div className="flex h-1 w-full overflow-hidden rounded-full bg-gray-300">
                 <div
                     className="rounded-full bg-primary transition-all"
                     style={{ width: `${Number((license.totalClaimedAmount * 100n) / license.totalAssignedAmount)}%` }}
                 ></div>
             </div>
+
+            <div>
+                {parseFloat(((Number(license.totalClaimedAmount) / Number(license.totalAssignedAmount)) * 100).toFixed(2))}%
+            </div>
         </div>
+    );
+
+    const getLicenseCard = () => (
+        <Card>
+            <div className="col gap-2">
+                <div className="flex">{getLicenseId()}</div>
+                <div className="w-48">{getLicenseUsageStats()}</div>
+            </div>
+        </Card>
     );
 
     const getLicenseCooldownTimer = () => (
         <>
             {!license.isLinked && hasCooldown && (
-                <div className="rounded-full bg-red-100 px-3.5 py-2 text-sm text-red-600">
-                    <div className="row gap-1 font-medium">
+                <Tag>
+                    <div className="row gap-1">
                         <RiTimeLine className="text-base" />
-                        <span className="font-medium">Linkable in</span>{' '}
+                        <span>Linkable in</span>{' '}
                         <Timer
                             variant="compact"
                             timestamp={getCooldownEndTimestamp()}
@@ -99,46 +107,49 @@ export const LicenseCardHeader = ({
                             }}
                         />
                     </div>
-                </div>
+                </Tag>
             )}
         </>
     );
 
-    const getNodeInfoSection = () => (
+    const getNodeCard = () => (
         <>
             {license.isLinked && (
-                <div className="row gap-2.5 rounded-2xl border-2 border-lightBlue px-4 py-2">
-                    {isLoadingNodeAlias || isLoadingNodeState ? (
-                        <div className="center-all px-4 py-2">
-                            <Spinner size="sm" />
-                        </div>
-                    ) : (
-                        <>
-                            <div
-                                className={clsx('h-8 w-1 rounded-full', {
-                                    'bg-teal-500': isNodeOnline,
-                                    'bg-red-500': !isNodeOnline,
-                                })}
-                            ></div>
-
-                            <div className="col font-medium leading-none">
-                                {!!nodeAlias && (
-                                    <div className="max-w-[176px] overflow-hidden text-ellipsis whitespace-nowrap">
-                                        {nodeAlias}
-                                    </div>
-                                )}
-                                <Link
-                                    to={`${config.explorerUrl}/address/${license.nodeAddress}`}
-                                    target="_blank"
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="cursor-pointer text-sm text-slate-400 transition-all hover:opacity-60"
-                                >
-                                    <div>{getShortAddress(license.nodeAddress)}</div>
-                                </Link>
+                <Card>
+                    <div className="row gap-2.5">
+                        {isLoadingNodeAlias || isLoadingNodeState ? (
+                            <div className="center-all px-4 py-2">
+                                <Spinner size="sm" />
                             </div>
-                        </>
-                    )}
-                </div>
+                        ) : (
+                            <>
+                                <div
+                                    className={clsx('h-9 w-1 rounded-full', {
+                                        'bg-teal-500': isNodeOnline,
+                                        'bg-red-500': !isNodeOnline,
+                                    })}
+                                ></div>
+
+                                <div className="col gap-0.5 font-medium">
+                                    {!!nodeAlias && (
+                                        <div className="max-w-[176px] overflow-hidden text-ellipsis whitespace-nowrap leading-none">
+                                            {nodeAlias}
+                                        </div>
+                                    )}
+
+                                    <Link
+                                        to={`${config.explorerUrl}/address/${license.nodeAddress}`}
+                                        target="_blank"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="cursor-pointer text-sm text-slate-400 transition-all hover:opacity-60"
+                                    >
+                                        <div className="leading-none">{getShortAddress(license.nodeAddress)}</div>
+                                    </Link>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </Card>
             )}
         </>
     );
@@ -208,7 +219,7 @@ export const LicenseCardHeader = ({
                         'text-default-500',
                         'transition-opacity',
                         'data-[hover=true]:text-foreground',
-                        'data-[hover=true]:bg-lightBlue',
+                        'data-[hover=true]:bg-slate-100',
                         'data-[selectable=true]:focus:bg-default-50',
                         'data-[pressed=true]:opacity-70',
                         'data-[focus-visible=true]:ring-default-500',
@@ -292,31 +303,22 @@ export const LicenseCardHeader = ({
         </Dropdown>
     );
 
-    const getBannedLicenseTag = () => (
-        <div className="flex">
-            <div className="rounded-full bg-red-100 px-3.5 py-2 text-sm font-medium text-red-600">Banned</div>
-        </div>
-    );
+    const getBannedLicenseTag = () => <Tag>Banned</Tag>;
 
     return (
         <>
             <div
-                className={clsx('flex flex-col-reverse justify-between gap-8 px-8 py-7 larger:flex-row larger:items-center', {
-                    'rounded-bl-3xl rounded-br-3xl': isExpanded,
-                    'bg-white': license.isLinked,
-                })}
+                className={clsx(
+                    'flex flex-col-reverse justify-between gap-8 bg-white px-8 py-6 larger:flex-row larger:items-center',
+                    {
+                        'rounded-bl-3xl rounded-br-3xl': isExpanded,
+                    },
+                )}
             >
                 {/* Info */}
-                <div className="row flex-1 flex-wrap gap-6 min-[680px]:gap-8">
-                    <div className="row min-[680px]:flex-0 flex-1 justify-between gap-6 min-[680px]:justify-start min-[680px]:gap-8">
-                        <div className="flex min-w-[120px]">{getLicenseIdTag()}</div>
-                        <div className="w-36 min-[680px]:w-40">{getLicenseUsageStats()}</div>
-                    </div>
-
-                    <div className="mx-auto sm:mx-0">
-                        {getLicenseCooldownTimer()}
-                        {getNodeInfoSection()}
-                    </div>
+                <div className="row flex-1 flex-wrap justify-center gap-2 sm:justify-start sm:gap-4 min-[680px]:gap-4">
+                    {getLicenseCard()}
+                    {getNodeCard()}
                 </div>
 
                 {/* Controls */}
@@ -327,6 +329,8 @@ export const LicenseCardHeader = ({
                         <>
                             {!disableActions && (
                                 <div className="row gap-4">
+                                    {getLicenseCooldownTimer()}
+
                                     {license.isLinked && (
                                         <div className="row gap-4">
                                             {getNodeRewards()}
@@ -344,3 +348,13 @@ export const LicenseCardHeader = ({
         </>
     );
 };
+
+const Card: FunctionComponent<PropsWithChildren> = ({ children }) => (
+    <div className="center-all h-[64px] rounded-2xl border-2 border-slate-100 px-4 py-2.5">{children}</div>
+);
+
+const Tag: FunctionComponent<PropsWithChildren> = ({ children }) => (
+    <div className="flex">
+        <div className="rounded-lg bg-red-100 px-3 py-2 text-sm font-medium text-red-600">{children}</div>
+    </div>
+);

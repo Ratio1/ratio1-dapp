@@ -22,7 +22,6 @@ export default {
             colors: {
                 body: '#0b0b47',
                 light: '#fcfcfd',
-                lightBlue: '#F4F5FA',
                 primary: '#1b47f7',
             },
             outlineWidth: {

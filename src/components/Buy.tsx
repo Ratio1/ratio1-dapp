@@ -250,7 +250,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
         <>
             <div className="my-4 flex flex-col gap-6">
                 <div className="row justify-between gap-4">
-                    <Button isIconOnly variant="flat" className="bg-lightBlue" onPress={onClose}>
+                    <Button isIconOnly variant="flat" className="bg-slate-100" onPress={onClose}>
                         <div className="text-[22px]">
                             <RiArrowRightDoubleLine />
                         </div>
@@ -284,7 +284,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                         </div>
                     )}
 
-                    <div className="col overflow-hidden rounded-md border border-slate-200 bg-lightBlue">
+                    <div className="col overflow-hidden rounded-md border border-slate-200 bg-slate-100">
                         <div className="row justify-between p-4">
                             <div className="row gap-2.5">
                                 <div className="rounded-md bg-primary p-1.5 text-white">
@@ -373,7 +373,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                         </div>
                     </div>
 
-                    <div className="flex w-full flex-col rounded-md bg-lightBlue px-6 py-6">
+                    <div className="flex w-full flex-col rounded-md bg-slate-100 px-6 py-6">
                         <R1ValueWithLabel
                             label="Total amount required"
                             value={parseFloat(Number(formatUnits(getTokenAmount(), 18)).toFixed(2))}

@@ -188,7 +188,7 @@ function Search() {
                     isDisabled={isLoading}
                     size="lg"
                     classNames={{
-                        inputWrapper: 'h-[52px] bg-lightBlue hover:!bg-[#eceef6] group-data-[focus=true]:bg-lightBlue px-6',
+                        inputWrapper: 'h-[52px] bg-slate-100 hover:!bg-[#eceef6] group-data-[focus=true]:bg-slate-100 px-6',
                     }}
                     variant="flat"
                     radius="full"

@@ -126,11 +126,13 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
                             {getLine(
                                 'Initial amount',
-                                parseFloat(Number(formatUnits(license.totalAssignedAmount ?? 0n, 18)).toFixed(2)),
+                                parseFloat(
+                                    Number(formatUnits(license.totalAssignedAmount ?? 0n, 18)).toFixed(2),
+                                ).toLocaleString(),
                             )}
                             {getLine(
                                 'Remaining amount',
-                                parseFloat(Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2)),
+                                parseFloat(Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2)).toLocaleString(),
                             )}
                         </div>
 
