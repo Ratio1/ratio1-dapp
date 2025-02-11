@@ -14,6 +14,7 @@ export default {
                 robotoMono: ['Roboto Mono', 'serif'],
             },
             flex: {
+                0: '0',
                 2: '2 1 0%',
                 3: '3 1 0%',
                 4: '4 1 0%',
@@ -21,7 +22,6 @@ export default {
             colors: {
                 body: '#0b0b47',
                 light: '#fcfcfd',
-                lightBlue: '#F4F5FA',
                 primary: '#1b47f7',
             },
             outlineWidth: {

@@ -1,24 +1,16 @@
 import { config } from '@lib/config';
 import useAwait from '@lib/useAwait';
-import { fBI, getShortAddress } from '@lib/utils';
+import { fBI, fN, getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
 import { Skeleton } from '@nextui-org/skeleton';
+import { Spinner } from '@nextui-org/spinner';
 import { Timer } from '@shared/Timer';
 import clsx from 'clsx';
 import { addDays, formatDistanceToNow, isBefore } from 'date-fns';
-import { useState } from 'react';
+import { FunctionComponent, PropsWithChildren, useState } from 'react';
 import toast from 'react-hot-toast';
-import {
-    RiCpuLine,
-    RiExchange2Line,
-    RiForbid2Line,
-    RiLink,
-    RiLinkUnlink,
-    RiMoreFill,
-    RiTimeLine,
-    RiWalletLine,
-} from 'react-icons/ri';
+import { RiCpuLine, RiExchange2Line, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
 import { License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
@@ -36,8 +28,8 @@ export const LicenseCardHeader = ({
 }) => {
     // The license can only be linked once every 24h
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
-    const [alias, isLoadingAlias] = useAwait(license.isLinked ? license.alias : '');
-    const [isOnline, isLoadingState] = useAwait(license.isLinked ? license.isOnline : false);
+    const [nodeAlias, isLoadingNodeAlias] = useAwait(license.isLinked ? license.alias : '');
+    const [isNodeOnline, isLoadingNodeState] = useAwait(license.isLinked ? license.isOnline : false);
 
     const getAssignTimestamp = (): Date => new Date(Number(license.assignTimestamp) * 1000);
     const getCooldownEndTimestamp = (): Date => addDays(getAssignTimestamp(), 1);
@@ -54,100 +46,114 @@ export const LicenseCardHeader = ({
         }
     };
 
-    const getNodeInfoSection = () => (
-        <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">
-            {isLoadingAlias || isLoadingState ? (
-                <Skeleton className="h-4 w-full max-w-36 rounded-lg" />
-            ) : (
-                <div className="row gap-2">
-                    {!!alias && (
-                        <div
-                            className={clsx('h-2.5 w-2.5 rounded-full', {
-                                'bg-green-500': isOnline,
-                                'bg-red-500': !isOnline,
-                            })}
-                        ></div>
-                    )}
-                    <div>{alias}</div>
-                </div>
-            )}
-        </div>
-    );
-
-    const getLicenseIdTag = () => (
+    const getLicenseId = () => (
         <Link
             to={`${config.explorerUrl}/token/${getContractAddress(license.type)}?a=${Number(license.licenseId)}`}
             target="_blank"
             onClick={(e) => e.stopPropagation()}
-            className={clsx('rounded-full px-3 py-2 text-sm font-medium transition-all hover:opacity-60', {
-                'bg-[#e0eeff] text-primary': license.isLinked,
-                'bg-purple-100 text-purple-600': !license.isLinked,
+            className={clsx('cursor-pointer transition-all hover:opacity-60', {
+                'text-primary': license.isLinked,
+                'text-red-500': license.isBanned,
+                'text-slate-500': !license.isLinked,
             })}
         >
             <div className="row gap-1">
-                <RiCpuLine className="text-base" />
-                <div>License #{Number(license.licenseId)}</div>
+                <RiCpuLine className="text-lg" />
+                <div className="text-sm font-medium leading-none">License #{Number(license.licenseId)}</div>
             </div>
         </Link>
     );
 
-    const getLicenseCooldownTimer = () => (
-        <>
-            {!license.isLinked && hasCooldown && (
-                <div className="rounded-full bg-red-100 px-3 py-2 text-sm text-red-600">
-                    <div className="row gap-1 font-medium">
-                        <RiTimeLine className="text-base" />
-                        <span className="font-medium">Linkable in</span>{' '}
-                        <Timer
-                            variant="compact"
-                            timestamp={getCooldownEndTimestamp()}
-                            callback={() => {
-                                setCooldown(false);
-                            }}
-                        />
-                    </div>
-                </div>
-            )}
-        </>
-    );
-
-    const getNodeAddressTag = () => (
-        <>
-            {license.isLinked && (
-                <Link
-                    to={`${config.explorerUrl}/address/${license.nodeAddress}`}
-                    target="_blank"
-                    onClick={(e) => e.stopPropagation()}
-                    className="rounded-full bg-orange-100 px-3 py-2 text-sm font-medium text-orange-600 transition-all hover:opacity-60"
-                >
-                    <div className="row gap-1">
-                        <RiWalletLine className="text-base" />
-                        <div>{getShortAddress(license.nodeAddress)}</div>
-                    </div>
-                </Link>
-            )}
-        </>
-    );
-
     const getLicenseUsageStats = () => (
-        <div className="col gap-2">
-            <div className="row justify-between text-sm font-medium leading-none">
-                <div>
-                    {fBI(license.totalClaimedAmount, 18)}/{fBI(license.totalAssignedAmount, 18)}
-                </div>
-
-                <div>
-                    {parseFloat(((Number(license.totalClaimedAmount) / Number(license.totalAssignedAmount)) * 100).toFixed(2))}%
-                </div>
+        <div className="row gap-2.5 text-sm font-medium leading-none">
+            <div>
+                {fBI(license.totalClaimedAmount, 18)}/{fBI(license.totalAssignedAmount, 18)}
             </div>
 
-            <div className="flex h-1 overflow-hidden rounded-full bg-gray-300">
+            <div className="flex h-1 w-full overflow-hidden rounded-full bg-gray-300">
                 <div
                     className="rounded-full bg-primary transition-all"
                     style={{ width: `${Number((license.totalClaimedAmount * 100n) / license.totalAssignedAmount)}%` }}
                 ></div>
             </div>
+
+            <div>
+                {parseFloat(((Number(license.totalClaimedAmount) / Number(license.totalAssignedAmount)) * 100).toFixed(2))}%
+            </div>
         </div>
+    );
+
+    const getLicenseCard = () => (
+        <Card>
+            <div className="col gap-2">
+                <div className="flex">{getLicenseId()}</div>
+                <div className="w-48">{getLicenseUsageStats()}</div>
+            </div>
+        </Card>
+    );
+
+    const getLicenseCooldownTimer = () => (
+        <>
+            {!!hasCooldown && (
+                <div className="flex">
+                    <Tag>
+                        <div className="row gap-1 whitespace-nowrap">
+                            <RiTimeLine className="text-base" />
+                            <span>Linkable in</span>{' '}
+                            <Timer
+                                variant="compact"
+                                timestamp={getCooldownEndTimestamp()}
+                                callback={() => {
+                                    setCooldown(false);
+                                }}
+                            />
+                        </div>
+                    </Tag>
+                </div>
+            )}
+        </>
+    );
+
+    const getNodeCard = () => (
+        <>
+            {license.isLinked && (
+                <Card>
+                    <div className="row gap-2.5">
+                        {isLoadingNodeAlias || isLoadingNodeState ? (
+                            <div className="center-all px-4 py-2">
+                                <Spinner size="sm" />
+                            </div>
+                        ) : (
+                            <>
+                                <div
+                                    className={clsx('h-9 w-1 rounded-full', {
+                                        'bg-teal-500': isNodeOnline,
+                                        'bg-red-500': !isNodeOnline,
+                                    })}
+                                ></div>
+
+                                <div className="col gap-0.5 font-medium">
+                                    {!!nodeAlias && (
+                                        <div className="max-w-[176px] overflow-hidden text-ellipsis whitespace-nowrap leading-none">
+                                            {nodeAlias}
+                                        </div>
+                                    )}
+
+                                    <Link
+                                        to={`${config.explorerUrl}/address/${license.nodeAddress}`}
+                                        target="_blank"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="cursor-pointer text-sm text-slate-400 transition-all hover:opacity-60"
+                                    >
+                                        <div className="leading-none">{getShortAddress(license.nodeAddress)}</div>
+                                    </Link>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </Card>
+            )}
+        </>
     );
 
     const getNodeRewards = () => {
@@ -161,9 +167,9 @@ export const LicenseCardHeader = ({
         return isLoadingRewards ? (
             <Skeleton className="h-4 min-w-20 rounded-lg" />
         ) : (
-            <div className="row gap-1.5">
-                <div className="text-base font-semibold text-slate-400 xl:text-lg">~$R1</div>
-                <div className="text-base font-semibold text-primary xl:text-lg">{parseFloat(rewardsN.toFixed(2))}</div>
+            <div className="row gap-1.5 text-lg font-semibold">
+                <div className="text-slate-400">~$R1</div>
+                <div className="text-primary">{fN(rewardsN)}</div>
             </div>
         );
     };
@@ -215,7 +221,7 @@ export const LicenseCardHeader = ({
                         'text-default-500',
                         'transition-opacity',
                         'data-[hover=true]:text-foreground',
-                        'data-[hover=true]:bg-lightBlue',
+                        'data-[hover=true]:bg-slate-100',
                         'data-[selectable=true]:focus:bg-default-50',
                         'data-[pressed=true]:opacity-70',
                         'data-[focus-visible=true]:ring-default-500',
@@ -299,120 +305,68 @@ export const LicenseCardHeader = ({
         </Dropdown>
     );
 
-    const getBannedLicenseTag = () => (
-        <>
-            {license.isBanned && (
-                <div className="rounded-full bg-red-100 px-3 py-2 text-sm font-medium text-red-600">
-                    <div className="row gap-1">
-                        <RiForbid2Line className="text-base" />
-                        <div>Banned</div>
-                    </div>
-                </div>
-            )}
-        </>
-    );
+    const getBannedLicenseTag = () => <Tag>Banned</Tag>;
 
     return (
         <>
-            {/* Web */}
             <div
-                className={clsx('web-only-xl-flex row justify-between px-8 py-7', {
-                    'rounded-bl-3xl rounded-br-3xl': isExpanded,
-                    'bg-white': license.isLinked,
-                })}
+                className={clsx(
+                    'flex flex-col-reverse justify-between gap-4 bg-white px-6 py-6 md:gap-6 md:px-8 lg:gap-8 larger:flex-row larger:items-center',
+                    {
+                        'rounded-bl-3xl rounded-br-3xl': isExpanded,
+                    },
+                )}
             >
-                <div className="row">
-                    <div className="row gap-3 lg:min-w-[522px]">
-                        {license.isLinked && <div className="w-[194px]">{getNodeInfoSection()}</div>}
-
-                        <div
-                            className={clsx('flex', {
-                                'min-w-[150px]': license.isLinked,
-                                'min-w-[194px]': !license.isLinked,
-                            })}
-                        >
-                            {getLicenseIdTag()}
-                        </div>
-
-                        {getLicenseCooldownTimer()}
-
-                        {getNodeAddressTag()}
-                    </div>
-
-                    <div className="w-40">{getLicenseUsageStats()}</div>
-                </div>
-
-                {!disableActions && !license.isBanned && (
-                    <div className="row gap-4">
-                        {license.isLinked && (
-                            <div className="row gap-4">
-                                {getNodeRewards()}
-
-                                {getClaimRewardsButton()}
-                            </div>
-                        )}
-
-                        {getDropdown()}
+                {/* On mobile, the rewards and claim button are displayed in the bottom row, but 'flex-col-reverse' is used */}
+                {!!rewards && (
+                    <div className="row justify-between sm:hidden">
+                        {getNodeRewards()}
+                        {getClaimRewardsButton()}
                     </div>
                 )}
 
-                {getBannedLicenseTag()}
-            </div>
+                {/* Info */}
+                <div className="row flex-1 flex-wrap gap-2 sm:gap-4">
+                    {getLicenseCard()}
+                    {getNodeCard()}
+                </div>
 
-            {/* Mobile */}
-            <div
-                className={clsx('mobile-only-xl-flex col items-baseline gap-5 px-5 py-5 md:px-8 md:py-7', {
-                    'rounded-bl-3xl rounded-br-3xl': isExpanded,
-                    'bg-white': license.isLinked,
-                })}
-            >
-                <div
-                    className={clsx(
-                        'flex w-full gap-4 min-[522px]:flex-row min-[522px]:items-center min-[522px]:justify-between',
-                        {
-                            'flex-col-reverse': license.isLinked,
-                            'flex-direction-row justify-between': !license.isLinked,
-                        },
-                    )}
-                >
-                    {license.isLinked ? (
-                        <div className="min-[522px]:max-w-44 lg:max-w-max">{getNodeInfoSection()}</div>
+                {/* Controls */}
+                <div className="flex justify-end">
+                    {license.isBanned ? (
+                        <>{getBannedLicenseTag()}</>
                     ) : (
-                        <div className="flex">{getLicenseIdTag()}</div>
+                        <>
+                            {!disableActions && (
+                                <div className="row w-full justify-between gap-4 sm:w-auto sm:justify-start">
+                                    {license.isLinked ? (
+                                        <div className="hidden items-center gap-4 sm:flex">
+                                            {getNodeRewards()}
+                                            {getClaimRewardsButton()}
+                                        </div>
+                                    ) : (
+                                        <>{getLicenseCooldownTimer()}</>
+                                    )}
+
+                                    <div className="flex w-full justify-end">{getDropdown()}</div>
+                                </div>
+                            )}
+                        </>
                     )}
-
-                    {/* Controls */}
-                    <div className="row justify-end">
-                        {!disableActions && !license.isBanned && (
-                            <div className="row gap-2 lg:gap-4">
-                                {license.isLinked && (
-                                    <div className="row gap-2 lg:gap-4">
-                                        {getNodeRewards()}
-
-                                        {getClaimRewardsButton()}
-                                    </div>
-                                )}
-
-                                {getDropdown()}
-                            </div>
-                        )}
-
-                        {getBannedLicenseTag()}
-                    </div>
                 </div>
-
-                {license.isLinked && (
-                    <div className="flex w-full justify-between gap-4 min-[522px]:-mt-2 min-[522px]:justify-start">
-                        {getLicenseIdTag()}
-
-                        {getNodeAddressTag()}
-                    </div>
-                )}
-
-                {getLicenseCooldownTimer()}
-
-                <div className="w-full">{getLicenseUsageStats()}</div>
             </div>
         </>
     );
 };
+
+const Card: FunctionComponent<PropsWithChildren> = ({ children }) => (
+    <div className="flex h-[64px] w-full items-center rounded-2xl border-2 border-slate-100 px-4 py-2.5 sm:w-auto sm:justify-center">
+        {children}
+    </div>
+);
+
+const Tag: FunctionComponent<PropsWithChildren> = ({ children }) => (
+    <div className="flex">
+        <div className="rounded-lg bg-red-100 px-3 py-2 text-sm font-medium text-red-600">{children}</div>
+    </div>
+);

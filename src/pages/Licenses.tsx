@@ -226,8 +226,8 @@ function Licenses() {
 
                     {isLoading ? (
                         <>
-                            <div className="mx-auto pt-4 xl:mx-0 xl:flex">
-                                <Skeleton className="h-8 min-w-20 rounded-xl" />
+                            <div className="mx-auto pt-4">
+                                <Skeleton className="h-9 min-w-20 rounded-xl" />
                             </div>
 
                             {Array(3)
@@ -239,7 +239,7 @@ function Licenses() {
                                 ))}
                         </>
                     ) : (
-                        <>
+                        <div className="col mt-2 gap-3">
                             {['GND', 'MND', 'ND']
                                 .filter((type) => filterLicensesOfType(type as License['type']).length > 0)
                                 .map((type) => (
@@ -251,7 +251,7 @@ function Licenses() {
                                         )}
                                     </div>
                                 ))}
-                        </>
+                        </div>
                     )}
                 </div>
 

@@ -227,7 +227,7 @@ export const arrayAverage = (numbers: number[]): number => {
 };
 
 export const getLicenseSectionHeader = (type: License['type']) => (
-    <div className="mx-auto xl:mx-0">
-        <div className="pt-4 text-xl font-semibold sm:text-2xl">{type}</div>
+    <div className="mx-auto">
+        <div className="pt-4 text-2xl font-semibold">{type}</div>
     </div>
 );

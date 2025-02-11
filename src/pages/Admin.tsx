@@ -296,7 +296,7 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
                 <Table
                     aria-label="MNDs Table"
                     classNames={{
-                        th: 'bg-lightBlue text-body text-[13px]',
+                        th: 'bg-slate-100 text-body text-[13px]',
                     }}
                     removeWrapper
                 >
