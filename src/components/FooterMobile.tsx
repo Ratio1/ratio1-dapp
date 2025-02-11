@@ -13,7 +13,7 @@ const socialLinks = [
 
 function FooterMobile() {
     return (
-        <div className="col center-all bg-lightBlue w-full gap-10 rounded-3xl px-8 py-12">
+        <div className="col center-all w-full gap-10 rounded-3xl bg-slate-100 px-8 py-12">
             <div className="col gap-4">
                 <img src={Logo} alt="Logo" className="h-7" />
                 <div className="text-center text-sm font-medium text-slate-500">

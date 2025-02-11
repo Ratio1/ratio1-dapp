@@ -68,7 +68,7 @@ export const Timer: FunctionComponent<
                         String(duration.minutes || 0).padStart(2, '0'),
                         String(duration.seconds || 0).padStart(2, '0'),
                     ].map((item, index) => (
-                        <div key={index} className="center-all h-12 w-12 rounded-xl bg-[#345aad] px-1 py-2 text-white">
+                        <div key={index} className="center-all h-12 w-12 rounded-xl bg-[#345eba] px-1 py-2 text-white">
                             <div className="leading-none">
                                 {item}
                                 {labels[index]}
