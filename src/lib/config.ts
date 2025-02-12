@@ -71,7 +71,7 @@ const configs: {
         ndContractAddress: '0x9f49fc29366F1C8285d42e7E82cA0bb668B32CeA',
         mndContractAddress: '0x909d33Ab74d5A85F1fc963ae63af7B97eAe76f40',
         liquidityManagerContractAddress: '0x7ecC3d8519f068D730EEDeCe899C4CdEC7A4E6A1',
-        safeAddress: '0xAEEa4E234096b1AcC16c898B6E057Fb0e33F9cC2',
+        safeAddress: '0x206F930e0b10a69A0ECe8110319af96a7E786Ec0',
         explorerUrl: 'https://sepolia.basescan.org',
         genesisDate: new Date('2025-02-05T16:00:00.000Z'),
         epochDurationInSeconds: 3600, // 1 hour
