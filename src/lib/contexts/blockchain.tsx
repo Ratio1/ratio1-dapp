@@ -225,10 +225,10 @@ export const BlockchainProvider = ({ children }) => {
                 }),
         ]);
 
-        // const licenses = mndLicense.totalAssignedAmount ? [mndLicense, ...ndLicenses] : ndLicenses;
+        const licenses = mndLicense.totalAssignedAmount ? [mndLicense, ...ndLicenses] : ndLicenses;
 
         // Leave here for testing purposes
-        const licenses: Array<License> = [
+        const test: Array<License> = [
             {
                 alias: Promise.resolve('wen-lambo'),
                 assignTimestamp: 1738934984n,
