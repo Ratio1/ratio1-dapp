@@ -225,10 +225,10 @@ export const BlockchainProvider = ({ children }) => {
                 }),
         ]);
 
-        const licenses = mndLicense.totalAssignedAmount ? [mndLicense, ...ndLicenses] : ndLicenses;
+        // const licenses = mndLicense.totalAssignedAmount ? [mndLicense, ...ndLicenses] : ndLicenses;
 
         // Leave here for testing purposes
-        const test: Array<License> = [
+        const licenses: Array<License> = [
             {
                 alias: Promise.resolve('wen-lambo'),
                 assignTimestamp: 1738934984n,
@@ -288,10 +288,10 @@ export const BlockchainProvider = ({ children }) => {
                 lastClaimOracle: '0x0000000000000000000000000000000000000000',
                 licenseId: 16n,
                 nodeAddress: '0x5dd330fe4BF4E5d45D901c40F9Eb9e3e68d6C966',
-                remainingAmount: 47500000000000000000000n,
+                remainingAmount: 475000000000000000000000n,
                 rewards: Promise.resolve(2512538672000000000000n),
-                totalAssignedAmount: 50000000000000000000000n,
-                totalClaimedAmount: 29556257534215000000000n,
+                totalAssignedAmount: 500000000000000000000000n,
+                totalClaimedAmount: 295562575342150000000000n,
                 type: 'ND',
             },
             {
