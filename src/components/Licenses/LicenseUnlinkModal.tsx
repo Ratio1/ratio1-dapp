@@ -131,7 +131,7 @@ const LicenseUnlinkModal = forwardRef(({ getLicenses, onClaim }: Props, ref) => 
             <div className="col w-full gap-6">
                 <DetailedAlert
                     icon={<RiCurrencyLine />}
-                    title="Unclaimed rewards"
+                    title="Unlinking unavailable"
                     description={<div>Rewards must be claimed before unlinking license.</div>}
                 >
                     <R1ValueWithLabel
