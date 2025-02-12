@@ -19,7 +19,15 @@ import { isFinite, isNaN } from 'lodash';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
-import { RiAddFill, RiArrowRightDoubleLine, RiCheckLine, RiCpuLine, RiEqualizer2Line, RiPriceTag3Line } from 'react-icons/ri';
+import {
+    RiAddFill,
+    RiArrowRightDoubleLine,
+    RiCheckLine,
+    RiCpuLine,
+    RiEqualizer2Line,
+    RiErrorWarningLine,
+    RiPriceTag3Line,
+} from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import { Stage } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
@@ -284,6 +292,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                         </div>
                     )}
 
+                    {/* Quantity */}
                     <div className="col overflow-hidden rounded-md border border-slate-200 bg-slate-100">
                         <div className="row justify-between p-4">
                             <div className="row gap-2.5">
@@ -373,6 +382,19 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                         </div>
                     </div>
 
+                    {/* Account spending limit error */}
+                    {isOverAccountUsdSpendingLimit() && (
+                        <div className="center-all w-full flex-col gap-2 rounded-md bg-slate-100 px-6 py-5 text-red-600">
+                            <RiErrorWarningLine className="text-2xl" />
+
+                            <div className="text-center text-[13px] font-medium">
+                                The amount you're trying to spend exceeds your USD spending limit. You cannot complete this
+                                purchase because your account has reached its allowed spending amount.
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Total amount due & Summary */}
                     <div className="flex w-full flex-col rounded-md bg-slate-100 px-6 py-6">
                         <R1ValueWithLabel
                             label="Total amount required"
@@ -441,13 +463,6 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                                         <div className="font-medium text-slate-500">Account Spending Limit (USD)</div>
                                         <div className="text-base font-medium">${accountUsdSpendingLimit}</div>
                                     </div>
-
-                                    {isOverAccountUsdSpendingLimit() && (
-                                        <div className="text-[13px] text-red-600">
-                                            The amount you're trying to spend exceeds your USD spending limit. You cannot
-                                            complete this purchase because your account has reached its allowed spending amount.
-                                        </div>
-                                    )}
                                 </div>
                             )}
                         </div>

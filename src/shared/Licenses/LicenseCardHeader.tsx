@@ -87,7 +87,7 @@ export const LicenseCardHeader = ({
         <Card>
             <div className="col gap-2">
                 <div className="flex">{getLicenseId()}</div>
-                <div className="w-48">{getLicenseUsageStats()}</div>
+                <div className="w-52">{getLicenseUsageStats()}</div>
             </div>
         </Card>
     );
@@ -134,7 +134,7 @@ export const LicenseCardHeader = ({
 
                                 <div className="col font-medium">
                                     {!!nodeAlias && (
-                                        <div className="max-w-[176px] overflow-hidden text-ellipsis whitespace-nowrap leading-5">
+                                        <div className="max-w-[176px] overflow-hidden text-ellipsis whitespace-nowrap text-sm leading-5">
                                             {nodeAlias}
                                         </div>
                                     )}
@@ -308,54 +308,52 @@ export const LicenseCardHeader = ({
     const getBannedLicenseTag = () => <Tag>Banned</Tag>;
 
     return (
-        <>
-            <div
-                className={clsx(
-                    'flex flex-col-reverse justify-between gap-4 bg-white px-6 py-6 md:gap-6 md:px-8 lg:gap-8 larger:flex-row larger:items-center',
-                    {
-                        'rounded-bl-3xl rounded-br-3xl': isExpanded,
-                    },
-                )}
-            >
-                {/* On mobile, the rewards and claim button are displayed in the bottom row, but 'flex-col-reverse' is used */}
-                {!!rewards && (
-                    <div className="row justify-between sm:hidden">
-                        {getNodeRewards()}
-                        {getClaimRewardsButton()}
-                    </div>
-                )}
-
-                {/* Info */}
-                <div className="row flex-1 flex-wrap gap-2 sm:gap-4">
-                    {getLicenseCard()}
-                    {getNodeCard()}
+        <div
+            className={clsx(
+                'flex flex-col-reverse justify-between gap-4 bg-white px-6 py-6 md:gap-6 md:px-8 lg:gap-8 larger:flex-row larger:items-center',
+                {
+                    'rounded-bl-3xl rounded-br-3xl': isExpanded,
+                },
+            )}
+        >
+            {/* On mobile, the rewards and claim button are displayed in the bottom row, but 'flex-col-reverse' is used */}
+            {!!rewards && (
+                <div className="row justify-between sm:hidden">
+                    {getNodeRewards()}
+                    {getClaimRewardsButton()}
                 </div>
+            )}
 
-                {/* Controls */}
-                <div className="flex justify-end">
-                    {license.isBanned ? (
-                        <>{getBannedLicenseTag()}</>
-                    ) : (
-                        <>
-                            {!disableActions && (
-                                <div className="row w-full justify-between gap-4 sm:w-auto sm:justify-start">
-                                    {license.isLinked ? (
-                                        <div className="hidden items-center gap-4 sm:flex">
-                                            {getNodeRewards()}
-                                            {getClaimRewardsButton()}
-                                        </div>
-                                    ) : (
-                                        <>{getLicenseCooldownTimer()}</>
-                                    )}
-
-                                    <div className="flex w-full justify-end">{getDropdown()}</div>
-                                </div>
-                            )}
-                        </>
-                    )}
-                </div>
+            {/* Info */}
+            <div className="row flex-1 flex-wrap gap-2 sm:gap-4">
+                {getLicenseCard()}
+                {getNodeCard()}
             </div>
-        </>
+
+            {/* Controls */}
+            <div className="flex justify-end">
+                {license.isBanned ? (
+                    <>{getBannedLicenseTag()}</>
+                ) : (
+                    <>
+                        {!disableActions && (
+                            <div className="row w-full justify-between gap-4 sm:w-auto sm:justify-start">
+                                {license.isLinked ? (
+                                    <div className="hidden items-center gap-4 sm:flex">
+                                        {getNodeRewards()}
+                                        {getClaimRewardsButton()}
+                                    </div>
+                                ) : (
+                                    <>{getLicenseCooldownTimer()}</>
+                                )}
+
+                                <div className="flex w-full justify-end">{getDropdown()}</div>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+        </div>
     );
 };
 

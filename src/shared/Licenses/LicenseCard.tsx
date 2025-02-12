@@ -18,7 +18,7 @@ export const LicenseCard = ({
 
     return (
         <div
-            className="mx-auto flex max-w-[856px] cursor-pointer flex-col overflow-hidden rounded-3xl border-3 border-slate-100 bg-slate-100 transition-all hover:border-[#e9ebf1]"
+            className="mx-auto flex w-full cursor-pointer flex-col overflow-hidden rounded-3xl border-3 border-slate-100 bg-slate-100 transition-all hover:border-[#e9ebf1]"
             onClick={() => {
                 if (onLicenseClick) {
                     setExpanded(!isExpanded);
