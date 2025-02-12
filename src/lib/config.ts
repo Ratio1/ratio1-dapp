@@ -66,15 +66,15 @@ const configs: {
     devnet: {
         //TODO add below settings on devnet genesis
         backendUrl: 'https://ratio1-backend.ngrok.app',
-        oraclesUrl: 'https://naeural-oracle.ngrok.app',
-        r1ContractAddress: '0xCA32aD806BB1e086D77c733656c20334bf2976D6',
-        ndContractAddress: '0x9aB4e425c7dFFC7Aa1A7a262727b0b663e047571',
-        mndContractAddress: '0x658bE7d73EBd0Ba7DCe26c112d9871B7Bed890EC',
+        oraclesUrl: 'https://oracle-devnet.ratio1.ngrok.app',
+        r1ContractAddress: '0xEF38a3d84D3E3111fb7b794Ba3240187b8B32825',
+        ndContractAddress: '0x9f49fc29366F1C8285d42e7E82cA0bb668B32CeA',
+        mndContractAddress: '0x909d33Ab74d5A85F1fc963ae63af7B97eAe76f40',
         liquidityManagerContractAddress: '0x7ecC3d8519f068D730EEDeCe899C4CdEC7A4E6A1',
         safeAddress: '0xAEEa4E234096b1AcC16c898B6E057Fb0e33F9cC2',
         explorerUrl: 'https://sepolia.basescan.org',
-        genesisDate: new Date('2025-02-05T17:00:00.000Z'),
-        epochDurationInSeconds: 3600,
+        genesisDate: new Date('2025-02-05T16:00:00.000Z'),
+        epochDurationInSeconds: 3600, // 1 hour
         mndCliffEpochs: 120,
         gndVestingEpochs: 365,
         mndVestingEpochs: 900,
