@@ -62,45 +62,49 @@ function Admin() {
                 functionName: 'totalSupply',
             })
             .then(async (totalSupply) => {
-                const mnds = await Promise.all(
-                    Array.from({ length: Number(totalSupply) }).map((_, i) =>
-                        Promise.all([
-                            publicClient.readContract({
+                const mnds: (AdminMndView | null)[] = [];
+
+                let i = 1;
+                while (mnds.filter((mnd) => mnd !== null).length < Number(totalSupply)) {
+                    const fetchedLicense = await Promise.all([
+                        publicClient.readContract({
+                            address: config.mndContractAddress,
+                            abi: MNDContractAbi,
+                            functionName: 'ownerOf',
+                            args: [BigInt(i)],
+                        }),
+                        publicClient
+                            .readContract({
                                 address: config.mndContractAddress,
                                 abi: MNDContractAbi,
-                                functionName: 'ownerOf',
-                                args: [BigInt(i + 1)],
-                            }),
-                            publicClient
-                                .readContract({
-                                    address: config.mndContractAddress,
-                                    abi: MNDContractAbi,
-                                    functionName: 'licenses',
-                                    args: [BigInt(i + 1)],
-                                })
-                                .then((result) => ({
-                                    type: 'MND' as const,
-                                    licenseId: BigInt(i + 1),
-                                    nodeAddress: result[0],
-                                    totalAssignedAmount: result[1],
-                                    totalClaimedAmount: result[2],
-                                    lastClaimEpoch: result[3],
-                                    assignTimestamp: result[4],
-                                    lastClaimOracle: result[5],
-                                    remainingAmount: result[1] - result[2],
-                                    isBanned: false as const,
-                                })),
-                        ])
-                            .then(([owner, license]) => ({
-                                ...license,
-                                owner,
-                            }))
-                            .catch(() => {
-                                return null;
-                            }),
-                    ),
-                );
-                console.log(mnds);
+                                functionName: 'licenses',
+                                args: [BigInt(i)],
+                            })
+                            .then((result) => ({
+                                type: 'MND' as const,
+                                licenseId: BigInt(i),
+                                nodeAddress: result[0],
+                                totalAssignedAmount: result[1],
+                                totalClaimedAmount: result[2],
+                                lastClaimEpoch: result[3],
+                                assignTimestamp: result[4],
+                                lastClaimOracle: result[5],
+                                remainingAmount: result[1] - result[2],
+                                isBanned: false as const,
+                            })),
+                    ])
+                        .then(([owner, license]) => ({
+                            ...license,
+                            owner,
+                        }))
+                        .catch(() => {
+                            return null;
+                        });
+
+                    mnds.push(fetchedLicense);
+                    i++;
+                }
+                console.log({ mnds });
                 setMnds(mnds);
             });
     };
@@ -285,7 +289,9 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
                 <LargeValueWithLabel
                     label="$R1 minted"
                     value={fBI(
-                        mnds.reduce((acc, mnd) => acc + (mnd?.totalClaimedAmount ?? 0n), 0n),
+                        mnds
+                            .filter((mnd) => mnd?.licenseId !== 1n)
+                            .reduce((acc, mnd) => acc + (mnd?.totalClaimedAmount ?? 0n), 0n),
                         18,
                     )}
                     isCompact
