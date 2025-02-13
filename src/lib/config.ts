@@ -64,13 +64,13 @@ const configs: {
         ND_LICENSE_CAP: 1575_188843457943924200n,
     },
     devnet: {
-        //TODO add below settings on devnet genesis
         backendUrl: 'https://ratio1-backend.ngrok.app',
         oraclesUrl: 'https://oracle-devnet.ratio1.ngrok.app',
         r1ContractAddress: '0xEF38a3d84D3E3111fb7b794Ba3240187b8B32825',
         ndContractAddress: '0x9f49fc29366F1C8285d42e7E82cA0bb668B32CeA',
         mndContractAddress: '0x909d33Ab74d5A85F1fc963ae63af7B97eAe76f40',
-        liquidityManagerContractAddress: '0x7ecC3d8519f068D730EEDeCe899C4CdEC7A4E6A1',
+        faucetContractAddress: '0xd4c6B97E9a7f31eDF57285DcE4Fc59a2746013e2',
+        liquidityManagerContractAddress: '0xE5C61ADEeE7850a8656A10f3963036e5c045B508',
         safeAddress: '0x206F930e0b10a69A0ECe8110319af96a7E786Ec0',
         explorerUrl: 'https://sepolia.basescan.org',
         genesisDate: new Date('2025-02-12T16:00:00.000Z'),

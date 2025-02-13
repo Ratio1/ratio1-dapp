@@ -120,7 +120,7 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
         page: Profile,
         icon: <RiShieldUserLine />,
     },
-    ...(environment === 'testnet'
+    ...(environment === 'testnet' || environment === 'devnet'
         ? [
               {
                   path: routePath.faucet,
