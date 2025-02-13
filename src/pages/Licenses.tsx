@@ -93,7 +93,7 @@ function Licenses() {
 
     const getPagesCount = (): number => Math.ceil(filteredLicenses.length / PAGE_SIZE);
 
-    const onAction = (type: 'link' | 'unlink' | 'claim' | 'changeNode', license: License) => {
+    const onAction = (type: 'link' | 'unlink' | 'claim' | 'changeNode' | 'burn', license: License) => {
         switch (type) {
             case 'link':
                 onLink(license);
@@ -109,6 +109,10 @@ function Licenses() {
 
             case 'changeNode':
                 onLink(license);
+                break;
+
+            case 'burn':
+                onBurn(license);
                 break;
 
             default:
@@ -157,7 +161,7 @@ function Licenses() {
 
             getLicenses();
         } catch (err: any) {
-            toast.error('An error occurred, pease try again.');
+            toast.error('An error occurred, please try again.');
         } finally {
             setClaimingRewards(license.licenseId, license.type, false);
         }
@@ -172,6 +176,28 @@ function Licenses() {
     const onUnlink = (license: License) => {
         if (unlinkModalRef.current) {
             unlinkModalRef.current.trigger(license);
+        }
+    };
+
+    const onBurn = async (license: License) => {
+        try {
+            if (!publicClient || !address || !walletClient) {
+                toast.error('Unexpected error, please try again.');
+                return;
+            }
+
+            const txHash = await walletClient.writeContract({
+                address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
+                abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
+                functionName: 'burn',
+                args: [license.licenseId],
+            });
+
+            await watchTx(txHash, publicClient);
+
+            getLicenses();
+        } catch (err: any) {
+            toast.error('An error occurred, please try again.');
         }
     };
 

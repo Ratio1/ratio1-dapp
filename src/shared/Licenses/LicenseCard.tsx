@@ -10,7 +10,7 @@ export const LicenseCard = ({
     disableActions,
 }: {
     license: License;
-    action?: (type: 'link' | 'unlink' | 'claim' | 'changeNode', license: License) => void;
+    action?: (type: 'link' | 'unlink' | 'claim' | 'changeNode' | 'burn', license: License) => void;
     onLicenseClick?: (license: License) => void;
     disableActions?: boolean;
 }) => {

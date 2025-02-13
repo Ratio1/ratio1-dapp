@@ -1,3 +1,4 @@
+import { MNDContractAbi } from '@blockchain/MNDContract';
 import { config } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { fBI, fN, getShortAddress } from '@lib/utils';
@@ -8,12 +9,13 @@ import { Spinner } from '@nextui-org/spinner';
 import { Timer } from '@shared/Timer';
 import clsx from 'clsx';
 import { addDays, formatDistanceToNow, isBefore } from 'date-fns';
-import { FunctionComponent, PropsWithChildren, useState } from 'react';
+import { FunctionComponent, PropsWithChildren, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiCpuLine, RiExchange2Line, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine } from 'react-icons/ri';
+import { RiCpuLine, RiExchange2Line, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine, RiFireLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
 import { License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
+import { useAccount, usePublicClient } from 'wagmi';
 
 export const LicenseCardHeader = ({
     license,
@@ -22,10 +24,13 @@ export const LicenseCardHeader = ({
     disableActions,
 }: {
     license: License;
-    action?: (type: 'link' | 'unlink' | 'claim' | 'changeNode', license: License) => void;
+    action?: (type: 'link' | 'unlink' | 'claim' | 'changeNode' | 'burn', license: License) => void;
     isExpanded: boolean;
     disableActions?: boolean;
 }) => {
+    const publicClient = usePublicClient();
+    const { address } = useAccount();
+
     // The license can only be linked once every 24h
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
     const [nodeAlias, isLoadingNodeAlias] = useAwait(license.isLinked ? license.alias : '');
@@ -35,6 +40,24 @@ export const LicenseCardHeader = ({
     const getCooldownEndTimestamp = (): Date => addDays(getAssignTimestamp(), 1);
 
     const [hasCooldown, setCooldown] = useState<boolean>(isBefore(new Date(), getCooldownEndTimestamp()));
+
+    const shouldShowBurnButtonPromise = useMemo(async () => {
+        if (!publicClient || !address) {
+            return false;
+        }
+        if (license.type !== 'MND') {
+            return false;
+        }
+
+        return publicClient.readContract({
+            address: config.mndContractAddress,
+            abi: MNDContractAbi,
+            functionName: 'initiatedBurn',
+            args: [address],
+        });
+    }, [license]);
+
+    const [shouldShowBurnButton] = useAwait(shouldShowBurnButtonPromise);
 
     const getContractAddress = (type: 'ND' | 'MND' | 'GND') => {
         switch (type) {
@@ -301,6 +324,28 @@ export const LicenseCardHeader = ({
                         </DropdownItem>
                     </>
                 )}
+
+                {shouldShowBurnButton ? (
+                    <DropdownItem
+                        id="burn"
+                        aria-label="Burn"
+                        key="burn"
+                        onPress={() => {
+                            if (action) {
+                                action('burn', license);
+                            }
+                        }}
+                    >
+                        <div className="row gap-2">
+                            <RiFireLine className="pr-0.5 text-[22px] text-slate-500" />
+
+                            <div className="col">
+                                <div className="font-medium text-body">Burn</div>
+                                <div className="text-xs text-slate-500">Burn license</div>
+                            </div>
+                        </div>
+                    </DropdownItem>
+                ) : null}
             </DropdownMenu>
         </Dropdown>
     );
