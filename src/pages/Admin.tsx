@@ -380,8 +380,8 @@ function AddSigner({
         setIsLoading(true);
 
         const txHash = await walletClient.writeContract({
-            address: config.mndContractAddress,
-            abi: MNDContractAbi,
+            address: config.ndContractAddress,
+            abi: NDContractAbi,
             functionName: 'addSigner',
             args: [address as EthAddress],
         });
@@ -401,8 +401,8 @@ function AddSigner({
         setIsLoading(true);
 
         const txHash = await walletClient.writeContract({
-            address: config.ndContractAddress,
-            abi: NDContractAbi,
+            address: config.mndContractAddress,
+            abi: MNDContractAbi,
             functionName: 'addSigner',
             args: [address as EthAddress],
         });
