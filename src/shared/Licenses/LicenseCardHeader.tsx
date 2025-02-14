@@ -11,7 +11,7 @@ import clsx from 'clsx';
 import { addDays, formatDistanceToNow, isBefore } from 'date-fns';
 import { FunctionComponent, PropsWithChildren, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiCpuLine, RiExchange2Line, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine, RiFireLine } from 'react-icons/ri';
+import { RiCpuLine, RiExchange2Line, RiFireLine, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
 import { License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
@@ -275,7 +275,7 @@ export const LicenseCardHeader = ({
                                 <RiLink className="pr-0.5 text-[22px] text-slate-500" />
 
                                 <div className="col">
-                                    <div className="font-medium text-body">Link</div>
+                                    <div className="font-medium leading-4 text-body">Link</div>
                                     <div className="text-xs text-slate-500">Assign license to a node</div>
                                 </div>
                             </div>
@@ -299,7 +299,7 @@ export const LicenseCardHeader = ({
                                 <RiExchange2Line className="pr-0.5 text-[22px] text-slate-500" />
 
                                 <div className="col">
-                                    <div className="font-medium text-body">Change Node</div>
+                                    <div className="font-medium leading-4 text-body">Change Node</div>
                                     <div className="text-xs text-slate-500">Switch license to another node</div>
                                 </div>
                             </div>
@@ -317,7 +317,7 @@ export const LicenseCardHeader = ({
                                 <RiLinkUnlink className="pr-0.5 text-[22px] text-slate-500" />
 
                                 <div className="col">
-                                    <div className="font-medium text-body">Unlink</div>
+                                    <div className="font-medium leading-4 text-body">Unlink</div>
                                     <div className="text-xs text-slate-500">Remove license from node</div>
                                 </div>
                             </div>
@@ -337,11 +337,11 @@ export const LicenseCardHeader = ({
                         }}
                     >
                         <div className="row gap-2">
-                            <RiFireLine className="pr-0.5 text-[22px] text-slate-500" />
+                            <RiFireLine className="pr-0.5 text-[22px] text-red-500" />
 
                             <div className="col">
-                                <div className="font-medium text-body">Burn</div>
-                                <div className="text-xs text-slate-500">Burn license</div>
+                                <div className="font-medium leading-4 text-red-500">Burn</div>
+                                <div className="text-xs text-slate-500">Permanently erase the license</div>
                             </div>
                         </div>
                     </DropdownItem>

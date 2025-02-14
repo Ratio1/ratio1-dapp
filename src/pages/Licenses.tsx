@@ -1,8 +1,9 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import LicenseLinkModal from '@components/Licenses/LicenseLinkModal';
 import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
-import LicenseUnlinkModal from '@components/Licenses/LicenseUnlinkModal';
+import LicenseBurnModal from '@components/Licenses/modals/LicenseBurnModal';
+import LicenseLinkModal from '@components/Licenses/modals/LicenseLinkModal';
+import LicenseUnlinkModal from '@components/Licenses/modals/LicenseUnlinkModal';
 import { getNodeEpochsRange } from '@lib/api/oracles';
 import { config, getCurrentEpoch } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
@@ -48,6 +49,7 @@ function Licenses() {
 
     const linkModalRef = useRef<{ trigger: (_license) => void }>(null);
     const unlinkModalRef = useRef<{ trigger: (_license) => void }>(null);
+    const burnModalRef = useRef<{ trigger: (_license) => void }>(null);
 
     const { address } = useAccount();
     const { data: walletClient } = useWalletClient();
@@ -180,24 +182,8 @@ function Licenses() {
     };
 
     const onBurn = async (license: License) => {
-        try {
-            if (!publicClient || !address || !walletClient) {
-                toast.error('Unexpected error, please try again.');
-                return;
-            }
-
-            const txHash = await walletClient.writeContract({
-                address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
-                abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
-                functionName: 'burn',
-                args: [license.licenseId],
-            });
-
-            await watchTx(txHash, publicClient);
-
-            getLicenses();
-        } catch (err: any) {
-            toast.error('An error occurred, please try again.');
+        if (burnModalRef.current) {
+            burnModalRef.current.trigger(license);
         }
     };
 
@@ -304,6 +290,8 @@ function Licenses() {
             />
 
             <LicenseUnlinkModal ref={unlinkModalRef} getLicenses={getLicenses} onClaim={onClaim} />
+
+            <LicenseBurnModal ref={burnModalRef} getLicenses={getLicenses} />
         </div>
     );
 }

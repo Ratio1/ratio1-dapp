@@ -97,7 +97,7 @@ export const environment =
           ? ('devnet' as const)
           : domain === domainTestnet
             ? ('testnet' as const)
-            : ('testnet' as const);
+            : ('devnet' as const);
 
 export const config = configs[environment];
 

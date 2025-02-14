@@ -101,7 +101,7 @@ const LicenseUnlinkModal = forwardRef(({ getLicenses, onClaim }: Props, ref) => 
                 <DetailedAlert
                     variant="red"
                     icon={<RiLinkUnlink />}
-                    title="Confirm unlinking"
+                    title="Unlinking confirmation"
                     description={<div>Are you sure you want to unlink this license?</div>}
                 />
 
@@ -119,7 +119,7 @@ const LicenseUnlinkModal = forwardRef(({ getLicenses, onClaim }: Props, ref) => 
                     Cancel
                 </Button>
 
-                <Button color="danger" onPress={onConfirmUnlinking} isLoading={isLoading}>
+                <Button className="bg-red-600" color="danger" onPress={onConfirmUnlinking} isLoading={isLoading}>
                     Unlink
                 </Button>
             </div>
