@@ -8,7 +8,7 @@ import { Spinner } from '@nextui-org/spinner';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiLinkUnlink } from 'react-icons/ri';
+import { RiFireLine } from 'react-icons/ri';
 import { License } from 'typedefs/blockchain';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
@@ -76,7 +76,7 @@ const LicenseBurnModal = forwardRef(({ getLicenses }: Props, ref) => {
                                 <div className="col w-full gap-6">
                                     <DetailedAlert
                                         variant="red"
-                                        icon={<RiLinkUnlink />}
+                                        icon={<RiFireLine />}
                                         title="Burning confirmation"
                                         description={
                                             <div className="col">
