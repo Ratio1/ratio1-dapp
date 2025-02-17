@@ -143,8 +143,8 @@ function Search() {
 
         const isLinked = nodeAddress !== '0x0000000000000000000000000000000000000000';
 
-        const baseLicense: Omit<MNDLicense, 'rewards' | 'alias' | 'isOnline' | 'claimableEpochs'> = {
-            type: 'MND' as const,
+        const baseLicense: Omit<MNDLicense | GNDLicense, 'rewards' | 'alias' | 'isOnline' | 'claimableEpochs'> = {
+            type: licenseId === 1n ? 'GND' : ('MND' as const),
             licenseId,
             nodeAddress,
             totalClaimedAmount,

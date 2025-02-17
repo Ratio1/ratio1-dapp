@@ -65,7 +65,7 @@ const configs: {
     },
     devnet: {
         backendUrl: 'https://devnet-dapp-api.ratio1.ai',
-        oraclesUrl: 'https://devnet-oracle.ratio1.ngrok.app',
+        oraclesUrl: 'https://devnet-oracle.ratio1.ai',
         r1ContractAddress: '0xEF38a3d84D3E3111fb7b794Ba3240187b8B32825',
         ndContractAddress: '0x9f49fc29366F1C8285d42e7E82cA0bb668B32CeA',
         mndContractAddress: '0x909d33Ab74d5A85F1fc963ae63af7B97eAe76f40',
