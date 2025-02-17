@@ -28,7 +28,7 @@ const configs: {
 } = {
     mainnet: {
         backendUrl: 'https://dapp-api.ratio1.ai',
-        oraclesUrl: 'https://oracle-main.ratio1.ai',
+        oraclesUrl: 'https://oracle.ratio1.ai',
         r1ContractAddress: '0xc992DcaB6D3F8783fBf0c935E7bCeB20aa50A6f1',
         ndContractAddress: '0xE20198EE2B76eED916A568a47cdea9681f7c79BF',
         mndContractAddress: '0xfD52a7958088dF734D523d618e583e4d53cD7420',
@@ -45,8 +45,8 @@ const configs: {
         ND_LICENSE_CAP: 1575_188843457943924200n,
     },
     testnet: {
-        backendUrl: 'https://dapp-api-test.ratio1.ai',
-        oraclesUrl: 'https://oracle-test.ratio1.ai',
+        backendUrl: 'https://testnet-dapp-api.ratio1.ai',
+        oraclesUrl: 'https://testnet-oracle.ratio1.ai',
         r1ContractAddress: '0xc992dcab6d3f8783fbf0c935e7bceb20aa50a6f1',
         ndContractAddress: '0xE20198EE2B76eED916A568a47cdea9681f7c79BF',
         mndContractAddress: '0xfD52a7958088dF734D523d618e583e4d53cD7420',
@@ -64,8 +64,8 @@ const configs: {
         ND_LICENSE_CAP: 1575_188843457943924200n,
     },
     devnet: {
-        backendUrl: 'https://dapp-api-devnet.ratio1.ai',
-        oraclesUrl: 'https://oracle-devnet.ratio1.ngrok.app',
+        backendUrl: 'https://devnet-dapp-api.ratio1.ai',
+        oraclesUrl: 'https://devnet-oracle.ratio1.ngrok.app',
         r1ContractAddress: '0xEF38a3d84D3E3111fb7b794Ba3240187b8B32825',
         ndContractAddress: '0x9f49fc29366F1C8285d42e7E82cA0bb668B32CeA',
         mndContractAddress: '0x909d33Ab74d5A85F1fc963ae63af7B97eAe76f40',
