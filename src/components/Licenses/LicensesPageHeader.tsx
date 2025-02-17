@@ -3,6 +3,7 @@ import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { getNodeEpochsRange } from '@lib/api/oracles';
 import { config, getCurrentEpoch, getNextEpochTimestamp } from '@lib/config';
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
 import { fBI, fN } from '@lib/utils';
@@ -25,6 +26,7 @@ function LicensesPageHeader({
     getLicenses: () => void;
 }) {
     const { watchTx, r1Price, fetchR1Price } = useBlockchainContext() as BlockchainContextType;
+    const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
     const [r1PriceUsd, setR1PriceUsd] = useState<number>();
     const [isLoading, setLoading] = useState<boolean>(false);
@@ -173,6 +175,7 @@ function LicensesPageHeader({
                             variant="faded"
                             isLoading={isLoading}
                             onPress={claimAll}
+                            isDisabled={!authenticated}
                         >
                             <div className="text-sm">Claim all</div>
                         </Button>

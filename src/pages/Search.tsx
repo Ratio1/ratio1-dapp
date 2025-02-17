@@ -6,7 +6,9 @@ import { getLicenseRewardsAndNodeInfo, getLicenseSectionHeader } from '@lib/util
 import { Input } from '@nextui-org/input';
 import { Spinner } from '@nextui-org/spinner';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
+import { isFinite } from 'lodash';
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { RiSearchLine } from 'react-icons/ri';
 import { useSearchParams } from 'react-router-dom';
 import { GNDLicense, MNDLicense, NDLicense } from 'typedefs/blockchain';
@@ -39,6 +41,13 @@ function Search() {
             return;
         }
 
+        const num = Number(sanitizedNumber);
+
+        if (isNaN(num) || !Number.isInteger(num) || !isFinite(num) || num <= 0) {
+            toast.error('Invalid search value.');
+            return;
+        }
+
         setSearchParams({ licenseId: sanitizedNumber });
     };
 
@@ -65,7 +74,7 @@ function Search() {
                 args: [licenseId],
             });
 
-        // console.log('ND', { nodeAddress, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle, isBanned });
+        console.log('ND', { nodeAddress, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle, isBanned });
 
         const isLinked = nodeAddress !== '0x0000000000000000000000000000000000000000';
 
@@ -90,7 +99,6 @@ function Search() {
                 isLinked,
             });
         } else {
-            // console.log('ND getLicenseRewardsAndNodeInfo');
             const licenseDataPromise = getLicenseRewardsAndNodeInfo({
                 ...baseLicense,
                 claimableEpochs: 0n,
@@ -120,14 +128,18 @@ function Search() {
                 args: [licenseId],
             });
 
-        // console.log('MND', {
-        //     nodeAddress,
-        //     totalAssignedAmount,
-        //     totalClaimedAmount,
-        //     lastClaimEpoch,
-        //     assignTimestamp,
-        //     lastClaimOracle,
-        // });
+        console.log('MND', {
+            nodeAddress,
+            totalAssignedAmount,
+            totalClaimedAmount,
+            lastClaimEpoch,
+            assignTimestamp,
+            lastClaimOracle,
+        });
+
+        if (!totalAssignedAmount) {
+            return;
+        }
 
         const isLinked = nodeAddress !== '0x0000000000000000000000000000000000000000';
 
@@ -152,7 +164,6 @@ function Search() {
                 isLinked,
             });
         } else {
-            // console.log('MND getLicenseRewardsAndNodeInfo');
             const licenseDataPromise = getLicenseRewardsAndNodeInfo({
                 ...baseLicense,
                 claimableEpochs: 0n,

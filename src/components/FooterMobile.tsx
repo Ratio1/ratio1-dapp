@@ -21,8 +21,7 @@ function FooterMobile() {
                 </div>
             </div>
 
-            <div className="col gap-1">
-                <div className="text-center font-semibold">Join us</div>
+            <div className="col">
                 <div className="row w-full gap-2">
                     {socialLinks.map((link, index) => (
                         <Link

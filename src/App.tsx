@@ -3,8 +3,9 @@ import Layout from '@components/Layout';
 import { config, projectId, wagmiAdapter } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { isParentRoute, isSimpleRoute, routePath, routes } from '@lib/routes';
-import { createAppKit } from '@reown/appkit/react';
-import { useEffect } from 'react';
+import { Spinner } from '@nextui-org/spinner';
+import { AppKit, createAppKit } from '@reown/appkit/react';
+import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 const metadata = {
@@ -17,10 +18,11 @@ const metadata = {
 
 function App() {
     const { siweConfig } = useAuthenticationContext() as AuthenticationContextType;
+    const [appKit, setAppKit] = useState<AppKit>();
 
     useEffect(() => {
         if (siweConfig) {
-            createAppKit({
+            const appKit: AppKit = createAppKit({
                 adapters: [wagmiAdapter],
                 projectId,
                 networks: config.networks as any,
@@ -43,8 +45,18 @@ function App() {
                     '--w3m-accent': '#1b47f7',
                 },
             });
+
+            setAppKit(appKit);
         }
     }, [siweConfig]);
+
+    if (!appKit) {
+        return (
+            <div className="center-all min-h-dvh bg-[#fcfcfd]">
+                <Spinner size="lg" />
+            </div>
+        );
+    }
 
     return (
         <Routes>

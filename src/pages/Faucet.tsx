@@ -4,11 +4,13 @@ import Optimism from '@assets/faucets/optimism.jpeg';
 import Thirdweb from '@assets/faucets/thirdweb.png';
 import { TestnetFaucetContractAbi } from '@blockchain/TestnetFaucet';
 import { config } from '@lib/config';
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes';
 import { fBI } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { BigCard } from '@shared/BigCard';
+import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
 import { Timer } from '@shared/Timer';
 import { useEffect, useState } from 'react';
@@ -19,6 +21,8 @@ import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 function Faucet() {
     const { watchTx, fetchR1Balance } = useBlockchainContext() as BlockchainContextType;
+    const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
+
     const navigate = useNavigate();
 
     const [amountPerClaim, setAmountPerClaim] = useState<bigint>(0n);
@@ -116,17 +120,22 @@ function Faucet() {
                         </div>
 
                         <div className="mx-auto flex">
-                            <Button
-                                fullWidth
-                                color="primary"
-                                onPress={onClaim}
-                                isLoading={isLoading}
-                                isDisabled={
-                                    isLoading || !nextClaimTimestamp || nextClaimTimestamp.getTime() > new Date().getTime()
-                                }
-                            >
-                                Claim
-                            </Button>
+                            <ConnectWalletWrapper>
+                                <Button
+                                    fullWidth
+                                    color="primary"
+                                    onPress={onClaim}
+                                    isLoading={isLoading}
+                                    isDisabled={
+                                        isLoading ||
+                                        !authenticated ||
+                                        !nextClaimTimestamp ||
+                                        nextClaimTimestamp.getTime() > new Date().getTime()
+                                    }
+                                >
+                                    Claim
+                                </Button>
+                            </ConnectWalletWrapper>
                         </div>
 
                         <div className="col center-all gap-4">
