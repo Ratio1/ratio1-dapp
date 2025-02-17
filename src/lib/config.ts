@@ -90,6 +90,12 @@ const domainMainnet = 'app.ratio1.ai';
 const domainDevnet = 'devnet-app.ratio1.ai';
 const domainTestnet = 'testnet-app.ratio1.ai';
 
+export const domains = {
+    mainnet: domainMainnet,
+    devnet: domainDevnet,
+    testnet: domainTestnet,
+};
+
 export const environment =
     domain === domainMainnet
         ? ('mainnet' as const)

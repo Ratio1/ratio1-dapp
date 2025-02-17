@@ -4,8 +4,9 @@ import { Spinner } from '@nextui-org/spinner';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { RiGlobalLine } from 'react-icons/ri';
+import { NetworkSelector } from './NetworkSelector';
 
-function ApiStatusCard() {
+function NetworkAndStatus() {
     const { data, error, isLoading } = useQuery({
         queryKey: ['ping'],
         queryFn: ping,
@@ -14,10 +15,16 @@ function ApiStatusCard() {
 
     return (
         <div className="col gap-2">
-            <div className="row mx-auto gap-1.5 rounded-lg bg-[#e8ebf6] px-3.5 py-2.5">
-                <RiGlobalLine className="text-lg text-slate-600" />
-                <div className="text-sm font-medium text-slate-600">{environment}</div>
-            </div>
+            {!import.meta.env.DEV ? (
+                <div className="row mx-auto">
+                    <NetworkSelector />
+                </div>
+            ) : (
+                <div className="row mx-auto gap-1.5 rounded-lg bg-[#e8ebf6] px-3.5 py-2.5">
+                    <RiGlobalLine className="text-lg text-slate-600" />
+                    <div className="text-sm font-medium text-slate-600">{environment}</div>
+                </div>
+            )}
 
             <div className="row mx-auto gap-2 rounded-lg bg-[#e8ebf6] px-3.5 py-2.5">
                 <div className="center-all">
@@ -39,4 +46,4 @@ function ApiStatusCard() {
     );
 }
 
-export default ApiStatusCard;
+export default NetworkAndStatus;

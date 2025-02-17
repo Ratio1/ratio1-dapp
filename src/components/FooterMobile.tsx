@@ -1,6 +1,6 @@
 import Logo from '@assets/logo_blue.svg';
 import { mainRoutesInfo, routePath } from '@lib/routes';
-import ApiStatusCard from '@shared/ApiStatusCard';
+import NetworkAndStatus from '@shared/NetworkAndStatus';
 import { RiDiscordLine, RiLinkedinBoxLine, RiTwitterXLine, RiYoutubeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
 
@@ -46,7 +46,7 @@ function FooterMobile() {
                 </Link>
             </div>
 
-            <ApiStatusCard />
+            <NetworkAndStatus />
         </div>
     );
 }
