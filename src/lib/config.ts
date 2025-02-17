@@ -64,7 +64,7 @@ const configs: {
         ND_LICENSE_CAP: 1575_188843457943924200n,
     },
     devnet: {
-        backendUrl: 'https://ratio1-backend.ngrok.app',
+        backendUrl: 'https://dapp-api-devnet.ratio1.ai',
         oraclesUrl: 'https://oracle-devnet.ratio1.ngrok.app',
         r1ContractAddress: '0xEF38a3d84D3E3111fb7b794Ba3240187b8B32825',
         ndContractAddress: '0x9f49fc29366F1C8285d42e7E82cA0bb668B32CeA',
