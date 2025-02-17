@@ -175,7 +175,7 @@ function LicensesPageHeader({
                             variant="faded"
                             isLoading={isLoading}
                             onPress={claimAll}
-                            isDisabled={!authenticated}
+                            isDisabled={!authenticated || !rewards}
                         >
                             <div className="text-sm">Claim all</div>
                         </Button>
