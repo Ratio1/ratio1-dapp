@@ -1,9 +1,7 @@
 import { ping } from '@lib/api/backend';
-import { environment } from '@lib/config';
 import { Spinner } from '@nextui-org/spinner';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { RiGlobalLine } from 'react-icons/ri';
 import { NetworkSelector } from './NetworkSelector';
 
 function NetworkAndStatus() {
@@ -15,16 +13,9 @@ function NetworkAndStatus() {
 
     return (
         <div className="col gap-2">
-            {!import.meta.env.DEV ? (
-                <div className="row mx-auto">
-                    <NetworkSelector />
-                </div>
-            ) : (
-                <div className="row mx-auto gap-1.5 rounded-lg bg-[#e8ebf6] px-3.5 py-2.5">
-                    <RiGlobalLine className="text-lg text-slate-600" />
-                    <div className="text-sm font-medium text-slate-600">{environment}</div>
-                </div>
-            )}
+            <div className="row mx-auto">
+                <NetworkSelector />
+            </div>
 
             <div className="row mx-auto gap-2 rounded-lg bg-[#e8ebf6] px-3.5 py-2.5">
                 <div className="center-all">
