@@ -59,18 +59,13 @@ export const BlockchainProvider = ({ children }) => {
 
     const watchTx = async (txHash: string, publicClient) => {
         const waitForTx = async (): Promise<TransactionReceipt> => {
-            try {
-                const receipt: TransactionReceipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+            const receipt: TransactionReceipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
 
-                if (receipt.status === 'success') {
-                    console.log('Transaction confirmed successfully!', receipt);
-                    return receipt;
-                } else {
-                    throw new Error('Transaction failed, please try again.');
-                }
-            } catch (error: any) {
-                console.error(error.message || error);
-                throw error;
+            if (receipt.status === 'success') {
+                console.log('Transaction confirmed successfully!', receipt);
+                return receipt;
+            } else {
+                throw new Error('Transaction failed, please try again.');
             }
         };
 
@@ -93,7 +88,9 @@ export const BlockchainProvider = ({ children }) => {
                         </div>
                     </div>
                 ),
-                error: <div>Transaction failed, please try again.</div>,
+                error: (_error) => {
+                    return <div>Transaction failed, please try again.</div>;
+                },
             },
             {
                 success: {

@@ -147,7 +147,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
             setLoadingTx(false);
         } catch (err: any) {
             console.error(err.message || 'An error occurred');
-            toast.error('An error occurred, please try again.');
+            toast.error('Transaction failed, please try again.');
             setLoadingTx(false);
         }
     };
@@ -210,7 +210,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
             navigate(routePath.licenses);
         } catch (err: any) {
             console.error(err.message || 'An error occurred');
-            toast.error('An error occurred, please try again.');
+            toast.error('Transaction failed, please try again.');
             setLoadingTx(false);
         }
     };
