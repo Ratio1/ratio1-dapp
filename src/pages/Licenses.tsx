@@ -4,8 +4,7 @@ import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
 import LicenseBurnModal from '@components/Licenses/modals/LicenseBurnModal';
 import LicenseLinkModal from '@components/Licenses/modals/LicenseLinkModal';
 import LicenseUnlinkModal from '@components/Licenses/modals/LicenseUnlinkModal';
-import { getNodeEpochsRange } from '@lib/api/oracles';
-import { config, getCurrentEpoch } from '@lib/config';
+import { config } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { getLicenseSectionHeader } from '@lib/utils';
@@ -128,21 +127,24 @@ function Licenses() {
                 toast.error('Unexpected error, please try again.');
                 return;
             }
+            if (!license.isLinked) {
+                toast.error('License is not linked to a node.');
+                return;
+            }
 
             setClaimingRewards(license.licenseId, license.type, true);
 
-            //TODO decide if we want to store this data in the license object
-            const { epochs, epochs_vals, eth_signatures } = await getNodeEpochsRange(
-                license.nodeAddress,
-                Number(license.lastClaimEpoch),
-                getCurrentEpoch() - 1,
-            );
+            const [epochs, availabilies, ethSignatures] = await Promise.all([
+                license.epochs,
+                license.epochsAvailabilities,
+                license.ethSignatures,
+            ]);
 
             const computeParam = {
                 licenseId: license.licenseId,
                 nodeAddress: license.nodeAddress,
                 epochs: epochs.map((epoch) => BigInt(epoch)),
-                availabilies: epochs_vals,
+                availabilies,
             };
             const txHash =
                 license.type === 'ND'
@@ -150,13 +152,13 @@ function Licenses() {
                           address: config.ndContractAddress,
                           abi: NDContractAbi,
                           functionName: 'claimRewards',
-                          args: [[computeParam], [eth_signatures]],
+                          args: [[computeParam], [ethSignatures]],
                       })
                     : await walletClient.writeContract({
                           address: config.mndContractAddress,
                           abi: MNDContractAbi,
                           functionName: 'claimRewards',
-                          args: [computeParam, eth_signatures],
+                          args: [computeParam, ethSignatures],
                       });
 
             await watchTx(txHash, publicClient);

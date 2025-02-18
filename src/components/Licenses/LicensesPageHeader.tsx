@@ -1,8 +1,7 @@
 import Logo from '@assets/token_white.svg';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { getNodeEpochsRange } from '@lib/api/oracles';
-import { config, getCurrentEpoch, getNextEpochTimestamp } from '@lib/config';
+import { config, getNextEpochTimestamp } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
@@ -135,17 +134,16 @@ function LicensesPageHeader({
                     if (!license.isLinked || (await license.rewards) === 0n) {
                         return;
                     }
-                    //TODO decide if we want to store this data in the license object
-                    const { epochs, epochs_vals, eth_signatures } = await getNodeEpochsRange(
-                        license.nodeAddress,
-                        Number(license.lastClaimEpoch),
-                        getCurrentEpoch() - 1,
-                    );
+                    const [epochs, availabilies, eth_signatures] = await Promise.all([
+                        license.epochs,
+                        license.epochsAvailabilities,
+                        license.ethSignatures,
+                    ]);
                     const computeParam = {
                         licenseId: license.licenseId,
                         nodeAddress: license.nodeAddress,
                         epochs: epochs.map((epoch) => BigInt(epoch)),
-                        availabilies: epochs_vals,
+                        availabilies,
                     };
                     return { computeParam, eth_signatures };
                 }),
