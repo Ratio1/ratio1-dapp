@@ -461,9 +461,13 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                                         color="primary"
                                         onPress={onPress}
                                         isLoading={isLoadingTx}
-                                        isDisabled={isBuyingDisabled()}
+                                        isDisabled={environment === 'mainnet' || isBuyingDisabled()}
                                     >
-                                        {isApprovalRequired() ? 'Approve $R1' : 'Buy'}
+                                        {environment === 'mainnet'
+                                            ? 'Coming Soon'
+                                            : isApprovalRequired()
+                                              ? 'Approve $R1'
+                                              : 'Buy'}
                                     </Button>
                                 </ConnectWalletWrapper>
                             </div>
