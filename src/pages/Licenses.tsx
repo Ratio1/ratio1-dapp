@@ -43,6 +43,7 @@ function Licenses() {
     }, [licenses, filter]);
 
     const [isLoading, setLoading] = useState<boolean>(false);
+    const [isClaimingAll, setClaimingAll] = useState<boolean>(false);
 
     const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
@@ -146,6 +147,7 @@ function Licenses() {
                 epochs: epochs.map((epoch) => BigInt(epoch)),
                 availabilies,
             };
+
             const txHash =
                 license.type === 'ND'
                     ? await walletClient.writeContract({
@@ -223,7 +225,7 @@ function Licenses() {
                 }
             }}
         >
-            <LicenseCard license={license} onLicenseClick={onLicenseClick} action={onAction} />
+            <LicenseCard license={license} isClaimingAll={isClaimingAll} onLicenseClick={onLicenseClick} action={onAction} />
         </div>
     );
 
@@ -235,7 +237,13 @@ function Licenses() {
             <div className="col h-full justify-between gap-3">
                 <div className="col gap-3">
                     <div>
-                        <LicensesPageHeader onFilterChange={setFilter} licenses={licenses} getLicenses={getLicenses} />
+                        <LicensesPageHeader
+                            onFilterChange={setFilter}
+                            licenses={licenses}
+                            getLicenses={getLicenses}
+                            isLoading={isClaimingAll}
+                            setLoading={setClaimingAll}
+                        />
                     </div>
 
                     {isLoading ? (

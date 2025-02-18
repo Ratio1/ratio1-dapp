@@ -5,11 +5,13 @@ import { LicenseCardHeader } from './LicenseCardHeader';
 
 export const LicenseCard = ({
     license,
+    isClaimingAll,
     action,
     onLicenseClick,
     disableActions,
 }: {
     license: License;
+    isClaimingAll?: boolean;
     action?: (type: 'link' | 'unlink' | 'claim' | 'changeNode' | 'burn', license: License) => void;
     onLicenseClick?: (license: License) => void;
     disableActions?: boolean;
@@ -26,7 +28,13 @@ export const LicenseCard = ({
                 }
             }}
         >
-            <LicenseCardHeader license={license} action={action} isExpanded={isExpanded} disableActions={disableActions} />
+            <LicenseCardHeader
+                license={license}
+                isClaimingAll={isClaimingAll}
+                action={action}
+                isExpanded={isExpanded}
+                disableActions={disableActions}
+            />
 
             {isExpanded && <LicenseCardDetails license={license} />}
         </div>

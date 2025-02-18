@@ -19,16 +19,19 @@ function LicensesPageHeader({
     onFilterChange,
     licenses,
     getLicenses,
+    isLoading,
+    setLoading,
 }: {
     onFilterChange: (key: 'all' | 'linked' | 'unlinked') => void;
     licenses: Array<License>;
     getLicenses: () => void;
+    isLoading: boolean;
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
     const { watchTx, r1Price, fetchR1Price } = useBlockchainContext() as BlockchainContextType;
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
     const [r1PriceUsd, setR1PriceUsd] = useState<number>();
-    const [isLoading, setLoading] = useState<boolean>(false);
     const [timestamp, setTimestamp] = useState<Date>(getNextEpochTimestamp());
 
     const publicClient = usePublicClient();
@@ -82,38 +85,42 @@ function LicensesPageHeader({
 
             if (!txParamsND.length && !txParamsMND.length) {
                 toast.error('No rewards to claim at the moment.');
-                throw new Error('No rewards to claim');
+                throw new Error('No rewards to claim at the moment.');
             }
 
-            if (txParamsND.length) {
-                const txHashND = await walletClient.writeContract({
-                    address: config.ndContractAddress,
-                    abi: NDContractAbi,
-                    functionName: 'claimRewards',
-                    args: [
-                        [...txParamsND.map(({ computeParam }) => computeParam)],
-                        [...txParamsND.map(({ eth_signatures }) => eth_signatures)],
-                    ],
-                });
+            const claimND = async () => {
+                if (txParamsND.length) {
+                    const txHashND = await walletClient.writeContract({
+                        address: config.ndContractAddress,
+                        abi: NDContractAbi,
+                        functionName: 'claimRewards',
+                        args: [
+                            [...txParamsND.map(({ computeParam }) => computeParam)],
+                            [...txParamsND.map(({ eth_signatures }) => eth_signatures)],
+                        ],
+                    });
 
-                await watchTx(txHashND, publicClient);
-            }
+                    await watchTx(txHashND, publicClient);
+                }
+            };
 
-            if (txParamsMND.length) {
-                const txHashMND = await walletClient.writeContract({
-                    address: config.mndContractAddress,
-                    abi: MNDContractAbi,
-                    functionName: 'claimRewards',
-                    args: [txParamsMND[0].computeParam, txParamsMND[0].eth_signatures],
-                });
+            const claimMND = async () => {
+                if (txParamsMND.length) {
+                    const txHashMND = await walletClient.writeContract({
+                        address: config.mndContractAddress,
+                        abi: MNDContractAbi,
+                        functionName: 'claimRewards',
+                        args: [txParamsMND[0].computeParam, txParamsMND[0].eth_signatures],
+                    });
 
-                await watchTx(txHashMND, publicClient);
-            }
+                    await watchTx(txHashMND, publicClient);
+                }
+            };
 
+            await Promise.all([claimND(), claimMND()]);
             getLicenses();
-            console.log('Finished watching transaction.');
         } catch (err: any) {
-            console.error(err.message || 'An error occurred');
+            console.error(err.message);
         } finally {
             setLoading(false);
         }

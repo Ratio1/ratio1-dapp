@@ -64,7 +64,7 @@ export const BlockchainProvider = ({ children }) => {
             if (receipt.status === 'success') {
                 return receipt;
             } else {
-                throw new Error('Transaction failed, please try again.');
+                throw new Error(receipt.transactionHash);
             }
         };
 
@@ -87,7 +87,24 @@ export const BlockchainProvider = ({ children }) => {
                         </div>
                     </div>
                 ),
-                error: (_error) => <div>Transaction failed, please try again.</div>,
+                error: (transactionHash) => {
+                    console.log('watchTx error', transactionHash);
+                    return (
+                        <div className="col">
+                            <div className="font-medium text-red-600">Transaction failed</div>
+                            <div className="row gap-1 text-sm">
+                                <div className="text-slate-500">View transaction details</div>
+                                <Link
+                                    to={`${config.explorerUrl}/tx/${receipt.transactionHash}`}
+                                    target="_blank"
+                                    className="text-primary"
+                                >
+                                    <RiExternalLinkLine className="text-lg" />
+                                </Link>
+                            </div>
+                        </div>
+                    );
+                },
             },
             {
                 success: {

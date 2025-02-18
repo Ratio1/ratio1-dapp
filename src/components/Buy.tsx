@@ -415,7 +415,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
                                         <div className="col gap-2">
                                             <div className="row justify-between">
-                                                <div>Min. $R1 spent</div>
+                                                <div>$R1 amount</div>
                                                 <div>
                                                     {parseFloat(
                                                         Number(formatUnits(getTokenAmount(false), 18)).toFixed(2),

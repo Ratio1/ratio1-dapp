@@ -19,11 +19,13 @@ import { useAccount, usePublicClient } from 'wagmi';
 
 export const LicenseCardHeader = ({
     license,
+    isClaimingAll,
     action,
     isExpanded,
     disableActions,
 }: {
     license: License;
+    isClaimingAll?: boolean;
     action?: (type: 'link' | 'unlink' | 'claim' | 'changeNode' | 'burn', license: License) => void;
     isExpanded: boolean;
     disableActions?: boolean;
@@ -213,7 +215,7 @@ export const LicenseCardHeader = ({
                     }
                 }}
                 isLoading={license.isClaimingRewards}
-                isDisabled={isLoadingRewards || !hasRewards}
+                isDisabled={isClaimingAll || isLoadingRewards || !hasRewards}
             >
                 <div className="text-sm">Claim</div>
             </Button>
