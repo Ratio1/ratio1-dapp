@@ -99,6 +99,7 @@ type ApiAccount = {
     emailConfirmed: boolean;
     pendingEmail: string;
     address: string;
+    applicantType: 'individual' | 'company';
     uuid: string;
     kycStatus: KycStatus;
     isActive: boolean;

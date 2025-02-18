@@ -5,6 +5,7 @@ export enum RegistrationStatus {
 }
 
 export enum KycStatus {
+    Created = 'accCreated',
     Init = 'init',
     Pending = 'pending',
     Prechecked = 'prechecked',
@@ -14,5 +15,4 @@ export enum KycStatus {
     OnHold = 'onHold',
     Rejected = 'rejected',
     FinalRejected = 'finalRejected',
-    NotStarted = '',
 }

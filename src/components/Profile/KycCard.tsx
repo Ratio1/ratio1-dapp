@@ -26,7 +26,7 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
     const init = async () => {
         setLoading(true);
 
-        const type: 'individual' | 'company' = isCompany ? 'company' : 'individual';
+        const type: 'individual' | 'company' = (account?.applicantType ?? isCompany) ? 'company' : 'individual';
 
         try {
             const tokenResponse: string = await initSumsubSession(type);
@@ -46,6 +46,8 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
 
     function getKycStatusInfo(status: KycStatus): { text: string; color: 'yellow' | 'green' | 'red' } | undefined {
         switch (status) {
+            case KycStatus.Init:
+                return { text: 'Started', color: 'yellow' };
             case KycStatus.Pending:
                 return { text: 'Pending', color: 'yellow' };
             case KycStatus.Prechecked:
@@ -62,13 +64,29 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
                 return { text: 'Rejected', color: 'red' };
             case KycStatus.FinalRejected:
                 return { text: 'Rejected', color: 'red' };
-            case KycStatus.NotStarted:
+            case KycStatus.Created:
                 return { text: 'Not Started', color: 'yellow' };
             default:
         }
     }
 
-    const getKycAlertCard = (statusInfo: { text: string; color: 'yellow' | 'green' | 'red' }) => {
+    const getKycAlertCard = (kycStatus: KycStatus, statusInfo: { text: string; color: 'yellow' | 'green' | 'red' }) => {
+        if (kycStatus === KycStatus.Init || kycStatus === KycStatus.Rejected) {
+            return (
+                <div className="row gap-2.5">
+                    <div className="flex">
+                        <Button color="primary" variant="solid" isLoading={isLoading} onPress={init}>
+                            Continue KYC
+                        </Button>
+                    </div>
+
+                    <div className="text-sm text-slate-500">
+                        * You'll continue the KYC process using <span className="font-medium text-primary">Sumsub</span>
+                    </div>
+                </div>
+            );
+        }
+
         let alertColor: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' = 'warning';
         let alertTitle = 'Your KYC submission has been received and is under review.';
 
@@ -101,7 +119,8 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
         return null;
     }
 
-    const isKycInitiated: boolean = getKycStatusInfo(account.kycStatus) !== undefined && account.kycStatus !== KycStatus.Init;
+    const isKycInitiated: boolean =
+        getKycStatusInfo(account.kycStatus) !== undefined && account.kycStatus !== KycStatus.Created;
 
     return (
         <Card
@@ -144,6 +163,7 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
                 ) : isKycInitiated ? (
                     <>
                         {getKycAlertCard(
+                            account.kycStatus,
                             getKycStatusInfo(account.kycStatus) as {
                                 text: string;
                                 color: 'yellow' | 'green' | 'red';
