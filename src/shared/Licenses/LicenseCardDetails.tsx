@@ -1,4 +1,5 @@
-import { getNodeEpochs } from '@lib/api/oracles';
+import { getNodeEpochsRange } from '@lib/api/oracles';
+import { getCurrentEpoch, getLicenseAssignEpoch } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { arrayAverage, getShortAddress, throttledToastOracleError } from '@lib/utils';
 import clsx from 'clsx';
@@ -26,15 +27,20 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
 
     const nodeEpochsPromise = useMemo(async () => {
-        // console.log('Fetching node epochs', getShortAddress(license.nodeAddress));
+        console.log(
+            `License ${license.licenseId} rewards interval: [${getLicenseAssignEpoch(license.assignTimestamp)} - ${getCurrentEpoch() - 1}]`,
+        );
 
         if (!license.isLinked) {
-            // console.log('License is not linked', getShortAddress(license.nodeAddress));
             return [];
         }
 
         try {
-            const result = await getNodeEpochs(license.nodeAddress);
+            const result = await getNodeEpochsRange(
+                license.nodeAddress,
+                getLicenseAssignEpoch(license.assignTimestamp),
+                getCurrentEpoch() - 1,
+            );
             console.log(`[${getShortAddress(license.nodeAddress)}] NodeEpochs`, result);
             return result.epochs_vals;
         } catch (error) {
