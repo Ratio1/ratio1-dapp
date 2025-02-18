@@ -111,6 +111,9 @@ function Search() {
                 rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
                 alias: licenseDataPromise.then(({ node_alias }) => node_alias),
                 isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
+                epochs: licenseDataPromise.then(({ epochs }) => epochs),
+                epochsAvailabilities: licenseDataPromise.then(({ epochs_vals }) => epochs_vals),
+                ethSignatures: licenseDataPromise.then(({ eth_signatures }) => eth_signatures),
             });
         }
     };
@@ -179,6 +182,9 @@ function Search() {
                 rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
                 alias: licenseDataPromise.then(({ node_alias }) => node_alias),
                 isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
+                epochs: licenseDataPromise.then(({ epochs }) => epochs),
+                epochsAvailabilities: licenseDataPromise.then(({ epochs_vals }) => epochs_vals),
+                ethSignatures: licenseDataPromise.then(({ eth_signatures }) => eth_signatures),
             });
         }
     };
