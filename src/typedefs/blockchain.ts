@@ -20,6 +20,9 @@ type BaseLicense = {
           alias: Promise<string>;
           rewards: Promise<bigint>;
           isOnline: Promise<boolean>;
+          epochs: Promise<number[]>;
+          epochsAvailabilities: Promise<number[]>;
+          ethSignatures: Promise<EthAddress[]>;
       }
     | {
           isLinked: false;

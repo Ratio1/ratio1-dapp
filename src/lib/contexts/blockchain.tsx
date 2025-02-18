@@ -6,7 +6,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiExternalLinkLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
-import { License } from 'typedefs/blockchain';
+import { EthAddress, License } from 'typedefs/blockchain';
 import { TransactionReceipt } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 import { config } from '../config';
@@ -128,6 +128,9 @@ export const BlockchainProvider = ({ children }) => {
                         node_alias: string;
                         node_is_online: boolean;
                         rewards_amount: bigint;
+                        epochs: number[];
+                        epochs_vals: number[];
+                        eth_signatures: EthAddress[];
                     }>;
 
                     const licenseObj = {
@@ -153,6 +156,9 @@ export const BlockchainProvider = ({ children }) => {
                             rewards: Promise.resolve(0n),
                             alias: Promise.resolve(''),
                             isOnline: Promise.resolve(false),
+                            epochs: Promise.resolve([]),
+                            epochsAvailabilities: Promise.resolve([]),
+                            ethSignatures: Promise.resolve([]),
                         };
                     }
 
@@ -161,6 +167,9 @@ export const BlockchainProvider = ({ children }) => {
                         rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
                         alias: licenseDataPromise.then(({ node_alias }) => node_alias),
                         isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
+                        epochs: licenseDataPromise.then(({ epochs }) => epochs),
+                        epochsAvailabilities: licenseDataPromise.then(({ epochs_vals }) => epochs_vals),
+                        ethSignatures: licenseDataPromise.then(({ eth_signatures }) => eth_signatures),
                     };
                 }),
             publicClient
@@ -184,6 +193,9 @@ export const BlockchainProvider = ({ children }) => {
                             node_alias: string;
                             node_is_online: boolean;
                             rewards_amount: bigint;
+                            epochs: number[];
+                            epochs_vals: number[];
+                            eth_signatures: EthAddress[];
                         }>;
 
                         const licenseObj = {
@@ -209,6 +221,9 @@ export const BlockchainProvider = ({ children }) => {
                                 rewards: Promise.resolve(0n),
                                 alias: Promise.resolve(''),
                                 isOnline: Promise.resolve(false),
+                                epochs: Promise.resolve([]),
+                                epochsAvailabilities: Promise.resolve([]),
+                                ethSignatures: Promise.resolve([]),
                             };
                         }
 
@@ -217,6 +232,9 @@ export const BlockchainProvider = ({ children }) => {
                             rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
                             alias: licenseDataPromise.then(({ node_alias }) => node_alias),
                             isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
+                            epochs: licenseDataPromise.then(({ epochs }) => epochs),
+                            epochsAvailabilities: licenseDataPromise.then(({ epochs_vals }) => epochs_vals),
+                            ethSignatures: licenseDataPromise.then(({ eth_signatures }) => eth_signatures),
                         };
                     });
                 }),
@@ -242,6 +260,9 @@ export const BlockchainProvider = ({ children }) => {
                 totalAssignedAmount: 15000000000000000000000n,
                 totalClaimedAmount: 0n,
                 type: 'MND',
+                epochs: Promise.resolve([]),
+                epochsAvailabilities: Promise.resolve([]),
+                ethSignatures: Promise.resolve([]),
             },
             {
                 assignTimestamp: 1739273674n,
@@ -273,6 +294,9 @@ export const BlockchainProvider = ({ children }) => {
                 totalAssignedAmount: 50000000000000000000000n,
                 totalClaimedAmount: 5000000000000000000000n,
                 type: 'ND',
+                epochs: Promise.resolve([]),
+                epochsAvailabilities: Promise.resolve([]),
+                ethSignatures: Promise.resolve([]),
             },
             {
                 alias: Promise.resolve('noderunner_x8_macos'),
@@ -290,6 +314,9 @@ export const BlockchainProvider = ({ children }) => {
                 totalAssignedAmount: 500000000000000000000000n,
                 totalClaimedAmount: 295562575342150000000000n,
                 type: 'ND',
+                epochs: Promise.resolve([]),
+                epochsAvailabilities: Promise.resolve([]),
+                ethSignatures: Promise.resolve([]),
             },
             {
                 assignTimestamp: 0n,
