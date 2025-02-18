@@ -29,7 +29,7 @@ export function Wrappers({ children }: { children: React.ReactNode }) {
                                 right: 30,
                             }}
                             toastOptions={{
-                                className: 'font-mona text-sm',
+                                className: 'font-mona text-base',
                             }}
                         />
 

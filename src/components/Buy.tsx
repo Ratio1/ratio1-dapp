@@ -93,7 +93,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
     const getTokenAmount = (): bigint => {
         const slippageValue = Math.floor(slippage * 100) / 100; // Rounds down to 2 decimal places
-        return (BigInt(quantity) * licenseTokenPrice * BigInt(Math.floor(100 + slippageValue))) / 100n;
+        return (BigInt(quantity) * (licenseTokenPrice / 10n) * BigInt(Math.floor(100 + slippageValue))) / 100n;
     };
 
     const hasEnoughAllowance = (): boolean => tokenAllowance !== undefined && tokenAllowance > MAX_ALLOWANCE / 2n;
@@ -125,101 +125,92 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
             .then(setUserUsdMintedAmount);
 
     const approve = async () => {
-        try {
-            setLoadingTx(true);
+        setLoadingTx(true);
 
-            if (!walletClient || !publicClient || !address) {
-                toast.error('Unexpected error, please try again.');
-                return;
-            }
-
-            const txHash = await walletClient.writeContract({
-                address: config.r1ContractAddress,
-                abi: ERC20Abi,
-                functionName: 'approve',
-                args: [config.ndContractAddress, MAX_ALLOWANCE],
-            });
-
-            await watchTx(txHash, publicClient);
-
-            fetchAllowance(publicClient, address);
-
-            setLoadingTx(false);
-        } catch (err: any) {
-            console.error(err.message || 'An error occurred');
-            toast.error('Transaction failed, please try again.');
-            setLoadingTx(false);
+        if (!walletClient || !publicClient || !address) {
+            toast.error('Unexpected error, please try again.');
+            return;
         }
+
+        const txHash = await walletClient.writeContract({
+            address: config.r1ContractAddress,
+            abi: ERC20Abi,
+            functionName: 'approve',
+            args: [config.ndContractAddress, MAX_ALLOWANCE],
+        });
+
+        await watchTx(txHash, publicClient);
+
+        fetchAllowance(publicClient, address);
     };
 
     const buy = async () => {
-        try {
-            if (getTokenAmount() > r1Balance) {
-                toast.error('Not enough $R1 in your wallet.');
-                console.error(`Required $R1 ${getTokenAmount()} > your balance ${r1Balance}`);
-                return;
-            }
-
-            setLoadingTx(true);
-
-            if (!walletClient || !publicClient || !address) {
-                toast.error('Unexpected error, please try again.');
-                return;
-            }
-
-            const { signature, uuid, usdLimitAmount } = await buyLicense({
-                name: 'a',
-                surname: 'a',
-                isCompany: false,
-                identificationCode: 'a',
-                address: 'a',
-                state: 'a',
-                city: 'a',
-                country: 'a',
-            });
-
-            const txHash = await walletClient.writeContract({
-                address: config.ndContractAddress,
-                abi: NDContractAbi,
-                functionName: 'buyLicense',
-                args: [
-                    BigInt(quantity),
-                    currentStage,
-                    getTokenAmount(),
-                    `0x${Buffer.from(uuid).toString('hex')}`,
-                    BigInt(usdLimitAmount),
-                    `0x${signature}`,
-                ],
-            });
-
-            await watchTx(txHash, publicClient);
-
-            // Refresh buying/tx state
-            fetchAllowance(publicClient, address);
-            fetchR1Balance();
-
-            setLoadingTx(false);
-
-            // Refresh data about the user's account spending limit
-            setLoading(true);
-            fetchAccount();
-            fetchUserUsdMintedAmount(publicClient, address);
-            setLoading(false);
-
-            onClose();
-            navigate(routePath.licenses);
-        } catch (err: any) {
-            console.error(err.message || 'An error occurred');
-            toast.error('Transaction failed, please try again.');
-            setLoadingTx(false);
+        if (getTokenAmount() > r1Balance) {
+            toast.error('Not enough $R1 in your wallet.');
+            console.error(`Required $R1 ${getTokenAmount()} > your balance ${r1Balance}`);
+            return;
         }
+
+        setLoadingTx(true);
+
+        if (!walletClient || !publicClient || !address) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        const { signature, uuid, usdLimitAmount } = await buyLicense({
+            name: 'a',
+            surname: 'a',
+            isCompany: false,
+            identificationCode: 'a',
+            address: 'a',
+            state: 'a',
+            city: 'a',
+            country: 'a',
+        });
+
+        const txHash = await walletClient.writeContract({
+            address: config.ndContractAddress,
+            abi: NDContractAbi,
+            functionName: 'buyLicense',
+            args: [
+                BigInt(quantity),
+                currentStage,
+                getTokenAmount(),
+                `0x${Buffer.from(uuid).toString('hex')}`,
+                BigInt(usdLimitAmount),
+                `0x${signature}`,
+            ],
+        });
+
+        await watchTx(txHash, publicClient);
+
+        // Refresh buying/tx state
+        fetchAllowance(publicClient, address);
+        fetchR1Balance();
+
+        // Refresh data about the user's account spending limit
+        setLoading(true);
+        fetchAccount();
+        fetchUserUsdMintedAmount(publicClient, address);
+        setLoading(false);
+
+        onClose();
+        navigate(routePath.licenses);
     };
 
     const onPress = async () => {
-        if (isApprovalRequired()) {
-            await approve();
-        } else {
-            await buy();
+        try {
+            if (isApprovalRequired()) {
+                await approve();
+            } else {
+                await buy();
+            }
+        } catch (err: any) {
+            console.error(err.message);
+            toast.error('Transaction failed, please try again.');
+        } finally {
+            setLoadingTx(false);
         }
     };
 

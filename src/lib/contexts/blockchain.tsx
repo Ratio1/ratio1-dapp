@@ -13,7 +13,7 @@ import { config } from '../config';
 import { getLicenseRewardsAndNodeInfo } from '../utils';
 
 export interface BlockchainContextType {
-    watchTx: (txHash: string, publicClient: any) => Promise<void>;
+    watchTx: (txHash: string, publicClient: any) => Promise<TransactionReceipt>;
     fetchLicenses: () => Promise<Array<License>>;
 
     // R1 Balance
@@ -57,12 +57,11 @@ export const BlockchainProvider = ({ children }) => {
         }
     };
 
-    const watchTx = async (txHash: string, publicClient) => {
+    const watchTx = async (txHash: string, publicClient): Promise<TransactionReceipt> => {
         const waitForTx = async (): Promise<TransactionReceipt> => {
             const receipt: TransactionReceipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
 
             if (receipt.status === 'success') {
-                console.log('Transaction confirmed successfully!', receipt);
                 return receipt;
             } else {
                 throw new Error('Transaction failed, please try again.');
@@ -88,9 +87,7 @@ export const BlockchainProvider = ({ children }) => {
                         </div>
                     </div>
                 ),
-                error: (_error) => {
-                    return <div>Transaction failed, please try again.</div>;
-                },
+                error: (_error) => <div>Transaction failed, please try again.</div>,
             },
             {
                 success: {
@@ -100,7 +97,13 @@ export const BlockchainProvider = ({ children }) => {
             },
         );
 
-        await publicClient.waitForTransactionReceipt({ hash: txHash });
+        const receipt: TransactionReceipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+        if (receipt.status === 'success') {
+            return receipt;
+        } else {
+            throw new Error('Transaction failed, please try again.');
+        }
     };
 
     const fetchLicenses = async (): Promise<Array<License>> => {
