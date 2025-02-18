@@ -5,6 +5,7 @@ import { config, getCurrentEpoch } from '@lib/config';
 import { getLicenseRewardsAndNodeInfo, getLicenseSectionHeader } from '@lib/utils';
 import { Input } from '@nextui-org/input';
 import { Spinner } from '@nextui-org/spinner';
+import { DetailedAlert } from '@shared/DetailedAlert';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { isFinite } from 'lodash';
 import { useEffect, useState } from 'react';
@@ -17,6 +18,7 @@ import { usePublicClient } from 'wagmi';
 function Search() {
     const [value, setValue] = useState<string>('');
     const [isLoading, setLoading] = useState<boolean>(false);
+    const [emptyResult, setEmptyResult] = useState<boolean>(false);
 
     const [resultNDContract, setResultNDContract] = useState<NDLicense | null>();
     const [resultMNDContract, setResultMNDContract] = useState<MNDLicense | GNDLicense | null>();
@@ -45,6 +47,8 @@ function Search() {
 
         if (isNaN(num) || !Number.isInteger(num) || !isFinite(num) || num <= 0) {
             toast.error('Invalid search value.');
+            setResultNDContract(null);
+            setResultMNDContract(null);
             return;
         }
 
@@ -66,52 +70,66 @@ function Search() {
             return;
         }
 
-        const [nodeAddress, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle, isBanned] =
+        try {
             await publicClient.readContract({
                 address: config.ndContractAddress,
                 abi: NDContractAbi,
-                functionName: 'licenses',
+                functionName: 'ownerOf',
                 args: [licenseId],
             });
 
-        console.log('ND', { nodeAddress, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle, isBanned });
+            const [nodeAddress, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle, isBanned] =
+                await publicClient.readContract({
+                    address: config.ndContractAddress,
+                    abi: NDContractAbi,
+                    functionName: 'licenses',
+                    args: [licenseId],
+                });
 
-        const isLinked = nodeAddress !== '0x0000000000000000000000000000000000000000';
+            // console.log('ND', { nodeAddress, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle, isBanned });
 
-        const baseLicense: Omit<NDLicense, 'rewards' | 'alias' | 'isOnline' | 'claimableEpochs'> = {
-            type: 'ND' as const,
-            licenseId,
-            nodeAddress,
-            totalClaimedAmount,
-            remainingAmount: config.ND_LICENSE_CAP - totalClaimedAmount,
-            lastClaimEpoch,
-            assignTimestamp,
-            lastClaimOracle,
-            totalAssignedAmount: config.ND_LICENSE_CAP,
-            isBanned,
-            isLinked,
-        };
+            const isLinked = nodeAddress !== '0x0000000000000000000000000000000000000000';
 
-        if (!isLinked) {
-            setResultNDContract({
-                ...baseLicense,
-                claimableEpochs: 0n,
+            const baseLicense: Omit<NDLicense, 'rewards' | 'alias' | 'isOnline' | 'claimableEpochs'> = {
+                type: 'ND' as const,
+                licenseId,
+                nodeAddress,
+                totalClaimedAmount,
+                remainingAmount: config.ND_LICENSE_CAP - totalClaimedAmount,
+                lastClaimEpoch,
+                assignTimestamp,
+                lastClaimOracle,
+                totalAssignedAmount: config.ND_LICENSE_CAP,
+                isBanned,
                 isLinked,
-            });
-        } else {
-            const licenseDataPromise = getLicenseRewardsAndNodeInfo({
-                ...baseLicense,
-                claimableEpochs: 0n,
-                isLinked: false, // Enforcing base license type here as to not pass redunant data
-            });
+            };
 
-            setResultNDContract({
-                ...baseLicense,
-                claimableEpochs: BigInt(getCurrentEpoch()) - lastClaimEpoch,
-                rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
-                alias: licenseDataPromise.then(({ node_alias }) => node_alias),
-                isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
-            });
+            if (!isLinked) {
+                setResultNDContract({
+                    ...baseLicense,
+                    claimableEpochs: 0n,
+                    isLinked,
+                });
+            } else {
+                const licenseDataPromise = getLicenseRewardsAndNodeInfo({
+                    ...baseLicense,
+                    claimableEpochs: 0n,
+                    isLinked: false, // Enforcing base license type here as to not pass redunant data
+                });
+
+                setResultNDContract({
+                    ...baseLicense,
+                    claimableEpochs: BigInt(getCurrentEpoch()) - lastClaimEpoch,
+                    rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
+                    alias: licenseDataPromise.then(({ node_alias }) => node_alias),
+                    isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
+                });
+            }
+
+            setEmptyResult(false);
+        } catch (error) {
+            console.error(error);
+            setEmptyResult(true);
         }
     };
 
@@ -120,66 +138,80 @@ function Search() {
             return;
         }
 
-        const [nodeAddress, totalAssignedAmount, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle] =
+        try {
             await publicClient.readContract({
                 address: config.mndContractAddress,
                 abi: MNDContractAbi,
-                functionName: 'licenses',
+                functionName: 'ownerOf',
                 args: [licenseId],
             });
 
-        console.log('MND', {
-            nodeAddress,
-            totalAssignedAmount,
-            totalClaimedAmount,
-            lastClaimEpoch,
-            assignTimestamp,
-            lastClaimOracle,
-        });
+            const [nodeAddress, totalAssignedAmount, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle] =
+                await publicClient.readContract({
+                    address: config.mndContractAddress,
+                    abi: MNDContractAbi,
+                    functionName: 'licenses',
+                    args: [licenseId],
+                });
 
-        if (!totalAssignedAmount) {
-            return;
-        }
+            // console.log('MND', {
+            //     nodeAddress,
+            //     totalAssignedAmount,
+            //     totalClaimedAmount,
+            //     lastClaimEpoch,
+            //     assignTimestamp,
+            //     lastClaimOracle,
+            // });
 
-        const isLinked = nodeAddress !== '0x0000000000000000000000000000000000000000';
+            if (!totalAssignedAmount) {
+                return;
+            }
 
-        const baseLicense: Omit<MNDLicense | GNDLicense, 'rewards' | 'alias' | 'isOnline' | 'claimableEpochs'> = {
-            type: licenseId === 1n ? 'GND' : ('MND' as const),
-            licenseId,
-            nodeAddress,
-            totalClaimedAmount,
-            remainingAmount: totalAssignedAmount - totalClaimedAmount,
-            lastClaimEpoch,
-            assignTimestamp,
-            lastClaimOracle,
-            totalAssignedAmount,
-            isBanned: false as const,
-            isLinked,
-        };
+            const isLinked = nodeAddress !== '0x0000000000000000000000000000000000000000';
 
-        if (!isLinked) {
-            setResultMNDContract({
-                ...baseLicense,
-                claimableEpochs: 0n,
+            const baseLicense: Omit<MNDLicense | GNDLicense, 'rewards' | 'alias' | 'isOnline' | 'claimableEpochs'> = {
+                type: licenseId === 1n ? 'GND' : ('MND' as const),
+                licenseId,
+                nodeAddress,
+                totalClaimedAmount,
+                remainingAmount: totalAssignedAmount - totalClaimedAmount,
+                lastClaimEpoch,
+                assignTimestamp,
+                lastClaimOracle,
+                totalAssignedAmount,
+                isBanned: false as const,
                 isLinked,
-            });
-        } else {
-            const licenseDataPromise = getLicenseRewardsAndNodeInfo({
-                ...baseLicense,
-                claimableEpochs: 0n,
-                isLinked: false, // Enforcing base license type here as to not pass redunant data
-            });
+            };
 
-            // MNDs have a cliff period
-            const claimableEpochs: number = Math.max(0, getCurrentEpoch() - config.mndCliffEpochs - Number(lastClaimEpoch));
+            if (!isLinked) {
+                setResultMNDContract({
+                    ...baseLicense,
+                    claimableEpochs: 0n,
+                    isLinked,
+                });
+            } else {
+                const licenseDataPromise = getLicenseRewardsAndNodeInfo({
+                    ...baseLicense,
+                    claimableEpochs: 0n,
+                    isLinked: false, // Enforcing base license type here as to not pass redunant data
+                });
 
-            setResultMNDContract({
-                ...baseLicense,
-                claimableEpochs: BigInt(claimableEpochs),
-                rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
-                alias: licenseDataPromise.then(({ node_alias }) => node_alias),
-                isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
-            });
+                // MNDs have a cliff period
+                const claimableEpochs: number = Math.max(0, getCurrentEpoch() - config.mndCliffEpochs - Number(lastClaimEpoch));
+
+                setResultMNDContract({
+                    ...baseLicense,
+                    claimableEpochs: BigInt(claimableEpochs),
+                    rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
+                    alias: licenseDataPromise.then(({ node_alias }) => node_alias),
+                    isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
+                });
+            }
+
+            setEmptyResult(false);
+        } catch (error) {
+            console.error(error);
+            setEmptyResult(true);
         }
     };
 
@@ -201,6 +233,7 @@ function Search() {
                     classNames={{
                         inputWrapper: 'h-[52px] bg-slate-100 hover:!bg-[#eceef6] group-data-[focus=true]:bg-slate-100 px-6',
                     }}
+                    maxLength={25}
                     variant="flat"
                     radius="full"
                     labelPlacement="outside"
@@ -223,7 +256,16 @@ function Search() {
                 />
             </div>
 
-            {!resultNDContract && !resultMNDContract ? (
+            {emptyResult ? (
+                <div className="center-all p-8">
+                    <DetailedAlert
+                        variant="red"
+                        icon={<RiSearchLine />}
+                        title="Not found"
+                        description={<div>Your search did not match any license.</div>}
+                    />
+                </div>
+            ) : !resultNDContract && !resultMNDContract ? (
                 <div className="center-all col gap-1.5 p-8">
                     <img src={Empty} alt="Empty" className="h-28" />
                     <div className="text-sm text-slate-400">Search for a license</div>
