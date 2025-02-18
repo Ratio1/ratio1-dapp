@@ -19,7 +19,7 @@ import { isFinite, isNaN } from 'lodash';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
-import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine, RiEqualizer2Line, RiErrorWarningLine } from 'react-icons/ri';
+import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine, RiErrorWarningLine, RiSettings2Line } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import { Stage } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
@@ -83,7 +83,11 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
         }
     }, [account, userUsdMintedAmount]);
 
-    const getTokenAmount = (): bigint => {
+    const getTokenAmount = (withSlippage: boolean = true): bigint => {
+        if (!withSlippage) {
+            return BigInt(quantity) * licenseTokenPrice;
+        }
+
         const slippageValue = Math.floor(slippage * 100) / 100; // Rounds down to 2 decimal places
         return (BigInt(quantity) * licenseTokenPrice * BigInt(Math.floor(100 + slippageValue))) / 100n;
     };
@@ -258,7 +262,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                             }}
                         >
                             <div className="row gap-1">
-                                <RiEqualizer2Line className="pr-0.5 text-xl text-gray-500" />
+                                <RiSettings2Line className="pr-0.5 text-xl text-gray-500" />
 
                                 <span className="text-gray-500">Slippage:</span>
                                 <span className="font-medium">{slippage}%</span>
@@ -377,11 +381,11 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                         </div>
                     )}
 
-                    {/* Total amount due & Summary */}
+                    {/* Total amount due, summary, breakdown */}
                     <div className="flex w-full flex-col rounded-md bg-slate-100 px-6 py-6">
                         <R1ValueWithLabel
                             label="Total amount required"
-                            value={parseFloat(Number(formatUnits(getTokenAmount(), 18)).toFixed(2))}
+                            value={parseFloat(Number(formatUnits(getTokenAmount(), 18)).toFixed(2)).toLocaleString('en-US')}
                             isAproximate
                         />
 
@@ -390,17 +394,53 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                                 <>
                                     <Divider className="mt-6 bg-slate-200" />
 
-                                    <div className="col gap-2">
-                                        <div className="text-sm font-medium text-slate-500">Summary</div>
+                                    <div className="col gap-2 text-sm font-medium">
+                                        <div className="text-base text-slate-400">Summary</div>
 
                                         <div className="col gap-2">
                                             <div className="row justify-between">
-                                                <div className="text-sm font-medium">
+                                                <div>
                                                     {quantity} x License{Number.parseInt(quantity) > 1 ? 's' : ''} (Tier{' '}
                                                     {currentStage})
                                                 </div>
-                                                <div className="text-sm font-medium">
+                                                <div>
                                                     ${(Number.parseInt(quantity) * stage.usdPrice).toLocaleString('en-US')}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="col gap-2 text-sm font-medium">
+                                        <div className="text-base text-slate-400">Breakdown</div>
+
+                                        <div className="col gap-2">
+                                            <div className="row justify-between">
+                                                <div>Min. $R1 spent</div>
+                                                <div>
+                                                    {parseFloat(
+                                                        Number(formatUnits(getTokenAmount(false), 18)).toFixed(2),
+                                                    ).toLocaleString('en-US')}
+                                                </div>
+                                            </div>
+
+                                            <div className="row justify-between">
+                                                <div>Slippage</div>
+
+                                                <div className="row gap-1">
+                                                    <div>{slippage}%</div>
+                                                    <RiSettings2Line
+                                                        className="cursor-pointer text-lg text-slate-400 transition-all hover:opacity-50"
+                                                        onClick={onOpen}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="row justify-between pt-2">
+                                                <div>Max. $R1 spent</div>
+                                                <div>
+                                                    {parseFloat(
+                                                        Number(formatUnits(getTokenAmount(), 18)).toFixed(2),
+                                                    ).toLocaleString('en-US')}
                                                 </div>
                                             </div>
                                         </div>
@@ -480,6 +520,11 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
                                         return null;
                                     }}
+                                    endContent={
+                                        <div className="row pointer-events-none">
+                                            <span className="text-small text-slate-500">%</span>
+                                        </div>
+                                    }
                                 />
 
                                 <div className="col w-full gap-2">
