@@ -45,7 +45,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
     const [slippageValue, setSlippageValue] = useState<string>('');
     const [slippage, setSlippage] = useState<number>(10);
-    const { isOpen, onOpen, onClose: onCloseSlippageModal, onOpenChange } = useDisclosure(); // Slippage modal
+    const { isOpen, onOpen, onClose: onCloseSlippageModal, onOpenChange } = useDisclosure();
 
     const [quantity, setQuantity] = useState<string>('1');
 
