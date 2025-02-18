@@ -7,10 +7,13 @@ import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/block
 import useAwait from '@lib/useAwait';
 import { fBI, fN } from '@lib/utils';
 import { Button } from '@nextui-org/button';
+import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
 import { Tab, Tabs } from '@nextui-org/tabs';
+import { DetailedAlert } from '@shared/DetailedAlert';
 import { Timer } from '@shared/Timer';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
+import { RiCheckDoubleLine } from 'react-icons/ri';
 import { ComputeParam, License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
@@ -33,6 +36,8 @@ function LicensesPageHeader({
 
     const [r1PriceUsd, setR1PriceUsd] = useState<number>();
     const [timestamp, setTimestamp] = useState<Date>(getNextEpochTimestamp());
+
+    const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
 
     const publicClient = usePublicClient();
     const { data: walletClient } = useWalletClient();
@@ -88,6 +93,10 @@ function LicensesPageHeader({
                 throw new Error('No rewards to claim at the moment.');
             }
 
+            if (txParamsND.length && txParamsMND.length) {
+                onOpen();
+            }
+
             const claimND = async () => {
                 if (txParamsND.length) {
                     const txHashND = await walletClient.writeContract({
@@ -118,11 +127,12 @@ function LicensesPageHeader({
             };
 
             await Promise.all([claimND(), claimMND()]);
-            getLicenses();
         } catch (err: any) {
             console.error(err.message);
         } finally {
+            onClose();
             setLoading(false);
+            getLicenses(); // Refresh because only one tx might fail and the other one might work
         }
     };
 
@@ -164,12 +174,12 @@ function LicensesPageHeader({
     );
 
     return (
-        <div className="flex gap-6">
+        <>
             <div className="relative w-full rounded-3xl">
                 <div className="col relative z-10 h-full gap-4 rounded-3xl bg-[#436cc8] px-8 py-7 lg:gap-6">
                     <div className="flex justify-between border-b-2 border-white/10 pb-4 lg:pb-6">
                         <div className="row gap-2.5">
-                            <img src={Logo} alt="Logo" className="h-7 filter" />
+                            <img src={Logo} alt="Logo" className="h-7" />
                             <div className="text-lg font-medium text-white">Rewards</div>
                         </div>
 
@@ -252,7 +262,29 @@ function LicensesPageHeader({
 
                 <div className="absolute -bottom-1 left-0 right-0 h-20 rounded-3xl bg-[#658bdc]"></div>
             </div>
-        </div>
+
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm" backdrop="blur" shouldBlockScroll={true}>
+                <ModalContent>
+                    <ModalHeader></ModalHeader>
+
+                    <ModalBody>
+                        <div className="col -mt-4 gap-2 pb-2">
+                            <DetailedAlert
+                                icon={<RiCheckDoubleLine />}
+                                title="Confirmation"
+                                description={
+                                    <div>
+                                        You'll need to approve{' '}
+                                        <span className="font-medium text-primary">two transactions</span> to claim both ND and
+                                        MND rewards.
+                                    </div>
+                                }
+                            ></DetailedAlert>
+                        </div>
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
+        </>
     );
 }
 
