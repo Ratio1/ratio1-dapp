@@ -115,6 +115,9 @@ export const getCurrentEpoch = () =>
 export const getNextEpochTimestamp = (): Date =>
     addSeconds(config.genesisDate, (getCurrentEpoch() + 1) * config.epochDurationInSeconds);
 
+export const getLicenseAssignEpoch = (assignTimestamp: bigint) =>
+    Math.floor((Number(assignTimestamp) - config.genesisDate.getTime() / 1000) / config.epochDurationInSeconds);
+
 export const wagmiAdapter = new WagmiAdapter({
     networks: config.networks,
     projectId,

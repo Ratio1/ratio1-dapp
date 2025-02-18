@@ -19,15 +19,7 @@ import { isFinite, isNaN } from 'lodash';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
-import {
-    RiAddFill,
-    RiArrowRightDoubleLine,
-    RiCheckLine,
-    RiCpuLine,
-    RiEqualizer2Line,
-    RiErrorWarningLine,
-    RiPriceTag3Line,
-} from 'react-icons/ri';
+import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine, RiErrorWarningLine, RiSettings2Line } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import { Stage } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
@@ -91,7 +83,11 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
         }
     }, [account, userUsdMintedAmount]);
 
-    const getTokenAmount = (): bigint => {
+    const getTokenAmount = (withSlippage: boolean = true): bigint => {
+        if (!withSlippage) {
+            return BigInt(quantity) * licenseTokenPrice;
+        }
+
         const slippageValue = Math.floor(slippage * 100) / 100; // Rounds down to 2 decimal places
         return (BigInt(quantity) * licenseTokenPrice * BigInt(Math.floor(100 + slippageValue))) / 100n;
     };
@@ -125,101 +121,92 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
             .then(setUserUsdMintedAmount);
 
     const approve = async () => {
-        try {
-            setLoadingTx(true);
+        setLoadingTx(true);
 
-            if (!walletClient || !publicClient || !address) {
-                toast.error('Unexpected error, please try again.');
-                return;
-            }
-
-            const txHash = await walletClient.writeContract({
-                address: config.r1ContractAddress,
-                abi: ERC20Abi,
-                functionName: 'approve',
-                args: [config.ndContractAddress, MAX_ALLOWANCE],
-            });
-
-            await watchTx(txHash, publicClient);
-
-            fetchAllowance(publicClient, address);
-
-            setLoadingTx(false);
-        } catch (err: any) {
-            console.error(err.message || 'An error occurred');
-            toast.error('An error occurred, please try again.');
-            setLoadingTx(false);
+        if (!walletClient || !publicClient || !address) {
+            toast.error('Unexpected error, please try again.');
+            return;
         }
+
+        const txHash = await walletClient.writeContract({
+            address: config.r1ContractAddress,
+            abi: ERC20Abi,
+            functionName: 'approve',
+            args: [config.ndContractAddress, MAX_ALLOWANCE],
+        });
+
+        await watchTx(txHash, publicClient);
+
+        fetchAllowance(publicClient, address);
     };
 
     const buy = async () => {
-        try {
-            if (getTokenAmount() > r1Balance) {
-                toast.error('Not enough $R1 in your wallet.');
-                console.error(`Required $R1 ${getTokenAmount()} > your balance ${r1Balance}`);
-                return;
-            }
-
-            setLoadingTx(true);
-
-            if (!walletClient || !publicClient || !address) {
-                toast.error('Unexpected error, please try again.');
-                return;
-            }
-
-            const { signature, uuid, usdLimitAmount } = await buyLicense({
-                name: 'a',
-                surname: 'a',
-                isCompany: false,
-                identificationCode: 'a',
-                address: 'a',
-                state: 'a',
-                city: 'a',
-                country: 'a',
-            });
-
-            const txHash = await walletClient.writeContract({
-                address: config.ndContractAddress,
-                abi: NDContractAbi,
-                functionName: 'buyLicense',
-                args: [
-                    BigInt(quantity),
-                    currentStage,
-                    getTokenAmount(),
-                    `0x${Buffer.from(uuid).toString('hex')}`,
-                    BigInt(usdLimitAmount),
-                    `0x${signature}`,
-                ],
-            });
-
-            await watchTx(txHash, publicClient);
-
-            // Refresh buying/tx state
-            fetchAllowance(publicClient, address);
-            fetchR1Balance();
-
-            setLoadingTx(false);
-
-            // Refresh data about the user's account spending limit
-            setLoading(true);
-            fetchAccount();
-            fetchUserUsdMintedAmount(publicClient, address);
-            setLoading(false);
-
-            onClose();
-            navigate(routePath.licenses);
-        } catch (err: any) {
-            console.error(err.message || 'An error occurred');
-            toast.error('An error occurred, please try again.');
-            setLoadingTx(false);
+        if (getTokenAmount() > r1Balance) {
+            toast.error('Not enough $R1 in your wallet.');
+            console.error(`Required $R1 ${getTokenAmount()} > your balance ${r1Balance}`);
+            return;
         }
+
+        setLoadingTx(true);
+
+        if (!walletClient || !publicClient || !address) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        const { signature, uuid, usdLimitAmount } = await buyLicense({
+            name: 'a',
+            surname: 'a',
+            isCompany: false,
+            identificationCode: 'a',
+            address: 'a',
+            state: 'a',
+            city: 'a',
+            country: 'a',
+        });
+
+        const txHash = await walletClient.writeContract({
+            address: config.ndContractAddress,
+            abi: NDContractAbi,
+            functionName: 'buyLicense',
+            args: [
+                BigInt(quantity),
+                currentStage,
+                getTokenAmount(),
+                `0x${Buffer.from(uuid).toString('hex')}`,
+                BigInt(usdLimitAmount),
+                `0x${signature}`,
+            ],
+        });
+
+        await watchTx(txHash, publicClient);
+
+        // Refresh buying/tx state
+        fetchAllowance(publicClient, address);
+        fetchR1Balance();
+
+        // Refresh data about the user's account spending limit
+        setLoading(true);
+        fetchAccount();
+        fetchUserUsdMintedAmount(publicClient, address);
+        setLoading(false);
+
+        onClose();
+        navigate(routePath.licenses);
     };
 
     const onPress = async () => {
-        if (isApprovalRequired()) {
-            await approve();
-        } else {
-            await buy();
+        try {
+            if (isApprovalRequired()) {
+                await approve();
+            } else {
+                await buy();
+            }
+        } catch (err: any) {
+            console.error(err.message);
+            toast.error('Transaction failed, please try again.');
+        } finally {
+            setLoadingTx(false);
         }
     };
 
@@ -275,7 +262,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                             }}
                         >
                             <div className="row gap-1">
-                                <RiEqualizer2Line className="pr-0.5 text-xl text-gray-500" />
+                                <RiSettings2Line className="pr-0.5 text-xl text-gray-500" />
 
                                 <span className="text-gray-500">Slippage:</span>
                                 <span className="font-medium">{slippage}%</span>
@@ -394,11 +381,11 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                         </div>
                     )}
 
-                    {/* Total amount due & Summary */}
+                    {/* Total amount due, summary, breakdown */}
                     <div className="flex w-full flex-col rounded-md bg-slate-100 px-6 py-6">
                         <R1ValueWithLabel
                             label="Total amount required"
-                            value={parseFloat(Number(formatUnits(getTokenAmount(), 18)).toFixed(2))}
+                            value={parseFloat(Number(formatUnits(getTokenAmount(), 18)).toFixed(2)).toLocaleString('en-US')}
                             isAproximate
                         />
 
@@ -407,17 +394,53 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                                 <>
                                     <Divider className="mt-6 bg-slate-200" />
 
-                                    <div className="col gap-2">
-                                        <div className="text-sm font-medium text-slate-500">Summary</div>
+                                    <div className="col gap-2 text-sm font-medium">
+                                        <div className="text-base text-slate-400">Summary</div>
 
                                         <div className="col gap-2">
                                             <div className="row justify-between">
-                                                <div className="text-sm font-medium">
+                                                <div>
                                                     {quantity} x License{Number.parseInt(quantity) > 1 ? 's' : ''} (Tier{' '}
                                                     {currentStage})
                                                 </div>
-                                                <div className="text-sm font-medium">
+                                                <div>
                                                     ${(Number.parseInt(quantity) * stage.usdPrice).toLocaleString('en-US')}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="col gap-2 text-sm font-medium">
+                                        <div className="text-base text-slate-400">Breakdown</div>
+
+                                        <div className="col gap-2">
+                                            <div className="row justify-between">
+                                                <div>Min. $R1 spent</div>
+                                                <div>
+                                                    {parseFloat(
+                                                        Number(formatUnits(getTokenAmount(false), 18)).toFixed(2),
+                                                    ).toLocaleString('en-US')}
+                                                </div>
+                                            </div>
+
+                                            <div className="row justify-between">
+                                                <div>Slippage</div>
+
+                                                <div className="row gap-1">
+                                                    <div>{slippage}%</div>
+                                                    <RiSettings2Line
+                                                        className="cursor-pointer text-lg text-slate-400 transition-all hover:opacity-50"
+                                                        onClick={onOpen}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="row justify-between pt-2">
+                                                <div>Max. $R1 spent</div>
+                                                <div>
+                                                    {parseFloat(
+                                                        Number(formatUnits(getTokenAmount(), 18)).toFixed(2),
+                                                    ).toLocaleString('en-US')}
                                                 </div>
                                             </div>
                                         </div>
@@ -426,20 +449,8 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                             )}
 
                             {authenticated && !hasEnoughAllowance() && (
-                                <div className="col gap-2 pt-2 text-sm text-slate-500">
-                                    <div className="">You may be asked to sign 2 transactions:</div>
-
-                                    <div className="col gap-0.5">
-                                        <div className="row gap-2">
-                                            <RiCheckLine className="text-lg" />
-                                            <div>Approval of token spending</div>
-                                        </div>
-
-                                        <div className="row gap-2">
-                                            <RiPriceTag3Line className="text-lg" />
-                                            <div>License purchasing transaction</div>
-                                        </div>
-                                    </div>
+                                <div className="col gap-2 pt-2 text-center text-sm font-medium text-slate-500">
+                                    You must first allow the app to spend your $R1 tokens
                                 </div>
                             )}
 
@@ -509,6 +520,11 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
                                         return null;
                                     }}
+                                    endContent={
+                                        <div className="row pointer-events-none">
+                                            <span className="text-small text-slate-500">%</span>
+                                        </div>
+                                    }
                                 />
 
                                 <div className="col w-full gap-2">
