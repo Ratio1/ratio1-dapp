@@ -19,15 +19,7 @@ import { isFinite, isNaN } from 'lodash';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
-import {
-    RiAddFill,
-    RiArrowRightDoubleLine,
-    RiCheckLine,
-    RiCpuLine,
-    RiEqualizer2Line,
-    RiErrorWarningLine,
-    RiPriceTag3Line,
-} from 'react-icons/ri';
+import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine, RiEqualizer2Line, RiErrorWarningLine } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import { Stage } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
@@ -93,7 +85,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
     const getTokenAmount = (): bigint => {
         const slippageValue = Math.floor(slippage * 100) / 100; // Rounds down to 2 decimal places
-        return (BigInt(quantity) * (licenseTokenPrice / 10n) * BigInt(Math.floor(100 + slippageValue))) / 100n;
+        return (BigInt(quantity) * licenseTokenPrice * BigInt(Math.floor(100 + slippageValue))) / 100n;
     };
 
     const hasEnoughAllowance = (): boolean => tokenAllowance !== undefined && tokenAllowance > MAX_ALLOWANCE / 2n;
@@ -417,20 +409,8 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                             )}
 
                             {authenticated && !hasEnoughAllowance() && (
-                                <div className="col gap-2 pt-2 text-sm text-slate-500">
-                                    <div className="">You may be asked to sign 2 transactions:</div>
-
-                                    <div className="col gap-0.5">
-                                        <div className="row gap-2">
-                                            <RiCheckLine className="text-lg" />
-                                            <div>Approval of token spending</div>
-                                        </div>
-
-                                        <div className="row gap-2">
-                                            <RiPriceTag3Line className="text-lg" />
-                                            <div>License purchasing transaction</div>
-                                        </div>
-                                    </div>
+                                <div className="col gap-2 pt-2 text-center text-sm font-medium text-slate-500">
+                                    You must first allow the app to spend your $R1 tokens
                                 </div>
                             )}
 
