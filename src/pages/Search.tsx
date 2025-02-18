@@ -2,9 +2,10 @@ import Empty from '@assets/empty.png';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { config, getCurrentEpoch } from '@lib/config';
-import { getLicenseRewardsAndNodeInfo, getLicenseSectionHeader } from '@lib/utils';
+import { getLicenseRewardsAndNodeInfo } from '@lib/utils';
 import { Input } from '@nextui-org/input';
 import { Spinner } from '@nextui-org/spinner';
+import { Tab, Tabs } from '@nextui-org/tabs';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { isFinite } from 'lodash';
@@ -12,7 +13,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiSearchLine } from 'react-icons/ri';
 import { useSearchParams } from 'react-router-dom';
-import { GNDLicense, MNDLicense, NDLicense } from 'typedefs/blockchain';
+import { GNDLicense, License, MNDLicense, NDLicense } from 'typedefs/blockchain';
 import { usePublicClient } from 'wagmi';
 
 function Search() {
@@ -20,8 +21,10 @@ function Search() {
     const [isLoading, setLoading] = useState<boolean>(false);
     const [emptyResult, setEmptyResult] = useState<boolean>(false);
 
-    const [resultNDContract, setResultNDContract] = useState<NDLicense | null>();
-    const [resultMNDContract, setResultMNDContract] = useState<MNDLicense | GNDLicense | null>();
+    const [resultNDContract, setResultNDContract] = useState<NDLicense | undefined>();
+    const [resultMNDContract, setResultMNDContract] = useState<MNDLicense | GNDLicense | undefined>();
+
+    const [licenseToShow, setLicenseToShow] = useState<License | undefined>();
 
     const [searchParams, setSearchParams] = useSearchParams();
     const publicClient = usePublicClient();
@@ -30,7 +33,6 @@ function Search() {
 
     useEffect(() => {
         if (licenseId && publicClient) {
-            console.log({ licenseId, publicClient });
             setValue(licenseId);
             onSearch(licenseId);
         }
@@ -47,8 +49,10 @@ function Search() {
 
         if (isNaN(num) || !Number.isInteger(num) || !isFinite(num) || num <= 0) {
             toast.error('Invalid search value.');
-            setResultNDContract(null);
-            setResultMNDContract(null);
+            setResultNDContract(undefined);
+            setResultMNDContract(undefined);
+            setLicenseToShow(undefined);
+
             return;
         }
 
@@ -61,12 +65,30 @@ function Search() {
         }
 
         setLoading(true);
-        await Promise.all([onSearchND(BigInt(licenseId)), onSearchMND(BigInt(licenseId))]);
+        const [licenseND, licenseMND] = await Promise.all([onSearchND(BigInt(licenseId)), onSearchMND(BigInt(licenseId))]);
+
+        // console.log({ licenseND, licenseMND });
+
+        // If only one of the licenses is found, show it. If both are found, the Tabs will handle the displaying.
+        if (!licenseND || !licenseMND) {
+            // console.log('Only one license found', licenseND || licenseMND);
+            setLicenseToShow(licenseND || licenseMND);
+        }
+
+        if (!licenseND && !licenseMND) {
+            // console.log('Setting empty result');
+            setEmptyResult(true);
+            setLicenseToShow(undefined);
+        } else {
+            setEmptyResult(false);
+        }
+
         setLoading(false);
     };
 
-    const onSearchND = async (licenseId: bigint) => {
+    const onSearchND = async (licenseId: bigint): Promise<NDLicense | undefined> => {
         if (!publicClient) {
+            toast.error('Unexpected error, please try again.');
             return;
         }
 
@@ -86,8 +108,6 @@ function Search() {
                     args: [licenseId],
                 });
 
-            // console.log('ND', { nodeAddress, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle, isBanned });
-
             const isLinked = nodeAddress !== '0x0000000000000000000000000000000000000000';
 
             const baseLicense: Omit<NDLicense, 'rewards' | 'alias' | 'isOnline' | 'claimableEpochs'> = {
@@ -104,12 +124,14 @@ function Search() {
                 isLinked,
             };
 
+            let result: NDLicense;
+
             if (!isLinked) {
-                setResultNDContract({
+                result = {
                     ...baseLicense,
                     claimableEpochs: 0n,
                     isLinked,
-                });
+                };
             } else {
                 const licenseDataPromise = getLicenseRewardsAndNodeInfo({
                     ...baseLicense,
@@ -117,7 +139,7 @@ function Search() {
                     isLinked: false, // Enforcing base license type here as to not pass redunant data
                 });
 
-                setResultNDContract({
+                result = {
                     ...baseLicense,
                     claimableEpochs: BigInt(getCurrentEpoch()) - lastClaimEpoch,
                     rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
@@ -126,18 +148,21 @@ function Search() {
                     epochs: licenseDataPromise.then(({ epochs }) => epochs),
                     epochsAvailabilities: licenseDataPromise.then(({ epochs_vals }) => epochs_vals),
                     ethSignatures: licenseDataPromise.then(({ eth_signatures }) => eth_signatures),
-                });
+                };
             }
 
-            setEmptyResult(false);
-        } catch (error) {
-            console.error(error);
-            setEmptyResult(true);
+            setResultNDContract(result);
+            return result;
+        } catch (error: any) {
+            console.error(error.message);
+            setResultNDContract(undefined);
+            return;
         }
     };
 
-    const onSearchMND = async (licenseId: bigint) => {
+    const onSearchMND = async (licenseId: bigint): Promise<MNDLicense | GNDLicense | undefined> => {
         if (!publicClient) {
+            toast.error('Unexpected error, please try again.');
             return;
         }
 
@@ -156,15 +181,6 @@ function Search() {
                     functionName: 'licenses',
                     args: [licenseId],
                 });
-
-            // console.log('MND', {
-            //     nodeAddress,
-            //     totalAssignedAmount,
-            //     totalClaimedAmount,
-            //     lastClaimEpoch,
-            //     assignTimestamp,
-            //     lastClaimOracle,
-            // });
 
             if (!totalAssignedAmount) {
                 return;
@@ -186,12 +202,14 @@ function Search() {
                 isLinked,
             };
 
+            let result: MNDLicense | GNDLicense;
+
             if (!isLinked) {
-                setResultMNDContract({
+                result = {
                     ...baseLicense,
                     claimableEpochs: 0n,
                     isLinked,
-                });
+                };
             } else {
                 const licenseDataPromise = getLicenseRewardsAndNodeInfo({
                     ...baseLicense,
@@ -202,7 +220,7 @@ function Search() {
                 // MNDs have a cliff period
                 const claimableEpochs: number = Math.max(0, getCurrentEpoch() - config.mndCliffEpochs - Number(lastClaimEpoch));
 
-                setResultMNDContract({
+                result = {
                     ...baseLicense,
                     claimableEpochs: BigInt(claimableEpochs),
                     rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
@@ -211,13 +229,16 @@ function Search() {
                     epochs: licenseDataPromise.then(({ epochs }) => epochs),
                     epochsAvailabilities: licenseDataPromise.then(({ epochs_vals }) => epochs_vals),
                     ethSignatures: licenseDataPromise.then(({ eth_signatures }) => eth_signatures),
-                });
+                };
             }
 
-            setEmptyResult(false);
-        } catch (error) {
-            console.error(error);
-            setEmptyResult(true);
+            setResultMNDContract(result);
+
+            return result;
+        } catch (error: any) {
+            console.error(error.message);
+            setResultMNDContract(undefined);
+            return;
         }
     };
 
@@ -271,30 +292,38 @@ function Search() {
                         description={<div>Your search did not match any license.</div>}
                     />
                 </div>
-            ) : !resultNDContract && !resultMNDContract ? (
+            ) : !licenseToShow && !(resultNDContract && resultMNDContract) ? (
                 <div className="center-all col gap-1.5 p-8">
                     <img src={Empty} alt="Empty" className="h-28" />
                     <div className="text-sm text-slate-400">Search for a license</div>
                 </div>
             ) : (
                 <div className="col w-full gap-3">
-                    {!!resultMNDContract && (
-                        <div className="col gap-3">
-                            {getLicenseSectionHeader(resultMNDContract.type)}
-
-                            <div className="w-full">
-                                <LicenseCard license={resultMNDContract} disableActions />
-                            </div>
-                        </div>
+                    {!!resultNDContract && !!resultMNDContract && (
+                        <Tabs
+                            className="mx-auto -mt-2"
+                            aria-label="Tabs"
+                            color="default"
+                            radius="full"
+                            size="lg"
+                            classNames={{
+                                tabList: 'p-1.5 bg-slate-100',
+                                tabContent: 'text-[15px]',
+                                tab: 'min-w-[64px]',
+                            }}
+                            onSelectionChange={(key) => {
+                                setLicenseToShow(key === resultNDContract.type ? resultNDContract : resultMNDContract);
+                            }}
+                        >
+                            {[resultNDContract.type, resultMNDContract.type].map((type) => (
+                                <Tab key={type} title={type} />
+                            ))}
+                        </Tabs>
                     )}
 
-                    {!!resultNDContract && (
-                        <div className="col gap-3">
-                            {getLicenseSectionHeader(resultNDContract.type)}
-
-                            <div className="w-full">
-                                <LicenseCard license={resultNDContract} disableActions />
-                            </div>
+                    {!!licenseToShow && (
+                        <div className="w-full">
+                            <LicenseCard license={licenseToShow} disableActions />
                         </div>
                     )}
                 </div>

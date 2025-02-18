@@ -77,7 +77,7 @@ const LicenseBurnModal = forwardRef(({ getLicenses }: Props, ref) => {
                                     <DetailedAlert
                                         variant="red"
                                         icon={<RiFireLine />}
-                                        title="Burning confirmation"
+                                        title="Warning"
                                         description={
                                             <div className="col">
                                                 <div>Are you sure you want to burn this license?</div>

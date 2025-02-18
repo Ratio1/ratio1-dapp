@@ -1,7 +1,7 @@
-import { getNodeEpochsRange } from '@lib/api/oracles';
+import { getNodeEpochsRange, getNodeLastEpoch } from '@lib/api/oracles';
 import { getCurrentEpoch, getLicenseAssignEpoch } from '@lib/config';
 import useAwait from '@lib/useAwait';
-import { arrayAverage, getShortAddress, throttledToastOracleError } from '@lib/utils';
+import { arrayAverage, throttledToastOracleError } from '@lib/utils';
 import clsx from 'clsx';
 import { useMemo } from 'react';
 import { RiTimeLine } from 'react-icons/ri';
@@ -27,21 +27,28 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
 
     const nodeEpochsPromise = useMemo(async () => {
-        console.log(
-            `License ${license.licenseId} rewards interval: [${getLicenseAssignEpoch(license.assignTimestamp)} - ${getCurrentEpoch() - 1}]`,
-        );
-
         if (!license.isLinked) {
             return [];
         }
 
+        const licenseAssignEpoch = getLicenseAssignEpoch(license.assignTimestamp);
+        const currentEpoch = getCurrentEpoch();
+
+        const startEpoch = licenseAssignEpoch;
+        const endEpoch = currentEpoch - 1;
+
+        // if (licenseAssignEpoch === currentEpoch) {
+        //     console.log(`License ${license.licenseId} fetching only last epoch: ${licenseAssignEpoch}`);
+        // } else {
+        //     console.log(`License ${license.licenseId} rewards interval: [${startEpoch} - ${endEpoch}]`);
+        // }
+
         try {
-            const result = await getNodeEpochsRange(
-                license.nodeAddress,
-                getLicenseAssignEpoch(license.assignTimestamp),
-                getCurrentEpoch() - 1,
-            );
-            console.log(`[${getShortAddress(license.nodeAddress)}] NodeEpochs`, result);
+            const result =
+                licenseAssignEpoch === currentEpoch
+                    ? await getNodeLastEpoch(license.nodeAddress)
+                    : await getNodeEpochsRange(license.nodeAddress, startEpoch, endEpoch);
+            // console.log(`[${getShortAddress(license.nodeAddress)}] NodeEpochs`, result);
             return result.epochs_vals;
         } catch (error) {
             console.error(error);
