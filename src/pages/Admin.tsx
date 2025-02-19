@@ -490,8 +490,8 @@ function RemoveSigner({
         setIsLoading(true);
 
         const txHash = await walletClient.writeContract({
-            address: config.mndContractAddress,
-            abi: MNDContractAbi,
+            address: config.ndContractAddress,
+            abi: NDContractAbi,
             functionName: 'removeSigner',
             args: [address as EthAddress],
         });
@@ -511,8 +511,8 @@ function RemoveSigner({
         setIsLoading(true);
 
         const txHash = await walletClient.writeContract({
-            address: config.ndContractAddress,
-            abi: NDContractAbi,
+            address: config.mndContractAddress,
+            abi: MNDContractAbi,
             functionName: 'removeSigner',
             args: [address as EthAddress],
         });
