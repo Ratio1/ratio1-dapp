@@ -1,7 +1,7 @@
 import { NDContractAbi } from '@blockchain/NDContract';
 import Buy from '@components/Buy';
 import Tiers from '@components/Tiers';
-import { config, getCurrentEpoch, getNextEpochTimestamp } from '@lib/config';
+import { config, environment, getCurrentEpoch, getNextEpochTimestamp } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes';
@@ -170,7 +170,7 @@ function Dashboard() {
 
     const isKycNotCompleted: boolean = !account || account.kycStatus !== KycStatus.Approved;
 
-    const isBuyingDisabled = (): boolean => !authenticated || isLoading || isKycNotCompleted;
+    const isBuyingDisabled = (): boolean => (!authenticated || isLoading || isKycNotCompleted) && environment === 'mainnet';
 
     const getKycNotCompletedAlert = () => (
         <>
@@ -264,7 +264,9 @@ function Dashboard() {
                         </div>
                     </div>
 
-                    {!isLoading && isBuyingDisabled() && <div className="block larger:hidden">{getKycNotCompletedAlert()}</div>}
+                    {!!account && !isLoading && isBuyingDisabled() && (
+                        <div className="block larger:hidden">{getKycNotCompletedAlert()}</div>
+                    )}
 
                     <div className="col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-6 lg:p-7">
                         <Tiers currentStage={currentStage} stages={stages} />
