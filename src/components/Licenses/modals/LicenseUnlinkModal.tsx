@@ -17,11 +17,10 @@ import { formatUnits } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
 interface Props {
-    getLicenses: () => void;
     onClaim: (license: License) => Promise<void>;
 }
 
-const LicenseUnlinkModal = forwardRef(({ getLicenses, onClaim }: Props, ref) => {
+const LicenseUnlinkModal = forwardRef(({ onClaim }: Props, ref) => {
     const [isLoading, setLoading] = useState<boolean>(false);
 
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
@@ -36,7 +35,7 @@ const LicenseUnlinkModal = forwardRef(({ getLicenses, onClaim }: Props, ref) => 
     }, [license]);
     const [rewards, isLoadingRewards] = useAwait(rewardsPromise);
 
-    const { watchTx } = useBlockchainContext() as BlockchainContextType;
+    const { watchTx, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
 
@@ -67,7 +66,7 @@ const LicenseUnlinkModal = forwardRef(({ getLicenses, onClaim }: Props, ref) => 
             });
 
             await watchTx(txHash, publicClient);
-            getLicenses();
+            fetchLicenses();
             onClose();
         } catch (error) {
             toast.error('Unexpected error, please try again.');

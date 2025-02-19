@@ -1,9 +1,9 @@
 import { fN } from '@lib/utils';
 import { LargeValueWithLabel } from '@shared/LargeValueWithLabel';
 import clsx from 'clsx';
-import { Stage } from 'typedefs/blockchain';
+import { PriceTier } from 'typedefs/blockchain';
 
-export default function Tiers({ currentStage, stages }: { currentStage: number; stages: Stage[] }) {
+export default function Tiers({ currentStage, stages }: { currentStage: number; stages: PriceTier[] }) {
     return (
         <>
             <div className="col gap-5 lg:gap-6">

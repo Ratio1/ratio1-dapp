@@ -109,7 +109,7 @@ type ApiAccount = {
     usdBuyLimit: number;
 };
 
-type Stage = {
+type PriceTier = {
     index: number;
     usdPrice: number;
     totalUnits: number;
@@ -127,6 +127,6 @@ export type {
     NDLicense,
     OraclesAvailabilityResult,
     OraclesDefaultResult,
+    PriceTier,
     R1Address,
-    Stage,
 };

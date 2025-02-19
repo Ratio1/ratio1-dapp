@@ -2,7 +2,7 @@ import { Button } from '@nextui-org/button';
 import { throttle } from 'lodash';
 import toast from 'react-hot-toast';
 import { RiCodeSSlashLine } from 'react-icons/ri';
-import { EthAddress, GNDLicense, License, MNDLicense } from 'typedefs/blockchain';
+import { EthAddress, GNDLicense, License, MNDLicense, PriceTier } from 'typedefs/blockchain';
 import { getNodeEpochsRange, getNodeInfo } from './api/oracles';
 import { config, getCurrentEpoch } from './config';
 
@@ -318,3 +318,78 @@ export const getLicenseSectionHeader = (type: License['type']) => (
         <div className="pt-4 text-2xl font-semibold">{type}</div>
     </div>
 );
+
+export const INITIAL_TIERS_STATE: PriceTier[] = [
+    {
+        index: 1,
+        usdPrice: 500,
+        totalUnits: 89,
+        soldUnits: 0,
+    },
+    {
+        index: 2,
+        usdPrice: 750,
+        totalUnits: 144,
+        soldUnits: 0,
+    },
+    {
+        index: 3,
+        usdPrice: 1000,
+        totalUnits: 233,
+        soldUnits: 0,
+    },
+    {
+        index: 4,
+        usdPrice: 1500,
+        totalUnits: 377,
+        soldUnits: 0,
+    },
+    {
+        index: 5,
+        usdPrice: 2000,
+        totalUnits: 610,
+        soldUnits: 0,
+    },
+    {
+        index: 6,
+        usdPrice: 2500,
+        totalUnits: 987,
+        soldUnits: 0,
+    },
+    {
+        index: 7,
+        usdPrice: 3000,
+        totalUnits: 1597,
+        soldUnits: 0,
+    },
+    {
+        index: 8,
+        usdPrice: 3500,
+        totalUnits: 2584,
+        soldUnits: 0,
+    },
+    {
+        index: 9,
+        usdPrice: 4000,
+        totalUnits: 4181,
+        soldUnits: 0,
+    },
+    {
+        index: 10,
+        usdPrice: 5000,
+        totalUnits: 6765,
+        soldUnits: 0,
+    },
+    {
+        index: 11,
+        usdPrice: 7000,
+        totalUnits: 10946,
+        soldUnits: 0,
+    },
+    {
+        index: 12,
+        usdPrice: 9500,
+        totalUnits: 17711,
+        soldUnits: 0,
+    },
+];

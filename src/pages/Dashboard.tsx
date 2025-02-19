@@ -1,108 +1,32 @@
-import { NDContractAbi } from '@blockchain/NDContract';
-import Buy from '@components/Buy';
 import Tiers from '@components/Tiers';
-import { config, environment, getCurrentEpoch, getNextEpochTimestamp } from '@lib/config';
+import { environment, getCurrentEpoch, getNextEpochTimestamp } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes';
 import useAwait from '@lib/useAwait';
-import { useDisclosure } from '@lib/useDisclosure';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
-import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
 import { BigCard } from '@shared/BigCard';
 import { KycStatus } from '@typedefs/profile';
 import { formatDistanceToNow } from 'date-fns';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { RiArrowRightUpLine, RiTimeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
-import { License, Stage } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 
-const INITIAL_STAGES_STATE: Stage[] = [
-    {
-        index: 1,
-        usdPrice: 500,
-        totalUnits: 89,
-        soldUnits: 0,
-    },
-    {
-        index: 2,
-        usdPrice: 750,
-        totalUnits: 144,
-        soldUnits: 0,
-    },
-    {
-        index: 3,
-        usdPrice: 1000,
-        totalUnits: 233,
-        soldUnits: 0,
-    },
-    {
-        index: 4,
-        usdPrice: 1500,
-        totalUnits: 377,
-        soldUnits: 0,
-    },
-    {
-        index: 5,
-        usdPrice: 2000,
-        totalUnits: 610,
-        soldUnits: 0,
-    },
-    {
-        index: 6,
-        usdPrice: 2500,
-        totalUnits: 987,
-        soldUnits: 0,
-    },
-    {
-        index: 7,
-        usdPrice: 3000,
-        totalUnits: 1597,
-        soldUnits: 0,
-    },
-    {
-        index: 8,
-        usdPrice: 3500,
-        totalUnits: 2584,
-        soldUnits: 0,
-    },
-    {
-        index: 9,
-        usdPrice: 4000,
-        totalUnits: 4181,
-        soldUnits: 0,
-    },
-    {
-        index: 10,
-        usdPrice: 5000,
-        totalUnits: 6765,
-        soldUnits: 0,
-    },
-    {
-        index: 11,
-        usdPrice: 7000,
-        totalUnits: 10946,
-        soldUnits: 0,
-    },
-    {
-        index: 12,
-        usdPrice: 9500,
-        totalUnits: 17711,
-        soldUnits: 0,
-    },
-];
-
 function Dashboard() {
-    const { fetchLicenses, r1Balance } = useBlockchainContext() as BlockchainContextType;
+    const {
+        licenses,
+        fetchLicenses,
+        r1Balance,
+        currentPriceTier,
+        priceTiers,
+        isLoadingPriceTiers,
+        fetchPriceTiers,
+        onBuyDrawerOpen,
+    } = useBlockchainContext() as BlockchainContextType;
     const { account, authenticated } = useAuthenticationContext() as AuthenticationContextType;
-
-    const [isLoading, setLoading] = useState<boolean>(true);
-
-    const { isOpen, onOpen, onClose } = useDisclosure();
-    const [licenses, setLicenses] = useState<Array<License>>([]);
 
     const { address } = useAccount();
     const publicClient = usePublicClient();
@@ -116,43 +40,10 @@ function Dashboard() {
     );
     const [rewards, isLoadingRewards] = useAwait(rewardsPromise);
 
-    const [currentStage, setCurrentStage] = useState<number>(1);
-    const [stages, setStages] = useState<Stage[]>(INITIAL_STAGES_STATE);
-
     // Init
     useEffect(() => {
-        if (!publicClient) {
-            return;
-        }
-
-        setLoading(true);
-
-        Promise.all([
-            publicClient.readContract({
-                address: config.ndContractAddress,
-                abi: NDContractAbi,
-                functionName: 'currentPriceTier',
-            }),
-            publicClient.readContract({
-                address: config.ndContractAddress,
-                abi: NDContractAbi,
-                functionName: 'getPriceTiers',
-            }),
-        ]).then(([currentPriceTier, priceTiers]) => {
-            setCurrentStage(currentPriceTier);
-
-            setStages(
-                priceTiers.map((tier, index) => ({
-                    index: index + 1,
-                    usdPrice: Number(tier.usdPrice),
-                    totalUnits: Number(tier.totalUnits),
-                    soldUnits: Number(tier.soldUnits),
-                })),
-            );
-
-            setLoading(false);
-        });
-    }, [publicClient]);
+        fetchPriceTiers();
+    }, []);
 
     useEffect(() => {
         if (!publicClient) {
@@ -164,13 +55,13 @@ function Dashboard() {
         }
 
         if (authenticated) {
-            fetchLicenses().then(setLicenses);
+            fetchLicenses();
         }
     }, [authenticated]);
 
-    const isKycNotCompleted: boolean = !account || account.kycStatus !== KycStatus.Approved;
-
-    const isBuyingDisabled = (): boolean => (!authenticated || isLoading || isKycNotCompleted) && environment === 'mainnet';
+    const isBuyingDisabled = (): boolean =>
+        (!authenticated || isLoadingPriceTiers || !account || account.kycStatus !== KycStatus.Approved) &&
+        environment === 'mainnet';
 
     const getKycNotCompletedAlert = () => (
         <>
@@ -249,12 +140,12 @@ function Dashboard() {
                         <div className="text-xl font-bold leading-7 lg:text-[26px]">Licenses & Tiers</div>
 
                         <div className="row gap-3">
-                            {!isLoading && isBuyingDisabled() && (
+                            {!isLoadingPriceTiers && isBuyingDisabled() && (
                                 <div className="hidden larger:block">{getKycNotCompletedAlert()}</div>
                             )}
 
                             <div className="flex">
-                                <Button color="primary" onPress={onOpen} isDisabled={isBuyingDisabled()}>
+                                <Button color="primary" onPress={onBuyDrawerOpen} isDisabled={isBuyingDisabled()}>
                                     <div className="row gap-1.5">
                                         <div className="text-sm font-medium lg:text-base">Buy License</div>
                                         <RiArrowRightUpLine className="text-[18px]" />
@@ -264,43 +155,15 @@ function Dashboard() {
                         </div>
                     </div>
 
-                    {!!account && !isLoading && isBuyingDisabled() && (
+                    {!!account && !isLoadingPriceTiers && isBuyingDisabled() && (
                         <div className="block larger:hidden">{getKycNotCompletedAlert()}</div>
                     )}
 
                     <div className="col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-6 lg:p-7">
-                        <Tiers currentStage={currentStage} stages={stages} />
+                        <Tiers currentStage={currentPriceTier} stages={priceTiers} />
                     </div>
                 </BigCard>
             </div>
-
-            <Drawer
-                isOpen={isOpen}
-                onOpenChange={onClose}
-                size="sm"
-                classNames={{
-                    base: 'data-[placement=right]:sm:m-3 data-[placement=left]:sm:m-3 rounded-none sm:rounded-medium font-mona',
-                }}
-                motionProps={{
-                    variants: {
-                        enter: {
-                            opacity: 1,
-                            x: 0,
-                        },
-                        exit: {
-                            x: 100,
-                            opacity: 0,
-                        },
-                    },
-                }}
-                hideCloseButton
-            >
-                <DrawerContent>
-                    <DrawerBody>
-                        <Buy onClose={onClose} currentStage={currentStage} stage={stages[currentStage - 1]} />
-                    </DrawerBody>
-                </DrawerContent>
-            </Drawer>
         </>
     );
 }

@@ -20,10 +20,9 @@ import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 const PAGE_SIZE = 5;
 
 function Licenses() {
-    const { watchTx, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
+    const { watchTx, licenses, isLoadingLicenses, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
-    const [licenses, setLicenses] = useState<Array<License>>([]);
     const [licensesToShow, setLicensesToShow] = useState<Array<License>>([]);
 
     const [filter, setFilter] = useState<'all' | 'linked' | 'unlinked'>('all');
@@ -42,7 +41,6 @@ function Licenses() {
         }
     }, [licenses, filter]);
 
-    const [isLoading, setLoading] = useState<boolean>(false);
     const [isClaimingAll, setClaimingAll] = useState<boolean>(false);
 
     const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -60,10 +58,7 @@ function Licenses() {
             return;
         } else {
             if (authenticated && !!address && publicClient) {
-                getLicenses();
-            } else {
-                setLicenses([]);
-                setLicensesToShow([]);
+                fetchLicenses();
             }
         }
     }, [authenticated, address, publicClient]);
@@ -75,14 +70,6 @@ function Licenses() {
     useEffect(() => {
         onPageChange();
     }, [currentPage]);
-
-    const getLicenses = () => {
-        setLoading(true);
-
-        fetchLicenses()
-            .then(setLicenses)
-            .finally(() => setLoading(false));
-    };
 
     const onPageChange = (page?: number) => {
         if (page && page !== currentPage) {
@@ -165,7 +152,7 @@ function Licenses() {
 
             await watchTx(txHash, publicClient);
 
-            getLicenses();
+            fetchLicenses();
         } catch (err: any) {
             toast.error('An error occurred, please try again.');
         } finally {
@@ -192,7 +179,7 @@ function Licenses() {
     };
 
     const setClaimingRewards = (id: bigint, type: License['type'], value: boolean) => {
-        setLicenses((prevLicenses) =>
+        setLicensesToShow((prevLicenses) =>
             prevLicenses.map((license) =>
                 license.licenseId === id && license.type === type
                     ? {
@@ -240,13 +227,12 @@ function Licenses() {
                         <LicensesPageHeader
                             onFilterChange={setFilter}
                             licenses={licenses}
-                            getLicenses={getLicenses}
                             isLoading={isClaimingAll}
                             setLoading={setClaimingAll}
                         />
                     </div>
 
-                    {isLoading ? (
+                    {isLoadingLicenses ? (
                         <>
                             <div className="mx-auto pt-4">
                                 <Skeleton className="h-9 min-w-20 rounded-xl" />
@@ -277,7 +263,7 @@ function Licenses() {
                     )}
                 </div>
 
-                {getPagesCount() > 1 && (
+                {getPagesCount() > 1 && licensesToShow.length && (
                     <div className="mx-auto pt-12">
                         <Pagination
                             page={currentPage}
@@ -296,12 +282,11 @@ function Licenses() {
             <LicenseLinkModal
                 ref={linkModalRef}
                 nodeAddresses={licenses.filter((license) => license.isLinked).map((license) => license.nodeAddress)}
-                getLicenses={getLicenses}
             />
 
-            <LicenseUnlinkModal ref={unlinkModalRef} getLicenses={getLicenses} onClaim={onClaim} />
+            <LicenseUnlinkModal ref={unlinkModalRef} onClaim={onClaim} />
 
-            <LicenseBurnModal ref={burnModalRef} getLicenses={getLicenses} />
+            <LicenseBurnModal ref={burnModalRef} />
         </div>
     );
 }

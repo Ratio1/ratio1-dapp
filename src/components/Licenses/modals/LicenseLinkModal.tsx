@@ -16,16 +16,15 @@ import { usePublicClient, useWalletClient } from 'wagmi';
 
 interface Props {
     nodeAddresses: string[];
-    getLicenses: () => void;
 }
 
-const LicenseLinkModal = forwardRef(({ nodeAddresses, getLicenses }: Props, ref) => {
+const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
     const [isLoading, setLoading] = useState<boolean>(false);
 
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const [license, setLicense] = useState<License>();
 
-    const { watchTx } = useBlockchainContext() as BlockchainContextType;
+    const { watchTx, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
 
@@ -84,7 +83,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, getLicenses }: Props, ref)
             await watchTx(txHash, publicClient);
 
             setAddress('');
-            getLicenses();
+            fetchLicenses();
             onClose();
         } catch (error) {
             toast.error('An error occurred, please try again.');

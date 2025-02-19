@@ -2,18 +2,23 @@ import { ERC20Abi } from '@blockchain/ERC20';
 import { LiquidityManagerAbi } from '@blockchain/LiquidityManager';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
+import { useDisclosure } from '@nextui-org/modal';
 import { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiExternalLinkLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
-import { EthAddress, License } from 'typedefs/blockchain';
+import { EthAddress, License, PriceTier } from 'typedefs/blockchain';
 import { TransactionReceipt } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 import { config } from '../config';
-import { getLicenseRewardsAndNodeInfo } from '../utils';
+import { getLicenseRewardsAndNodeInfo, INITIAL_TIERS_STATE } from '../utils';
 
 export interface BlockchainContextType {
     watchTx: (txHash: string, publicClient: any) => Promise<TransactionReceipt>;
+
+    // Licenses
+    licenses: License[];
+    isLoadingLicenses: boolean;
     fetchLicenses: () => Promise<Array<License>>;
 
     // R1 Balance
@@ -24,6 +29,17 @@ export interface BlockchainContextType {
     // R1 Price
     r1Price: bigint;
     fetchR1Price: () => void;
+
+    // Price tiers
+    currentPriceTier: number;
+    priceTiers: PriceTier[];
+    isLoadingPriceTiers: boolean;
+    fetchPriceTiers: () => Promise<void>;
+
+    // License buying
+    isBuyDrawerOpen: boolean;
+    onBuyDrawerOpen: () => void;
+    onBuyDrawerClose: () => void;
 }
 
 const BlockchainContext = createContext<BlockchainContextType | null>(null);
@@ -32,8 +48,22 @@ const BlockchainContext = createContext<BlockchainContextType | null>(null);
 export const useBlockchainContext = () => useContext(BlockchainContext);
 
 export const BlockchainProvider = ({ children }) => {
+    // Licenses
+    const [licenses, setLicenses] = useState<License[]>([]);
+    const [isLoadingLicenses, setLoadingLicenses] = useState<boolean>(false);
+
+    // R1 Balance
     const [r1Balance, setR1Balance] = useState<bigint>(0n);
+    // R1 Price
     const [r1Price, setR1Price] = useState<bigint>(0n);
+
+    // Price tiers
+    const [currentPriceTier, setCurrentPriceTier] = useState<number>(1);
+    const [priceTiers, setPriceTiers] = useState<PriceTier[]>(INITIAL_TIERS_STATE);
+    const [isLoadingPriceTiers, setLoadingPriceTiers] = useState<boolean>(false);
+
+    // License buying
+    const { isOpen: isBuyDrawerOpen, onOpen: onBuyDrawerOpen, onClose: onBuyDrawerClose } = useDisclosure();
 
     const { address } = useAccount();
     const publicClient = usePublicClient();
@@ -41,8 +71,49 @@ export const BlockchainProvider = ({ children }) => {
     useEffect(() => {
         if (publicClient && address) {
             fetchR1Balance();
+        } else {
+            console.log('[blockchain.tsx] User disconnected');
+            setLicenses([]);
+            setR1Balance(0n);
         }
     }, [address, publicClient]);
+
+    const fetchPriceTiers = async () => {
+        if (!publicClient) return;
+
+        setLoadingPriceTiers(true);
+
+        try {
+            const [currentPriceTier, priceTiers] = await Promise.all([
+                publicClient.readContract({
+                    address: config.ndContractAddress,
+                    abi: NDContractAbi,
+                    functionName: 'currentPriceTier',
+                }),
+                publicClient.readContract({
+                    address: config.ndContractAddress,
+                    abi: NDContractAbi,
+                    functionName: 'getPriceTiers',
+                }),
+            ]);
+
+            setCurrentPriceTier(currentPriceTier);
+
+            setPriceTiers(
+                priceTiers.map((tier, index) => ({
+                    index: index + 1,
+                    usdPrice: Number(tier.usdPrice),
+                    totalUnits: Number(tier.totalUnits),
+                    soldUnits: Number(tier.soldUnits),
+                })),
+            );
+        } catch (error) {
+            console.error(error);
+            toast.error('An error occurred while loading licenses price tiers.');
+        } finally {
+            setLoadingPriceTiers(false);
+        }
+    };
 
     const fetchR1Balance = () => {
         if (publicClient && address) {
@@ -127,6 +198,8 @@ export const BlockchainProvider = ({ children }) => {
         if (!publicClient || !address) {
             return [];
         }
+
+        setLoadingLicenses(true);
 
         const [mndLicense, ndLicenses] = await Promise.all([
             publicClient
@@ -261,100 +334,9 @@ export const BlockchainProvider = ({ children }) => {
         ]);
 
         const licenses = mndLicense.totalAssignedAmount ? [mndLicense, ...ndLicenses] : ndLicenses;
-
-        // Leave here for testing purposes
-        const test: Array<License> = [
-            {
-                alias: Promise.resolve('wen-lambo'),
-                assignTimestamp: 1738934984n,
-                claimableEpochs: 2n,
-                isBanned: false,
-                isLinked: true,
-                isOnline: Promise.resolve(true),
-                lastClaimEpoch: 1n,
-                lastClaimOracle: '0x0000000000000000000000000000000000000000',
-                licenseId: 2n,
-                nodeAddress: '0x3bb330fe4BF4E5d45D901c40F9Eb9e3e68d6C744',
-                remainingAmount: 15000000000000000000000n,
-                rewards: Promise.resolve(0n),
-                totalAssignedAmount: 15000000000000000000000n,
-                totalClaimedAmount: 0n,
-                type: 'MND',
-                epochs: Promise.resolve([]),
-                epochsAvailabilities: Promise.resolve([]),
-                ethSignatures: Promise.resolve([]),
-            },
-            {
-                assignTimestamp: 1739273674n,
-                claimableEpochs: 0n,
-                isBanned: false,
-                isLinked: false,
-                lastClaimEpoch: 0n,
-                lastClaimOracle: '0x0000000000000000000000000000000000000000',
-                licenseId: 4519n,
-                nodeAddress: '0x0000000000000000000000000000000000000000',
-                remainingAmount: 50000000000000000000000n,
-                totalAssignedAmount: 50000000000000000000000n,
-                totalClaimedAmount: 0n,
-                type: 'ND',
-            },
-            {
-                alias: Promise.resolve('sm-nodex-1'),
-                assignTimestamp: 1739273674n,
-                claimableEpochs: 3n,
-                isBanned: true,
-                isLinked: true,
-                isOnline: Promise.resolve(false),
-                lastClaimEpoch: 2n,
-                lastClaimOracle: '0x0000000000000000000000000000000000000000',
-                licenseId: 5n,
-                nodeAddress: '0x4cc330fe4BF4E5d45D901c40F9Eb9e3e68d6C855',
-                remainingAmount: 450000000000000000000000n,
-                rewards: Promise.resolve(57326500000000000000000n),
-                totalAssignedAmount: 50000000000000000000000n,
-                totalClaimedAmount: 5000000000000000000000n,
-                type: 'ND',
-                epochs: Promise.resolve([]),
-                epochsAvailabilities: Promise.resolve([]),
-                ethSignatures: Promise.resolve([]),
-            },
-            {
-                alias: Promise.resolve('noderunner_x8_macos'),
-                assignTimestamp: 1738534500n,
-                claimableEpochs: 2n,
-                isBanned: false,
-                isLinked: true,
-                isOnline: Promise.resolve(true),
-                lastClaimEpoch: 1n,
-                lastClaimOracle: '0x0000000000000000000000000000000000000000',
-                licenseId: 16n,
-                nodeAddress: '0x5dd330fe4BF4E5d45D901c40F9Eb9e3e68d6C966',
-                remainingAmount: 475000000000000000000000n,
-                rewards: Promise.resolve(2512538672000000000000n),
-                totalAssignedAmount: 500000000000000000000000n,
-                totalClaimedAmount: 295562575342150000000000n,
-                type: 'ND',
-                epochs: Promise.resolve([]),
-                epochsAvailabilities: Promise.resolve([]),
-                ethSignatures: Promise.resolve([]),
-            },
-            {
-                assignTimestamp: 0n,
-                claimableEpochs: 0n,
-                isBanned: false,
-                isLinked: false,
-                lastClaimEpoch: 0n,
-                lastClaimOracle: '0x0000000000000000000000000000000000000000',
-                licenseId: 9999n,
-                nodeAddress: '0x0000000000000000000000000000000000000000',
-                remainingAmount: 4000000000000000000000n,
-                totalAssignedAmount: 4000000000000000000000n,
-                totalClaimedAmount: 0n,
-                type: 'ND',
-            },
-        ];
-
         console.log('Licenses', licenses);
+        setLicenses(licenses);
+        setLoadingLicenses(false);
 
         return licenses;
     };
@@ -375,6 +357,9 @@ export const BlockchainProvider = ({ children }) => {
         <BlockchainContext.Provider
             value={{
                 watchTx,
+                // Licenses
+                licenses,
+                isLoadingLicenses,
                 fetchLicenses,
                 // R1 Balance
                 r1Balance,
@@ -383,6 +368,15 @@ export const BlockchainProvider = ({ children }) => {
                 // R1 Price
                 r1Price,
                 fetchR1Price,
+                // Price tiers
+                currentPriceTier,
+                priceTiers,
+                isLoadingPriceTiers,
+                fetchPriceTiers,
+                // License buying
+                isBuyDrawerOpen,
+                onBuyDrawerOpen,
+                onBuyDrawerClose,
             }}
         >
             {children}

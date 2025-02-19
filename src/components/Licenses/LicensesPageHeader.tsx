@@ -1,7 +1,7 @@
 import Logo from '@assets/token_white.svg';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { config, getNextEpochTimestamp } from '@lib/config';
+import { config, environment, getNextEpochTimestamp } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
@@ -11,9 +11,10 @@ import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nex
 import { Tab, Tabs } from '@nextui-org/tabs';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { Timer } from '@shared/Timer';
+import { KycStatus } from '@typedefs/profile';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiCheckDoubleLine } from 'react-icons/ri';
+import { RiArrowRightUpLine, RiCheckDoubleLine } from 'react-icons/ri';
 import { ComputeParam, License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
@@ -21,18 +22,17 @@ import { usePublicClient, useWalletClient } from 'wagmi';
 function LicensesPageHeader({
     onFilterChange,
     licenses,
-    getLicenses,
     isLoading,
     setLoading,
 }: {
     onFilterChange: (key: 'all' | 'linked' | 'unlinked') => void;
     licenses: Array<License>;
-    getLicenses: () => void;
     isLoading: boolean;
     setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-    const { watchTx, r1Price, fetchR1Price } = useBlockchainContext() as BlockchainContextType;
-    const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
+    const { watchTx, fetchLicenses, r1Price, fetchR1Price, fetchPriceTiers, isLoadingPriceTiers, onBuyDrawerOpen } =
+        useBlockchainContext() as BlockchainContextType;
+    const { authenticated, account } = useAuthenticationContext() as AuthenticationContextType;
 
     const [r1PriceUsd, setR1PriceUsd] = useState<number>();
     const [timestamp, setTimestamp] = useState<Date>(getNextEpochTimestamp());
@@ -132,8 +132,13 @@ function LicensesPageHeader({
         } finally {
             onClose();
             setLoading(false);
-            getLicenses(); // Refresh because only one tx might fail and the other one might work
+            fetchLicenses(); // Refresh because only one tx might fail and the other one might work
         }
+    };
+
+    const buyLicense = async () => {
+        await fetchPriceTiers();
+        onBuyDrawerOpen();
     };
 
     const getClaimTxParams = async (
@@ -166,6 +171,10 @@ function LicensesPageHeader({
                 }),
         ).then((a) => a.filter((x): x is { computeParam: ComputeParam; eth_signatures: `0x${string}`[] } => !!x));
 
+    const isBuyingDisabled = (): boolean =>
+        (!authenticated || isLoadingPriceTiers || !account || account.kycStatus !== KycStatus.Approved) &&
+        environment === 'mainnet';
+
     const renderItem = (label: string, value) => (
         <div className="col gap-1">
             <div className="text-sm font-medium text-white/85">{label}</div>
@@ -180,20 +189,37 @@ function LicensesPageHeader({
                     <div className="flex justify-between border-b-2 border-white/10 pb-4 lg:pb-6">
                         <div className="row gap-2.5">
                             <img src={Logo} alt="Logo" className="h-7" />
-                            <div className="text-lg font-medium text-white">Rewards</div>
+                            <div className="text-lg font-medium text-white">Licenses</div>
                         </div>
 
-                        <Button
-                            className="h-9"
-                            color="primary"
-                            size="sm"
-                            variant="faded"
-                            isLoading={isLoading}
-                            onPress={claimAll}
-                            isDisabled={!authenticated || !rewards}
-                        >
-                            <div className="text-sm">Claim all</div>
-                        </Button>
+                        <div className="row gap-2.5">
+                            <Button
+                                className="h-9"
+                                color="primary"
+                                size="sm"
+                                variant="faded"
+                                isLoading={isLoadingPriceTiers}
+                                onPress={buyLicense}
+                                isDisabled={isBuyingDisabled()}
+                            >
+                                <div className="row gap-1">
+                                    <div className="text-sm">Buy License</div>
+                                    <RiArrowRightUpLine className="text-base" />
+                                </div>
+                            </Button>
+
+                            <Button
+                                className="h-9"
+                                color="primary"
+                                size="sm"
+                                variant="faded"
+                                isLoading={isLoading}
+                                onPress={claimAll}
+                                isDisabled={!authenticated || !rewards}
+                            >
+                                <div className="text-sm">Claim all rewards</div>
+                            </Button>
+                        </div>
                     </div>
 
                     <div className="col gap-8 lg:gap-10">
@@ -209,7 +235,7 @@ function LicensesPageHeader({
 
                         <div className="flex flex-col-reverse justify-between gap-4 lg:flex-row lg:items-end lg:gap-0">
                             <div className="col gap-1.5">
-                                <div className="text-base font-medium text-white lg:text-lg">Licenses</div>
+                                <div className="text-base font-medium text-white lg:text-lg">Filter</div>
 
                                 <Tabs
                                     aria-label="Tabs"
@@ -252,7 +278,7 @@ function LicensesPageHeader({
                                     timestamp={timestamp}
                                     callback={() => {
                                         setTimestamp(getNextEpochTimestamp());
-                                        getLicenses();
+                                        fetchLicenses();
                                     }}
                                 />
                             </div>

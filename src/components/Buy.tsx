@@ -16,23 +16,27 @@ import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
 import { KycStatus } from '@typedefs/profile';
 import { isFinite, isNaN } from 'lodash';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
 import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine, RiErrorWarningLine, RiSettings2Line } from 'react-icons/ri';
-import { useNavigate } from 'react-router-dom';
-import { Stage } from 'typedefs/blockchain';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { PriceTier } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 const DANGEROUS_SLIPPAGE = 0.5;
 const MAX_ALLOWANCE: bigint = 2n ** 256n - 1n;
 
-function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentStage: number; stage: Stage }) {
+function Buy({ onClose }: { onClose: () => void }) {
     const navigate = useNavigate();
+    const location = useLocation();
 
-    const { watchTx, r1Balance, fetchR1Balance } = useBlockchainContext() as BlockchainContextType;
+    const { watchTx, r1Balance, fetchR1Balance, currentPriceTier, priceTiers, fetchLicenses } =
+        useBlockchainContext() as BlockchainContextType;
     const { authenticated, account, fetchAccount } = useAuthenticationContext() as AuthenticationContextType;
+
+    const priceTier: PriceTier = useMemo(() => priceTiers[currentPriceTier - 1], [priceTiers]);
 
     // Loading component state
     const [isLoading, setLoading] = useState<boolean>(true);
@@ -171,7 +175,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
             functionName: 'buyLicense',
             args: [
                 BigInt(quantity),
-                currentStage,
+                currentPriceTier,
                 getTokenAmount(),
                 `0x${Buffer.from(uuid).toString('hex')}`,
                 BigInt(usdLimitAmount),
@@ -191,8 +195,14 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
         fetchUserUsdMintedAmount(publicClient, address);
         setLoading(false);
 
+        // If the user is already on the Licenses page, refresh the licenses, otherwise they'll be refreshed when navigating
+        if (location.pathname === routePath.licenses) {
+            fetchLicenses();
+        } else {
+            navigate(routePath.licenses);
+        }
+
         onClose();
-        navigate(routePath.licenses);
     };
 
     const onPress = async () => {
@@ -229,7 +239,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
     const isOverAccountUsdSpendingLimit = (): boolean => {
         if (!accountUsdSpendingLimit) return false;
 
-        return parseInt(quantity) * stage.usdPrice > accountUsdSpendingLimit;
+        return parseInt(quantity) * priceTier.usdPrice > accountUsdSpendingLimit;
     };
 
     const isBuyingDisabled = (): boolean =>
@@ -292,7 +302,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
                             <div className="flex">
                                 <div className="rounded-md bg-orange-100 px-2 py-1 text-sm font-medium tracking-wider text-orange-600">
-                                    ~{stage.totalUnits - stage.soldUnits} left
+                                    ~{priceTier.totalUnits - priceTier.soldUnits} left
                                 </div>
                             </div>
                         </div>
@@ -329,7 +339,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                                                 isFinite(n) &&
                                                 !isNaN(n) &&
                                                 n > 0 &&
-                                                n <= stage.totalUnits - stage.soldUnits
+                                                n <= priceTier.totalUnits - priceTier.soldUnits
                                             ) {
                                                 setQuantity(n.toString());
                                             }
@@ -357,7 +367,7 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
 
                                             const n = Number.parseInt(quantity);
 
-                                            if (isFinite(n) && !isNaN(n) && n < stage.totalUnits - stage.soldUnits) {
+                                            if (isFinite(n) && !isNaN(n) && n < priceTier.totalUnits - priceTier.soldUnits) {
                                                 setQuantity((n + 1).toString());
                                             }
                                         }}
@@ -401,10 +411,10 @@ function Buy({ onClose, currentStage, stage }: { onClose: () => void; currentSta
                                             <div className="row justify-between">
                                                 <div>
                                                     {quantity} x License{Number.parseInt(quantity) > 1 ? 's' : ''} (Tier{' '}
-                                                    {currentStage})
+                                                    {currentPriceTier})
                                                 </div>
                                                 <div>
-                                                    ${(Number.parseInt(quantity) * stage.usdPrice).toLocaleString('en-US')}
+                                                    ${(Number.parseInt(quantity) * priceTier.usdPrice).toLocaleString('en-US')}
                                                 </div>
                                             </div>
                                         </div>
