@@ -1,10 +1,8 @@
 import { environment } from '@lib/config';
-import { ParentRoute, routes, SimpleRoute } from '@lib/routes';
+import { mainRoutesInfo } from '@lib/routes';
+import { getNavigationRoutes } from '@lib/utils';
 import clsx from 'clsx';
 import { Link, useLocation } from 'react-router-dom';
-
-const mobileRoutes: Array<SimpleRoute | ParentRoute> = routes.slice(0, environment === 'testnet' ? 5 : 4);
-const mobileTitles = ['Home', 'Licenses', 'Search', 'Profile', 'Faucet'];
 
 export default function MobileTabs() {
     const location = useLocation();
@@ -13,7 +11,7 @@ export default function MobileTabs() {
         <div className="center-all fixed bottom-0 left-0 right-0 z-40">
             <div className="w-full gap-2 border-t-2 border-slate-200 bg-slate-100 px-2.5 py-2">
                 <div className="center-all nav-safe-padding gap-2">
-                    {mobileRoutes.map((route, index) => (
+                    {getNavigationRoutes().map((route) => (
                         <div key={route.path}>
                             <Link
                                 to={route.path}
@@ -24,7 +22,9 @@ export default function MobileTabs() {
                                 })}
                             >
                                 <div className="text-[26px]">{route.icon}</div>
-                                <div className="text-sm font-semibold">{mobileTitles[index]}</div>
+                                <div className="text-sm font-semibold">
+                                    {mainRoutesInfo[route.path].mobileTitle || mainRoutesInfo[route.path].title}
+                                </div>
                             </Link>
                         </div>
                     ))}

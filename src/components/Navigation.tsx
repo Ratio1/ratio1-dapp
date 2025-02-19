@@ -1,22 +1,21 @@
-import { mainRoutesInfo, ParentRoute, routes, SimpleRoute } from '@lib/routes';
+import { AppRoute, mainRoutesInfo } from '@lib/routes';
+import { getNavigationRoutes } from '@lib/utils';
 import clsx from 'clsx';
 import { Link, useLocation } from 'react-router-dom';
 
 export default function Navigation() {
     return (
         <div className="flex w-full flex-col gap-2">
-            {routes
-                .filter((route) => !!route.icon)
-                .map((route, index) => (
-                    <div key={index}>
-                        <Route route={route} />
-                    </div>
-                ))}
+            {getNavigationRoutes().map((route, index) => (
+                <div key={index}>
+                    <Route route={route} />
+                </div>
+            ))}
         </div>
     );
 }
 
-function Route({ route }: { route: SimpleRoute | ParentRoute }) {
+function Route({ route }: { route: AppRoute }) {
     const location = useLocation();
 
     return (

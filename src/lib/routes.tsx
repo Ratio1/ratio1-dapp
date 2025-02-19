@@ -15,23 +15,8 @@ import { environment } from './config';
 
 export interface AppRoute {
     path: string;
-    icon?: JSX.Element;
-}
-
-export interface SimpleRoute extends AppRoute {
     page: () => JSX.Element;
-}
-
-export interface ParentRoute extends AppRoute {
-    children: SimpleRoute[];
-}
-
-export function isSimpleRoute(route: AppRoute): route is SimpleRoute {
-    return (route as SimpleRoute).page !== undefined;
-}
-
-export function isParentRoute(route: AppRoute): route is ParentRoute {
-    return (route as ParentRoute).children !== undefined;
+    icon?: JSX.Element;
 }
 
 export const routePath = {
@@ -40,6 +25,7 @@ export const routePath = {
     licenses: '/licenses-and-nodes',
     profileKyc: '/profile-and-kyc',
     search: '/search',
+    faucet: '/faucet',
     termsAndConditions: '/terms-and-conditions',
     privacyPolicy: '/privacy-policy',
     confirmEmail: '/confirm-email',
@@ -47,25 +33,32 @@ export const routePath = {
     unauthorized: '/unauthorized',
     kyc: '/kyc',
     admin: '/admin',
-    faucet: '/faucet',
 };
 
 export const mainRoutesInfo = {
     [routePath.dashboard]: {
         title: 'Dashboard',
         description: 'An organized view of your key information',
+        mobileTitle: 'Home',
     },
     [routePath.licenses]: {
-        title: 'Licenses',
+        title: 'Licenses & Nodes',
         description: 'View, organize & assign your licenses to nodes',
+        mobileTitle: 'Licenses',
     },
     [routePath.profileKyc]: {
         title: 'Profile & KYC',
         description: 'Manage your profile and KYC (Know Your Customer)',
+        mobileTitle: 'Profile',
     },
     [routePath.search]: {
         title: 'License Checker',
         description: 'Find detailed information about any license',
+        mobileTitle: 'Search',
+    },
+    [routePath.faucet]: {
+        title: 'Faucet',
+        description: 'Claim testnet $R1 tokens',
     },
     [routePath.termsAndConditions]: {
         title: 'Terms & Conditions',
@@ -86,10 +79,6 @@ export const mainRoutesInfo = {
         title: 'Admin',
         description: 'Admin panel for managing contracts',
     },
-    [routePath.faucet]: {
-        title: 'Faucet',
-        description: 'Claim testnet $R1 tokens',
-    },
     [routePath.notFound]: {
         title: 'Not Found',
     },
@@ -99,7 +88,7 @@ export const mainRoutesInfo = {
 };
 
 // Routes with icons are displayed in the main navigation
-export const routes: Array<SimpleRoute | ParentRoute> = [
+export const routes: AppRoute[] = [
     {
         path: routePath.dashboard,
         page: Dashboard,
@@ -111,14 +100,14 @@ export const routes: Array<SimpleRoute | ParentRoute> = [
         icon: <RiCpuLine />,
     },
     {
-        path: routePath.search,
-        page: Search,
-        icon: <RiFileSearchLine />,
-    },
-    {
         path: routePath.profileKyc,
         page: Profile,
         icon: <RiShieldUserLine />,
+    },
+    {
+        path: routePath.search,
+        page: Search,
+        icon: <RiFileSearchLine />,
     },
     ...(environment === 'testnet' || environment === 'devnet'
         ? [

@@ -4,7 +4,8 @@ import toast from 'react-hot-toast';
 import { RiCodeSSlashLine } from 'react-icons/ri';
 import { EthAddress, GNDLicense, License, MNDLicense, PriceTier } from 'typedefs/blockchain';
 import { getNodeEpochsRange, getNodeInfo } from './api/oracles';
-import { config, getCurrentEpoch } from './config';
+import { config, environment, getCurrentEpoch } from './config';
+import { AppRoute, routePath, routes } from './routes';
 
 export const getShortAddress = (address: string, size = 4) => `${address.slice(0, size)}...${address.slice(-size)}`;
 
@@ -318,6 +319,18 @@ export const getLicenseSectionHeader = (type: License['type']) => (
         <div className="pt-4 text-2xl font-semibold">{type}</div>
     </div>
 );
+
+export const getNavigationRoutes = () => {
+    const mainnetOnly = [routePath.profileKyc];
+
+    return routes.filter((route: AppRoute) => {
+        if (environment !== 'mainnet' && mainnetOnly.includes(route.path)) {
+            return false;
+        }
+
+        return !!route.icon;
+    });
+};
 
 export const INITIAL_TIERS_STATE: PriceTier[] = [
     {

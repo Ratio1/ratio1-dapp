@@ -2,7 +2,7 @@ import Favicon from '@assets/favicon.png';
 import Layout from '@components/Layout';
 import { config, projectId, wagmiAdapter } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
-import { isParentRoute, isSimpleRoute, routePath, routes } from '@lib/routes';
+import { routePath, routes } from '@lib/routes';
 import { Spinner } from '@nextui-org/spinner';
 import { AppKit, createAppKit } from '@reown/appkit/react';
 import { useEffect, useState } from 'react';
@@ -63,24 +63,9 @@ function App() {
             <Route path={routePath.root} element={<Layout />}>
                 <Route path="/" element={<Navigate to={routePath.dashboard} replace />} />
 
-                {routes.map((route, index) => {
-                    if (isSimpleRoute(route)) {
-                        return <Route key={'route-key-' + index} path={route.path} element={<route.page />} />;
-                    } else if (isParentRoute(route) && route.children && route.children.length > 0) {
-                        return (
-                            <Route key={'route-key-' + index} path={route.path}>
-                                <Route index element={<Navigate to={route.children[0].path} replace />} />
-
-                                {route.children.map((child, childIndex) => (
-                                    <Route key={'child-route-key-' + childIndex} path={child.path} element={<child.page />} />
-                                ))}
-                            </Route>
-                        );
-                    }
-
-                    // Fallback (not necessary if routes are validated)
-                    return null;
-                })}
+                {routes.map((route, index) => (
+                    <Route key={'route-key-' + index} path={route.path} element={<route.page />} />
+                ))}
             </Route>
 
             <Route path="*" element={<Navigate to={routePath.dashboard} replace />} />
