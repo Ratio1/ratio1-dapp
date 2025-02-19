@@ -2,7 +2,9 @@ import { ERC20Abi } from '@blockchain/ERC20';
 import { LiquidityManagerAbi } from '@blockchain/LiquidityManager';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { useDisclosure } from '@nextui-org/modal';
+import Buy from '@components/Buy';
+import { useCustomDisclosure } from '@lib/useCustomDisclosure';
+import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
 import { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiExternalLinkLine } from 'react-icons/ri';
@@ -63,7 +65,7 @@ export const BlockchainProvider = ({ children }) => {
     const [isLoadingPriceTiers, setLoadingPriceTiers] = useState<boolean>(false);
 
     // License buying
-    const { isOpen: isBuyDrawerOpen, onOpen: onBuyDrawerOpen, onClose: onBuyDrawerClose } = useDisclosure();
+    const { isOpen: isBuyDrawerOpen, onOpen: onBuyDrawerOpen, onClose: onBuyDrawerClose } = useCustomDisclosure();
 
     const { address } = useAccount();
     const publicClient = usePublicClient();
@@ -380,6 +382,35 @@ export const BlockchainProvider = ({ children }) => {
             }}
         >
             {children}
+
+            {/* Global overlays */}
+            <Drawer
+                isOpen={isBuyDrawerOpen}
+                onOpenChange={onBuyDrawerClose}
+                size="sm"
+                classNames={{
+                    base: 'data-[placement=right]:sm:m-3 data-[placement=left]:sm:m-3 rounded-none sm:rounded-medium font-mona',
+                }}
+                motionProps={{
+                    variants: {
+                        enter: {
+                            opacity: 1,
+                            x: 0,
+                        },
+                        exit: {
+                            x: 100,
+                            opacity: 0,
+                        },
+                    },
+                }}
+                hideCloseButton
+            >
+                <DrawerContent>
+                    <DrawerBody>
+                        <Buy onClose={onBuyDrawerClose} />
+                    </DrawerBody>
+                </DrawerContent>
+            </Drawer>
         </BlockchainContext.Provider>
     );
 };
