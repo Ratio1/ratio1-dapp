@@ -6,8 +6,6 @@ function Wallet() {
             </div>
 
             <appkit-button />
-
-            {/* <Balance /> */}
         </div>
     );
 }
