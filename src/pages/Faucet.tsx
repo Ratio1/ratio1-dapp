@@ -9,6 +9,7 @@ import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/block
 import { routePath } from '@lib/routes';
 import { fBI } from '@lib/utils';
 import { Button } from '@nextui-org/button';
+import { AddTokenToWallet } from '@shared/AddTokenToWallet';
 import { BigCard } from '@shared/BigCard';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
@@ -119,23 +120,28 @@ function Faucet() {
                             )}
                         </div>
 
-                        <div className="mx-auto flex">
-                            <ConnectWalletWrapper>
-                                <Button
-                                    fullWidth
-                                    color="primary"
-                                    onPress={onClaim}
-                                    isLoading={isLoading}
-                                    isDisabled={
-                                        isLoading ||
-                                        !authenticated ||
-                                        !nextClaimTimestamp ||
-                                        nextClaimTimestamp.getTime() > new Date().getTime()
-                                    }
-                                >
-                                    Claim
-                                </Button>
-                            </ConnectWalletWrapper>
+                        <div className="col gap-2.5">
+                            <div className="mx-auto flex">
+                                <ConnectWalletWrapper>
+                                    <Button
+                                        color="primary"
+                                        onPress={onClaim}
+                                        isLoading={isLoading}
+                                        isDisabled={
+                                            isLoading ||
+                                            !authenticated ||
+                                            !nextClaimTimestamp ||
+                                            nextClaimTimestamp.getTime() > new Date().getTime()
+                                        }
+                                    >
+                                        Claim
+                                    </Button>
+                                </ConnectWalletWrapper>
+                            </div>
+
+                            <div className="mx-auto flex">
+                                <AddTokenToWallet />
+                            </div>
                         </div>
 
                         <div className="col center-all gap-4">

@@ -12,6 +12,7 @@ import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
 import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
 import { Spinner } from '@nextui-org/spinner';
+import { AddTokenToWallet } from '@shared/AddTokenToWallet';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
 import { KycStatus } from '@typedefs/profile';
@@ -491,6 +492,10 @@ function Buy({ onClose }: { onClose: () => void }) {
                                 </div>
                             )}
                         </div>
+                    </div>
+
+                    <div className="mx-auto flex">
+                        <AddTokenToWallet />
                     </div>
                 </div>
             </div>

@@ -10,7 +10,7 @@ import Profile from '@pages/Profile';
 import Search from '@pages/Search';
 import TermsAndConditions from '@pages/T&C';
 import Unauthorized from '@pages/Unauthorized';
-import { RiCpuLine, RiFileSearchLine, RiFunctionLine, RiShieldUserLine, RiWaterFlashLine } from 'react-icons/ri';
+import { RiCpuLine, RiFunctionLine, RiSearchLine, RiShieldUserLine, RiWaterFlashLine } from 'react-icons/ri';
 import { environment } from './config';
 
 export interface AppRoute {
@@ -107,7 +107,7 @@ export const routes: AppRoute[] = [
     {
         path: routePath.search,
         page: Search,
-        icon: <RiFileSearchLine />,
+        icon: <RiSearchLine />,
     },
     ...(environment === 'testnet' || environment === 'devnet'
         ? [
