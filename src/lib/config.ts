@@ -96,7 +96,7 @@ export const domains = {
     testnet: domainTestnet,
 };
 
-export const environment =
+export const environment: 'mainnet' | 'testnet' | 'devnet' =
     domain === domainMainnet
         ? ('mainnet' as const)
         : domain === domainDevnet
