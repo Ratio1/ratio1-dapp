@@ -23,6 +23,7 @@ function Search() {
 
     const [resultNDContract, setResultNDContract] = useState<NDLicense | undefined>();
     const [resultMNDContract, setResultMNDContract] = useState<MNDLicense | GNDLicense | undefined>();
+    const [activeTab, setActiveTab] = useState<'ND' | 'MND'>();
 
     const [licenseToShow, setLicenseToShow] = useState<License | undefined>();
 
@@ -30,6 +31,14 @@ function Search() {
     const publicClient = usePublicClient();
 
     const licenseId = searchParams.get('licenseId');
+
+    useEffect(() => {
+        if (activeTab === 'ND' && resultNDContract) {
+            setLicenseToShow(resultNDContract);
+        } else if (activeTab === 'MND' && resultMNDContract) {
+            setLicenseToShow(resultMNDContract);
+        }
+    }, [activeTab]);
 
     useEffect(() => {
         if (licenseId && publicClient) {
@@ -67,19 +76,20 @@ function Search() {
         setLoading(true);
         const [licenseND, licenseMND] = await Promise.all([onSearchND(BigInt(licenseId)), onSearchMND(BigInt(licenseId))]);
 
-        // console.log({ licenseND, licenseMND });
-
-        // If only one of the licenses is found, show it. If both are found, the Tabs will handle the displaying.
-        if (!licenseND || !licenseMND) {
-            // console.log('Only one license found', licenseND || licenseMND);
-            setLicenseToShow(licenseND || licenseMND);
-        }
+        console.log({ licenseND, licenseMND });
 
         if (!licenseND && !licenseMND) {
-            // console.log('Setting empty result');
-            setEmptyResult(true);
             setLicenseToShow(undefined);
+            setEmptyResult(true);
         } else {
+            if (!licenseND || !licenseMND) {
+                // Only one type of License was found
+                setLicenseToShow(licenseND || licenseMND);
+            } else {
+                // Both types were found
+                setLicenseToShow(activeTab === 'ND' ? licenseND : licenseMND);
+            }
+
             setEmptyResult(false);
         }
 
@@ -312,7 +322,7 @@ function Search() {
                                 tab: 'min-w-[64px]',
                             }}
                             onSelectionChange={(key) => {
-                                setLicenseToShow(key === resultNDContract.type ? resultNDContract : resultMNDContract);
+                                setActiveTab(key === resultNDContract.type ? 'ND' : 'MND');
                             }}
                         >
                             {[resultNDContract.type, resultMNDContract.type].map((type) => (

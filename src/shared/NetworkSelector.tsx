@@ -1,6 +1,7 @@
 import { domains, environment } from '@lib/config';
 import { Select, SelectItem } from '@nextui-org/select';
 import { SharedSelection } from '@nextui-org/system';
+import clsx from 'clsx';
 import { useState } from 'react';
 import { RiGlobalLine } from 'react-icons/ri';
 
@@ -11,7 +12,11 @@ export const NetworkSelector = () => {
 
     return (
         <Select
-            className="w-[128px]"
+            className={clsx({
+                'w-[128px]': keys.has('mainnet'),
+                'w-[118px]': keys.has('testnet'),
+                'w-[116px]': keys.has('devnet'),
+            })}
             classNames={{
                 base: 'w-auto',
                 trigger: 'min-h-10 bg-[#e8ebf6] data-[hover=true]:bg-[#e0e3f0] rounded-lg',
@@ -25,8 +30,8 @@ export const NetworkSelector = () => {
                 const network = value.anchorKey as 'mainnet' | 'testnet';
 
                 if (network) {
-                    window.location.href = `https://${domains[network]}`;
                     setKeys(new Set([network]));
+                    window.location.href = `https://${domains[network]}`;
                 }
             }}
             aria-label="network-selector"
