@@ -12,8 +12,9 @@ import { Button } from '@nextui-org/button';
 import { AddTokenToWallet } from '@shared/AddTokenToWallet';
 import { BigCard } from '@shared/BigCard';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
-import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
 import { Timer } from '@shared/Timer';
+import { TokenValueWithLabel } from '@shared/TokenValueWithLabel';
+import { EthAddress } from '@typedefs/blockchain';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiInformationLine, RiTimeLine } from 'react-icons/ri';
@@ -21,12 +22,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 function Faucet() {
-    const { watchTx, fetchR1Balance } = useBlockchainContext() as BlockchainContextType;
+    const { watchTx } = useBlockchainContext() as BlockchainContextType;
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
     const navigate = useNavigate();
 
     const [amountPerClaim, setAmountPerClaim] = useState<bigint>(0n);
+    const [tokenAddress, setTokenAddress] = useState<EthAddress | null>(null);
     const [nextClaimTimestamp, setNextClaimTimestamp] = useState<Date | null>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -50,7 +52,6 @@ function Faucet() {
 
         await watchTx(txHash, publicClient);
         fetchNextClaimTimestamp();
-        fetchR1Balance();
 
         setIsLoading(false);
     };
@@ -86,6 +87,14 @@ function Faucet() {
             })
             .then(setAmountPerClaim);
 
+        publicClient
+            .readContract({
+                address: config.faucetContractAddress,
+                abi: TestnetFaucetContractAbi,
+                functionName: 'token',
+            })
+            .then(setTokenAddress);
+
         fetchNextClaimTimestamp();
     }, [address]);
 
@@ -93,11 +102,11 @@ function Faucet() {
         <div className="center-all w-full flex-col">
             <div className="w-full sm:w-auto">
                 <BigCard fullWidth>
-                    <div className="text-xl font-bold lg:text-2xl">Claim $R1 tokens</div>
+                    <div className="text-xl font-bold lg:text-2xl">Claim Fake $USDC tokens</div>
 
                     <div className="col center-all w-full gap-6 rounded-2xl border border-[#e3e4e8] bg-light p-6 sm:min-w-[320px] md:w-[480px] lg:p-7">
                         <div className="col center-all w-full gap-6">
-                            <R1ValueWithLabel label="Amount to claim" value={fBI(amountPerClaim, 18)} />
+                            <TokenValueWithLabel label="Amount to claim" symbol="MKUSDC" value={fBI(amountPerClaim, 6)} />
 
                             {nextClaimTimestamp && (
                                 <div>
@@ -139,14 +148,16 @@ function Faucet() {
                                 </ConnectWalletWrapper>
                             </div>
 
-                            <div className="mx-auto flex">
-                                <AddTokenToWallet />
-                            </div>
+                            {tokenAddress && (
+                                <div className="mx-auto flex">
+                                    <AddTokenToWallet contractAddress={tokenAddress} symbol="MKUSDC" decimals={6} />
+                                </div>
+                            )}
                         </div>
 
                         <div className="col center-all gap-4">
                             <div className="text-center text-sm text-slate-500">
-                                Signing transactions for the $R1 faucet and linking your node to your license require{' '}
+                                Signing transactions for the faucet and linking your node to your license require{' '}
                                 <span className="font-medium text-[#497493]">Base Sepolia ETH</span>. You can get some from
                                 these faucets or request it in our{' '}
                                 <Link
