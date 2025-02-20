@@ -276,7 +276,7 @@ const getMndNodeAndLicenseRewards = async (
     const { epochs, epochs_vals, eth_signatures, node_alias, node_is_online } = await getNodeEpochsRange(
         license.nodeAddress,
         firstEpochToClaim,
-        currentEpoch + 1, // TODO: Debug currentEpoch - 1
+        currentEpoch - 1,
     );
 
     const baseResult = {

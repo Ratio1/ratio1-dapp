@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-export default function useAwait<T>(value: Promise<T> | T, defaultLoading?: boolean) {
+export default function useAwait<T>(value: Promise<T> | T) {
     const [awaitedValue, setAwaitedValue] = useState<T>();
-    const [awaiting, setAwaiting] = useState(!!defaultLoading);
+    const [awaiting, setAwaiting] = useState(false);
     const finalValue = value instanceof Promise ? awaitedValue : value;
 
     useEffect(() => {
