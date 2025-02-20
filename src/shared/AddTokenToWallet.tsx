@@ -1,13 +1,19 @@
 import Metamask from '@assets/metamask.png';
-import { config } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { Button } from '@nextui-org/button';
 import { useWalletInfo } from '@reown/appkit/react';
+import { EthAddress } from '@typedefs/blockchain';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAccount, useWalletClient } from 'wagmi';
 
-export const AddTokenToWallet = () => {
+type Props = {
+    contractAddress: EthAddress;
+    symbol: string;
+    decimals: number;
+};
+
+export const AddTokenToWallet = ({ contractAddress, symbol, decimals }: Props) => {
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
     const { walletInfo } = useWalletInfo();
@@ -19,7 +25,7 @@ export const AddTokenToWallet = () => {
 
     useEffect(() => {
         if (address) {
-            setTokenAddedInWallet(!!localStorage.getItem(`r1added_${address}`));
+            setTokenAddedInWallet(!!localStorage.getItem(`${contractAddress}_added_${address}`));
         }
     }, [address]);
 
@@ -35,9 +41,9 @@ export const AddTokenToWallet = () => {
                 params: {
                     type: 'ERC20',
                     options: {
-                        address: config.r1ContractAddress,
-                        symbol: 'R1',
-                        decimals: 18,
+                        address: contractAddress,
+                        symbol,
+                        decimals,
                     },
                 },
             });
@@ -64,7 +70,7 @@ export const AddTokenToWallet = () => {
                     </div>
                 )}
 
-                <div>Add $R1 to wallet</div>
+                <div>Add ${symbol} to wallet</div>
             </div>
         </Button>
     );
