@@ -5,12 +5,10 @@ import { config, environment } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes';
-import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
-import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
-import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
+import { useDisclosure } from '@nextui-org/modal';
 import { Spinner } from '@nextui-org/spinner';
 import { AddTokenToWallet } from '@shared/AddTokenToWallet';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
@@ -25,8 +23,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { PriceTier } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
+import { ChangeSlippageModal } from './ChangeSlippageModal';
 
-const DANGEROUS_SLIPPAGE = 0.5;
 const MAX_ALLOWANCE: bigint = 2n ** 256n - 1n;
 
 function Buy({ onClose }: { onClose: () => void }) {
@@ -219,22 +217,6 @@ function Buy({ onClose }: { onClose: () => void }) {
         } finally {
             setLoadingTx(false);
         }
-    };
-
-    const onSubmitSlippage = async (e) => {
-        e.preventDefault();
-
-        const n = Number.parseFloat(slippageValue);
-
-        setSlippage(n);
-        onCloseSlippageModal();
-    };
-
-    const isSlippageTooSmall = (): boolean => {
-        const n = Number.parseFloat(slippageValue);
-        const isInputValueTooSmall: boolean = isFinite(n) && !isNaN(n) && n < DANGEROUS_SLIPPAGE;
-
-        return slippage < DANGEROUS_SLIPPAGE || isInputValueTooSmall;
     };
 
     const isOverAccountUsdSpendingLimit = (): boolean => {
@@ -500,74 +482,15 @@ function Buy({ onClose }: { onClose: () => void }) {
                 </div>
             </div>
 
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm" shouldBlockScroll={false}>
-                <ModalContent>
-                    <ModalHeader>Set slippage tolerance (%)</ModalHeader>
-
-                    <ModalBody>
-                        <div className="col gap-2 pb-2">
-                            <div className="text-sm text-slate-500">
-                                This is the maximum amount of slippage you are willing to accept when transactioning.
-                            </div>
-
-                            <Form className="w-full" validationBehavior="native" onSubmit={onSubmitSlippage}>
-                                <Input
-                                    value={slippageValue}
-                                    onValueChange={(value) => {
-                                        const n = Number.parseFloat(value);
-
-                                        if (value === '' || (isFinite(n) && !isNaN(n) && n >= 0 && n < 100)) {
-                                            setSlippageValue(value);
-                                        }
-                                    }}
-                                    size="md"
-                                    classNames={{
-                                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
-                                        input: 'font-medium',
-                                    }}
-                                    variant="bordered"
-                                    color="primary"
-                                    labelPlacement="outside"
-                                    placeholder="0"
-                                    type="number"
-                                    validate={(value) => {
-                                        const n = Number.parseFloat(value);
-
-                                        if (!(isFinite(n) && !isNaN(n) && n > 0 && n < 100)) {
-                                            return 'Value must be a number between 0 and 100.';
-                                        }
-
-                                        return null;
-                                    }}
-                                    endContent={
-                                        <div className="row pointer-events-none">
-                                            <span className="text-small text-slate-500">%</span>
-                                        </div>
-                                    }
-                                />
-
-                                <div className="col w-full gap-2">
-                                    {isSlippageTooSmall() && (
-                                        <Alert
-                                            color="danger"
-                                            title="Your transaction may fail"
-                                            classNames={{
-                                                base: 'items-center py-2 mt-1',
-                                            }}
-                                        />
-                                    )}
-
-                                    <div className="mt-1 flex justify-end">
-                                        <Button type="submit" color="primary">
-                                            Confirm
-                                        </Button>
-                                    </div>
-                                </div>
-                            </Form>
-                        </div>
-                    </ModalBody>
-                </ModalContent>
-            </Modal>
+            <ChangeSlippageModal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                onClose={onCloseSlippageModal}
+                slippageValue={slippageValue}
+                setSlippageValue={setSlippageValue}
+                slippage={slippage}
+                setSlippage={setSlippage}
+            />
         </>
     );
 }
