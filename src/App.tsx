@@ -2,11 +2,13 @@ import Favicon from '@assets/favicon.png';
 import Layout from '@components/Layout';
 import { config, projectId, wagmiAdapter } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
+import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath, routes } from '@lib/routes';
 import { Spinner } from '@nextui-org/spinner';
 import { AppKit, createAppKit } from '@reown/appkit/react';
 import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { useAccount } from 'wagmi';
 
 const metadata = {
     name: 'Ratio1',
@@ -17,8 +19,19 @@ const metadata = {
 };
 
 function App() {
-    const { siweConfig } = useAuthenticationContext() as AuthenticationContextType;
+    const { siweConfig, authenticated } = useAuthenticationContext() as AuthenticationContextType;
+    const { setLicenses, setR1Balance } = useBlockchainContext() as BlockchainContextType;
+
+    const { address } = useAccount();
     const [appKit, setAppKit] = useState<AppKit>();
+
+    useEffect(() => {
+        if (!address || !authenticated) {
+            console.log('[App.tsx] User disconnected');
+            setLicenses([]);
+            setR1Balance(0n);
+        }
+    }, [address]);
 
     useEffect(() => {
         if (siweConfig) {

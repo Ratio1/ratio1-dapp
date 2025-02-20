@@ -21,7 +21,8 @@ export interface BlockchainContextType {
     // Licenses
     licenses: License[];
     isLoadingLicenses: boolean;
-    fetchLicenses: () => Promise<Array<License>>;
+    fetchLicenses: () => Promise<License[]>;
+    setLicenses: React.Dispatch<React.SetStateAction<License[]>>;
 
     // R1 Balance
     r1Balance: bigint;
@@ -76,10 +77,6 @@ export const BlockchainProvider = ({ children }) => {
     useEffect(() => {
         if (publicClient && address) {
             fetchR1Balance();
-        } else {
-            console.log('[blockchain.tsx] User disconnected');
-            setLicenses([]);
-            setR1Balance(0n);
         }
     }, [address, publicClient]);
 
@@ -328,6 +325,7 @@ export const BlockchainProvider = ({ children }) => {
                 licenses,
                 isLoadingLicenses,
                 fetchLicenses,
+                setLicenses,
                 // R1 Balance
                 r1Balance,
                 setR1Balance,
