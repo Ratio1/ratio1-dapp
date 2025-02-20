@@ -1,4 +1,5 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
+import { getNodeInfo } from '@lib/api/oracles';
 import { config } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { fBI, fN, getShortAddress } from '@lib/utils';
@@ -7,13 +8,14 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-o
 import { Skeleton } from '@nextui-org/skeleton';
 import { Spinner } from '@nextui-org/spinner';
 import { Timer } from '@shared/Timer';
+import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { addDays, formatDistanceToNow, isBefore } from 'date-fns';
-import { FunctionComponent, PropsWithChildren, useMemo, useState } from 'react';
+import { FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiCpuLine, RiExchange2Line, RiFireLine, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
-import { License } from 'typedefs/blockchain';
+import { EthAddress, License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 
@@ -35,13 +37,41 @@ export const LicenseCardHeader = ({
 
     // The license can only be linked once every 24h
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
-    const [nodeAlias, isLoadingNodeAlias] = useAwait(license.isLinked ? license.alias : '');
+    const [nodeAlias, isLoadingNodeAlias] = useAwait(license.isLinked ? license.alias : '', true);
     const [isNodeOnline, isLoadingNodeState] = useAwait(license.isLinked ? license.isOnline : false);
 
     const getAssignTimestamp = (): Date => new Date(Number(license.assignTimestamp) * 1000);
     const getCooldownEndTimestamp = (): Date => addDays(getAssignTimestamp(), 1);
 
     const [hasCooldown, setCooldown] = useState<boolean>(isBefore(new Date(), getCooldownEndTimestamp()));
+
+    const {
+        data: secondaryAlias,
+        isError: secondaryAliasError,
+        isFetching: isFetchingSecondaryAlias,
+    } = useQuery({
+        queryKey: ['secondaryAlias', license.nodeAddress],
+        queryFn: ({ queryKey }) => getNodeInfo(queryKey[1] as EthAddress),
+        enabled: !isLoadingNodeAlias && nodeAlias === undefined,
+        retry: 5,
+        refetchOnWindowFocus: false,
+    });
+
+    useEffect(() => {
+        if (!isLoadingNodeAlias && nodeAlias === undefined) {
+            console.log(`[${getShortAddress(license.nodeAddress)}] refetching alias`);
+        }
+    }, [nodeAlias, isLoadingNodeAlias]);
+
+    useEffect(() => {
+        if (license.nodeAddress.startsWith('0xC8')) {
+            console.log(getShortAddress(license.nodeAddress), {
+                isFetchingSecondaryAlias,
+                secondaryAlias,
+                secondaryAliasError,
+            });
+        }
+    }, [isFetchingSecondaryAlias, secondaryAlias, secondaryAliasError]);
 
     const shouldShowBurnButtonPromise = useMemo(async () => {
         if (!publicClient || !address) {
@@ -158,7 +188,9 @@ export const LicenseCardHeader = ({
                                 ></div>
 
                                 <div className="col font-medium">
-                                    {!!nodeAlias && (
+                                    {nodeAlias === undefined ? (
+                                        <Skeleton className="mb-1 h-4 min-w-20 rounded-lg" />
+                                    ) : (
                                         <div className="max-w-[176px] overflow-hidden text-ellipsis whitespace-nowrap text-sm leading-5">
                                             {nodeAlias}
                                         </div>

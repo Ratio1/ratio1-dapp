@@ -36,29 +36,29 @@ export function fBI(num: bigint, decimals: number): string {
     return num.toString();
 }
 
-export const getLicenseRewardsAndNodeInfo = async (
+export const getNodeAndLicenseRewards = async (
     license: License,
 ): Promise<{
-    node_alias: string;
+    node_alias?: string;
     node_is_online: boolean;
     rewards_amount: bigint;
     epochs: number[];
     epochs_vals: number[];
     eth_signatures: EthAddress[];
 }> => {
-    let nodeAndRewardsInfo: {
+    let nodeAndLicenseRewards: {
         rewards_amount: bigint;
         epochs: number[];
         epochs_vals: number[];
         eth_signatures: EthAddress[];
-        node_alias: string;
+        node_alias?: string;
         node_is_online: boolean;
     } = {
         rewards_amount: 0n,
         epochs: [],
         epochs_vals: [],
         eth_signatures: [],
-        node_alias: '',
+        node_alias: undefined,
         node_is_online: false,
     };
 
@@ -66,32 +66,32 @@ export const getLicenseRewardsAndNodeInfo = async (
         if (license.totalClaimedAmount !== license.totalAssignedAmount) {
             switch (license.type) {
                 case 'ND':
-                    nodeAndRewardsInfo = await getNdNodeAndLicenseRewards(license);
+                    nodeAndLicenseRewards = await getNdNodeAndLicenseRewards(license);
                     break;
 
                 case 'MND':
-                    nodeAndRewardsInfo = await getMndNodeAndLicenseRewards(license);
+                    nodeAndLicenseRewards = await getMndNodeAndLicenseRewards(license);
                     break;
 
                 case 'GND':
-                    nodeAndRewardsInfo = await getGndNodeAndLicenseRewards(license);
+                    nodeAndLicenseRewards = await getGndNodeAndLicenseRewards(license);
                     break;
             }
         } else {
             const { node_alias, node_is_online } = await getNodeInfo(license.nodeAddress);
 
             return {
-                ...nodeAndRewardsInfo,
+                ...nodeAndLicenseRewards,
                 node_alias,
                 node_is_online,
             };
         }
     } catch (error) {
         console.error(error);
-        throttledToastError('Error loading license rewards and node data.');
+        throttledToastError('An error occurred while loading one of your licenses.');
     }
 
-    return nodeAndRewardsInfo;
+    return nodeAndLicenseRewards;
 };
 
 export const throttledToastError = throttle(
@@ -276,7 +276,7 @@ const getMndNodeAndLicenseRewards = async (
     const { epochs, epochs_vals, eth_signatures, node_alias, node_is_online } = await getNodeEpochsRange(
         license.nodeAddress,
         firstEpochToClaim,
-        currentEpoch - 1,
+        currentEpoch + 1, // TODO: Debug currentEpoch - 1
     );
 
     const baseResult = {

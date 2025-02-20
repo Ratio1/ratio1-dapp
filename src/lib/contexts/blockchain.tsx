@@ -13,7 +13,7 @@ import { EthAddress, License, PriceTier } from 'typedefs/blockchain';
 import { TransactionReceipt } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 import { config } from '../config';
-import { getLicenseRewardsAndNodeInfo as getNodeAndLicenseRewards, INITIAL_TIERS_STATE } from '../utils';
+import { getNodeAndLicenseRewards, INITIAL_TIERS_STATE } from '../utils';
 
 export interface BlockchainContextType {
     watchTx: (txHash: string, publicClient: any) => Promise<TransactionReceipt>;
@@ -219,52 +219,31 @@ export const BlockchainProvider = ({ children }) => {
                         return { ...userLicense, type, isLinked, isBanned: false as const };
                     }
 
-                    let licenseDataPromise: Promise<{
-                        node_alias: string;
-                        node_is_online: boolean;
+                    const nodeAndLicenseRewardsPromise: Promise<{
                         rewards_amount: bigint;
                         epochs: number[];
                         epochs_vals: number[];
                         eth_signatures: EthAddress[];
-                    }>;
+                        node_alias?: string;
+                        node_is_online: boolean;
+                    }> = getNodeAndLicenseRewards({
+                        ...userLicense,
+                        type,
+                        isLinked: false,
+                        isBanned: false,
+                    });
 
-                    const licenseObj = {
+                    return {
                         ...userLicense,
                         type,
                         isLinked,
                         isBanned: false as const,
-                    };
-
-                    try {
-                        licenseDataPromise = getNodeAndLicenseRewards({
-                            ...userLicense,
-                            type,
-                            isLinked: false,
-                            isBanned: false,
-                        });
-                    } catch (error) {
-                        console.error(error);
-                        toast.error('An error occurred while loading node data.');
-
-                        return {
-                            ...licenseObj,
-                            rewards: Promise.resolve(0n),
-                            alias: Promise.resolve(''),
-                            isOnline: Promise.resolve(false),
-                            epochs: Promise.resolve([]),
-                            epochsAvailabilities: Promise.resolve([]),
-                            ethSignatures: Promise.resolve([]),
-                        };
-                    }
-
-                    return {
-                        ...licenseObj,
-                        rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
-                        alias: licenseDataPromise.then(({ node_alias }) => node_alias),
-                        isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
-                        epochs: licenseDataPromise.then(({ epochs }) => epochs),
-                        epochsAvailabilities: licenseDataPromise.then(({ epochs_vals }) => epochs_vals),
-                        ethSignatures: licenseDataPromise.then(({ eth_signatures }) => eth_signatures),
+                        rewards: nodeAndLicenseRewardsPromise.then(({ rewards_amount }) => rewards_amount),
+                        alias: nodeAndLicenseRewardsPromise.then(({ node_alias }) => node_alias),
+                        isOnline: nodeAndLicenseRewardsPromise.then(({ node_is_online }) => node_is_online),
+                        epochs: nodeAndLicenseRewardsPromise.then(({ epochs }) => epochs),
+                        epochsAvailabilities: nodeAndLicenseRewardsPromise.then(({ epochs_vals }) => epochs_vals),
+                        ethSignatures: nodeAndLicenseRewardsPromise.then(({ eth_signatures }) => eth_signatures),
                     };
                 }),
             publicClient
@@ -284,52 +263,31 @@ export const BlockchainProvider = ({ children }) => {
                             return { ...license, type, totalAssignedAmount, isLinked };
                         }
 
-                        let licenseDataPromise: Promise<{
-                            node_alias: string;
-                            node_is_online: boolean;
+                        const nodeAndLicenseRewardsPromise: Promise<{
                             rewards_amount: bigint;
                             epochs: number[];
                             epochs_vals: number[];
                             eth_signatures: EthAddress[];
-                        }>;
+                            node_alias?: string;
+                            node_is_online: boolean;
+                        }> = getNodeAndLicenseRewards({
+                            ...license,
+                            type,
+                            totalAssignedAmount,
+                            isLinked: false,
+                        });
 
-                        const licenseObj = {
+                        return {
                             ...license,
                             type,
                             totalAssignedAmount,
                             isLinked,
-                        };
-
-                        try {
-                            licenseDataPromise = getNodeAndLicenseRewards({
-                                ...license,
-                                type,
-                                totalAssignedAmount,
-                                isLinked: false,
-                            });
-                        } catch (error) {
-                            console.error(error);
-                            toast.error('An error occurred while loading one of your licenses.');
-
-                            return {
-                                ...licenseObj,
-                                rewards: Promise.resolve(0n),
-                                alias: Promise.resolve(''),
-                                isOnline: Promise.resolve(false),
-                                epochs: Promise.resolve([]),
-                                epochsAvailabilities: Promise.resolve([]),
-                                ethSignatures: Promise.resolve([]),
-                            };
-                        }
-
-                        return {
-                            ...licenseObj,
-                            rewards: licenseDataPromise.then(({ rewards_amount }) => rewards_amount),
-                            alias: licenseDataPromise.then(({ node_alias }) => node_alias),
-                            isOnline: licenseDataPromise.then(({ node_is_online }) => node_is_online),
-                            epochs: licenseDataPromise.then(({ epochs }) => epochs),
-                            epochsAvailabilities: licenseDataPromise.then(({ epochs_vals }) => epochs_vals),
-                            ethSignatures: licenseDataPromise.then(({ eth_signatures }) => eth_signatures),
+                            rewards: nodeAndLicenseRewardsPromise.then(({ rewards_amount }) => rewards_amount),
+                            alias: nodeAndLicenseRewardsPromise.then(({ node_alias }) => node_alias),
+                            isOnline: nodeAndLicenseRewardsPromise.then(({ node_is_online }) => node_is_online),
+                            epochs: nodeAndLicenseRewardsPromise.then(({ epochs }) => epochs),
+                            epochsAvailabilities: nodeAndLicenseRewardsPromise.then(({ epochs_vals }) => epochs_vals),
+                            ethSignatures: nodeAndLicenseRewardsPromise.then(({ eth_signatures }) => eth_signatures),
                         };
                     });
                 }),

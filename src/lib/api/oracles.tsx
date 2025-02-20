@@ -19,7 +19,6 @@ export const getNodeEpochsRange = (nodeAddress: types.EthAddress, startEpoch: nu
 export const getNodeLastEpoch = (nodeAddress: types.EthAddress) =>
     _doGet<types.OraclesAvailabilityResult>(`/node_last_epoch?eth_node_addr=${nodeAddress}`);
 
-//TODO ask if we can have an endpoint for this
 export const getNodeInfo = (
     nodeAddress: types.EthAddress,
 ): Promise<{
