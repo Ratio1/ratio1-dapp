@@ -14,24 +14,25 @@ import { RiArrowDownLine, RiSettings2Line } from 'react-icons/ri';
 import { formatUnits, parseUnits } from 'viem';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 import R1Logo from '@assets/token.svg';
-import UsdcLogo from '@assets/usdc.svg';
 
 function BuyR1() {
     const { watchTx, fetchR1Balance, fetchErc20Balance } = useBlockchainContext() as BlockchainContextType;
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
-    const [usdcAmount, setUsdcAmount] = useState<string>('500');
+    const [selectedTokenId, setSelectedTokenId] = useState<string>(Object.keys(config.swapTokensDetails)[0]);
+    const selectedToken = useMemo(() => config.swapTokensDetails[selectedTokenId], [selectedTokenId]);
+    const [fromAmount, setFromAmount] = useState<string>(selectedToken.symbol);
     const [r1Estimate, setR1Estimate] = useState<string>('0');
-    const [expectedPrice, setExpectedPrice] = useState<string>('0');
-    const [userBalance, setUserBalance] = useState<bigint>(0n);
+    const [expectedPrice, setExpectedPrice] = useState<number>(0);
+    const [userTokenBalance, setUserTokenBalance] = useState<bigint>(0n);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const hasSufficientBalance = useMemo(() => {
-        return userBalance >= parseUnits(usdcAmount, config.usdcDecimals);
-    }, [userBalance, usdcAmount]);
+        return userTokenBalance >= parseUnits(fromAmount, selectedToken.decimals);
+    }, [userTokenBalance, fromAmount]);
 
     const [slippageValue, setSlippageValue] = useState<string>('');
-    const [slippage, setSlippage] = useState<number>(10);
+    const [slippage, setSlippage] = useState<number>(5);
     const { isOpen, onOpen, onClose: onCloseSlippageModal, onOpenChange } = useDisclosure();
 
     const minAmountOut = useMemo(() => {
@@ -44,38 +45,52 @@ function BuyR1() {
     const publicClient = usePublicClient();
 
     const fetchEstimatedR1 = async () => {
-        if (!publicClient || !usdcAmount) return;
+        if (Number(fromAmount) === 0) {
+            setR1Estimate('0');
+            setExpectedPrice(0);
+            return;
+        }
+        if (!publicClient) return;
 
         try {
             const amountsOut = await publicClient.readContract({
                 address: config.uniswapV2RouterAddress,
                 abi: UniswapV2RouterAbi,
                 functionName: 'getAmountsOut',
-                args: [parseUnits(usdcAmount, config.usdcDecimals), [config.usdcAddress, config.r1ContractAddress]],
+                args: [parseUnits(fromAmount, selectedToken.decimals), selectedToken.swapPath],
             });
 
-            const estimatedR1 = formatUnits(amountsOut[1], 18);
+            const estimatedR1 = formatUnits(amountsOut[amountsOut.length - 1], 18);
             setR1Estimate(estimatedR1);
-            setExpectedPrice((parseFloat(usdcAmount) / parseFloat(estimatedR1)).toFixed(2));
+            setExpectedPrice(parseFloat(fromAmount) / parseFloat(estimatedR1));
         } catch (error) {
             toast.error('Unexpected error, please try again.');
             console.error(error);
+            setR1Estimate('0');
+            setExpectedPrice(0);
         }
     };
 
-    const fetchUsdcBalance = async () => {
-        fetchErc20Balance(config.usdcAddress).then(setUserBalance);
+    const fetchUserBalance = () => {
+        setUserTokenBalance(0n);
+
+        if (selectedToken.address) {
+            fetchErc20Balance(selectedToken.address).then(setUserTokenBalance);
+        } else {
+            if (!publicClient || !address) return;
+            publicClient.getBalance({ address }).then(setUserTokenBalance);
+        }
     };
 
     useEffect(() => {
         fetchEstimatedR1();
-    }, [usdcAmount]);
+    }, [fromAmount, selectedToken]);
 
     useEffect(() => {
-        fetchUsdcBalance();
-    }, [address]);
+        fetchUserBalance();
+    }, [address, selectedToken]);
 
-    const swapUSDCforR1 = async () => {
+    const swapForR1 = async () => {
         if (!walletClient || !address) {
             toast.error('Unexpected error, please try again.');
             return;
@@ -85,26 +100,41 @@ function BuyR1() {
             setIsLoading(true);
 
             const deadline = Math.floor(Date.now() / 1000) + 60 * 10; // 10 minutes
-            const amountIn = parseUnits(usdcAmount, config.usdcDecimals);
+            const amountIn = parseUnits(fromAmount, selectedToken.decimals);
 
-            const approveTxHash = await walletClient.writeContract({
-                address: config.usdcAddress,
-                abi: ERC20Abi,
-                functionName: 'approve',
-                args: [config.uniswapV2RouterAddress, amountIn],
-            });
+            if (selectedToken.address) {
+                //TODO modal for two transactions?
+                const approveTxHash = await walletClient.writeContract({
+                    address: selectedToken.address,
+                    abi: ERC20Abi,
+                    functionName: 'approve',
+                    args: [config.uniswapV2RouterAddress, amountIn],
+                });
 
-            await watchTx(approveTxHash, publicClient);
+                await watchTx(approveTxHash, publicClient);
 
-            const swapTxHash = await walletClient.writeContract({
-                address: config.uniswapV2RouterAddress,
-                abi: UniswapV2RouterAbi,
-                functionName: 'swapExactTokensForTokens',
-                args: [amountIn, minAmountOut, [config.usdcAddress, config.r1ContractAddress], address, BigInt(deadline)],
-            });
+                const swapTxHash = await walletClient.writeContract({
+                    address: config.uniswapV2RouterAddress,
+                    abi: UniswapV2RouterAbi,
+                    functionName: 'swapExactTokensForTokens',
+                    args: [amountIn, minAmountOut, selectedToken.swapPath, address, BigInt(deadline)],
+                });
 
-            await watchTx(swapTxHash, publicClient);
+                await watchTx(swapTxHash, publicClient);
+            } else {
+                const txHash = await walletClient.writeContract({
+                    address: config.uniswapV2RouterAddress,
+                    abi: UniswapV2RouterAbi,
+                    functionName: 'swapExactETHForTokens',
+                    args: [minAmountOut, selectedToken.swapPath, address, BigInt(deadline)],
+                    value: amountIn,
+                });
+                await watchTx(txHash, publicClient);
+            }
+
             fetchR1Balance();
+            fetchUserBalance();
+            fetchEstimatedR1();
         } catch (error) {
             toast.error('Unexpected error, please try again.');
             console.error(error);
@@ -126,14 +156,34 @@ function BuyR1() {
                             <div className="row items-center justify-between">
                                 <input
                                     type="number"
-                                    value={usdcAmount}
-                                    onChange={(e) => setUsdcAmount(e.target.value)}
+                                    value={fromAmount}
+                                    onChange={(e) => setFromAmount(e.target.value)}
                                     className="w-full border-none bg-transparent text-2xl font-semibold focus:outline-none"
                                 />
-                                <img src={UsdcLogo} alt="USDC" className="h-8 w-8" />
+                                {/*TODO maybe use a modal?*/}
+                                <select
+                                    value={selectedTokenId}
+                                    onChange={(e) => {
+                                        setSelectedTokenId(e.target.value);
+                                        setFromAmount(config.swapTokensDetails[e.target.value].symbol);
+                                    }}
+                                    className="bg-transparent text-base font-medium focus:outline-none"
+                                >
+                                    {Object.keys(config.swapTokensDetails).map((key) => (
+                                        <option key={key} value={key}>
+                                            {key}
+                                        </option>
+                                    ))}
+                                </select>
+                                <img src={selectedToken.logo} alt={selectedTokenId} className="h-8 w-8" />
                             </div>
                             <div className="text-sm text-gray-500">
-                                Balance: {parseFloat(Number(formatUnits(userBalance, config.usdcDecimals)).toFixed(2))} USDC
+                                Balance:{' '}
+                                {parseFloat(formatUnits(userTokenBalance, selectedToken.decimals)).toLocaleString('en-US', {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: selectedToken.displayDecimals,
+                                })}{' '}
+                                {selectedTokenId}
                             </div>
                         </div>
 
@@ -155,11 +205,11 @@ function BuyR1() {
                             <Button
                                 color="primary"
                                 fullWidth
-                                onPress={swapUSDCforR1}
+                                onPress={swapForR1}
                                 isLoading={isLoading}
-                                isDisabled={isLoading || !authenticated || !usdcAmount || !hasSufficientBalance}
+                                isDisabled={isLoading || !authenticated || !fromAmount || !hasSufficientBalance}
                             >
-                                Swap
+                                {hasSufficientBalance ? 'Buy' : 'Insufficient balance'}
                             </Button>
                         </ConnectWalletWrapper>
 
@@ -170,7 +220,12 @@ function BuyR1() {
                                 <div className="row justify-between">
                                     <div>Expected price</div>
                                     <div>
-                                        1 R1 = {parseFloat(Number(expectedPrice).toFixed(2)).toLocaleString('en-US')} USDC
+                                        1 R1 ={' '}
+                                        {expectedPrice.toLocaleString('en-US', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: selectedToken.displayDecimals,
+                                        })}{' '}
+                                        {selectedTokenId}
                                     </div>
                                 </div>
 

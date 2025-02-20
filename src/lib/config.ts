@@ -1,7 +1,10 @@
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 import { AppKitNetwork, base, baseSepolia } from '@reown/appkit/networks';
-import { EthAddress } from '@typedefs/blockchain';
+import { EthAddress, SwapTokenDetails } from '@typedefs/blockchain';
 import { addSeconds } from 'date-fns';
+import R1Logo from '@assets/token.svg';
+import UsdcLogo from '@assets/usdc.svg';
+import EthLogo from '@assets/eth.svg';
 
 type Config = {
     backendUrl: string;
@@ -11,8 +14,6 @@ type Config = {
     mndContractAddress: EthAddress;
     liquidityManagerContractAddress: EthAddress;
     uniswapV2RouterAddress: EthAddress;
-    usdcAddress: EthAddress;
-    usdcDecimals: number;
     faucetContractAddress?: EthAddress;
     safeAddress: EthAddress;
     explorerUrl: string;
@@ -24,6 +25,7 @@ type Config = {
     ndVestingEpochs: number;
     networks: AppKitNetwork[];
     ND_LICENSE_CAP: bigint;
+    swapTokensDetails: Record<string, SwapTokenDetails>;
 };
 
 const configs: {
@@ -37,8 +39,6 @@ const configs: {
         mndContractAddress: '0xfD52a7958088dF734D523d618e583e4d53cD7420',
         liquidityManagerContractAddress: '0xTODO',
         uniswapV2RouterAddress: '0xTODO',
-        usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-        usdcDecimals: 6,
         safeAddress: '0x52B56A307469B1f35BC53BF55E53bBf585428Ff4',
         explorerUrl: 'https://basescan.org',
         genesisDate: new Date('2025-02-05T16:00:00.000Z'),
@@ -49,6 +49,7 @@ const configs: {
         ndVestingEpochs: 1080,
         networks: [base],
         ND_LICENSE_CAP: 1575_188843457943924200n,
+        swapTokensDetails: {},
     },
     testnet: {
         backendUrl: 'https://testnet-dapp-api.ratio1.ai',
@@ -59,8 +60,6 @@ const configs: {
         faucetContractAddress: '0x22bC5B72Fc156FC89322c2519A03Bd47075e1e99',
         liquidityManagerContractAddress: '0x5F4553e231649adD7dfF5e3063357Fd73927e465',
         uniswapV2RouterAddress: '0x6682375ebC1dF04676c0c5050934272368e6e883',
-        usdcAddress: '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
-        usdcDecimals: 6,
         safeAddress: '0x591E079f22477906457a4bC246e9Ef4353DB428A',
         explorerUrl: 'https://sepolia.basescan.org',
         genesisDate: new Date('2025-02-05T16:00:00.000Z'),
@@ -71,6 +70,27 @@ const configs: {
         ndVestingEpochs: 1080,
         networks: [baseSepolia],
         ND_LICENSE_CAP: 1575_188843457943924200n,
+        swapTokensDetails: {
+            USDC: {
+                address: '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
+                decimals: 6,
+                displayDecimals: 2,
+                symbol: '500',
+                logo: UsdcLogo,
+                swapPath: ['0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF', '0xc992dcab6d3f8783fbf0c935e7bceb20aa50a6f1'],
+            },
+            ETH: {
+                decimals: 18,
+                displayDecimals: 4,
+                symbol: '0.2',
+                logo: EthLogo,
+                swapPath: [
+                    '0x24fe7807089e321395172633aA9c4bBa4Ac4a357',
+                    '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
+                    '0xc992dcab6d3f8783fbf0c935e7bceb20aa50a6f1',
+                ],
+            },
+        },
     },
     devnet: {
         backendUrl: 'https://devnet-dapp-api.ratio1.ai',
@@ -81,8 +101,6 @@ const configs: {
         faucetContractAddress: '0xd4c6B97E9a7f31eDF57285DcE4Fc59a2746013e2',
         liquidityManagerContractAddress: '0xE5C61ADEeE7850a8656A10f3963036e5c045B508',
         uniswapV2RouterAddress: '0x6682375ebC1dF04676c0c5050934272368e6e883',
-        usdcAddress: '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
-        usdcDecimals: 6,
         safeAddress: '0x206F930e0b10a69A0ECe8110319af96a7E786Ec0',
         explorerUrl: 'https://sepolia.basescan.org',
         genesisDate: new Date('2025-02-12T16:00:00.000Z'),
@@ -93,6 +111,27 @@ const configs: {
         ndVestingEpochs: 1080,
         networks: [baseSepolia],
         ND_LICENSE_CAP: 1575_188843457943924200n,
+        swapTokensDetails: {
+            USDC: {
+                address: '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
+                decimals: 6,
+                displayDecimals: 2,
+                symbol: '500',
+                logo: UsdcLogo,
+                swapPath: ['0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF', '0xEF38a3d84D3E3111fb7b794Ba3240187b8B32825'],
+            },
+            ETH: {
+                decimals: 18,
+                displayDecimals: 4,
+                symbol: '0.2',
+                logo: EthLogo,
+                swapPath: [
+                    '0x24fe7807089e321395172633aA9c4bBa4Ac4a357',
+                    '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
+                    '0xEF38a3d84D3E3111fb7b794Ba3240187b8B32825',
+                ],
+            },
+        },
     },
 };
 
