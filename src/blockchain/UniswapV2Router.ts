@@ -1,4 +1,4 @@
-export const UniswapV2Router = [
+export const UniswapV2RouterAbi = [
     {
         inputs: [
             { internalType: 'address', name: '_factory', type: 'address' },
