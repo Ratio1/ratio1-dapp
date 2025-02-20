@@ -116,6 +116,15 @@ type PriceTier = {
     soldUnits: number;
 };
 
+type SwapTokenDetails = {
+    address?: EthAddress;
+    decimals: number;
+    displayDecimals: number;
+    symbol: string;
+    logo: string;
+    swapPath: EthAddress[];
+};
+
 export type {
     ApiAccount,
     BuyLicenseRequest,
@@ -129,4 +138,5 @@ export type {
     OraclesDefaultResult,
     PriceTier,
     R1Address,
+    SwapTokenDetails,
 };
