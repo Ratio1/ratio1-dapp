@@ -17,7 +17,7 @@ type BaseLicense = {
 } & (
     | {
           isLinked: true;
-          alias: Promise<string>;
+          alias: Promise<string | undefined>;
           rewards: Promise<bigint>;
           isOnline: Promise<boolean>;
           epochs: Promise<number[]>;

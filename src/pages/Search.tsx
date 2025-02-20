@@ -2,7 +2,7 @@ import Empty from '@assets/empty.png';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { config, getCurrentEpoch } from '@lib/config';
-import { getLicenseRewardsAndNodeInfo } from '@lib/utils';
+import { getNodeAndLicenseRewards } from '@lib/utils';
 import { Input } from '@nextui-org/input';
 import { Spinner } from '@nextui-org/spinner';
 import { Tab, Tabs } from '@nextui-org/tabs';
@@ -143,7 +143,7 @@ function Search() {
                     isLinked,
                 };
             } else {
-                const licenseDataPromise = getLicenseRewardsAndNodeInfo({
+                const licenseDataPromise = getNodeAndLicenseRewards({
                     ...baseLicense,
                     claimableEpochs: 0n,
                     isLinked: false, // Enforcing base license type here as to not pass redunant data
@@ -221,7 +221,7 @@ function Search() {
                     isLinked,
                 };
             } else {
-                const licenseDataPromise = getLicenseRewardsAndNodeInfo({
+                const licenseDataPromise = getNodeAndLicenseRewards({
                     ...baseLicense,
                     claimableEpochs: 0n,
                     isLinked: false, // Enforcing base license type here as to not pass redunant data

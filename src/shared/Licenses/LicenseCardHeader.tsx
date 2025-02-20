@@ -1,11 +1,10 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { config } from '@lib/config';
 import useAwait from '@lib/useAwait';
-import { fBI, fN, getShortAddress } from '@lib/utils';
+import { fBI, fN } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
 import { Skeleton } from '@nextui-org/skeleton';
-import { Spinner } from '@nextui-org/spinner';
 import { Timer } from '@shared/Timer';
 import clsx from 'clsx';
 import { addDays, formatDistanceToNow, isBefore } from 'date-fns';
@@ -16,6 +15,8 @@ import { Link } from 'react-router-dom';
 import { License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
+import { LicenseCardNode } from './LicenseCardNode';
+import { LicenseSmallCard } from './LicenseSmallCard';
 
 export const LicenseCardHeader = ({
     license,
@@ -33,10 +34,7 @@ export const LicenseCardHeader = ({
     const publicClient = usePublicClient();
     const { address } = useAccount();
 
-    // The license can only be linked once every 24h
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
-    const [nodeAlias, isLoadingNodeAlias] = useAwait(license.isLinked ? license.alias : '');
-    const [isNodeOnline, isLoadingNodeState] = useAwait(license.isLinked ? license.isOnline : false);
 
     const getAssignTimestamp = (): Date => new Date(Number(license.assignTimestamp) * 1000);
     const getCooldownEndTimestamp = (): Date => addDays(getAssignTimestamp(), 1);
@@ -109,12 +107,12 @@ export const LicenseCardHeader = ({
     );
 
     const getLicenseCard = () => (
-        <Card>
+        <LicenseSmallCard>
             <div className="col gap-2">
                 <div className="flex">{getLicenseId()}</div>
                 <div className="w-52">{getLicenseUsageStats()}</div>
             </div>
-        </Card>
+        </LicenseSmallCard>
     );
 
     const getLicenseCooldownTimer = () => (
@@ -139,47 +137,7 @@ export const LicenseCardHeader = ({
         </>
     );
 
-    const getNodeCard = () => (
-        <>
-            {license.isLinked && (
-                <Card>
-                    <div className="row gap-2.5">
-                        {isLoadingNodeAlias || isLoadingNodeState ? (
-                            <div className="center-all px-4 py-2">
-                                <Spinner size="sm" />
-                            </div>
-                        ) : (
-                            <>
-                                <div
-                                    className={clsx('h-9 w-1 rounded-full', {
-                                        'bg-teal-500': isNodeOnline,
-                                        'bg-red-500': !isNodeOnline,
-                                    })}
-                                ></div>
-
-                                <div className="col font-medium">
-                                    {!!nodeAlias && (
-                                        <div className="max-w-[176px] overflow-hidden text-ellipsis whitespace-nowrap text-sm leading-5">
-                                            {nodeAlias}
-                                        </div>
-                                    )}
-
-                                    <Link
-                                        to={`${config.explorerUrl}/address/${license.nodeAddress}`}
-                                        target="_blank"
-                                        onClick={(e) => e.stopPropagation()}
-                                        className="cursor-pointer text-sm text-slate-400 transition-all hover:opacity-60"
-                                    >
-                                        <div className="leading-5">{getShortAddress(license.nodeAddress)}</div>
-                                    </Link>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                </Card>
-            )}
-        </>
-    );
+    const getNodeCard = () => <LicenseCardNode license={license} />;
 
     const getNodeRewards = () => {
         const rewardsN: number = Number(formatUnits(rewards ?? 0n, 18));
@@ -403,12 +361,6 @@ export const LicenseCardHeader = ({
         </div>
     );
 };
-
-const Card: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <div className="flex h-[64px] w-full items-center rounded-2xl border-2 border-slate-100 px-4 py-2.5 sm:w-auto sm:justify-center">
-        {children}
-    </div>
-);
 
 const Tag: FunctionComponent<PropsWithChildren> = ({ children }) => (
     <div className="flex">

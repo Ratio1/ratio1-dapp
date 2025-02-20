@@ -1,3 +1,4 @@
+import Logo from '@assets/token.svg';
 import { ERC20Abi } from '@blockchain/ERC20';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { buyLicense } from '@lib/api/backend';
@@ -19,7 +20,7 @@ import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
 import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine, RiErrorWarningLine, RiSettings2Line } from 'react-icons/ri';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { PriceTier } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
@@ -232,6 +233,7 @@ function Buy({ onClose }: { onClose: () => void }) {
         tokenAllowance === undefined ||
         accountUsdSpendingLimit === undefined ||
         isOverAccountUsdSpendingLimit() ||
+        r1Balance < getTokenAmount() ||
         (account.kycStatus !== KycStatus.Approved && environment === 'mainnet');
 
     return (
@@ -476,8 +478,31 @@ function Buy({ onClose }: { onClose: () => void }) {
                         </div>
                     </div>
 
-                    <div className="mx-auto flex">
-                        <AddTokenToWallet />
+                    {/* $R1 Balance, buy, add token to wallet */}
+                    <div className="flex w-full flex-col gap-6 rounded-md bg-slate-100 px-6 py-6">
+                        <R1ValueWithLabel
+                            label="Balance"
+                            value={parseFloat(Number(formatUnits(r1Balance, 18)).toFixed(2)).toLocaleString('en-US')}
+                        />
+
+                        <div className="col center-all gap-2">
+                            {/* TODO: Temporary route */}
+                            <Link to={routePath.faucet}>
+                                <Button className="px-3" variant="bordered">
+                                    <div className="row gap-1.5">
+                                        <div>
+                                            <img src={Logo} alt="Logo" className="h-6 w-6 rounded-full" />
+                                        </div>
+
+                                        <div>Get $R1 </div>
+                                    </div>
+                                </Button>
+                            </Link>
+
+                            <div className="flex">
+                                <AddTokenToWallet />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
