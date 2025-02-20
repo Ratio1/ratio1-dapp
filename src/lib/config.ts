@@ -10,6 +10,9 @@ type Config = {
     ndContractAddress: EthAddress;
     mndContractAddress: EthAddress;
     liquidityManagerContractAddress: EthAddress;
+    uniswapV2RouterAddress: EthAddress;
+    usdcAddress: EthAddress;
+    usdcDecimals: number;
     faucetContractAddress?: EthAddress;
     safeAddress: EthAddress;
     explorerUrl: string;
@@ -33,6 +36,9 @@ const configs: {
         ndContractAddress: '0xE20198EE2B76eED916A568a47cdea9681f7c79BF',
         mndContractAddress: '0xfD52a7958088dF734D523d618e583e4d53cD7420',
         liquidityManagerContractAddress: '0xTODO',
+        uniswapV2RouterAddress: '0xTODO',
+        usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+        usdcDecimals: 6,
         safeAddress: '0x52B56A307469B1f35BC53BF55E53bBf585428Ff4',
         explorerUrl: 'https://basescan.org',
         genesisDate: new Date('2025-02-05T16:00:00.000Z'),
@@ -52,6 +58,9 @@ const configs: {
         mndContractAddress: '0xfD52a7958088dF734D523d618e583e4d53cD7420',
         faucetContractAddress: '0x22bC5B72Fc156FC89322c2519A03Bd47075e1e99',
         liquidityManagerContractAddress: '0x5F4553e231649adD7dfF5e3063357Fd73927e465',
+        uniswapV2RouterAddress: '0x6682375ebC1dF04676c0c5050934272368e6e883',
+        usdcAddress: '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
+        usdcDecimals: 6,
         safeAddress: '0x591E079f22477906457a4bC246e9Ef4353DB428A',
         explorerUrl: 'https://sepolia.basescan.org',
         genesisDate: new Date('2025-02-05T16:00:00.000Z'),
@@ -71,6 +80,9 @@ const configs: {
         mndContractAddress: '0x909d33Ab74d5A85F1fc963ae63af7B97eAe76f40',
         faucetContractAddress: '0xd4c6B97E9a7f31eDF57285DcE4Fc59a2746013e2',
         liquidityManagerContractAddress: '0xE5C61ADEeE7850a8656A10f3963036e5c045B508',
+        uniswapV2RouterAddress: '0x6682375ebC1dF04676c0c5050934272368e6e883',
+        usdcAddress: '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
+        usdcDecimals: 6,
         safeAddress: '0x206F930e0b10a69A0ECe8110319af96a7E786Ec0',
         explorerUrl: 'https://sepolia.basescan.org',
         genesisDate: new Date('2025-02-12T16:00:00.000Z'),
