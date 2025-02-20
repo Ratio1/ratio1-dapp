@@ -42,6 +42,9 @@ export interface BlockchainContextType {
     isBuyDrawerOpen: boolean;
     onBuyDrawerOpen: () => void;
     onBuyDrawerClose: () => void;
+
+    // Generic blockchain functions
+    fetchErc20Balance: (tokenAddress: EthAddress) => Promise<bigint> | undefined;
 }
 
 const BlockchainContext = createContext<BlockchainContextType | null>(null);
@@ -118,16 +121,17 @@ export const BlockchainProvider = ({ children }) => {
     };
 
     const fetchR1Balance = () => {
-        if (publicClient && address) {
-            publicClient
-                .readContract({
-                    address: config.r1ContractAddress,
-                    abi: ERC20Abi,
-                    functionName: 'balanceOf',
-                    args: [address],
-                })
-                .then(setR1Balance);
-        }
+        fetchErc20Balance(config.r1ContractAddress)?.then(setR1Balance);
+    };
+
+    const fetchErc20Balance = (tokenAddress: EthAddress) => {
+        if (publicClient && address)
+            return publicClient.readContract({
+                address: tokenAddress,
+                abi: ERC20Abi,
+                functionName: 'balanceOf',
+                args: [address],
+            });
     };
 
     const watchTx = async (txHash: string, publicClient): Promise<TransactionReceipt> => {
@@ -379,6 +383,8 @@ export const BlockchainProvider = ({ children }) => {
                 isBuyDrawerOpen,
                 onBuyDrawerOpen,
                 onBuyDrawerClose,
+                // Generic blockchain functions
+                fetchErc20Balance,
             }}
         >
             {children}
