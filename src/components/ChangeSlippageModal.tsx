@@ -55,7 +55,7 @@ export const ChangeSlippageModal = ({
                             <Input
                                 value={slippageValue}
                                 onValueChange={(value) => {
-                                    const n = Number.parseFloat(value);
+                                    const n = Number.parseFloat(value.replace(',', '.'));
 
                                     if (value === '' || (isFinite(n) && !isNaN(n) && n >= 0 && n < 100)) {
                                         setSlippageValue(value);

@@ -10,8 +10,16 @@ import Profile from '@pages/Profile';
 import Search from '@pages/Search';
 import TermsAndConditions from '@pages/T&C';
 import Unauthorized from '@pages/Unauthorized';
-import { RiCpuLine, RiFunctionLine, RiSearchLine, RiShieldUserLine, RiWaterFlashLine } from 'react-icons/ri';
+import {
+    RiCpuLine,
+    RiFunctionLine,
+    RiMoneyDollarBoxLine,
+    RiSearchLine,
+    RiShieldUserLine,
+    RiWaterFlashLine,
+} from 'react-icons/ri';
 import { environment } from './config';
+import BuyR1 from '@pages/BuyR1';
 
 export interface AppRoute {
     path: string;
@@ -26,6 +34,7 @@ export const routePath = {
     profileKyc: '/profile-and-kyc',
     search: '/search',
     faucet: '/faucet',
+    buy: '/buy',
     termsAndConditions: '/terms-and-conditions',
     privacyPolicy: '/privacy-policy',
     confirmEmail: '/confirm-email',
@@ -59,6 +68,10 @@ export const mainRoutesInfo = {
     [routePath.faucet]: {
         title: 'Faucet',
         description: 'Claim testnet $R1 tokens',
+    },
+    [routePath.buy]: {
+        title: 'Buy',
+        description: 'Buy $R1 tokens',
     },
     [routePath.termsAndConditions]: {
         title: 'Terms & Conditions',
@@ -115,6 +128,15 @@ export const routes: AppRoute[] = [
                   path: routePath.faucet,
                   page: Faucet,
                   icon: <RiWaterFlashLine />,
+              },
+          ]
+        : []),
+    ...(environment === 'testnet' || environment === 'devnet' //TODO enable on mainnet when LP is available
+        ? [
+              {
+                  path: routePath.buy,
+                  page: BuyR1,
+                  icon: <RiMoneyDollarBoxLine />,
               },
           ]
         : []),
