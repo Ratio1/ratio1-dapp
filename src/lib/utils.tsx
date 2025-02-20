@@ -46,51 +46,52 @@ export const getLicenseRewardsAndNodeInfo = async (
     epochs_vals: number[];
     eth_signatures: EthAddress[];
 }> => {
-    let nodeInfo = {
-        node_alias: '',
-        node_is_online: false,
-    };
-    let rewards_info: { rewards_amount: bigint; epochs: number[]; epochs_vals: number[]; eth_signatures: EthAddress[] } = {
+    let nodeAndRewardsInfo: {
+        rewards_amount: bigint;
+        epochs: number[];
+        epochs_vals: number[];
+        eth_signatures: EthAddress[];
+        node_alias: string;
+        node_is_online: boolean;
+    } = {
         rewards_amount: 0n,
         epochs: [],
         epochs_vals: [],
         eth_signatures: [],
+        node_alias: '',
+        node_is_online: false,
     };
 
-    if (getCurrentEpoch() > 1) {
-        try {
-            nodeInfo = await getNodeInfo(license.nodeAddress);
-        } catch (error) {
-            console.error(error);
-            throttledToastError('Error loading license rewards and node data.');
-        }
+    try {
+        if (license.totalClaimedAmount !== license.totalAssignedAmount) {
+            switch (license.type) {
+                case 'ND':
+                    nodeAndRewardsInfo = await getNdNodeAndLicenseRewards(license);
+                    break;
 
-        try {
-            if (license.totalClaimedAmount !== license.totalAssignedAmount) {
-                switch (license.type) {
-                    case 'ND':
-                        rewards_info = await getNdLicenseRewards(license);
-                        break;
+                case 'MND':
+                    nodeAndRewardsInfo = await getMndNodeAndLicenseRewards(license);
+                    break;
 
-                    case 'MND':
-                        rewards_info = await getMndLicenseRewards(license);
-                        break;
-
-                    case 'GND':
-                        rewards_info = await getGndLicenseRewards(license);
-                        break;
-                }
+                case 'GND':
+                    nodeAndRewardsInfo = await getGndNodeAndLicenseRewards(license);
+                    break;
             }
-        } catch (error) {
-            console.error(error);
-            throttledToastError('Error loading license rewards and node data.');
+        } else {
+            const { node_alias, node_is_online } = await getNodeInfo(license.nodeAddress);
+
+            return {
+                ...nodeAndRewardsInfo,
+                node_alias,
+                node_is_online,
+            };
         }
+    } catch (error) {
+        console.error(error);
+        throttledToastError('Error loading license rewards and node data.');
     }
 
-    return {
-        ...rewards_info,
-        ...nodeInfo,
-    };
+    return nodeAndRewardsInfo;
 };
 
 export const throttledToastError = throttle(
@@ -129,32 +130,37 @@ export const throttledToastOracleError = throttle(
     { trailing: false },
 );
 
-const getNdLicenseRewards = async (
+const getNdNodeAndLicenseRewards = async (
     license: License,
 ): Promise<{
     rewards_amount: bigint;
     epochs: number[];
     epochs_vals: number[];
     eth_signatures: EthAddress[];
+    node_alias: string;
+    node_is_online: boolean;
 }> => {
-    // console.log('getNdLicenseRewards', license);
     const currentEpoch = getCurrentEpoch();
     const epochsToClaim = currentEpoch - Number(license.lastClaimEpoch);
 
-    if (epochsToClaim <= 0) {
-        return {
-            rewards_amount: 0n,
-            epochs: [],
-            epochs_vals: [],
-            eth_signatures: [],
-        };
-    }
-
-    const { epochs, epochs_vals, eth_signatures } = await getNodeEpochsRange(
+    const { epochs, epochs_vals, eth_signatures, node_alias, node_is_online } = await getNodeEpochsRange(
         license.nodeAddress,
         Number(license.lastClaimEpoch),
         currentEpoch - 1,
     );
+
+    const baseResult = {
+        rewards_amount: 0n,
+        epochs: [],
+        epochs_vals: [],
+        eth_signatures: [],
+        node_alias,
+        node_is_online,
+    };
+
+    if (epochsToClaim <= 0) {
+        return baseResult;
+    }
 
     if (epochsToClaim !== epochs.length || epochsToClaim !== epochs_vals.length) {
         throw new Error('Invalid epochs array length');
@@ -171,6 +177,7 @@ const getNdLicenseRewards = async (
 
     if (rewards_amount > maxRemainingClaimAmount) {
         return {
+            ...baseResult,
             rewards_amount: maxRemainingClaimAmount,
             epochs,
             epochs_vals,
@@ -179,6 +186,7 @@ const getNdLicenseRewards = async (
     }
 
     return {
+        ...baseResult,
         rewards_amount,
         epochs,
         epochs_vals,
@@ -186,31 +194,37 @@ const getNdLicenseRewards = async (
     };
 };
 
-const getGndLicenseRewards = async (
+const getGndNodeAndLicenseRewards = async (
     license: GNDLicense,
 ): Promise<{
     rewards_amount: bigint;
     epochs: number[];
     epochs_vals: number[];
     eth_signatures: EthAddress[];
+    node_alias: string;
+    node_is_online: boolean;
 }> => {
     const currentEpoch = getCurrentEpoch();
     const epochsToClaim = currentEpoch - Number(license.lastClaimEpoch);
 
-    if (epochsToClaim <= 0) {
-        return {
-            rewards_amount: 0n,
-            epochs: [],
-            epochs_vals: [],
-            eth_signatures: [],
-        };
-    }
-
-    const { epochs, epochs_vals, eth_signatures } = await getNodeEpochsRange(
+    const { epochs, epochs_vals, eth_signatures, node_alias, node_is_online } = await getNodeEpochsRange(
         license.nodeAddress,
         Number(license.lastClaimEpoch),
         currentEpoch - 1,
     );
+
+    const baseResult = {
+        rewards_amount: 0n,
+        epochs: [],
+        epochs_vals: [],
+        eth_signatures: [],
+        node_alias,
+        node_is_online,
+    };
+
+    if (epochsToClaim <= 0) {
+        return baseResult;
+    }
 
     if (epochsToClaim !== epochs.length || epochsToClaim !== epochs_vals.length) {
         throw new Error('Invalid epochs array length');
@@ -227,6 +241,7 @@ const getGndLicenseRewards = async (
 
     if (rewards_amount > maxRemainingClaimAmount) {
         return {
+            ...baseResult,
             rewards_amount: maxRemainingClaimAmount,
             epochs,
             epochs_vals,
@@ -234,6 +249,7 @@ const getGndLicenseRewards = async (
         };
     }
     return {
+        ...baseResult,
         rewards_amount,
         epochs,
         epochs_vals,
@@ -241,43 +257,40 @@ const getGndLicenseRewards = async (
     };
 };
 
-const getMndLicenseRewards = async (
+const getMndNodeAndLicenseRewards = async (
     license: MNDLicense,
 ): Promise<{
     rewards_amount: bigint;
     epochs: number[];
     epochs_vals: number[];
     eth_signatures: EthAddress[];
+    node_alias: string;
+    node_is_online: boolean;
 }> => {
-    // console.log('getMndLicenseRewards', license);
     const currentEpoch = getCurrentEpoch();
-    if (currentEpoch < config.mndCliffEpochs) {
-        return {
-            rewards_amount: 0n,
-            epochs: [],
-            epochs_vals: [],
-            eth_signatures: [],
-        };
-    }
 
     const firstEpochToClaim =
         license.lastClaimEpoch >= config.mndCliffEpochs ? Number(license.lastClaimEpoch) : config.mndCliffEpochs;
     const epochsToClaim = currentEpoch - firstEpochToClaim;
 
-    if (epochsToClaim === 0) {
-        return {
-            rewards_amount: 0n,
-            epochs: [],
-            epochs_vals: [],
-            eth_signatures: [],
-        };
-    }
-
-    const { epochs, epochs_vals, eth_signatures } = await getNodeEpochsRange(
+    const { epochs, epochs_vals, eth_signatures, node_alias, node_is_online } = await getNodeEpochsRange(
         license.nodeAddress,
         firstEpochToClaim,
         currentEpoch - 1,
     );
+
+    const baseResult = {
+        rewards_amount: 0n,
+        epochs: [],
+        epochs_vals: [],
+        eth_signatures: [],
+        node_alias,
+        node_is_online,
+    };
+
+    if (currentEpoch < config.mndCliffEpochs || epochsToClaim === 0) {
+        return baseResult;
+    }
 
     if (epochsToClaim !== epochs.length || epochsToClaim !== epochs_vals.length) {
         throw new Error('Invalid epochs array length');
@@ -294,6 +307,7 @@ const getMndLicenseRewards = async (
 
     if (rewards_amount > maxRemainingClaimAmount) {
         return {
+            ...baseResult,
             rewards_amount: maxRemainingClaimAmount,
             epochs,
             epochs_vals,
@@ -302,6 +316,7 @@ const getMndLicenseRewards = async (
     }
 
     return {
+        ...baseResult,
         rewards_amount,
         epochs,
         epochs_vals,

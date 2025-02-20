@@ -13,7 +13,7 @@ import { EthAddress, License, PriceTier } from 'typedefs/blockchain';
 import { TransactionReceipt } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 import { config } from '../config';
-import { getLicenseRewardsAndNodeInfo, INITIAL_TIERS_STATE } from '../utils';
+import { getLicenseRewardsAndNodeInfo as getNodeAndLicenseRewards, INITIAL_TIERS_STATE } from '../utils';
 
 export interface BlockchainContextType {
     watchTx: (txHash: string, publicClient: any) => Promise<TransactionReceipt>;
@@ -236,7 +236,7 @@ export const BlockchainProvider = ({ children }) => {
                     };
 
                     try {
-                        licenseDataPromise = getLicenseRewardsAndNodeInfo({
+                        licenseDataPromise = getNodeAndLicenseRewards({
                             ...userLicense,
                             type,
                             isLinked: false,
@@ -301,7 +301,7 @@ export const BlockchainProvider = ({ children }) => {
                         };
 
                         try {
-                            licenseDataPromise = getLicenseRewardsAndNodeInfo({
+                            licenseDataPromise = getNodeAndLicenseRewards({
                                 ...license,
                                 type,
                                 totalAssignedAmount,
