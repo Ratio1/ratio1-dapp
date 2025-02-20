@@ -486,8 +486,7 @@ function Buy({ onClose }: { onClose: () => void }) {
                         />
 
                         <div className="col center-all gap-2">
-                            {/* TODO: Temporary route */}
-                            <Link to={routePath.faucet}>
+                            <Link to={routePath.buy}>
                                 <Button className="px-3" variant="bordered">
                                     <div className="row gap-1.5">
                                         <div>
