@@ -63,7 +63,7 @@ export const getNodeAndLicenseRewards = async (
     };
 
     try {
-        if (license.totalClaimedAmount !== license.totalAssignedAmount) {
+        if (license.totalClaimedAmount !== license.totalAssignedAmount && Number(license.lastClaimEpoch) < getCurrentEpoch()) {
             switch (license.type) {
                 case 'ND':
                     nodeAndLicenseRewards = await getNdNodeAndLicenseRewards(license);
@@ -86,9 +86,12 @@ export const getNodeAndLicenseRewards = async (
                 node_is_online,
             };
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error(error);
-        throttledToastError('An error occurred while loading one of your licenses.');
+
+        if (!error.message.includes('Error converting node address')) {
+            throttledToastError('An error occurred while loading one of your licenses.');
+        }
     }
 
     return nodeAndLicenseRewards;

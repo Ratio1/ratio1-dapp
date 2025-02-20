@@ -18,10 +18,6 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
         isOnline: boolean;
     }>();
 
-    if (!license.isLinked) {
-        return null;
-    }
-
     useEffect(() => {
         if (license.isLinked) {
             (async () => {
@@ -37,15 +33,15 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
     }, [license.isLinked]);
 
     useEffect(() => {
-        if (!isLoading && node?.alias === undefined) {
+        if (license.isLinked && !isLoading && node?.alias === undefined) {
             console.log(`[${getShortAddress(license.nodeAddress)}] refetching alias`);
         }
-    }, [isLoading, node]);
+    }, [license.isLinked, isLoading, node]);
 
     const { data: refetchedNodeInfo } = useQuery({
         queryKey: ['refetchedNodeInfo', license.nodeAddress],
         queryFn: ({ queryKey }) => getNodeInfo(queryKey[1] as EthAddress),
-        enabled: !isLoading && node?.alias === undefined, // alias is undefined only in case of an error
+        enabled: license.isLinked && !isLoading && node?.alias === undefined, // alias is undefined only in case of an error
         retry: 5,
         refetchOnWindowFocus: false,
     });
@@ -60,6 +56,10 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
             });
         }
     }, [refetchedNodeInfo]);
+
+    if (!license.isLinked) {
+        return null;
+    }
 
     return (
         <LicenseSmallCard>
