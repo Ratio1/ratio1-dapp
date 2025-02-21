@@ -1,11 +1,11 @@
 import { WagmiProvider, createConfig, http } from 'wagmi';
-import { base, baseSepolia } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConnectKitProvider, getDefaultConfig, SIWEProvider, SIWEConfig } from 'connectkit';
 import { config, projectId } from '@lib/config';
 import { generateNonce, SiweMessage } from 'siwe';
 import { accessAuth } from '@lib/api/backend';
 import { EthAddress } from '@typedefs/blockchain';
+import Favicon from '@assets/favicon.png';
 
 const verifyMessage = async ({ message, signature }: { message: string; signature: string }) => {
     try {
@@ -46,6 +46,7 @@ const siweConfig: SIWEConfig = {
             address,
             chainId,
             nonce,
+            issuedAt: new Date().toISOString(),
             statement:
                 `By confirming this signature and engaging with our platform,` +
                 ` you confirm your status as the rightful account manager or authorized representative for the wallet address ${address}. ` +
@@ -79,37 +80,17 @@ const siweConfig: SIWEConfig = {
     signOutOnAccountChange: true,
     signOutOnNetworkChange: true,
     signOutOnDisconnect: true,
-    /*
-    onSignOut() {
-        // Called after sign-out
-        setAuthenticated(false);
-    },
-    onSignIn() {
-        // Called afer sign-in
-        setAuthenticated(true);
-    },
-    */
 };
 
 const wagmiConfig = createConfig(
     getDefaultConfig({
-        // Your dApps chains
         chains: config.networks,
-        transports: {
-            [base.id]: http('https://base-mainnet.public.blastapi.io'),
-            [baseSepolia.id]: http('https://base-sepolia.gateway.tenderly.co'),
-        },
-
-        // Required API Keys
         walletConnectProjectId: projectId,
-
-        // Required App Info
-        appName: 'Your App Name',
-
-        // Optional App Info
-        appDescription: 'Your App Description',
-        appUrl: 'https://family.co', // your app's url
-        appIcon: 'https://family.co/logo.png', // your app's icon, no bigger than 1024x1024px (max. 1MB)
+        appName: 'Ratio1',
+        appDescription:
+            'Experience the power of Ratio1 AI OS, built on Ratio1 Protocol and powered by blockchain, democratizing AI to empower limitless innovation.',
+        appUrl: 'https://app.ratio1.ai',
+        appIcon: Favicon,
     }),
 );
 

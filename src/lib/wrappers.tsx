@@ -14,7 +14,6 @@ export function Wrappers({ children }: { children: React.ReactNode }) {
     return (
         <BrowserRouter>
             <Web3Provider>
-                {/*<WagmiProvider config={wagmiAdapter.wagmiConfig}>*/}
                 <QueryClientProvider client={queryClient}>
                     <NextUIProvider>
                         <AuthenticationProvider>

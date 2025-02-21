@@ -29,7 +29,6 @@ export const AuthenticationProvider = ({ children }) => {
     const [account, setAccount] = useState<ApiAccount>();
 
     // SIWE
-
     useEffect(() => {
         if (isConnected && !authenticated && !modalOpen) {
             openSIWE();
