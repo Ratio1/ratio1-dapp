@@ -11,7 +11,7 @@ import { BigCard } from '@shared/BigCard';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
 import { FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiArrowDownLine, RiSettings2Line } from 'react-icons/ri';
+import { RiArrowDownLine, RiArrowDownSLine, RiSettings2Line } from 'react-icons/ri';
 import { formatUnits, parseUnits } from 'viem';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
@@ -144,7 +144,7 @@ function BuyR1() {
     };
 
     // TODO: Show error message if user doesn't have enough balance
-
+    // TODO: Token selector in modal
     return (
         <div className="center-all w-full flex-col">
             <div className="w-full sm:w-auto">
@@ -162,8 +162,7 @@ function BuyR1() {
                                         className="w-full border-none bg-transparent text-2xl font-semibold focus:outline-none"
                                     />
 
-                                    <div className="row gap-2">
-                                        <select
+                                    {/* <select
                                             value={selectedTokenId}
                                             onChange={(e) => {
                                                 setSelectedTokenId(e.target.value);
@@ -176,16 +175,22 @@ function BuyR1() {
                                                     {key}
                                                 </option>
                                             ))}
-                                        </select>
+                                        </select> */}
 
-                                        <div className="h-8 w-8 min-w-8 overflow-hidden rounded-full">
-                                            <img src={selectedToken.logo} alt={selectedTokenId} className="h-8 w-8" />
+                                    {/* TODO: Shadow around */}
+                                    <div className="row cursor-pointer gap-1.5 rounded-full border border-slate-100 bg-white px-1.5 py-1 shadow-sm transition-all hover:border-primary">
+                                        <div className="h-7 w-7 min-w-7 overflow-hidden rounded-full">
+                                            <img src={selectedToken.logo} alt={selectedTokenId} className="h-7 w-7" />
                                         </div>
+
+                                        <div className="text-sm font-medium">{selectedTokenId}</div>
+
+                                        <RiArrowDownSLine className="-ml-1 text-xl" />
                                     </div>
                                 </div>
 
-                                {/* TODO: */}
                                 <div className="row justify-between text-sm text-slate-500">
+                                    {/* TODO: Use real balance*/}
                                     <div>≈ $30</div>
 
                                     <div>
@@ -199,15 +204,6 @@ function BuyR1() {
                                         {selectedTokenId}
                                     </div>
                                 </div>
-
-                                {/* <div className="text-sm text-slate-500">
-                                Balance:{' '}
-                                {parseFloat(formatUnits(userTokenBalance, selectedToken.decimals)).toLocaleString('en-US', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: selectedToken.displayDecimals,
-                                })}{' '}
-                                {selectedTokenId}
-                            </div> */}
                             </SwapInput>
 
                             <div className="center-all z-10 -my-4">
