@@ -4,8 +4,7 @@ import { Button } from '@nextui-org/button';
 import { EthAddress } from '@typedefs/blockchain';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useAccount, useConnectorClient, useWalletClient } from 'wagmi';
-import * as all from 'connectkit';
+import { useAccount, useWalletClient } from 'wagmi';
 
 type Props = {
     contractAddress: EthAddress;

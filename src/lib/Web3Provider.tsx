@@ -7,33 +7,7 @@ import { accessAuth } from '@lib/api/backend';
 import { EthAddress } from '@typedefs/blockchain';
 import Favicon from '@assets/favicon.png';
 
-const verifyMessage = async ({ message, signature }: { message: string; signature: string }) => {
-    try {
-        const siweMessage = new SiweMessage(message);
-        console.log({ siweMessage });
-        const chainId = siweMessage.chainId;
-        const address = siweMessage.address;
-        if (address === config.safeAddress) {
-            localStorage.setItem('chainId', chainId.toString());
-            localStorage.setItem('address', address);
-            localStorage.setItem('accessToken', 'safe');
-            return true;
-        }
-        const response = await accessAuth({ message, signature });
-        localStorage.setItem('chainId', chainId.toString());
-        localStorage.setItem('address', address);
-        localStorage.setItem('accessToken', response.accessToken);
-
-        localStorage.setItem('refreshToken', response.refreshToken);
-        localStorage.setItem('expiration', response.expiration.toString());
-        return true;
-    } catch (error) {
-        return false;
-    }
-};
-
 const siweConfig: SIWEConfig = {
-    enabled: true,
     getNonce: async () => {
         const nonce = generateNonce();
         return nonce;
@@ -55,7 +29,29 @@ const siweConfig: SIWEConfig = {
                 `You acknowledge having fully reviewed these documents, accessible through our website. ` +
                 `We strongly advise familiarizing yourself with these materials to fully understand our data handling practices and your entitlements as a user`,
         }).prepareMessage(),
-    verifyMessage,
+    verifyMessage: async ({ message, signature }: { message: string; signature: string }) => {
+        try {
+            const siweMessage = new SiweMessage(message);
+            const chainId = siweMessage.chainId;
+            const address = siweMessage.address;
+            if (address === config.safeAddress) {
+                localStorage.setItem('chainId', chainId.toString());
+                localStorage.setItem('address', address);
+                localStorage.setItem('accessToken', 'safe');
+                return true;
+            }
+            const response = await accessAuth({ message, signature });
+            localStorage.setItem('chainId', chainId.toString());
+            localStorage.setItem('address', address);
+            localStorage.setItem('accessToken', response.accessToken);
+
+            localStorage.setItem('refreshToken', response.refreshToken);
+            localStorage.setItem('expiration', response.expiration.toString());
+            return true;
+        } catch (error) {
+            return false;
+        }
+    },
     getSession: async () => {
         const accessToken = localStorage.getItem('accessToken');
         const expiration = localStorage.getItem('expiration');
