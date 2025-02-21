@@ -498,9 +498,7 @@ function Buy({ onClose }: { onClose: () => void }) {
                                 </Button>
                             </Link>
 
-                            <div className="flex">
-                                <AddTokenToWallet />
-                            </div>
+                            <AddTokenToWallet />
                         </div>
                     </div>
                 </div>

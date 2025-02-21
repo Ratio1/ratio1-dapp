@@ -23,6 +23,10 @@ export const AddTokenToWallet = () => {
         }
     }, [address]);
 
+    useEffect(() => {
+        console.log('authenticated', authenticated, address);
+    }, [authenticated, address]);
+
     const add = async () => {
         if (!walletClient) {
             toast.error('Unexpected error, please try again.');
@@ -51,21 +55,23 @@ export const AddTokenToWallet = () => {
         }
     };
 
-    if (!authenticated || isTokenAddedInWallet) {
+    if (!authenticated || !address || isTokenAddedInWallet) {
         return null;
     }
 
     return (
-        <Button fullWidth className="px-3" variant="bordered" onPress={add}>
-            <div className="row gap-1.5">
-                {walletInfo && walletInfo.name.includes('metamask') && (
-                    <div>
-                        <img src={Metamask} alt="Metamask" className="h-7 w-7 rounded-full" />
-                    </div>
-                )}
+        <div className="flex">
+            <Button fullWidth className="px-3" variant="bordered" onPress={add}>
+                <div className="row gap-1.5">
+                    {walletInfo && walletInfo.name.includes('metamask') && (
+                        <div>
+                            <img src={Metamask} alt="Metamask" className="h-7 w-7 rounded-full" />
+                        </div>
+                    )}
 
-                <div>Add $R1 to wallet</div>
-            </div>
-        </Button>
+                    <div>Add $R1 to wallet</div>
+                </div>
+            </Button>
+        </div>
     );
 };

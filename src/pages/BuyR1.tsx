@@ -9,7 +9,7 @@ import { Button } from '@nextui-org/button';
 import { useDisclosure } from '@nextui-org/modal';
 import { BigCard } from '@shared/BigCard';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
-import { useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiArrowDownLine, RiSettings2Line } from 'react-icons/ri';
 import { formatUnits, parseUnits } from 'viem';
@@ -143,66 +143,93 @@ function BuyR1() {
         }
     };
 
+    // TODO: Show error message if user doesn't have enough balance
+
     return (
         <div className="center-all w-full flex-col">
             <div className="w-full sm:w-auto">
-                <BigCard fullWidth>
+                <BigCard variant="white" fullWidth>
                     <div className="text-xl font-bold lg:text-2xl">Swap</div>
 
-                    <div className="col w-full gap-4 sm:min-w-[320px] md:w-[420px]">
-                        {/*TODO show error message if user doesn't have enough balance*/}
-                        <div className="col w-full gap-2 rounded-lg border bg-white p-4">
-                            <label className="text-sm text-gray-500">You pay</label>
-                            <div className="row items-center justify-between">
-                                <input
-                                    type="number"
-                                    value={fromAmount}
-                                    onChange={(e) => setFromAmount(e.target.value)}
-                                    className="w-full border-none bg-transparent text-2xl font-semibold focus:outline-none"
-                                />
-                                {/*TODO maybe use a modal?*/}
-                                <select
-                                    value={selectedTokenId}
-                                    onChange={(e) => {
-                                        setSelectedTokenId(e.target.value);
-                                        setFromAmount(config.swapTokensDetails[e.target.value].symbol);
-                                    }}
-                                    className="bg-transparent text-base font-medium focus:outline-none"
-                                >
-                                    {Object.keys(config.swapTokensDetails).map((key) => (
-                                        <option key={key} value={key}>
-                                            {key}
-                                        </option>
-                                    ))}
-                                </select>
-                                <img src={selectedToken.logo} alt={selectedTokenId} className="h-8 w-8" />
-                            </div>
-                            <div className="text-sm text-gray-500">
+                    <div className="col w-full gap-4 sm:min-w-[320px] md:w-[400px]">
+                        <div className="col">
+                            <SwapInput label="You pay">
+                                <div className="row justify-between">
+                                    <input
+                                        type="number"
+                                        value={fromAmount}
+                                        onChange={(e) => setFromAmount(e.target.value)}
+                                        className="w-full border-none bg-transparent text-2xl font-semibold focus:outline-none"
+                                    />
+
+                                    <div className="row gap-2">
+                                        <select
+                                            value={selectedTokenId}
+                                            onChange={(e) => {
+                                                setSelectedTokenId(e.target.value);
+                                                setFromAmount(config.swapTokensDetails[e.target.value].symbol);
+                                            }}
+                                            className="bg-transparent text-base font-medium focus:outline-none"
+                                        >
+                                            {Object.keys(config.swapTokensDetails).map((key) => (
+                                                <option key={key} value={key}>
+                                                    {key}
+                                                </option>
+                                            ))}
+                                        </select>
+
+                                        <div className="h-8 w-8 min-w-8 overflow-hidden rounded-full">
+                                            <img src={selectedToken.logo} alt={selectedTokenId} className="h-8 w-8" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* TODO: */}
+                                <div className="row justify-between text-sm text-slate-500">
+                                    <div>≈ $30</div>
+
+                                    <div>
+                                        Balance:{' '}
+                                        {parseFloat(formatUnits(userTokenBalance, selectedToken.decimals)).toLocaleString(
+                                            'en-US',
+                                            {
+                                                maximumFractionDigits: selectedToken.displayDecimals,
+                                            },
+                                        )}{' '}
+                                        {selectedTokenId}
+                                    </div>
+                                </div>
+
+                                {/* <div className="text-sm text-slate-500">
                                 Balance:{' '}
                                 {parseFloat(formatUnits(userTokenBalance, selectedToken.decimals)).toLocaleString('en-US', {
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: selectedToken.displayDecimals,
                                 })}{' '}
                                 {selectedTokenId}
+                            </div> */}
+                            </SwapInput>
+
+                            <div className="center-all z-10 -my-4">
+                                <div className="center-all rounded-full border-4 border-white bg-slate-50 p-2.5">
+                                    <RiArrowDownLine className="text-2xl text-slate-600" />
+                                </div>
                             </div>
+
+                            <SwapInput label="You receive">
+                                <div className="row justify-between">
+                                    <span className="text-2xl font-semibold">
+                                        {parseFloat(Number(r1Estimate).toFixed(2)).toLocaleString('en-US')}
+                                    </span>
+
+                                    <img src={R1Logo} alt="R1" className="h-8 w-8 rounded-full" />
+                                </div>
+                            </SwapInput>
                         </div>
 
-                        <div className="flex items-center justify-center">
-                            <RiArrowDownLine className="text-3xl text-gray-500" />
-                        </div>
-
-                        <div className="col w-full gap-2 rounded-lg border bg-white p-4">
-                            <label className="text-sm text-gray-500">You receive</label>
-                            <div className="row items-center justify-between">
-                                <span className="text-2xl font-semibold">
-                                    {parseFloat(Number(r1Estimate).toFixed(2)).toLocaleString('en-US')}
-                                </span>
-                                <img src={R1Logo} alt="R1" className="h-8 w-8" />
-                            </div>
-                        </div>
-
-                        <ConnectWalletWrapper>
+                        <ConnectWalletWrapper classNames="min-h-[52px] rounded-2xl">
                             <Button
+                                className="min-h-[52px] rounded-2xl"
                                 color="primary"
                                 fullWidth
                                 onPress={swapForR1}
@@ -213,41 +240,31 @@ function BuyR1() {
                             </Button>
                         </ConnectWalletWrapper>
 
-                        <div className="col gap-2 text-sm font-medium">
-                            <div className="text-base text-slate-400">Breakdown</div>
-
-                            <div className="col gap-2">
-                                <div className="row justify-between">
-                                    <div>Expected price</div>
-                                    <div>
-                                        1 R1 ={' '}
-                                        {expectedPrice.toLocaleString('en-US', {
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: selectedToken.displayDecimals,
-                                        })}{' '}
-                                        {selectedTokenId}
-                                    </div>
+                        <div className="col gap-2">
+                            <Row label="Rate">
+                                <div>
+                                    1 R1 ={' '}
+                                    {expectedPrice.toLocaleString('en-US', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: selectedToken.displayDecimals,
+                                    })}{' '}
+                                    {selectedTokenId}
                                 </div>
+                            </Row>
 
-                                <div className="row justify-between">
-                                    <div>Slippage</div>
-
-                                    <div className="row gap-1">
-                                        <div>{slippage}%</div>
-                                        <RiSettings2Line
-                                            className="cursor-pointer text-lg text-slate-400 transition-all hover:opacity-50"
-                                            onClick={onOpen}
-                                        />
-                                    </div>
+                            <Row label="Slippage">
+                                <div className="row gap-1">
+                                    <div>{slippage}%</div>
+                                    <RiSettings2Line
+                                        className="cursor-pointer text-lg text-slate-400 transition-all hover:opacity-50"
+                                        onClick={onOpen}
+                                    />
                                 </div>
+                            </Row>
 
-                                <div className="row justify-between">
-                                    <div>Minimum Received</div>
-                                    <div>
-                                        {parseFloat(Number(formatUnits(minAmountOut, 18)).toFixed(2)).toLocaleString('en-US')}
-                                    </div>
-                                </div>
-                            </div>
+                            <Row label="Minimum Received">
+                                {parseFloat(Number(formatUnits(minAmountOut, 18)).toFixed(2)).toLocaleString('en-US')}
+                            </Row>
                         </div>
                     </div>
                 </BigCard>
@@ -267,3 +284,18 @@ function BuyR1() {
 }
 
 export default BuyR1;
+
+const SwapInput: FunctionComponent<PropsWithChildren<{ label: string }>> = ({ children, label }) => (
+    <div className="col w-full gap-2 rounded-2xl border-2 border-slate-50 bg-slate-50 p-4">
+        <label className="text-sm text-slate-500">{label}</label>
+
+        {children}
+    </div>
+);
+
+const Row: FunctionComponent<PropsWithChildren<{ label: string }>> = ({ children, label }) => (
+    <div className="row justify-between">
+        <div className="text-slate-400">{label}</div>
+        <div>{children}</div>
+    </div>
+);

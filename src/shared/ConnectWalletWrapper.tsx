@@ -3,10 +3,11 @@ import { useAppKit, useAppKitAccount } from '@reown/appkit/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 interface Props {
+    classNames?: string;
     isFullWidth?: boolean;
 }
 
-export const ConnectWalletWrapper: FunctionComponent<PropsWithChildren<Props>> = ({ children, isFullWidth }) => {
+export const ConnectWalletWrapper: FunctionComponent<PropsWithChildren<Props>> = ({ children, classNames, isFullWidth }) => {
     const { open } = useAppKit();
     const { isConnected } = useAppKitAccount();
 
@@ -14,6 +15,7 @@ export const ConnectWalletWrapper: FunctionComponent<PropsWithChildren<Props>> =
         <>{children}</>
     ) : (
         <Button
+            className={classNames}
             fullWidth={!!isFullWidth}
             color="primary"
             onPress={() => {

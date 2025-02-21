@@ -1,10 +1,9 @@
+import EthLogo from '@assets/tokens/ethereum.png';
+import UsdcLogo from '@assets/tokens/usdc.svg';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 import { AppKitNetwork, base, baseSepolia } from '@reown/appkit/networks';
 import { EthAddress, SwapTokenDetails } from '@typedefs/blockchain';
 import { addSeconds } from 'date-fns';
-import R1Logo from '@assets/token.svg';
-import UsdcLogo from '@assets/usdc.svg';
-import EthLogo from '@assets/eth.svg';
 
 type Config = {
     backendUrl: string;
