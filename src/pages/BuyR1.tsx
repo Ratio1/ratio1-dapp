@@ -1,3 +1,4 @@
+import R1Logo from '@assets/token.svg';
 import { ERC20Abi } from '@blockchain/ERC20';
 import { UniswapV2RouterAbi } from '@blockchain/UniswapV2Router';
 import { ChangeSlippageModal } from '@components/ChangeSlippageModal';
@@ -13,7 +14,6 @@ import toast from 'react-hot-toast';
 import { RiArrowDownLine, RiSettings2Line } from 'react-icons/ri';
 import { formatUnits, parseUnits } from 'viem';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
-import R1Logo from '@assets/token.svg';
 
 function BuyR1() {
     const { watchTx, fetchR1Balance, fetchErc20Balance } = useBlockchainContext() as BlockchainContextType;
@@ -147,9 +147,9 @@ function BuyR1() {
         <div className="center-all w-full flex-col">
             <div className="w-full sm:w-auto">
                 <BigCard fullWidth>
-                    <div className="text-xl font-bold lg:text-2xl">Buy $R1 tokens</div>
+                    <div className="text-xl font-bold lg:text-2xl">Swap</div>
 
-                    <div className="col w-full gap-4 p-6 sm:min-w-[320px] md:w-[480px] lg:p-7">
+                    <div className="col w-full gap-4 sm:min-w-[320px] md:w-[420px]">
                         {/*TODO show error message if user doesn't have enough balance*/}
                         <div className="col w-full gap-2 rounded-lg border bg-white p-4">
                             <label className="text-sm text-gray-500">You pay</label>
