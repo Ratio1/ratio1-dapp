@@ -1,5 +1,5 @@
-import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
-import { AppKitNetwork, base, baseSepolia } from '@reown/appkit/networks';
+import { Chain } from 'viem';
+import { base, baseSepolia } from 'wagmi/chains';
 import { EthAddress, SwapTokenDetails } from '@typedefs/blockchain';
 import { addSeconds } from 'date-fns';
 import R1Logo from '@assets/token.svg';
@@ -23,7 +23,7 @@ type Config = {
     gndVestingEpochs: number;
     mndVestingEpochs: number;
     ndVestingEpochs: number;
-    networks: AppKitNetwork[];
+    networks: [Chain, ...Chain[]];
     ND_LICENSE_CAP: bigint;
     swapTokensDetails: Record<string, SwapTokenDetails>;
 };
@@ -154,7 +154,7 @@ export const environment: 'mainnet' | 'testnet' | 'devnet' =
           ? ('devnet' as const)
           : domain === domainTestnet
             ? ('testnet' as const)
-            : ('devnet' as const);
+            : ('mainnet' as const);
 
 export const config = configs[environment];
 
@@ -168,9 +168,3 @@ export const getNextEpochTimestamp = (): Date =>
 
 export const getLicenseAssignEpoch = (assignTimestamp: bigint) =>
     Math.floor((Number(assignTimestamp) - config.genesisDate.getTime() / 1000) / config.epochDurationInSeconds);
-
-export const wagmiAdapter = new WagmiAdapter({
-    networks: config.networks,
-    projectId,
-    ssr: false,
-});

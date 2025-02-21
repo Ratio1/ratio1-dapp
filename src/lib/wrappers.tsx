@@ -1,20 +1,20 @@
 import ScrollToTop from '@components/ScrollToTop';
-import { wagmiAdapter } from '@lib/config';
 import { NextUIProvider } from '@nextui-org/system';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { BrowserRouter } from 'react-router-dom';
-import { WagmiProvider } from 'wagmi';
 import { AuthenticationProvider } from './contexts/authentication';
 import { BlockchainProvider } from './contexts/blockchain';
+import { Web3Provider } from './Web3Provider';
 
 export function Wrappers({ children }: { children: React.ReactNode }) {
     const [queryClient] = useState(() => new QueryClient());
 
     return (
         <BrowserRouter>
-            <WagmiProvider config={wagmiAdapter.wagmiConfig}>
+            <Web3Provider>
+                {/*<WagmiProvider config={wagmiAdapter.wagmiConfig}>*/}
                 <QueryClientProvider client={queryClient}>
                     <NextUIProvider>
                         <AuthenticationProvider>
@@ -36,7 +36,7 @@ export function Wrappers({ children }: { children: React.ReactNode }) {
                         <ScrollToTop />
                     </NextUIProvider>
                 </QueryClientProvider>
-            </WagmiProvider>
+            </Web3Provider>
         </BrowserRouter>
     );
 }
