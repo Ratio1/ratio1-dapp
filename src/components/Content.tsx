@@ -4,7 +4,7 @@ import { mainRoutesInfo } from '@lib/routes';
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import FooterMobile from './FooterMobile';
-import Wallet from './Wallet';
+import { ConnectKitButton } from 'connectkit';
 
 function Content() {
     const [title, setTitle] = useState<string>();
@@ -44,7 +44,7 @@ function Content() {
                         <img src={Logo} alt="Logo" className="h-10" />
                     </div>
 
-                    <Wallet />
+                    <ConnectKitButton />
                 </div>
             </div>
 

@@ -3,6 +3,7 @@ import { AuthenticationContextType, useAuthenticationContext } from '@lib/contex
 import { Spinner } from '@nextui-org/spinner';
 import Admin from '@pages/Admin';
 import { DetailedAlert } from '@shared/DetailedAlert';
+import { ConnectKitButton } from 'connectkit';
 import { useEffect, useState } from 'react';
 import { RiWalletLine } from 'react-icons/ri';
 import { Navigate } from 'react-router-dom';
@@ -35,7 +36,7 @@ export const ProtectedAdminRoute = () => {
                         </div>
                     }
                 >
-                    <appkit-connect-button />
+                    <ConnectKitButton />
                 </DetailedAlert>
             </div>
         );

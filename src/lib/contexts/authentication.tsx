@@ -1,9 +1,10 @@
 import { getAccount } from '@lib/api/backend';
 import { useQuery } from '@tanstack/react-query';
-import { ApiAccount, EthAddress } from '@typedefs/blockchain';
-import { useSIWE } from 'connectkit';
+import { ApiAccount } from '@typedefs/blockchain';
+import { useModal, useSIWE } from 'connectkit';
 import { DebouncedFuncLeading, throttle } from 'lodash';
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { useAccount } from 'wagmi';
 
 export interface AuthenticationContextType {
     // SIWE
@@ -22,10 +23,18 @@ const AuthenticationContext = createContext<AuthenticationContextType | null>(nu
 export const useAuthenticationContext = () => useContext(AuthenticationContext);
 
 export const AuthenticationProvider = ({ children }) => {
+    const { isConnected } = useAccount();
     const { isSignedIn: authenticated } = useSIWE();
+    const { open: modalOpen, openSIWE } = useModal();
     const [account, setAccount] = useState<ApiAccount>();
 
     // SIWE
+
+    useEffect(() => {
+        if (isConnected && !authenticated && !modalOpen) {
+            openSIWE();
+        }
+    }, [isConnected, authenticated, modalOpen]);
 
     useEffect(() => {
         if (authenticated) {
