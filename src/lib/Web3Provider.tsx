@@ -46,7 +46,13 @@ const siweConfig: SIWEConfig = {
             address,
             chainId,
             nonce,
-            statement: 'Sign in With Ethereum.',
+            statement:
+                `By confirming this signature and engaging with our platform,` +
+                ` you confirm your status as the rightful account manager or authorized representative for the wallet address ${address}. ` +
+                `This action grants permission for a login attempt on the https://${window.location.host} portal. ` +
+                `Your interaction with our site signifies your acceptance of Ratio1's EULA, Terms of Service, and Privacy Policy, as detailed in our official documentation. ` +
+                `You acknowledge having fully reviewed these documents, accessible through our website. ` +
+                `We strongly advise familiarizing yourself with these materials to fully understand our data handling practices and your entitlements as a user`,
         }).prepareMessage(),
     verifyMessage,
     getSession: async () => {
