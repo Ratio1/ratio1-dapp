@@ -191,7 +191,7 @@ function BuyR1() {
 
                                 <div className="row justify-between text-sm text-slate-500">
                                     {/* TODO: Use real balance*/}
-                                    <div>≈ $30</div>
+                                    <div className="invisible">≈ $30</div>
 
                                     <div>
                                         Balance:{' '}
