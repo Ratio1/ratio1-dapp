@@ -498,7 +498,7 @@ function Buy({ onClose }: { onClose: () => void }) {
                                 </Button>
                             </Link>
 
-                            <AddTokenToWallet />
+                            <AddTokenToWallet contractAddress={config.r1ContractAddress} symbol="R1" decimals={18} />
                         </div>
                     </div>
                 </div>
