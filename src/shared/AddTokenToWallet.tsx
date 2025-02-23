@@ -29,10 +29,6 @@ export const AddTokenToWallet = ({ contractAddress, symbol, decimals }: Props) =
         }
     }, [address]);
 
-    useEffect(() => {
-        console.log('authenticated', authenticated, address);
-    }, [authenticated, address]);
-
     const add = async () => {
         if (!walletClient) {
             toast.error('Unexpected error, please try again.');
