@@ -87,7 +87,11 @@ export const getNodeAndLicenseRewards = async (
             };
         }
     } catch (error: any) {
-        console.error(error);
+        if (error.message.includes('Oracle state is not valid')) {
+            console.error(`(License #${license.licenseId}) [${getShortAddress(license.nodeAddress)}] `, error.message);
+        } else {
+            console.error(error);
+        }
 
         if (!error.message.includes('Error converting node address')) {
             throttledToastError('An error occurred while loading one of your licenses.');

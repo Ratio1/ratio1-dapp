@@ -186,13 +186,13 @@ function LicensesPageHeader({
         <>
             <div className="relative w-full rounded-3xl">
                 <div className="col relative z-10 h-full gap-4 rounded-3xl bg-[#436cc8] px-8 py-7 lg:gap-6">
-                    <div className="flex justify-between border-b-2 border-white/10 pb-4 lg:pb-6">
+                    <div className="flex flex-col justify-between gap-3.5 border-b-2 border-white/10 pb-4 layoutBreak:flex-row lg:pb-6">
                         <div className="row gap-2.5">
                             <img src={Logo} alt="Logo" className="h-7" />
                             <div className="text-lg font-medium text-white">Licenses</div>
                         </div>
 
-                        <div className="row gap-2.5">
+                        <div className="row justify-between gap-2.5 layoutBreak:justify-end">
                             <Button
                                 className="h-9"
                                 color="primary"
@@ -217,7 +217,7 @@ function LicensesPageHeader({
                                 onPress={claimAll}
                                 isDisabled={!authenticated || !rewards}
                             >
-                                <div className="text-sm">Claim all rewards</div>
+                                <div className="text-sm">Claim rewards</div>
                             </Button>
                         </div>
                     </div>
