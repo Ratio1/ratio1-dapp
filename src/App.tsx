@@ -13,12 +13,12 @@ function App() {
     const { address } = useAccount();
 
     useEffect(() => {
-        if (!address || !authenticated) {
+        if (!address && !authenticated) {
             console.log('[App.tsx] User disconnected');
             setLicenses([]);
             setR1Balance(0n);
         }
-    }, [address]);
+    }, [address, authenticated]);
 
     return (
         <Routes>

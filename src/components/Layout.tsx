@@ -4,7 +4,7 @@ import Sider from './Sider';
 
 function Layout() {
     return (
-        <div className="flex min-h-dvh items-stretch bg-[#fcfcfd] font-mona">
+        <div className="flex min-h-dvh items-stretch bg-[#fcfcfd]">
             <div className="hidden layoutBreak:block">
                 <Sider />
             </div>

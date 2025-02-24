@@ -1,10 +1,10 @@
 import Logo from '@assets/token.svg';
 
 import { mainRoutesInfo } from '@lib/routes';
+import { ConnectKitButton } from 'connectkit';
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import FooterMobile from './FooterMobile';
-import { ConnectKitButton } from 'connectkit';
 
 function Content() {
     const [title, setTitle] = useState<string>();
@@ -44,7 +44,7 @@ function Content() {
                         <img src={Logo} alt="Logo" className="h-10" />
                     </div>
 
-                    <ConnectKitButton />
+                    <ConnectKitButton showBalance />
                 </div>
             </div>
 

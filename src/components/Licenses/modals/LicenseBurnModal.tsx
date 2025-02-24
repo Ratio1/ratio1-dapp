@@ -68,7 +68,7 @@ const LicenseBurnModal = forwardRef((_, ref) => {
                         <>
                             <ModalHeader>Burn License #{Number(license.licenseId)}</ModalHeader>
 
-                            <ModalBody className="font-mona">
+                            <ModalBody>
                                 <div className="col w-full gap-6">
                                     <DetailedAlert
                                         variant="red"

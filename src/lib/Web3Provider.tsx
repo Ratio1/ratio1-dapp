@@ -1,11 +1,12 @@
 import Favicon from '@assets/favicon.png';
 import { accessAuth } from '@lib/api/backend';
-import { config, projectId } from '@lib/config';
+import { config, domains, environment, projectId } from '@lib/config';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { EthAddress } from '@typedefs/blockchain';
 import { ConnectKitProvider, getDefaultConfig, SIWEConfig, SIWEProvider } from 'connectkit';
 import { generateNonce, SiweMessage } from 'siwe';
 import { createConfig, WagmiProvider } from 'wagmi';
+import { routePath } from './routes';
 
 const siweConfig: SIWEConfig = {
     getNonce: async () => {
@@ -99,9 +100,43 @@ export const Web3Provider = ({ children }) => {
                 <SIWEProvider {...siweConfig}>
                     <ConnectKitProvider
                         customTheme={{
-                            '--ck-accent-color': '#1b47f7',
-                            // '--ck-font-family': '"Comic Sans MS", "Comic Sans", cursive',
-                            // '--ck-font-family': '"Mona Sans", sans-serif',
+                            '--ck-font-family': "'Mona Sans', 'sans-serif'",
+                            '--ck-primary-button-background': '#f8fafc',
+                            '--ck-primary-button-hover-background': '#f1f5f9',
+                            '--ck-secondary-button-background': '#f8fafc',
+                            '--ck-secondary-button-hover-background': '#f1f5f9',
+                            '--ck-body-background-secondary': '#f8fafc',
+                            // Connect Button
+                            '--ck-connectbutton-background': '#1b47f7',
+                            '--ck-connectbutton-hover-background': '#1b47f7cc',
+                            '--ck-connectbutton-active-background': '#1b47f7b3',
+                            '--ck-connectbutton-color': '#ffffff',
+                            '--ck-connectbutton-hover-color': '#ffffff',
+                            '--ck-connectbutton-active-color': '#ffffff',
+                            '--ck-connectbutton-font-size': '16px',
+                            '--ck-connectbutton-font-weight': '600',
+                        }}
+                        options={{
+                            disclaimer: (
+                                <>
+                                    By connecting your wallet you agree to the{' '}
+                                    <a
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        href={`https://${domains[environment]}${routePath.termsAndConditions}`}
+                                    >
+                                        Terms & Conditions
+                                    </a>{' '}
+                                    and{' '}
+                                    <a
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        href={`https://${domains[environment]}${routePath.privacyPolicy}`}
+                                    >
+                                        Privacy Policy
+                                    </a>
+                                </>
+                            ),
                         }}
                     >
                         {children}
