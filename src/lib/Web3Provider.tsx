@@ -137,6 +137,7 @@ export const Web3Provider = ({ children }) => {
                                     </a>
                                 </>
                             ),
+                            enforceSupportedChains: true,
                         }}
                     >
                         {children}

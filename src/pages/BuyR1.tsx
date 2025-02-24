@@ -295,9 +295,9 @@ function BuyR1() {
                             </SwapInput>
                         </div>
 
-                        <ConnectWalletWrapper classNames="min-h-[52px] rounded-2xl">
+                        <ConnectWalletWrapper classNames="min-h-[52px] rounded-2xl text-base">
                             <Button
-                                className="min-h-[52px] rounded-2xl"
+                                className="min-h-[52px] rounded-2xl text-base"
                                 color="primary"
                                 fullWidth
                                 onPress={swapForR1}
