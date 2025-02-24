@@ -1,4 +1,3 @@
-import Metamask from '@assets/metamask.png';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { Button } from '@nextui-org/button';
 import { EthAddress } from '@typedefs/blockchain';
@@ -16,7 +15,7 @@ export const AddTokenToWallet = ({ contractAddress, symbol, decimals }: Props) =
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
     const { data: walletClient } = useWalletClient();
-    const { address } = useAccount();
+    const { address, connector } = useAccount();
 
     const [isTokenAddedInWallet, setTokenAddedInWallet] = useState<boolean>(false);
     const localStorageKey = `${contractAddress}_added_${address}`;
@@ -59,12 +58,11 @@ export const AddTokenToWallet = ({ contractAddress, symbol, decimals }: Props) =
         return null;
     }
 
-    //TODO check if it's possible to add only for metamask
     return (
         <div className="flex">
             <Button fullWidth className="px-3" variant="bordered" onPress={add}>
                 <div className="row gap-1.5">
-                    <img src={Metamask} alt="Metamask" className="h-7 w-7 rounded-full" />
+                    {!!connector?.icon && <img src={connector.icon} alt="Wallet Logo" className="h-6 w-6 rounded-full" />}
                     <div>Add ${symbol} to wallet</div>
                 </div>
             </Button>
