@@ -1,4 +1,4 @@
-import { getNavigationRoutes, mainRoutesInfo } from '@lib/routes';
+import { getNavigationRoutes, mainRoutesInfo } from '@lib/routes/routes';
 import clsx from 'clsx';
 import { Link, useLocation } from 'react-router-dom';
 

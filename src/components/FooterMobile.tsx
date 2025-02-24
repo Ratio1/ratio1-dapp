@@ -1,6 +1,6 @@
 import Logo from '@assets/logo_blue.svg';
-import { mainRoutesInfo } from '@lib/routes';
 import { routePath } from '@lib/routes/route-paths';
+import { mainRoutesInfo } from '@lib/routes/routes';
 import NetworkAndStatus from '@shared/NetworkAndStatus';
 import { RiDiscordLine, RiLinkedinBoxLine, RiTwitterXLine, RiYoutubeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
