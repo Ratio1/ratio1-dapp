@@ -354,7 +354,7 @@ export const BlockchainProvider = ({ children }) => {
                 onOpenChange={onBuyDrawerClose}
                 size="sm"
                 classNames={{
-                    base: 'data-[placement=right]:sm:m-3 data-[placement=left]:sm:m-3 rounded-none sm:rounded-medium font-mona',
+                    base: 'data-[placement=right]:sm:m-3 data-[placement=left]:sm:m-3 rounded-none sm:rounded-medium',
                 }}
                 motionProps={{
                     variants: {

@@ -1,9 +1,9 @@
 import EthLogo from '@assets/tokens/ethereum.png';
 import UsdcLogo from '@assets/tokens/usdc.svg';
-import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
-import { AppKitNetwork, base, baseSepolia } from '@reown/appkit/networks';
 import { EthAddress, SwapTokenDetails } from '@typedefs/blockchain';
 import { addSeconds } from 'date-fns';
+import { Chain } from 'viem';
+import { base, baseSepolia } from 'wagmi/chains';
 
 type Config = {
     backendUrl: string;
@@ -22,7 +22,7 @@ type Config = {
     gndVestingEpochs: number;
     mndVestingEpochs: number;
     ndVestingEpochs: number;
-    networks: AppKitNetwork[];
+    networks: [Chain, ...Chain[]];
     ND_LICENSE_CAP: bigint;
     swapTokensDetails: Record<string, SwapTokenDetails>;
 };
@@ -167,9 +167,3 @@ export const getNextEpochTimestamp = (): Date =>
 
 export const getLicenseAssignEpoch = (assignTimestamp: bigint) =>
     Math.floor((Number(assignTimestamp) - config.genesisDate.getTime() / 1000) / config.epochDurationInSeconds);
-
-export const wagmiAdapter = new WagmiAdapter({
-    networks: config.networks,
-    projectId,
-    ssr: false,
-});

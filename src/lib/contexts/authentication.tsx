@@ -1,24 +1,14 @@
-import { accessAuth, getAccount } from '@lib/api/backend';
-import { config } from '@lib/config';
-import {
-    AppKitSIWEClient,
-    createSIWEConfig,
-    formatMessage,
-    getAddressFromMessage,
-    getChainIdFromMessage,
-    SIWECreateMessageArgs,
-    SIWEVerifyMessageArgs,
-} from '@reown/appkit-siwe';
+import { getAccount } from '@lib/api/backend';
 import { useQuery } from '@tanstack/react-query';
 import { ApiAccount } from '@typedefs/blockchain';
+import { useModal, useSIWE } from 'connectkit';
 import { DebouncedFuncLeading, throttle } from 'lodash';
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { generateNonce } from 'siwe';
+import { useAccount } from 'wagmi';
 
 export interface AuthenticationContextType {
     // SIWE
     authenticated: boolean;
-    siweConfig: AppKitSIWEClient | undefined;
     // Account
     account: ApiAccount | undefined;
     setAccount: React.Dispatch<React.SetStateAction<ApiAccount | undefined>>;
@@ -33,58 +23,17 @@ const AuthenticationContext = createContext<AuthenticationContextType | null>(nu
 export const useAuthenticationContext = () => useContext(AuthenticationContext);
 
 export const AuthenticationProvider = ({ children }) => {
-    const [authenticated, setAuthenticated] = useState<boolean>(false);
-    const [siweConfig, setSiweConfig] = useState<AppKitSIWEClient>();
+    const { isConnected } = useAccount();
+    const { isSignedIn: authenticated } = useSIWE();
+    const { open: modalOpen, openSIWE } = useModal();
     const [account, setAccount] = useState<ApiAccount>();
 
     // SIWE
     useEffect(() => {
-        (async () => {
-            const session = await getSession();
-            console.log('Session', session);
-
-            if (session) {
-                setAuthenticated(true);
-            }
-        })();
-
-        setSiweConfig(
-            createSIWEConfig({
-                signOutOnAccountChange: true,
-                signOutOnNetworkChange: true,
-                signOutOnDisconnect: true,
-                getMessageParams: async () => ({
-                    domain: window.location.host,
-                    uri: window.location.origin,
-                    chains: config.networks.map((network) => Number(network.id)),
-                    statement: 'Please sign with your account.',
-                    iat: new Date().toISOString(),
-                }),
-                createMessage: ({ address, ...args }: SIWECreateMessageArgs) => formatMessage(args, address),
-                getNonce: async () => {
-                    const nonce = generateNonce();
-                    return nonce;
-                },
-                getSession,
-                verifyMessage,
-                signOut: async () => {
-                    localStorage.removeItem('accessToken');
-                    localStorage.removeItem('chainId');
-                    localStorage.removeItem('address');
-
-                    return true;
-                },
-                onSignOut() {
-                    // Called after sign-out
-                    setAuthenticated(false);
-                },
-                onSignIn() {
-                    // Called afer sign-in
-                    setAuthenticated(true);
-                },
-            }),
-        );
-    }, []);
+        if (isConnected && !authenticated && !modalOpen) {
+            openSIWE();
+        }
+    }, [isConnected, authenticated, modalOpen]);
 
     useEffect(() => {
         if (authenticated) {
@@ -126,51 +75,11 @@ export const AuthenticationProvider = ({ children }) => {
         ),
     ).current;
 
-    async function getSession() {
-        const accessToken = localStorage.getItem('accessToken');
-        const expiration = localStorage.getItem('expiration');
-        const chainId = localStorage.getItem('chainId');
-        const address = localStorage.getItem('address');
-
-        const currentTimestamp = Math.floor(Date.now() / 1000);
-
-        if (chainId && address && accessToken && expiration && parseInt(expiration) > currentTimestamp) {
-            return { chainId: parseInt(chainId), address };
-        }
-
-        return null;
-    }
-
-    //TODO handle properly
-    const verifyMessage = async ({ message, signature }: SIWEVerifyMessageArgs) => {
-        try {
-            const chainId = getChainIdFromMessage(message).replace('eip155:', '');
-            const address = getAddressFromMessage(message);
-            if (address === config.safeAddress) {
-                localStorage.setItem('chainId', chainId);
-                localStorage.setItem('address', address);
-                localStorage.setItem('accessToken', 'safe');
-                return true;
-            }
-            const response = await accessAuth({ message, signature });
-            localStorage.setItem('chainId', chainId);
-            localStorage.setItem('address', address);
-            localStorage.setItem('accessToken', response.accessToken);
-
-            localStorage.setItem('refreshToken', response.refreshToken);
-            localStorage.setItem('expiration', response.expiration.toString());
-            return true;
-        } catch (error) {
-            return false;
-        }
-    };
-
     return (
         <AuthenticationContext.Provider
             value={{
                 // SIWE
                 authenticated,
-                siweConfig,
                 // Account
                 account,
                 setAccount,
