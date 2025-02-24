@@ -11,26 +11,10 @@ import {
 } from '@reown/appkit-siwe';
 import { useQuery } from '@tanstack/react-query';
 import { ApiAccount } from '@typedefs/blockchain';
-import { DebouncedFuncLeading, throttle } from 'lodash';
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { throttle } from 'lodash';
+import { useEffect, useRef, useState } from 'react';
 import { generateNonce } from 'siwe';
-
-export interface AuthenticationContextType {
-    // SIWE
-    authenticated: boolean;
-    siweConfig: AppKitSIWEClient | undefined;
-    // Account
-    account: ApiAccount | undefined;
-    setAccount: React.Dispatch<React.SetStateAction<ApiAccount | undefined>>;
-    fetchAccount: DebouncedFuncLeading<() => Promise<void>>;
-    isFetchingAccount: boolean;
-    accountFetchError: Error | null;
-}
-
-const AuthenticationContext = createContext<AuthenticationContextType | null>(null);
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const useAuthenticationContext = () => useContext(AuthenticationContext);
+import { AuthenticationContext } from './context';
 
 export const AuthenticationProvider = ({ children }) => {
     const [authenticated, setAuthenticated] = useState<boolean>(false);

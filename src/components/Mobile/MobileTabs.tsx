@@ -1,9 +1,8 @@
-import { mainRoutesInfo } from '@lib/routes';
-import { getNavigationRoutes } from '@lib/utils';
+import { getNavigationRoutes, mainRoutesInfo } from '@lib/routes';
 import clsx from 'clsx';
 import { Link, useLocation } from 'react-router-dom';
 
-export default function MobileTabs() {
+function MobileTabs() {
     const location = useLocation();
 
     return (
@@ -33,3 +32,5 @@ export default function MobileTabs() {
         </div>
     );
 }
+
+export default MobileTabs;

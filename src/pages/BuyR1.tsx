@@ -144,7 +144,7 @@ function BuyR1() {
     };
 
     // TODO: Show error message if user doesn't have enough balance
-    // TODO: Token selector in modal
+    // TODO: Token selector in modal (component test 2)
     return (
         <div className="center-all w-full flex-col">
             <div className="w-full sm:w-auto">
@@ -177,8 +177,7 @@ function BuyR1() {
                                             ))}
                                         </select> */}
 
-                                    {/* TODO: Shadow around */}
-                                    <div className="row cursor-pointer gap-1.5 rounded-full border border-slate-100 bg-white px-1.5 py-1 shadow-sm transition-all hover:border-primary">
+                                    <div className="row shadow-round cursor-pointer gap-1.5 rounded-full border border-slate-100 bg-white px-1.5 py-1 transition-all hover:border-primary">
                                         <div className="h-7 w-7 min-w-7 overflow-hidden rounded-full">
                                             <img src={selectedToken.logo} alt={selectedTokenId} className="h-7 w-7" />
                                         </div>
@@ -191,7 +190,7 @@ function BuyR1() {
 
                                 <div className="row justify-between text-sm text-slate-500">
                                     {/* TODO: Use real balance*/}
-                                    <div>≈ $30</div>
+                                    <div>≈ $45</div>
 
                                     <div>
                                         Balance:{' '}

@@ -2,7 +2,7 @@ import Tiers from '@components/Tiers';
 import { environment, getCurrentEpoch, getNextEpochTimestamp } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
-import { routePath } from '@lib/routes';
+import { routePath } from '@lib/routes/route-paths';
 import useAwait from '@lib/useAwait';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';

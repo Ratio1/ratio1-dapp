@@ -1,9 +1,8 @@
-import { AppRoute, mainRoutesInfo } from '@lib/routes';
-import { getNavigationRoutes } from '@lib/utils';
+import { AppRoute, getNavigationRoutes, mainRoutesInfo } from '@lib/routes';
 import clsx from 'clsx';
 import { Link, useLocation } from 'react-router-dom';
 
-export default function Navigation() {
+function Navigation() {
     return (
         <div className="flex w-full flex-col gap-2">
             {getNavigationRoutes().map((route, index) => (
@@ -34,3 +33,5 @@ function Route({ route }: { route: AppRoute }) {
         </div>
     );
 }
+
+export default Navigation;

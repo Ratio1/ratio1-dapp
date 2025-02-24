@@ -13,29 +13,13 @@ import TermsAndConditions from '@pages/T&C';
 import Unauthorized from '@pages/Unauthorized';
 import { TokenSvg } from '@shared/TokenSvg';
 import { RiCpuLine, RiFunctionLine, RiSearchLine, RiShieldUserLine, RiWaterFlashLine } from 'react-icons/ri';
-import { environment } from './config';
+import { environment } from '../config';
+import { routePath } from './route-paths';
 
-export interface AppRoute {
+export type AppRoute = {
     path: string;
     page: () => JSX.Element;
     icon?: JSX.Element;
-}
-
-export const routePath = {
-    root: '/',
-    dashboard: '/dashboard',
-    licenses: '/licenses-and-nodes',
-    profileKyc: '/profile-and-kyc',
-    search: '/search',
-    faucet: '/faucet',
-    buy: '/buy',
-    termsAndConditions: '/terms-and-conditions',
-    privacyPolicy: '/privacy-policy',
-    confirmEmail: '/confirm-email',
-    notFound: '/404',
-    unauthorized: '/unauthorized',
-    kyc: '/kyc',
-    admin: '/admin',
 };
 
 export const mainRoutesInfo = {
@@ -167,3 +151,15 @@ export const routes: AppRoute[] = [
         page: Unauthorized,
     },
 ];
+
+export const getNavigationRoutes = () => {
+    const mainnetOnly = [routePath.profileKyc];
+
+    return routes.filter((route: AppRoute) => {
+        if (environment !== 'mainnet' && mainnetOnly.includes(route.path)) {
+            return false;
+        }
+
+        return !!route.icon;
+    });
+};

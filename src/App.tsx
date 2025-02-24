@@ -1,9 +1,12 @@
 import Favicon from '@assets/favicon.png';
+import Buy from '@components/Buy';
 import Layout from '@components/Layout';
 import { config, projectId, wagmiAdapter } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
-import { routePath, routes } from '@lib/routes';
+import { routes } from '@lib/routes';
+import { routePath } from '@lib/routes/route-paths';
+import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
 import { Spinner } from '@nextui-org/spinner';
 import { AppKit, createAppKit } from '@reown/appkit/react';
 import { useEffect, useState } from 'react';
@@ -20,14 +23,14 @@ const metadata = {
 
 function App() {
     const { siweConfig, authenticated } = useAuthenticationContext() as AuthenticationContextType;
-    const { setLicenses, setR1Balance } = useBlockchainContext() as BlockchainContextType;
+    const { setLicenses, setR1Balance, isBuyDrawerOpen, onBuyDrawerOpen, onBuyDrawerClose } =
+        useBlockchainContext() as BlockchainContextType;
 
     const { address } = useAccount();
     const [appKit, setAppKit] = useState<AppKit>();
 
     useEffect(() => {
         if (!address || !authenticated) {
-            console.log('[App.tsx] User disconnected');
             setLicenses([]);
             setR1Balance(0n);
         }
@@ -72,17 +75,48 @@ function App() {
     }
 
     return (
-        <Routes>
-            <Route path={routePath.root} element={<Layout />}>
-                <Route path="/" element={<Navigate to={routePath.dashboard} replace />} />
+        <>
+            <Routes>
+                <Route path={routePath.root} element={<Layout />}>
+                    <Route path="/" element={<Navigate to={routePath.dashboard} replace />} />
 
-                {routes.map((route, index) => (
-                    <Route key={'route-key-' + index} path={route.path} element={<route.page />} />
-                ))}
-            </Route>
+                    {routes.map((route, index) => (
+                        <Route key={'route-key-' + index} path={route.path} element={<route.page />} />
+                    ))}
+                </Route>
 
-            <Route path="*" element={<Navigate to={routePath.dashboard} replace />} />
-        </Routes>
+                <Route path="*" element={<Navigate to={routePath.dashboard} replace />} />
+            </Routes>
+
+            {/* Global overlays */}
+            <Drawer
+                isOpen={isBuyDrawerOpen}
+                onOpenChange={onBuyDrawerClose}
+                size="sm"
+                classNames={{
+                    base: 'data-[placement=right]:sm:m-3 data-[placement=left]:sm:m-3 rounded-none sm:rounded-medium font-mona',
+                }}
+                motionProps={{
+                    variants: {
+                        enter: {
+                            opacity: 1,
+                            x: 0,
+                        },
+                        exit: {
+                            x: 100,
+                            opacity: 0,
+                        },
+                    },
+                }}
+                hideCloseButton
+            >
+                <DrawerContent>
+                    <DrawerBody>
+                        <Buy onClose={onBuyDrawerClose} />
+                    </DrawerBody>
+                </DrawerContent>
+            </Drawer>
+        </>
     );
 }
 

@@ -5,7 +5,7 @@ import { buyLicense } from '@lib/api/backend';
 import { config, environment } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
-import { routePath } from '@lib/routes';
+import { routePath } from '@lib/routes/route-paths';
 import { Button } from '@nextui-org/button';
 import { Divider } from '@nextui-org/divider';
 import { Input } from '@nextui-org/input';

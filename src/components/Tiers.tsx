@@ -3,7 +3,7 @@ import { LargeValueWithLabel } from '@shared/LargeValueWithLabel';
 import clsx from 'clsx';
 import { PriceTier } from 'typedefs/blockchain';
 
-export default function Tiers({ currentStage, stages }: { currentStage: number; stages: PriceTier[] }) {
+function Tiers({ currentStage, stages }: { currentStage: number; stages: PriceTier[] }) {
     return (
         <>
             <div className="col gap-5 lg:gap-6">
@@ -136,3 +136,5 @@ export default function Tiers({ currentStage, stages }: { currentStage: number; 
         </>
     );
 }
+
+export default Tiers;

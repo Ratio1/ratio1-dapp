@@ -6,7 +6,7 @@ import { TestnetFaucetContractAbi } from '@blockchain/TestnetFaucet';
 import { config } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
-import { routePath } from '@lib/routes';
+import { routePath } from '@lib/routes/route-paths';
 import { fBI } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { AddTokenToWallet } from '@shared/AddTokenToWallet';

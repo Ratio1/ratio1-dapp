@@ -1,0 +1,16 @@
+export const routePath = {
+    root: '/',
+    dashboard: '/dashboard',
+    licenses: '/licenses-and-nodes',
+    profileKyc: '/profile-and-kyc',
+    search: '/search',
+    faucet: '/faucet',
+    buy: '/buy',
+    termsAndConditions: '/terms-and-conditions',
+    privacyPolicy: '/privacy-policy',
+    confirmEmail: '/confirm-email',
+    notFound: '/404',
+    unauthorized: '/unauthorized',
+    kyc: '/kyc',
+    admin: '/admin',
+};

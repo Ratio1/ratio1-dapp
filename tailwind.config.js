@@ -28,6 +28,9 @@ export default {
                 3: '3px',
                 6: '6px',
             },
+            boxShadow: {
+                round: '0 0px 2px 0 rgb(0 0 0 / 0.05)',
+            },
         },
         screens: {
             xs: '400px',

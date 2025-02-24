@@ -1,6 +1,6 @@
 import { initSumsubSession } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
-import { routePath } from '@lib/routes';
+import { routePath } from '@lib/routes/route-paths';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Switch } from '@nextui-org/switch';

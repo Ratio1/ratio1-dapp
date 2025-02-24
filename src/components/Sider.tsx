@@ -1,5 +1,6 @@
 import Logo from '@assets/logo_blue.svg';
-import { mainRoutesInfo, routePath } from '@lib/routes';
+import { mainRoutesInfo } from '@lib/routes';
+import { routePath } from '@lib/routes/route-paths';
 import NetworkAndStatus from '@shared/NetworkAndStatus';
 import { NavLink } from 'react-router-dom';
 import Navigation from './Navigation';
