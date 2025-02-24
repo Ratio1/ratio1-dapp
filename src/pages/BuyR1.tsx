@@ -1,7 +1,6 @@
 import R1Logo from '@assets/token.svg';
 import { ERC20Abi } from '@blockchain/ERC20';
 import { UniswapV2RouterAbi } from '@blockchain/UniswapV2Router';
-import { SlippageModal } from '@components/SlippageModal';
 import { TokenSelectorModal } from '@components/TokenSelectorModal';
 import { config } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
@@ -10,6 +9,9 @@ import { Button } from '@nextui-org/button';
 import { useDisclosure } from '@nextui-org/modal';
 import { BigCard } from '@shared/BigCard';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
+import { DualTxsModal } from '@shared/DualTxsModal';
+import { SlippageModal } from '@shared/SlippageModal';
+import { EthAddress } from '@typedefs/blockchain';
 import { FunctionComponent, PropsWithChildren, useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiArrowDownLine, RiArrowDownSLine, RiSettings2Line } from 'react-icons/ri';
@@ -48,6 +50,13 @@ function BuyR1() {
         onOpen: onTokenSelectorOpen,
         onClose: onCloseTokenSelector,
         onOpenChange: onTokenSelectorOpenChange,
+    } = useDisclosure();
+
+    const {
+        isOpen: isDualTxsModalOpen,
+        onOpen: onDualTxsModalOpen,
+        onClose: onDualTxsModalClose,
+        onOpenChange: onDualTxsModalOpenChange,
     } = useDisclosure();
 
     const tokenSelectorModalRef = useRef<{ getBalances: () => void }>(null);
@@ -136,24 +145,33 @@ function BuyR1() {
             setIsLoading(true);
 
             if (selectedToken.address) {
-                //TODO modal for two transactions?
-                const approveTxHash = await walletClient.writeContract({
-                    address: selectedToken.address,
-                    abi: ERC20Abi,
-                    functionName: 'approve',
-                    args: [config.uniswapV2RouterAddress, amountIn],
-                });
+                onDualTxsModalOpen();
 
-                await watchTx(approveTxHash, publicClient);
+                const approve = async () => {
+                    console.log('Approving token spending...', selectedToken.address);
 
-                const swapTxHash = await walletClient.writeContract({
-                    address: config.uniswapV2RouterAddress,
-                    abi: UniswapV2RouterAbi,
-                    functionName: 'swapExactTokensForTokens',
-                    args: [amountIn, minAmountOut, selectedToken.swapPath, address, BigInt(deadline)],
-                });
+                    const approveTxHash = await walletClient.writeContract({
+                        address: selectedToken.address as EthAddress,
+                        abi: ERC20Abi,
+                        functionName: 'approve',
+                        args: [config.uniswapV2RouterAddress, amountIn],
+                    });
 
-                await watchTx(swapTxHash, publicClient);
+                    await watchTx(approveTxHash, publicClient);
+                };
+
+                const swap = async () => {
+                    const swapTxHash = await walletClient.writeContract({
+                        address: config.uniswapV2RouterAddress,
+                        abi: UniswapV2RouterAbi,
+                        functionName: 'swapExactTokensForTokens',
+                        args: [amountIn, minAmountOut, selectedToken.swapPath, address, BigInt(deadline)],
+                    });
+
+                    await watchTx(swapTxHash, publicClient);
+                };
+
+                await Promise.all([approve(), swap()]);
             } else {
                 const txHash = await walletClient.writeContract({
                     address: config.uniswapV2RouterAddress,
@@ -173,6 +191,7 @@ function BuyR1() {
             console.error(error);
         } finally {
             setIsLoading(false);
+            onDualTxsModalClose();
         }
     };
 
@@ -329,6 +348,12 @@ function BuyR1() {
                 onClose={onCloseTokenSelector}
                 onSelect={setSelectedTokenKey}
                 ethPriceInUsd={ethPriceInUsd}
+            />
+
+            <DualTxsModal
+                isOpen={isDualTxsModalOpen}
+                onOpenChange={onDualTxsModalOpenChange}
+                text="approve token spending and swap them"
             />
         </div>
     );

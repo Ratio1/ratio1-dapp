@@ -7,14 +7,14 @@ import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/block
 import useAwait from '@lib/useAwait';
 import { fBI, fN } from '@lib/utils';
 import { Button } from '@nextui-org/button';
-import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
+import { useDisclosure } from '@nextui-org/modal';
 import { Tab, Tabs } from '@nextui-org/tabs';
-import { DetailedAlert } from '@shared/DetailedAlert';
+import { DualTxsModal } from '@shared/DualTxsModal';
 import { Timer } from '@shared/Timer';
 import { KycStatus } from '@typedefs/profile';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiArrowRightUpLine, RiCheckDoubleLine } from 'react-icons/ri';
+import { RiArrowRightUpLine } from 'react-icons/ri';
 import { ComputeParam, License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
@@ -289,27 +289,7 @@ function LicensesPageHeader({
                 <div className="absolute -bottom-1 left-0 right-0 h-20 rounded-3xl bg-[#658bdc]"></div>
             </div>
 
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm" backdrop="blur" shouldBlockScroll={true}>
-                <ModalContent>
-                    <ModalHeader></ModalHeader>
-
-                    <ModalBody>
-                        <div className="col -mt-4 gap-2 pb-2">
-                            <DetailedAlert
-                                icon={<RiCheckDoubleLine />}
-                                title="Confirmation"
-                                description={
-                                    <div>
-                                        You'll need to approve{' '}
-                                        <span className="font-medium text-primary">two transactions</span> to claim both ND and
-                                        MND rewards.
-                                    </div>
-                                }
-                            ></DetailedAlert>
-                        </div>
-                    </ModalBody>
-                </ModalContent>
-            </Modal>
+            <DualTxsModal isOpen={isOpen} onOpenChange={onOpenChange} text="claim both ND and MND rewards" />
         </>
     );
 }

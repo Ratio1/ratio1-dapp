@@ -24,7 +24,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { PriceTier } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
-import { SlippageModal } from './SlippageModal';
+import { SlippageModal } from '../shared/SlippageModal';
 
 const MAX_ALLOWANCE: bigint = 2n ** 256n - 1n;
 

@@ -3,8 +3,8 @@ import { LiquidityManagerAbi } from '@blockchain/LiquidityManager';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { config } from '@lib/config';
-import { useCustomDisclosure } from '@lib/useCustomDisclosure';
 import { INITIAL_TIERS_STATE, getNodeAndLicenseRewards } from '@lib/utils';
+import { useDisclosure } from '@nextui-org/modal';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiExternalLinkLine } from 'react-icons/ri';
@@ -30,7 +30,7 @@ export const BlockchainProvider = ({ children }) => {
     const [isLoadingPriceTiers, setLoadingPriceTiers] = useState<boolean>(false);
 
     // License buying
-    const { isOpen: isBuyDrawerOpen, onOpen: onBuyDrawerOpen, onClose: onBuyDrawerClose } = useCustomDisclosure();
+    const { isOpen: isBuyDrawerOpen, onOpen: onBuyDrawerOpen, onClose: onBuyDrawerClose } = useDisclosure();
 
     const { address } = useAccount();
     const publicClient = usePublicClient();
