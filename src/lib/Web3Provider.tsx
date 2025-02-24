@@ -1,11 +1,11 @@
-import { WagmiProvider, createConfig, http } from 'wagmi';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ConnectKitProvider, getDefaultConfig, SIWEProvider, SIWEConfig } from 'connectkit';
-import { config, projectId } from '@lib/config';
-import { generateNonce, SiweMessage } from 'siwe';
-import { accessAuth } from '@lib/api/backend';
-import { EthAddress } from '@typedefs/blockchain';
 import Favicon from '@assets/favicon.png';
+import { accessAuth } from '@lib/api/backend';
+import { config, projectId } from '@lib/config';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { EthAddress } from '@typedefs/blockchain';
+import { ConnectKitProvider, getDefaultConfig, SIWEConfig, SIWEProvider } from 'connectkit';
+import { generateNonce, SiweMessage } from 'siwe';
+import { createConfig, WagmiProvider } from 'wagmi';
 
 const siweConfig: SIWEConfig = {
     getNonce: async () => {
@@ -97,7 +97,15 @@ export const Web3Provider = ({ children }) => {
         <WagmiProvider config={wagmiConfig}>
             <QueryClientProvider client={queryClient}>
                 <SIWEProvider {...siweConfig}>
-                    <ConnectKitProvider>{children}</ConnectKitProvider>
+                    <ConnectKitProvider
+                        customTheme={{
+                            '--ck-accent-color': '#1b47f7',
+                            // '--ck-font-family': '"Comic Sans MS", "Comic Sans", cursive',
+                            // '--ck-font-family': '"Mona Sans", sans-serif',
+                        }}
+                    >
+                        {children}
+                    </ConnectKitProvider>
                 </SIWEProvider>
             </QueryClientProvider>
         </WagmiProvider>

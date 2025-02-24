@@ -1,5 +1,6 @@
 import { ProtectedAdminRoute } from '@components/ProtectedAdminRoute';
 import NotFound from '@pages/404';
+import BuyR1 from '@pages/BuyR1';
 import Dashboard from '@pages/Dashboard';
 import EmailConfirmation from '@pages/EmailConfirmation';
 import Faucet from '@pages/Faucet';
@@ -10,16 +11,9 @@ import Profile from '@pages/Profile';
 import Search from '@pages/Search';
 import TermsAndConditions from '@pages/T&C';
 import Unauthorized from '@pages/Unauthorized';
-import {
-    RiCpuLine,
-    RiFunctionLine,
-    RiMoneyDollarBoxLine,
-    RiSearchLine,
-    RiShieldUserLine,
-    RiWaterFlashLine,
-} from 'react-icons/ri';
+import { TokenSvg } from '@shared/TokenSvg';
+import { RiCpuLine, RiFunctionLine, RiSearchLine, RiShieldUserLine, RiWaterFlashLine } from 'react-icons/ri';
 import { environment } from './config';
-import BuyR1 from '@pages/BuyR1';
 
 export interface AppRoute {
     path: string;
@@ -71,7 +65,7 @@ export const mainRoutesInfo = {
     },
     [routePath.buy]: {
         title: 'Buy',
-        description: 'Buy $R1 tokens',
+        description: 'Trade $R1 tokens',
     },
     [routePath.termsAndConditions]: {
         title: 'Terms & Conditions',
@@ -136,7 +130,11 @@ export const routes: AppRoute[] = [
               {
                   path: routePath.buy,
                   page: BuyR1,
-                  icon: <RiMoneyDollarBoxLine />,
+                  icon: (
+                      <div className="center-all h-[26px] w-[26px] layoutBreak:h-[22px] layoutBreak:w-[22px]">
+                          <TokenSvg classNames="h-6 w-6 layoutBreak:h-5 layoutBreak:w-5" />
+                      </div>
+                  ),
               },
           ]
         : []),

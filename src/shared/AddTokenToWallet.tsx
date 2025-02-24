@@ -55,20 +55,19 @@ export const AddTokenToWallet = ({ contractAddress, symbol, decimals }: Props) =
         }
     };
 
-    if (!authenticated || isTokenAddedInWallet) {
+    if (!authenticated || !address || isTokenAddedInWallet) {
         return null;
     }
 
     //TODO check if it's possible to add only for metamask
     return (
-        <Button fullWidth className="px-3" variant="bordered" onPress={add}>
-            <div className="row gap-1.5">
-                <div>
+        <div className="flex">
+            <Button fullWidth className="px-3" variant="bordered" onPress={add}>
+                <div className="row gap-1.5">
                     <img src={Metamask} alt="Metamask" className="h-7 w-7 rounded-full" />
+                    <div>Add ${symbol} to wallet</div>
                 </div>
-
-                <div>Add ${symbol} to wallet</div>
-            </div>
-        </Button>
+            </Button>
+        </div>
     );
 };

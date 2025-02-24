@@ -278,7 +278,7 @@ const getMndNodeAndLicenseRewards = async (
 
     const { epochs, epochs_vals, eth_signatures, node_alias, node_is_online } = await getNodeEpochsRange(
         license.nodeAddress,
-        firstEpochToClaim,
+        currentEpoch >= config.mndCliffEpochs ? firstEpochToClaim : currentEpoch - 1,
         currentEpoch - 1,
     );
 

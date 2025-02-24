@@ -22,8 +22,8 @@ function Route({ route }: { route: AppRoute }) {
         <div className="col gap-2">
             <Link
                 to={route.path}
-                className={clsx('min-w-40 cursor-pointer rounded-lg px-3 py-2.5 transition-all hover:bg-[#e2eefb]', {
-                    'bg-[#e2eefb] text-primary': location.pathname.includes(route.path),
+                className={clsx('min-w-40 cursor-pointer rounded-lg px-3 py-2.5 text-body transition-all hover:bg-[#e2eefb]', {
+                    'bg-[#e2eefb] !text-primary': location.pathname.includes(route.path),
                 })}
             >
                 <div className="row gap-2.5">

@@ -1,4 +1,3 @@
-import { environment } from '@lib/config';
 import { mainRoutesInfo } from '@lib/routes';
 import { getNavigationRoutes } from '@lib/utils';
 import clsx from 'clsx';
@@ -15,11 +14,12 @@ export default function MobileTabs() {
                         <div key={route.path}>
                             <Link
                                 to={route.path}
-                                className={clsx('center-all col cursor-pointer gap-1 py-1 text-slate-500 hover:opacity-70', {
-                                    '!text-primary': location.pathname.includes(route.path),
-                                    'min-w-[64px]': environment === 'testnet',
-                                    'min-w-[84px]': environment !== 'testnet',
-                                })}
+                                className={clsx(
+                                    'center-all col min-w-[64px] cursor-pointer gap-1 py-1 text-slate-500 hover:opacity-70',
+                                    {
+                                        '!text-primary': location.pathname.includes(route.path),
+                                    },
+                                )}
                             >
                                 <div className="text-[26px]">{route.icon}</div>
                                 <div className="text-sm font-semibold">
