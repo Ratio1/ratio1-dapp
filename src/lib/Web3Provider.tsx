@@ -6,7 +6,7 @@ import { EthAddress } from '@typedefs/blockchain';
 import { ConnectKitProvider, getDefaultConfig, SIWEConfig, SIWEProvider } from 'connectkit';
 import { generateNonce, SiweMessage } from 'siwe';
 import { createConfig, WagmiProvider } from 'wagmi';
-import { routePath } from './routes';
+import { routePath } from './routes/route-paths';
 
 const siweConfig: SIWEConfig = {
     getNonce: async () => {

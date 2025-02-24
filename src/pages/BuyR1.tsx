@@ -35,7 +35,7 @@ function BuyR1() {
         return userTokenBalance >= parseUnits(fromAmount, selectedToken.decimals);
     }, [userTokenBalance, fromAmount]);
 
-    const [slippageValue, setSlippageValue] = useState<string>('');
+    const [slippageValue, setSlippageValue] = useState<string>('5');
     const [slippage, setSlippage] = useState<number>(5);
 
     const {
@@ -136,6 +136,11 @@ function BuyR1() {
         const deadline = Math.floor(Date.now() / 1000) + 60 * 10; // 10 minutes
         const amountIn = parseUnits(fromAmount, selectedToken.decimals);
 
+        if (!amountIn) {
+            toast.error('Please enter a valid amount.');
+            return;
+        }
+
         if (amountIn > userTokenBalance) {
             toast.error('Insufficient balance.');
             return;
@@ -214,6 +219,8 @@ function BuyR1() {
 
                                             if (value === '') {
                                                 setFromAmount('');
+                                            } else if (n === 0) {
+                                                setFromAmount(value);
                                             } else if (
                                                 isFinite(n) &&
                                                 !isNaN(n) &&
