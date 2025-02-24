@@ -1,6 +1,7 @@
 import { Button } from '@nextui-org/button';
-import { useAppKit, useAppKitAccount } from '@reown/appkit/react';
+import { useModal } from 'connectkit';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { useAccount } from 'wagmi';
 
 interface Props {
     classNames?: string;
@@ -8,8 +9,8 @@ interface Props {
 }
 
 export const ConnectWalletWrapper: FunctionComponent<PropsWithChildren<Props>> = ({ children, classNames, isFullWidth }) => {
-    const { open } = useAppKit();
-    const { isConnected } = useAppKitAccount();
+    const { setOpen } = useModal();
+    const { isConnected } = useAccount();
 
     return isConnected ? (
         <>{children}</>
@@ -19,7 +20,7 @@ export const ConnectWalletWrapper: FunctionComponent<PropsWithChildren<Props>> =
             fullWidth={!!isFullWidth}
             color="primary"
             onPress={() => {
-                open({ view: 'Connect' });
+                setOpen(true);
             }}
         >
             Connect Wallet

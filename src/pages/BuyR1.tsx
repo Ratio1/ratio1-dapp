@@ -227,7 +227,7 @@ function BuyR1() {
                                     />
 
                                     <div
-                                        className="row cursor-pointer gap-1.5 rounded-full border border-slate-100 bg-white px-1.5 py-1 shadow-round transition-all hover:border-primary"
+                                        className="row shadow-round cursor-pointer gap-1.5 rounded-full border border-slate-100 bg-white px-1.5 py-1 transition-all hover:border-primary"
                                         onClick={() => {
                                             if (tokenSelectorModalRef.current) {
                                                 tokenSelectorModalRef.current.getBalances();

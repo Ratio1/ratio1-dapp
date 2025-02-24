@@ -159,9 +159,7 @@ const LicenseUnlinkModal = forwardRef(({ onClaim }: Props, ref) => {
                         <>
                             <ModalHeader>Unlink License #{Number(license.licenseId)}</ModalHeader>
 
-                            <ModalBody className="font-mona">
-                                {rewards > 0n ? getClaimRewardsContent() : getUnlinkingContent()}
-                            </ModalBody>
+                            <ModalBody>{rewards > 0n ? getClaimRewardsContent() : getUnlinkingContent()}</ModalBody>
                         </>
                     )}
                 </ModalContent>

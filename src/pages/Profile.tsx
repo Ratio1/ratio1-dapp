@@ -5,6 +5,7 @@ import { AuthenticationContextType, useAuthenticationContext } from '@lib/contex
 import { Spinner } from '@nextui-org/spinner';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { RegistrationStatus } from '@typedefs/profile';
+import { ConnectKitButton } from 'connectkit';
 import { RiCloseLargeLine, RiWalletLine } from 'react-icons/ri';
 
 function Profile() {
@@ -35,7 +36,7 @@ function Profile() {
                         </div>
                     }
                 >
-                    <appkit-connect-button />
+                    <ConnectKitButton />
                 </DetailedAlert>
             </div>
         );

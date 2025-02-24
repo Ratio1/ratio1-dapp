@@ -1,7 +1,5 @@
-import Metamask from '@assets/metamask.png';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { Button } from '@nextui-org/button';
-import { useWalletInfo } from '@reown/appkit/react';
 import { EthAddress } from '@typedefs/blockchain';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -16,16 +14,15 @@ type Props = {
 export const AddTokenToWallet = ({ contractAddress, symbol, decimals }: Props) => {
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
-    const { walletInfo } = useWalletInfo();
-
     const { data: walletClient } = useWalletClient();
-    const { address } = useAccount();
+    const { address, connector } = useAccount();
 
     const [isTokenAddedInWallet, setTokenAddedInWallet] = useState<boolean>(false);
+    const localStorageKey = `${contractAddress}_added_${address}`;
 
     useEffect(() => {
         if (address) {
-            setTokenAddedInWallet(!!localStorage.getItem(`${contractAddress}_added_${address}`));
+            setTokenAddedInWallet(!!localStorage.getItem(localStorageKey));
         }
     }, [address]);
 
@@ -49,7 +46,7 @@ export const AddTokenToWallet = ({ contractAddress, symbol, decimals }: Props) =
             });
 
             if (wasAdded) {
-                localStorage.setItem(`r1added_${address}`, 'true');
+                localStorage.setItem(localStorageKey, 'true');
                 setTokenAddedInWallet(true);
             }
         } catch (error) {
@@ -65,12 +62,7 @@ export const AddTokenToWallet = ({ contractAddress, symbol, decimals }: Props) =
         <div className="flex">
             <Button fullWidth className="px-3" variant="bordered" onPress={add}>
                 <div className="row gap-1.5">
-                    {walletInfo && walletInfo.name.includes('metamask') && (
-                        <div>
-                            <img src={Metamask} alt="Metamask" className="h-7 w-7 rounded-full" />
-                        </div>
-                    )}
-
+                    {!!connector?.icon && <img src={connector.icon} alt="Wallet Logo" className="h-6 w-6 rounded-full" />}
                     <div>Add ${symbol} to wallet</div>
                 </div>
             </Button>
