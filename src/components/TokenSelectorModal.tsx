@@ -2,7 +2,7 @@ import { config } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { getShortAddress } from '@lib/utils';
 import { Modal, ModalBody, ModalContent, ModalHeader } from '@nextui-org/modal';
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { RiCoinLine } from 'react-icons/ri';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
@@ -12,11 +12,14 @@ interface Props {
     onOpenChange: (isOpen: boolean) => void;
     onClose: () => void;
     onSelect: (key: string) => void;
+    ethPriceInUsd: number;
 }
 
-export const TokenSelectorModal = forwardRef(({ isOpen, onOpenChange, onClose, onSelect }: Props, ref) => {
+export const TokenSelectorModal = forwardRef(({ isOpen, onOpenChange, onClose, onSelect, ethPriceInUsd }: Props, ref) => {
     const { fetchErc20Balance } = useBlockchainContext() as BlockchainContextType;
     const [tokenBalances, setTokenBalances] = useState<{ [key: string]: bigint }>({});
+
+    useEffect(() => {}, [tokenBalances]);
 
     const publicClient = usePublicClient();
     const { address } = useAccount();
@@ -89,7 +92,27 @@ export const TokenSelectorModal = forwardRef(({ isOpen, onOpenChange, onClose, o
                                     </div>
 
                                     <div className="col items-end">
-                                        <div>${config.swapTokensDetails[key].decimals * 100}</div>
+                                        <div>
+                                            $
+                                            {parseFloat(
+                                                (!config.swapTokensDetails[key].address
+                                                    ? ethPriceInUsd *
+                                                      Number(
+                                                          formatUnits(
+                                                              tokenBalances[key] || 0n,
+                                                              config.swapTokensDetails[key].decimals,
+                                                          ),
+                                                      )
+                                                    : Number(
+                                                          formatUnits(
+                                                              tokenBalances[key] || 0n,
+                                                              config.swapTokensDetails[key].decimals,
+                                                          ),
+                                                      )
+                                                ).toFixed(2),
+                                            )}
+                                        </div>
+
                                         <div className="text-sm text-slate-500">
                                             {!tokenBalances[key] ? (
                                                 <>...</>

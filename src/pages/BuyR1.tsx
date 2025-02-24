@@ -26,6 +26,7 @@ function BuyR1() {
     const [r1Estimate, setR1Estimate] = useState<string>('0');
     const [expectedPrice, setExpectedPrice] = useState<number>(0);
     const [userTokenBalance, setUserTokenBalance] = useState<bigint>(0n);
+    const [ethPriceInUsd, setEthPriceInUsd] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const hasSufficientBalance = useMemo(() => {
@@ -98,12 +99,23 @@ function BuyR1() {
         }
     };
 
+    const fetchEthPrice = async () => {
+        try {
+            const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+            const data = await response.json();
+            setEthPriceInUsd(data.ethereum.usd);
+        } catch (error) {
+            console.error('Error fetching ETH price:', error);
+        }
+    };
+
     useEffect(() => {
         fetchEstimatedR1();
     }, [fromAmount, selectedToken]);
 
     useEffect(() => {
         fetchUserBalance();
+        fetchEthPrice();
     }, [address, selectedToken]);
 
     const swapForR1 = async () => {
@@ -112,11 +124,16 @@ function BuyR1() {
             return;
         }
 
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 10; // 10 minutes
+        const amountIn = parseUnits(fromAmount, selectedToken.decimals);
+
+        if (amountIn > userTokenBalance) {
+            toast.error('Insufficient balance.');
+            return;
+        }
+
         try {
             setIsLoading(true);
-
-            const deadline = Math.floor(Date.now() / 1000) + 60 * 10; // 10 minutes
-            const amountIn = parseUnits(fromAmount, selectedToken.decimals);
 
             if (selectedToken.address) {
                 //TODO modal for two transactions?
@@ -159,7 +176,6 @@ function BuyR1() {
         }
     };
 
-    // TODO: Show error message if user doesn't have enough balance
     return (
         <div className="center-all w-full flex-col">
             <div className="w-full sm:w-auto">
@@ -173,7 +189,21 @@ function BuyR1() {
                                     <input
                                         type="number"
                                         value={fromAmount}
-                                        onChange={(e) => setFromAmount(e.target.value)}
+                                        onChange={(e) => {
+                                            const value: string = e.target.value;
+                                            const n = Number.parseFloat(value);
+
+                                            if (value === '') {
+                                                setFromAmount('');
+                                            } else if (
+                                                isFinite(n) &&
+                                                !isNaN(n) &&
+                                                n >= 0 &&
+                                                n <= Number(formatUnits(userTokenBalance, selectedToken.decimals))
+                                            ) {
+                                                setFromAmount(n.toString());
+                                            }
+                                        }}
                                         className="w-full border-none bg-transparent text-2xl font-semibold focus:outline-none"
                                     />
 
@@ -197,8 +227,17 @@ function BuyR1() {
                                 </div>
 
                                 <div className="row justify-between text-sm text-slate-500">
-                                    {/* TODO: Use real $ amount */}
-                                    <div>≈ $45</div>
+                                    {fromAmount.length && (
+                                        <div>
+                                            ≈ $
+                                            {parseFloat(
+                                                (!selectedToken.address
+                                                    ? ethPriceInUsd * Number.parseFloat(fromAmount)
+                                                    : Number.parseFloat(fromAmount)
+                                                ).toFixed(2),
+                                            )}
+                                        </div>
+                                    )}
 
                                     <div>
                                         Balance:{' '}
@@ -289,6 +328,7 @@ function BuyR1() {
                 onOpenChange={onTokenSelectorOpenChange}
                 onClose={onCloseTokenSelector}
                 onSelect={setSelectedTokenKey}
+                ethPriceInUsd={ethPriceInUsd}
             />
         </div>
     );
