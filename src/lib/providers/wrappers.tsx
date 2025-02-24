@@ -4,8 +4,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { BrowserRouter } from 'react-router-dom';
-import { AuthenticationProvider } from './contexts/authentication';
-import { BlockchainProvider } from './contexts/blockchain';
+import { AuthenticationProvider } from '../contexts/authentication';
+import { BlockchainProvider } from '../contexts/blockchain';
 import { Web3Provider } from './Web3Provider';
 
 export function Wrappers({ children }: { children: React.ReactNode }) {

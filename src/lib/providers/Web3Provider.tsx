@@ -6,7 +6,7 @@ import { EthAddress } from '@typedefs/blockchain';
 import { ConnectKitProvider, getDefaultConfig, SIWEConfig, SIWEProvider } from 'connectkit';
 import { generateNonce, SiweMessage } from 'siwe';
 import { createConfig, WagmiProvider } from 'wagmi';
-import { routePath } from './routes/route-paths';
+import { routePath } from '../routes/route-paths';
 
 const siweConfig: SIWEConfig = {
     getNonce: async () => {
@@ -99,6 +99,7 @@ export const Web3Provider = ({ children }) => {
             <QueryClientProvider client={queryClient}>
                 <SIWEProvider {...siweConfig}>
                     <ConnectKitProvider
+                        mode="light"
                         customTheme={{
                             '--ck-font-family': "'Mona Sans', 'sans-serif'",
                             '--ck-primary-button-background': '#f8fafc',

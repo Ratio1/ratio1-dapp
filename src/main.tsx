@@ -1,4 +1,4 @@
-import { Wrappers } from '@lib/wrappers.tsx';
+import { Wrappers } from '@lib/providers/wrappers.tsx';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
