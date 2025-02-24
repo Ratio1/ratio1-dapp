@@ -109,8 +109,8 @@ export const Web3Provider = ({ children }) => {
                             '--ck-body-background-secondary': '#f8fafc',
                             // Connect Button
                             '--ck-connectbutton-background': '#1b47f7',
-                            '--ck-connectbutton-hover-background': '#1b47f7cc',
-                            '--ck-connectbutton-active-background': '#1b47f7b3',
+                            '--ck-connectbutton-hover-background': '#486bf9',
+                            '--ck-connectbutton-active-background': '#5e7df8',
                             '--ck-connectbutton-color': '#ffffff',
                             '--ck-connectbutton-hover-color': '#ffffff',
                             '--ck-connectbutton-active-color': '#ffffff',
