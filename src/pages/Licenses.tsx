@@ -109,7 +109,7 @@ function Licenses() {
         }
     };
 
-    const onClaim = async (license: License) => {
+    const onClaim = async (license: License, skipFetchingRewards: boolean = false) => {
         try {
             if (!publicClient || !address || !walletClient) {
                 toast.error('Unexpected error, please try again.');
@@ -150,9 +150,13 @@ function Licenses() {
                           args: [computeParam, ethSignatures],
                       });
 
-            await watchTx(txHash, publicClient);
+            const receipt = await watchTx(txHash, publicClient);
 
-            fetchLicenses();
+            if (!skipFetchingRewards) {
+                fetchLicenses();
+            }
+
+            return receipt;
         } catch (err: any) {
             toast.error('An error occurred, please try again.');
         } finally {

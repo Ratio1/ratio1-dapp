@@ -1,6 +1,6 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { config } from '@lib/config';
+import { config, getCurrentEpoch } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
 import { Alert } from '@nextui-org/alert';
@@ -13,11 +13,11 @@ import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiCurrencyLine, RiLinkUnlink } from 'react-icons/ri';
 import { License } from 'typedefs/blockchain';
-import { formatUnits } from 'viem';
+import { formatUnits, TransactionReceipt } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
 interface Props {
-    onClaim: (license: License) => Promise<void>;
+    onClaim: (license: License, skipFetchingRewards?: boolean) => Promise<TransactionReceipt | undefined>;
 }
 
 const LicenseUnlinkModal = forwardRef(({ onClaim }: Props, ref) => {
@@ -57,20 +57,34 @@ const LicenseUnlinkModal = forwardRef(({ onClaim }: Props, ref) => {
 
         setLoading(true);
 
-        try {
-            const txHash = await walletClient.writeContract({
+        const unlink = async () => {
+            const unlinkTxHash = await walletClient.writeContract({
                 address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
                 abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
                 functionName: 'unlinkNode',
                 args: [license.licenseId],
             });
 
-            await watchTx(txHash, publicClient);
-            fetchLicenses();
+            await watchTx(unlinkTxHash, publicClient);
+        };
+
+        try {
+            if (Number(license.lastClaimEpoch) < getCurrentEpoch()) {
+                const receipt = await onClaim(license, true);
+
+                if (receipt?.status !== 'success') {
+                    toast.error('Claiming rewards failed, please try again.');
+                    throw new Error('Claiming rewards failed');
+                }
+            }
+
+            await unlink();
             onClose();
         } catch (error) {
+            console.error(error);
             toast.error('Unexpected error, please try again.');
         } finally {
+            fetchLicenses();
             setLoading(false);
         }
     };
@@ -90,7 +104,6 @@ const LicenseUnlinkModal = forwardRef(({ onClaim }: Props, ref) => {
         } finally {
             setLoading(false);
             onClose();
-            // Claiming should also fetch licenses
         }
     };
 
@@ -102,7 +115,14 @@ const LicenseUnlinkModal = forwardRef(({ onClaim }: Props, ref) => {
                     icon={<RiLinkUnlink />}
                     title="Unlinking confirmation"
                     description={<div>Are you sure you want to unlink this license?</div>}
-                />
+                >
+                    {!!license && Number(license.lastClaimEpoch) < getCurrentEpoch() && (
+                        <div className="text-slate-400 layoutBreak:px-6">
+                            You'll need to approve <span className="font-medium text-primary">two transactions</span> because
+                            rewards were last claimed in a previous epoch.
+                        </div>
+                    )}
+                </DetailedAlert>
 
                 <Alert
                     color="primary"

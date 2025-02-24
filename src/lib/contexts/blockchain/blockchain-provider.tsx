@@ -125,8 +125,7 @@ export const BlockchainProvider = ({ children }) => {
                         </div>
                     </div>
                 ),
-                error: (transactionHash) => {
-                    console.log('watchTx error', transactionHash);
+                error: () => {
                     return (
                         <div className="col">
                             <div className="font-medium text-red-600">Transaction failed</div>
