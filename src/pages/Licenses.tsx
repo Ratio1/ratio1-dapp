@@ -17,7 +17,7 @@ import toast from 'react-hot-toast';
 import { License } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 
 function Licenses() {
     const { watchTx, licenses, isLoadingLicenses, fetchLicenses } = useBlockchainContext() as BlockchainContextType;

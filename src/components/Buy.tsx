@@ -451,6 +451,7 @@ function Buy({ onClose }: { onClose: () => void }) {
 
                             <div className={!quantity ? 'mt-6' : ''}>
                                 <ConnectWalletWrapper isFullWidth>
+                                    {/* TODO: Disabled on mainnet */}
                                     <Button
                                         fullWidth
                                         color="primary"

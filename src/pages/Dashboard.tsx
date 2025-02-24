@@ -60,8 +60,10 @@ function Dashboard() {
     }, [authenticated]);
 
     const isBuyingDisabled = (): boolean =>
-        (!authenticated || isLoadingPriceTiers || !account || account.kycStatus !== KycStatus.Approved) &&
-        environment === 'mainnet';
+        !authenticated ||
+        isLoadingPriceTiers ||
+        !account ||
+        (account.kycStatus !== KycStatus.Approved && environment === 'mainnet');
 
     const getKycNotCompletedAlert = () => (
         <>

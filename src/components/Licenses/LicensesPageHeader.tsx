@@ -172,8 +172,10 @@ function LicensesPageHeader({
         ).then((a) => a.filter((x): x is { computeParam: ComputeParam; eth_signatures: `0x${string}`[] } => !!x));
 
     const isBuyingDisabled = (): boolean =>
-        (!authenticated || isLoadingPriceTiers || !account || account.kycStatus !== KycStatus.Approved) &&
-        environment === 'mainnet';
+        !authenticated ||
+        isLoadingPriceTiers ||
+        !account ||
+        (account.kycStatus !== KycStatus.Approved && environment === 'mainnet');
 
     const renderItem = (label: string, value) => (
         <div className="col gap-1">
