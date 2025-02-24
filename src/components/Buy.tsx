@@ -24,7 +24,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { PriceTier } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
-import { ChangeSlippageModal } from './ChangeSlippageModal';
+import { SlippageModal } from './SlippageModal';
 
 const MAX_ALLOWANCE: bigint = 2n ** 256n - 1n;
 
@@ -504,7 +504,7 @@ function Buy({ onClose }: { onClose: () => void }) {
                 </div>
             </div>
 
-            <ChangeSlippageModal
+            <SlippageModal
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 onClose={onCloseSlippageModal}

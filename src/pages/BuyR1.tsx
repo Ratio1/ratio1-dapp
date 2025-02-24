@@ -1,7 +1,8 @@
 import R1Logo from '@assets/token.svg';
 import { ERC20Abi } from '@blockchain/ERC20';
 import { UniswapV2RouterAbi } from '@blockchain/UniswapV2Router';
-import { ChangeSlippageModal } from '@components/ChangeSlippageModal';
+import { SlippageModal } from '@components/SlippageModal';
+import { TokenSelectorModal } from '@components/TokenSelectorModal';
 import { config } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
@@ -9,7 +10,7 @@ import { Button } from '@nextui-org/button';
 import { useDisclosure } from '@nextui-org/modal';
 import { BigCard } from '@shared/BigCard';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
-import { FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, PropsWithChildren, useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiArrowDownLine, RiArrowDownSLine, RiSettings2Line } from 'react-icons/ri';
 import { formatUnits, parseUnits } from 'viem';
@@ -19,9 +20,9 @@ function BuyR1() {
     const { watchTx, fetchR1Balance, fetchErc20Balance } = useBlockchainContext() as BlockchainContextType;
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
-    const [selectedTokenId, setSelectedTokenId] = useState<string>(Object.keys(config.swapTokensDetails)[0]);
-    const selectedToken = useMemo(() => config.swapTokensDetails[selectedTokenId], [selectedTokenId]);
-    const [fromAmount, setFromAmount] = useState<string>(selectedToken.symbol);
+    const [selectedTokenKey, setSelectedTokenKey] = useState<string>(Object.keys(config.swapTokensDetails)[0]);
+    const selectedToken = useMemo(() => config.swapTokensDetails[selectedTokenKey], [selectedTokenKey]);
+    const [fromAmount, setFromAmount] = useState<string>(selectedToken.fromAmount);
     const [r1Estimate, setR1Estimate] = useState<string>('0');
     const [expectedPrice, setExpectedPrice] = useState<number>(0);
     const [userTokenBalance, setUserTokenBalance] = useState<bigint>(0n);
@@ -33,7 +34,22 @@ function BuyR1() {
 
     const [slippageValue, setSlippageValue] = useState<string>('');
     const [slippage, setSlippage] = useState<number>(5);
-    const { isOpen, onOpen, onClose: onCloseSlippageModal, onOpenChange } = useDisclosure();
+
+    const {
+        isOpen: isSlippageModalOpen,
+        onOpen: onSlippageModalOpen,
+        onClose: onCloseSlippageModal,
+        onOpenChange: onSlippageModalOpenChange,
+    } = useDisclosure();
+
+    const {
+        isOpen: isTokenSelectorOpen,
+        onOpen: onTokenSelectorOpen,
+        onClose: onCloseTokenSelector,
+        onOpenChange: onTokenSelectorOpenChange,
+    } = useDisclosure();
+
+    const tokenSelectorModalRef = useRef<{ getBalances: () => void }>(null);
 
     const minAmountOut = useMemo(() => {
         const slippageValue = Math.floor(slippage * 100) / 100; // Rounds down to 2 decimal places
@@ -144,7 +160,6 @@ function BuyR1() {
     };
 
     // TODO: Show error message if user doesn't have enough balance
-    // TODO: Token selector in modal (component test 2)
     return (
         <div className="center-all w-full flex-col">
             <div className="w-full sm:w-auto">
@@ -162,34 +177,27 @@ function BuyR1() {
                                         className="w-full border-none bg-transparent text-2xl font-semibold focus:outline-none"
                                     />
 
-                                    {/* <select
-                                            value={selectedTokenId}
-                                            onChange={(e) => {
-                                                setSelectedTokenId(e.target.value);
-                                                setFromAmount(config.swapTokensDetails[e.target.value].symbol);
-                                            }}
-                                            className="bg-transparent text-base font-medium focus:outline-none"
-                                        >
-                                            {Object.keys(config.swapTokensDetails).map((key) => (
-                                                <option key={key} value={key}>
-                                                    {key}
-                                                </option>
-                                            ))}
-                                        </select> */}
-
-                                    <div className="row shadow-round cursor-pointer gap-1.5 rounded-full border border-slate-100 bg-white px-1.5 py-1 transition-all hover:border-primary">
-                                        <div className="h-7 w-7 min-w-7 overflow-hidden rounded-full">
-                                            <img src={selectedToken.logo} alt={selectedTokenId} className="h-7 w-7" />
-                                        </div>
-
-                                        <div className="text-sm font-medium">{selectedTokenId}</div>
-
+                                    <div
+                                        className="row cursor-pointer gap-1.5 rounded-full border border-slate-100 bg-white px-1.5 py-1 shadow-round transition-all hover:border-primary"
+                                        onClick={() => {
+                                            if (tokenSelectorModalRef.current) {
+                                                tokenSelectorModalRef.current.getBalances();
+                                                onTokenSelectorOpen();
+                                            }
+                                        }}
+                                    >
+                                        <img
+                                            src={selectedToken.logo}
+                                            alt={selectedTokenKey}
+                                            className="h-7 w-7 min-w-7 overflow-hidden rounded-full"
+                                        />
+                                        <div className="select-none text-sm font-medium">{selectedTokenKey}</div>
                                         <RiArrowDownSLine className="-ml-1 text-xl" />
                                     </div>
                                 </div>
 
                                 <div className="row justify-between text-sm text-slate-500">
-                                    {/* TODO: Use real balance*/}
+                                    {/* TODO: Use real $ amount */}
                                     <div>≈ $45</div>
 
                                     <div>
@@ -200,7 +208,7 @@ function BuyR1() {
                                                 maximumFractionDigits: selectedToken.displayDecimals,
                                             },
                                         )}{' '}
-                                        {selectedTokenId}
+                                        {selectedTokenKey}
                                     </div>
                                 </div>
                             </SwapInput>
@@ -243,7 +251,7 @@ function BuyR1() {
                                         minimumFractionDigits: 2,
                                         maximumFractionDigits: selectedToken.displayDecimals,
                                     })}{' '}
-                                    {selectedTokenId}
+                                    {selectedTokenKey}
                                 </div>
                             </Row>
 
@@ -252,7 +260,7 @@ function BuyR1() {
                                     <div>{slippage}%</div>
                                     <RiSettings2Line
                                         className="cursor-pointer text-lg text-slate-400 transition-all hover:opacity-50"
-                                        onClick={onOpen}
+                                        onClick={onSlippageModalOpen}
                                     />
                                 </div>
                             </Row>
@@ -265,14 +273,22 @@ function BuyR1() {
                 </BigCard>
             </div>
 
-            <ChangeSlippageModal
-                isOpen={isOpen}
-                onOpenChange={onOpenChange}
+            <SlippageModal
+                isOpen={isSlippageModalOpen}
+                onOpenChange={onSlippageModalOpenChange}
                 onClose={onCloseSlippageModal}
                 slippageValue={slippageValue}
                 setSlippageValue={setSlippageValue}
                 slippage={slippage}
                 setSlippage={setSlippage}
+            />
+
+            <TokenSelectorModal
+                ref={tokenSelectorModalRef}
+                isOpen={isTokenSelectorOpen}
+                onOpenChange={onTokenSelectorOpenChange}
+                onClose={onCloseTokenSelector}
+                onSelect={setSelectedTokenKey}
             />
         </div>
     );

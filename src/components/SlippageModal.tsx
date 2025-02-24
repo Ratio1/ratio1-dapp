@@ -7,7 +7,7 @@ import { isFinite, isNaN } from 'lodash';
 
 const DANGEROUS_SLIPPAGE = 0.5;
 
-export const ChangeSlippageModal = ({
+export const SlippageModal = ({
     isOpen,
     onOpenChange,
     onClose,

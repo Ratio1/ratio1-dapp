@@ -117,10 +117,11 @@ type PriceTier = {
 };
 
 type SwapTokenDetails = {
+    name: string;
     address?: EthAddress;
     decimals: number;
     displayDecimals: number;
-    symbol: string;
+    fromAmount: string;
     logo: string;
     swapPath: EthAddress[];
 };
