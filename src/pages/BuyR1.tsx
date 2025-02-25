@@ -7,6 +7,7 @@ import { AuthenticationContextType, useAuthenticationContext } from '@lib/contex
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { Button } from '@nextui-org/button';
 import { useDisclosure } from '@nextui-org/modal';
+import { AddTokenToWallet } from '@shared/AddTokenToWallet';
 import { BigCard } from '@shared/BigCard';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
 import { DualTxsModal } from '@shared/DualTxsModal';
@@ -234,7 +235,7 @@ function BuyR1() {
                                     />
 
                                     <div
-                                        className="row shadow-round cursor-pointer gap-1.5 rounded-full border border-slate-100 bg-white px-1.5 py-1 transition-all hover:border-primary"
+                                        className="row cursor-pointer gap-1.5 rounded-full border border-slate-100 bg-white px-1.5 py-1 shadow-round transition-all hover:border-primary"
                                         onClick={() => {
                                             if (tokenSelectorModalRef.current) {
                                                 tokenSelectorModalRef.current.getBalances();
@@ -334,6 +335,8 @@ function BuyR1() {
                                 {parseFloat(Number(formatUnits(minAmountOut, 18)).toFixed(2)).toLocaleString('en-US')}
                             </Row>
                         </div>
+
+                        <AddTokenToWallet contractAddress={config.r1ContractAddress} symbol="R1" decimals={18} />
                     </div>
                 </BigCard>
             </div>

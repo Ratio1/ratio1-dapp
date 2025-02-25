@@ -102,7 +102,7 @@ function Faucet() {
         <div className="center-all w-full flex-col">
             <div className="w-full sm:w-auto">
                 <BigCard fullWidth>
-                    <div className="text-xl font-bold lg:text-2xl">Claim Fake $USDC tokens</div>
+                    <div className="text-xl font-bold lg:text-2xl">Claim fake $USDC tokens</div>
 
                     <div className="col center-all w-full gap-6 rounded-2xl border border-[#e3e4e8] bg-light p-6 sm:min-w-[320px] md:w-[480px] lg:p-7">
                         <div className="col center-all w-full gap-6">
@@ -148,11 +148,7 @@ function Faucet() {
                                 </ConnectWalletWrapper>
                             </div>
 
-                            {tokenAddress && (
-                                <div className="mx-auto flex">
-                                    <AddTokenToWallet contractAddress={tokenAddress} symbol="MKUSDC" decimals={6} />
-                                </div>
-                            )}
+                            {tokenAddress && <AddTokenToWallet contractAddress={tokenAddress} symbol="MKUSDC" decimals={6} />}
                         </div>
 
                         <div className="col center-all gap-4">
