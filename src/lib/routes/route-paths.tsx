@@ -5,7 +5,7 @@ export const routePath = {
     profileKyc: '/profile-and-kyc',
     search: '/search',
     faucet: '/faucet',
-    buy: '/buy',
+    buy: '/buy-r1',
     termsAndConditions: '/terms-and-conditions',
     privacyPolicy: '/privacy-policy',
     confirmEmail: '/confirm-email',

@@ -45,11 +45,11 @@ export const mainRoutesInfo = {
     },
     [routePath.faucet]: {
         title: 'Faucet',
-        description: 'Claim testnet $R1 tokens',
+        description: 'Claim $MKUSDC tokens',
     },
     [routePath.buy]: {
-        title: 'Buy',
-        description: 'Trade $R1 tokens',
+        title: 'Buy $R1',
+        description: 'Purchase $R1 tokens',
     },
     [routePath.termsAndConditions]: {
         title: 'Terms & Conditions',

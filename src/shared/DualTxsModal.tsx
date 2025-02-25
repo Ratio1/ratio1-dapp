@@ -23,7 +23,7 @@ export const DualTxsModal = ({
                             title="Confirmation"
                             description={
                                 <div>
-                                    You'll need to approve <span className="font-medium text-primary">two transactions</span> to{' '}
+                                    You'll need to confirm <span className="font-medium text-primary">two transactions</span> to{' '}
                                     {text}.
                                 </div>
                             }
