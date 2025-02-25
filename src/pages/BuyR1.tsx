@@ -177,7 +177,8 @@ function BuyR1() {
                     await watchTx(swapTxHash, publicClient);
                 };
 
-                await Promise.all([approve(), swap()]);
+                await approve();
+                await swap();
             } else {
                 const txHash = await walletClient.writeContract({
                     address: config.uniswapV2RouterAddress,
