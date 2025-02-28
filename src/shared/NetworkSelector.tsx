@@ -19,7 +19,7 @@ export const NetworkSelector = () => {
             })}
             classNames={{
                 base: 'w-auto',
-                trigger: 'min-h-10 bg-[#e8ebf6] data-[hover=true]:bg-[#e0e3f0] rounded-lg',
+                trigger: 'min-h-10 bg-slate-200 data-[hover=true]:bg-[#e0e3f0] rounded-lg',
                 label: 'group-data-[filled=true]:-translate-y-5',
                 value: 'font-medium !text-slate-600 lowercase',
                 selectorIcon: 'mt-0.5 mr-0.5',

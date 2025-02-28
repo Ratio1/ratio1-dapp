@@ -2,24 +2,21 @@ import { getNodeEpochsRange, getNodeLastEpoch } from '@lib/api/oracles';
 import { getCurrentEpoch, getLicenseAssignEpoch } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { arrayAverage, throttledToastOracleError } from '@lib/utils';
+import { CardHorizontal } from '@shared/cards/CardHorizontal';
 import clsx from 'clsx';
-import { useMemo } from 'react';
-import { RiTimeLine } from 'react-icons/ri';
+import { cloneElement, useMemo } from 'react';
 import { License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 
 const nodePerformanceItems = [
     {
         label: 'Last Epoch',
-        classes: 'bg-teal-100 text-teal-600',
     },
     {
-        label: 'All time average',
-        classes: 'bg-purple-100 text-purple-600',
+        label: 'Last Week Avg.',
     },
     {
-        label: 'Last week average',
-        classes: 'bg-orange-100 text-orange-600',
+        label: 'All Time Avg.',
     },
 ];
 
@@ -37,18 +34,12 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
         const startEpoch = licenseAssignEpoch;
         const endEpoch = currentEpoch - 1;
 
-        // if (licenseAssignEpoch === currentEpoch) {
-        //     console.log(`License ${license.licenseId} fetching only last epoch: ${licenseAssignEpoch}`);
-        // } else {
-        //     console.log(`License ${license.licenseId} rewards interval: [${startEpoch} - ${endEpoch}]`);
-        // }
-
         try {
             const result =
                 licenseAssignEpoch === currentEpoch
                     ? await getNodeLastEpoch(license.nodeAddress)
                     : await getNodeEpochsRange(license.nodeAddress, startEpoch, endEpoch);
-            // console.log(`[${getShortAddress(license.nodeAddress)}] NodeEpochs`, result);
+
             return result.epochs_vals;
         } catch (error) {
             console.error(error);
@@ -59,7 +50,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
     const [nodeEpochs, isLoadingNodeEpochs] = useAwait(nodeEpochsPromise);
 
-    const getTitle = (text: string) => <div className="text-base font-medium lg:text-lg">{text}</div>;
+    const getTitle = (text: string) => <div className="font-medium">{text}</div>;
 
     const getLine = (label: string, value: string | number, isHighlighted: boolean = false, isAproximate: boolean = false) => (
         <div className="row justify-between gap-3 min-[410px]:justify-start">
@@ -75,20 +66,17 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
         </div>
     );
 
-    const getNodePerformanceItem = (key: number, label: string, value: number | undefined, classes: string) => (
-        <div key={key} className="row gap-2 sm:gap-3">
-            <div className={`rounded-full p-1.5 sm:p-3.5 ${classes}`}>
-                <RiTimeLine className="text-2xl" />
-            </div>
-
-            <div className="col gap-1 xl:gap-0">
-                <div className="text-sm leading-4 text-slate-500 xl:text-base">{label}</div>
-                <div className="text-sm font-medium xl:text-base">
-                    {value === undefined ? '...' : `${parseFloat(((value / 255) * 100).toFixed(1))}%`}
-                </div>
-            </div>
-        </div>
-    );
+    const getNodePerformanceItem = (key: number, label: string, value: number | undefined) =>
+        cloneElement(
+            <CardHorizontal
+                label={`${label} Availability`}
+                value={value === undefined ? '...' : `${parseFloat(((value / 255) * 100).toFixed(1))}%`}
+                isSmall
+                isFlexible
+                isDarker
+            />,
+            { key },
+        );
 
     const getNodePerformanceValue = (index: number): number | undefined => {
         if (!nodeEpochs || !nodeEpochs.length) {
@@ -112,10 +100,10 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
     return (
         <div className="px-5 py-5 md:px-8 md:py-7">
-            <div className="col gap-6 lg:gap-8">
+            <div className="col gap-6 lg:gap-7">
                 <div
                     className={clsx('text-sm lg:text-base xl:gap-0', {
-                        'border-b-2 border-slate-200 pb-6 lg:pb-8': license.isLinked,
+                        'border-b-2 border-slate-200 pb-6 lg:pb-7': license.isLinked,
                     })}
                 >
                     <div className="flex w-full flex-col gap-6 larger:flex-row">
@@ -177,24 +165,20 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                     <div className="col -mt-0.5 gap-3">
                         {getTitle('Node performance')}
 
-                        <div className="row gap-4 sm:gap-8">
-                            <div className="text-sm text-slate-500 sm:text-base">Uptime per epoch</div>
-
-                            <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
-                                {isLoadingNodeEpochs ? (
-                                    <>
-                                        {nodePerformanceItems.map(({ label, classes }, index) =>
-                                            getNodePerformanceItem(index, label, undefined, classes),
-                                        )}
-                                    </>
-                                ) : (
-                                    <>
-                                        {nodePerformanceItems.map(({ label, classes }, index) =>
-                                            getNodePerformanceItem(index, label, getNodePerformanceValue(index), classes),
-                                        )}
-                                    </>
-                                )}
-                            </div>
+                        <div className="flex flex-wrap items-stretch gap-3">
+                            {isLoadingNodeEpochs ? (
+                                <>
+                                    {nodePerformanceItems.map(({ label }, index) =>
+                                        getNodePerformanceItem(index, label, undefined),
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    {nodePerformanceItems.map(({ label }, index) =>
+                                        getNodePerformanceItem(index, label, getNodePerformanceValue(index)),
+                                    )}
+                                </>
+                            )}
                         </div>
                     </div>
                 )}
