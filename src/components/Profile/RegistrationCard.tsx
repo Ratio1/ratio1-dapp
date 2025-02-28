@@ -1,6 +1,5 @@
 import { registerEmail } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
-import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
@@ -24,6 +23,7 @@ function RegistrationCard({ getRegistrationStatus }: { getRegistrationStatus: ()
     const { isOpen, onOpen, onOpenChange } = useDisclosure(); // Confirmation email
 
     const [isLoading, setLoading] = useState<boolean>(false);
+    const [isEmailResent, setEmailResent] = useState<boolean>(false);
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -43,6 +43,8 @@ function RegistrationCard({ getRegistrationStatus }: { getRegistrationStatus: ()
 
             if (error.message && error.message.includes('already used')) {
                 toast.error('This email address is already registered to another wallet.');
+            } else if (error.message && error.message.includes('inactive')) {
+                toast.error('Invalid email address.');
             } else {
                 toast.error('Unexpected error, please try again.');
             }
@@ -63,13 +65,20 @@ function RegistrationCard({ getRegistrationStatus }: { getRegistrationStatus: ()
                 label={
                     getRegistrationStatus() === RegistrationStatus.REGISTERED ? (
                         <Label text="Registered" variant="green" />
+                    ) : getRegistrationStatus() === RegistrationStatus.NOT_CONFIRMED ? (
+                        <Label text="Awaiting Confirmation" variant="yellow" />
                     ) : (
                         <Label text="Not Registered" />
                     )
                 }
             >
                 <div className="flex h-full w-full items-center justify-between">
-                    {getRegistrationStatus() === RegistrationStatus.NOT_REGISTERED && (
+                    {getRegistrationStatus() === RegistrationStatus.REGISTERED ? (
+                        <div className="col gap-1">
+                            <div className="text-sm font-medium text-slate-500">Email Address</div>
+                            <div className="font-medium">{account.email}</div>
+                        </div>
+                    ) : (
                         <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>
                             <div className="col w-full gap-4">
                                 <div className="flex w-full gap-2">
@@ -112,47 +121,6 @@ function RegistrationCard({ getRegistrationStatus }: { getRegistrationStatus: ()
                             </div>
                         </Form>
                     )}
-
-                    {getRegistrationStatus() === RegistrationStatus.NOT_CONFIRMED && (
-                        <div className="col gap-3">
-                            <Alert
-                                color="primary"
-                                description={
-                                    <div className="col gap-2">
-                                        <div>
-                                            We've sent an email to{' '}
-                                            <span className="font-semibold">{account.pendingEmail || email}</span>. Please
-                                            follow the link inside the confirmation email to confirm your address.
-                                        </div>
-                                    </div>
-                                }
-                                classNames={{
-                                    base: 'items-center',
-                                }}
-                            />
-
-                            <div className="center-all">
-                                <Button
-                                    color="primary"
-                                    size="sm"
-                                    variant="solid"
-                                    isLoading={isLoading}
-                                    onPress={() => {
-                                        register(account.pendingEmail, account.receiveUpdates);
-                                    }}
-                                >
-                                    Resend
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-
-                    {getRegistrationStatus() === RegistrationStatus.REGISTERED && (
-                        <div className="col gap-1">
-                            <div className="text-sm font-medium text-slate-500">Email Address</div>
-                            <div className="font-medium">{account.email}</div>
-                        </div>
-                    )}
                 </div>
             </Card>
 
@@ -161,17 +129,35 @@ function RegistrationCard({ getRegistrationStatus }: { getRegistrationStatus: ()
                     {() => (
                         <>
                             <ModalBody>
-                                <DetailedAlert
-                                    icon={<RiMailSendLine />}
-                                    title="Email Confirmation"
-                                    description={
-                                        <div>
-                                            We've sent an email to{' '}
-                                            <span className="text-primary">{account.pendingEmail || email}</span>. Please follow
-                                            the link inside the confirmation email to confirm your address.
-                                        </div>
-                                    }
-                                />
+                                <div className="col pb-6 pt-2">
+                                    <DetailedAlert
+                                        icon={<RiMailSendLine />}
+                                        title="Email Confirmation"
+                                        description={
+                                            <div>
+                                                We've sent an email to{' '}
+                                                <span className="text-primary">{account.pendingEmail || email}</span>. Please
+                                                follow the link inside the confirmation email to confirm your address.
+                                            </div>
+                                        }
+                                    />
+
+                                    <div className="center-all">
+                                        <Button
+                                            color="primary"
+                                            variant="solid"
+                                            isLoading={isLoading}
+                                            isDisabled={isEmailResent}
+                                            onPress={async () => {
+                                                await register(account.pendingEmail, account.receiveUpdates);
+                                                setEmailResent(true);
+                                                toast.success('Confirmation email resent.');
+                                            }}
+                                        >
+                                            <div className="text-base">Resend email</div>
+                                        </Button>
+                                    </div>
+                                </div>
                             </ModalBody>
                         </>
                     )}
