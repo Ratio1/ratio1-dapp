@@ -286,6 +286,7 @@ function Licenses() {
             <LicenseLinkModal
                 ref={linkModalRef}
                 nodeAddresses={licenses.filter((license) => license.isLinked).map((license) => license.nodeAddress)}
+                onClaim={onClaim}
             />
 
             <LicenseUnlinkModal ref={unlinkModalRef} onClaim={onClaim} />

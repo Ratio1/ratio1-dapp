@@ -9,9 +9,10 @@ import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nex
 import { Spinner } from '@nextui-org/spinner';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
+import { TokenSvg } from '@shared/TokenSvg';
 import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiCurrencyLine, RiLinkUnlink } from 'react-icons/ri';
+import { RiLinkUnlink } from 'react-icons/ri';
 import { License } from 'typedefs/blockchain';
 import { formatUnits, TransactionReceipt } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
@@ -149,8 +150,8 @@ const LicenseUnlinkModal = forwardRef(({ onClaim }: Props, ref) => {
         <>
             <div className="col w-full gap-6">
                 <DetailedAlert
-                    icon={<RiCurrencyLine />}
-                    title="Unlinking unavailable"
+                    icon={<TokenSvg classNames="h-8 w-8 " />}
+                    title="Unavailable"
                     description={<div>Rewards must be claimed before unlinking license.</div>}
                 >
                     <R1ValueWithLabel

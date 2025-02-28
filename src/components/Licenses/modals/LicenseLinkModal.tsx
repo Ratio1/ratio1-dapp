@@ -2,34 +2,48 @@ import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { config } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
+import useAwait from '@lib/useAwait';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
 import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
 import { Spinner } from '@nextui-org/spinner';
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { DetailedAlert } from '@shared/DetailedAlert';
+import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
+import { TokenSvg } from '@shared/TokenSvg';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiWalletLine } from 'react-icons/ri';
 import { EthAddress, License } from 'typedefs/blockchain';
+import { TransactionReceipt, formatUnits } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
 interface Props {
     nodeAddresses: string[];
+    onClaim: (license: License, skipFetchingRewards?: boolean) => Promise<TransactionReceipt | undefined>;
 }
 
-const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
+const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim }: Props, ref) => {
     const [isLoading, setLoading] = useState<boolean>(false);
 
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const [license, setLicense] = useState<License>();
+
+    const rewardsPromise = useMemo(() => {
+        if (!license) {
+            return 0n;
+        } else {
+            return license.isLinked ? license.rewards : 0n;
+        }
+    }, [license]);
+    const [rewards, isLoadingRewards] = useAwait(rewardsPromise);
 
     const { watchTx, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
 
     const [address, setAddress] = useState('');
-
     const [isNodeAlreadyLinked, setNodeAlreadyLinked] = useState<boolean>(false);
 
     // Init
@@ -49,7 +63,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
         trigger,
     }));
 
-    const onSubmit = async (e) => {
+    const onConfirmLinking = async (e) => {
         e.preventDefault();
 
         if (!walletClient || !license || !publicClient) {
@@ -92,81 +106,123 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses }: Props, ref) => {
         }
     };
 
+    const onConfirmClaiming = async () => {
+        if (!license) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            await onClaim(license);
+        } catch (error) {
+            toast.error('Unexpected error, please try again.');
+        } finally {
+            setLoading(false);
+            onClose();
+        }
+    };
+
+    const getLinkingContent = () => (
+        <Form className="w-full" validationBehavior="native" onSubmit={onConfirmLinking}>
+            <div className="col w-full gap-3">
+                <Input
+                    value={address}
+                    onValueChange={(value: string) => {
+                        if (isNodeAlreadyLinked) {
+                            setNodeAlreadyLinked(false);
+                        }
+
+                        setAddress(value);
+                    }}
+                    label="Node Address"
+                    labelPlacement="outside"
+                    placeholder="0x"
+                    startContent={<RiWalletLine className="pointer-events-none text-xl text-slate-500" />}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    type="text"
+                    variant="bordered"
+                    validate={(value) => {
+                        if (!(value.startsWith('0x') && value.length === 42)) {
+                            return 'Value must be a valid Ethereum address';
+                        }
+
+                        if (nodeAddresses.includes(value)) {
+                            return 'This address is already linked to another license';
+                        }
+
+                        return null;
+                    }}
+                />
+
+                {isNodeAlreadyLinked ? (
+                    <Alert
+                        color="danger"
+                        title="This address is already linked to another license."
+                        classNames={{
+                            base: 'items-center',
+                        }}
+                    />
+                ) : (
+                    <Alert
+                        color="primary"
+                        title="A license can only be linked once every 24 hours."
+                        classNames={{
+                            base: 'items-center',
+                        }}
+                    />
+                )}
+            </div>
+
+            <div className="flex w-full justify-end py-2">
+                <Button type="submit" color="primary" isLoading={isLoading}>
+                    Confirm
+                </Button>
+            </div>
+        </Form>
+    );
+
+    const getClaimRewardsContent = () => (
+        <>
+            <div className="col w-full gap-6">
+                <DetailedAlert
+                    icon={<TokenSvg classNames="h-8 w-8 " />}
+                    title="Unavailable"
+                    description={<div>Rewards must be claimed before linking license.</div>}
+                >
+                    <R1ValueWithLabel
+                        label="Unclaimed Rewards"
+                        value={parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2))}
+                        isAproximate
+                    />
+                </DetailedAlert>
+            </div>
+
+            <div className="row w-full justify-end gap-2 py-2">
+                <Button color="primary" onPress={onConfirmClaiming} isLoading={isLoading}>
+                    Claim
+                </Button>
+            </div>
+        </>
+    );
+
     return (
         <div>
             <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg" shouldBlockScroll={false}>
                 <ModalContent>
-                    {!license ? (
+                    {!license || isLoadingRewards || rewards === undefined ? (
                         <Spinner />
                     ) : (
                         <>
                             <ModalHeader>Link License #{Number(license.licenseId)}</ModalHeader>
 
-                            <ModalBody>
-                                <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>
-                                    <div className="col w-full gap-3">
-                                        <Input
-                                            value={address}
-                                            onValueChange={(value: string) => {
-                                                if (isNodeAlreadyLinked) {
-                                                    setNodeAlreadyLinked(false);
-                                                }
-
-                                                setAddress(value);
-                                            }}
-                                            label="Node Address"
-                                            labelPlacement="outside"
-                                            placeholder="0x"
-                                            startContent={
-                                                <RiWalletLine className="pointer-events-none text-xl text-slate-500" />
-                                            }
-                                            size="md"
-                                            classNames={{
-                                                inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
-                                                input: 'font-medium',
-                                                label: 'font-medium',
-                                            }}
-                                            type="text"
-                                            variant="bordered"
-                                            validate={(value) => {
-                                                if (!(value.startsWith('0x') && value.length === 42)) {
-                                                    return 'Value must be a valid Ethereum address';
-                                                }
-
-                                                if (nodeAddresses.includes(value)) {
-                                                    return 'This address is already linked to another license';
-                                                }
-
-                                                return null;
-                                            }}
-                                        />
-
-                                        {isNodeAlreadyLinked ? (
-                                            <Alert
-                                                color="danger"
-                                                title="This address is already linked to another license."
-                                                classNames={{
-                                                    base: 'items-center',
-                                                }}
-                                            />
-                                        ) : (
-                                            <Alert
-                                                color="primary"
-                                                title="A license can only be linked once every 24 hours."
-                                                classNames={{
-                                                    base: 'items-center',
-                                                }}
-                                            />
-                                        )}
-                                    </div>
-
-                                    <div className="flex w-full justify-end py-2">
-                                        <Button type="submit" color="primary" isLoading={isLoading}>
-                                            Confirm
-                                        </Button>
-                                    </div>
-                                </Form>
-                            </ModalBody>
+                            <ModalBody>{rewards > 0n ? getClaimRewardsContent() : getLinkingContent()}</ModalBody>
                         </>
                     )}
                 </ModalContent>
