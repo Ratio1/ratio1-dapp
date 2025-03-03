@@ -252,13 +252,13 @@ function LicensesPageHeader({
                                         onFilterChange(key as 'all' | 'linked' | 'unlinked');
                                     }}
                                 >
-                                    <Tab key="all" title="All" />
+                                    <Tab key="all" title={`All (${licenses.length})`} />
                                     <Tab
                                         key="linked"
                                         title={
                                             <div className="row gap-2">
                                                 <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                                                Linked
+                                                Linked ({licenses.filter((license) => license.isLinked).length})
                                             </div>
                                         }
                                     />
@@ -267,7 +267,7 @@ function LicensesPageHeader({
                                         title={
                                             <div className="row gap-2">
                                                 <div className="h-2 w-2 rounded-full bg-red-500"></div>
-                                                Unlinked
+                                                Unlinked ({licenses.filter((license) => !license.isLinked).length})
                                             </div>
                                         }
                                     />
