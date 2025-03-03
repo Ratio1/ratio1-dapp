@@ -197,7 +197,11 @@ export const LicenseCardHeader = ({
             <DropdownMenu
                 aria-label="Dropdown"
                 variant="flat"
-                disabledKeys={['title', ...(hasCooldown ? ['link'] : [])]}
+                disabledKeys={[
+                    'title',
+                    ...(hasCooldown ? ['link'] : []),
+                    ...(isLoadingRewards || rewards === undefined ? ['unlink', 'changeNode'] : []),
+                ]}
                 itemClasses={{
                     base: [
                         'rounded-md',

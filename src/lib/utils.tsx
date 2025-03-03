@@ -92,9 +92,7 @@ export const getNodeAndLicenseRewards = async (
             console.error(error);
         }
 
-        if (!error.message.includes('Error converting node address')) {
-            throttledToastError('An error occurred while loading one of your licenses.');
-        }
+        throttledToastError('An error occurred while loading one of your licenses.');
     }
 
     return nodeAndLicenseRewards;

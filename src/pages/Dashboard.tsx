@@ -142,7 +142,7 @@ function Dashboard() {
                         <div className="text-xl font-bold leading-7 lg:text-[26px]">Licenses & Tiers</div>
 
                         <div className="row gap-3">
-                            {!isLoadingPriceTiers && isBuyingDisabled() && (
+                            {!!account && authenticated && !isLoadingPriceTiers && isBuyingDisabled() && (
                                 <div className="hidden larger:block">{getKycNotCompletedAlert()}</div>
                             )}
 
