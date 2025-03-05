@@ -1,6 +1,6 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { config } from '@lib/config';
+import { config, getCurrentEpoch } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
 import { Alert } from '@nextui-org/alert';
@@ -86,22 +86,34 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim }: Props, ref) => 
             return;
         }
 
-        try {
-            const txHash = await walletClient.writeContract({
+        const link = async () => {
+            const linkTxHash = await walletClient.writeContract({
                 address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
                 abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
                 functionName: 'linkNode',
                 args: [license.licenseId, address as EthAddress],
             });
 
-            await watchTx(txHash, publicClient);
+            await watchTx(linkTxHash, publicClient);
+        };
 
+        try {
+            if (Number(license.lastClaimEpoch) < getCurrentEpoch()) {
+                const receipt = await onClaim(license, true);
+
+                if (receipt?.status !== 'success') {
+                    toast.error('Claiming failed, please try again.');
+                    throw new Error('Claiming rewards failed');
+                }
+            }
+
+            await link();
             setAddress('');
-            fetchLicenses();
             onClose();
         } catch (error) {
             toast.error('An error occurred, please try again.');
         } finally {
+            fetchLicenses();
             setLoading(false);
         }
     };
@@ -177,6 +189,21 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim }: Props, ref) => 
                             base: 'items-center',
                         }}
                     />
+                )}
+
+                {!!license && Number(license.lastClaimEpoch) < getCurrentEpoch() && (
+                    <Alert
+                        color="warning"
+                        title="Additional confirmation required"
+                        classNames={{
+                            base: 'items-center',
+                        }}
+                    >
+                        <div className="text-sm">
+                            You'll need to approve <span className="font-medium">two transactions</span> because rewards were
+                            last claimed in a previous epoch.
+                        </div>
+                    </Alert>
                 )}
             </div>
 
