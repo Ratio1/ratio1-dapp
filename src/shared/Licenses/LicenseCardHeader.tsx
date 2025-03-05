@@ -36,6 +36,9 @@ export const LicenseCardHeader = ({
 
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
 
+    // Used to restrict actions unless it's loaded
+    const [_nodeAlias, isLoadingNodeAlias] = useAwait(license.isLinked ? license.alias : undefined);
+
     const getAssignTimestamp = (): Date => new Date(Number(license.assignTimestamp) * 1000);
     const getCooldownEndTimestamp = (): Date => addDays(getAssignTimestamp(), 1);
 
@@ -200,7 +203,7 @@ export const LicenseCardHeader = ({
                 disabledKeys={[
                     'title',
                     ...(hasCooldown ? ['link'] : []),
-                    ...(isLoadingRewards || rewards === undefined ? ['unlink', 'changeNode'] : []),
+                    ...(isLoadingRewards || isLoadingNodeAlias || rewards === undefined ? ['unlink', 'changeNode'] : []),
                 ]}
                 itemClasses={{
                     base: [

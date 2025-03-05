@@ -34,7 +34,7 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
 
     useEffect(() => {
         if (license.isLinked && !isLoading && node?.alias === undefined) {
-            console.log(`[${getShortAddress(license.nodeAddress)}] refetching alias`);
+            console.log(`[${getShortAddress(license.nodeAddress, 4, true)}] refetching alias`);
         }
     }, [license.isLinked, isLoading, node]);
 
@@ -48,7 +48,10 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
 
     useEffect(() => {
         if (refetchedNodeInfo) {
-            console.log(`[${getShortAddress(license.nodeAddress)}] successfully refetched alias`, refetchedNodeInfo.node_alias);
+            console.log(
+                `[${getShortAddress(license.nodeAddress, 4, true)}] successfully refetched alias`,
+                refetchedNodeInfo.node_alias,
+            );
 
             setNode({
                 alias: refetchedNodeInfo.node_alias,

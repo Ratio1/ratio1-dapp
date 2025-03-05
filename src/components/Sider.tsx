@@ -1,4 +1,4 @@
-import Logo from '@assets/logo_blue.svg';
+import Logo from '@assets/logo_app.svg';
 import { routePath } from '@lib/routes/route-paths';
 import { mainRoutesInfo } from '@lib/routes/routes';
 import NetworkAndStatus from '@shared/NetworkAndStatus';
@@ -10,7 +10,7 @@ function Sider() {
         <div className="col fixed bottom-0 left-0 top-0 h-full w-[256px] justify-between bg-slate-100 px-6 pb-6 pt-12">
             <div className="col gap-8">
                 <div className="center-all">
-                    <img src={Logo} alt="Logo" className="h-6" />
+                    <img src={Logo} alt="Logo" className="h-7" />
                 </div>
 
                 <Navigation />

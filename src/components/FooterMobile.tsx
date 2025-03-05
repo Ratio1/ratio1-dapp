@@ -1,4 +1,4 @@
-import Logo from '@assets/logo_blue.svg';
+import Logo from '@assets/logo_app.svg';
 import { routePath } from '@lib/routes/route-paths';
 import { mainRoutesInfo } from '@lib/routes/routes';
 import NetworkAndStatus from '@shared/NetworkAndStatus';

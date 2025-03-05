@@ -6,7 +6,15 @@ import { EthAddress, GNDLicense, License, MNDLicense, PriceTier } from 'typedefs
 import { getNodeEpochsRange, getNodeInfo } from './api/oracles';
 import { config, getCurrentEpoch } from './config';
 
-export const getShortAddress = (address: string, size = 4) => `${address.slice(0, size)}...${address.slice(-size)}`;
+export const getShortAddress = (address: string, size = 4, asString = false): string | JSX.Element => {
+    const str = `${address.slice(0, size)}•••${address.slice(-size)}`;
+
+    if (asString) {
+        return str;
+    }
+
+    return <div className="font-robotoMono">{str}</div>;
+};
 
 export function fN(num: number): string | number {
     if (num >= 1_000_000) {
@@ -87,7 +95,7 @@ export const getNodeAndLicenseRewards = async (
         }
     } catch (error: any) {
         if (error.message.includes('Oracle state is not valid')) {
-            console.error(`(License #${license.licenseId}) [${getShortAddress(license.nodeAddress)}]`, error.message);
+            console.error(`(License #${license.licenseId}) [${getShortAddress(license.nodeAddress, 4, true)}]`, error.message);
         } else {
             console.error(error);
         }

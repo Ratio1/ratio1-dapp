@@ -142,7 +142,9 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
                             {getLine(
                                 'Total amount ($R1)',
-                                isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)),
+                                isLoadingRewards
+                                    ? '...'
+                                    : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString(),
                                 (rewards ?? 0n) > 0,
                             )}
 
@@ -151,7 +153,9 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
                                 {getLine(
                                     'Proof of Availability',
-                                    isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)),
+                                    isLoadingRewards
+                                        ? '...'
+                                        : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString(),
                                     false,
                                 )}
 
