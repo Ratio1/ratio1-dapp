@@ -4,7 +4,7 @@ import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
 import LicenseBurnModal from '@components/Licenses/modals/LicenseBurnModal';
 import LicenseLinkModal from '@components/Licenses/modals/LicenseLinkModal';
 import LicenseUnlinkModal from '@components/Licenses/modals/LicenseUnlinkModal';
-import { config } from '@lib/config';
+import { config, getCurrentEpoch } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { getLicenseSectionHeader } from '@lib/utils';
@@ -195,6 +195,9 @@ function Licenses() {
         );
     };
 
+    const shouldTriggerGhostClaimRewards = (license: License) =>
+        license.isLinked && Number(license.lastClaimEpoch) < getCurrentEpoch();
+
     const onLicenseClick = (license: License) => {
         setTimeout(() => {
             const cardRef = cardRefs.current.get(`${license.type}${license.licenseId}`);
@@ -287,9 +290,14 @@ function Licenses() {
                 ref={linkModalRef}
                 nodeAddresses={licenses.filter((license) => license.isLinked).map((license) => license.nodeAddress)}
                 onClaim={onClaim}
+                shouldTriggerGhostClaimRewards={shouldTriggerGhostClaimRewards}
             />
 
-            <LicenseUnlinkModal ref={unlinkModalRef} onClaim={onClaim} />
+            <LicenseUnlinkModal
+                ref={unlinkModalRef}
+                onClaim={onClaim}
+                shouldTriggerGhostClaimRewards={shouldTriggerGhostClaimRewards}
+            />
 
             <LicenseBurnModal ref={burnModalRef} />
         </div>

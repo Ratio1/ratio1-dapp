@@ -1,6 +1,6 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { config, getCurrentEpoch } from '@lib/config';
+import { config } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
 import { Alert } from '@nextui-org/alert';
@@ -22,9 +22,10 @@ import { usePublicClient, useWalletClient } from 'wagmi';
 interface Props {
     nodeAddresses: string[];
     onClaim: (license: License, skipFetchingRewards?: boolean) => Promise<TransactionReceipt | undefined>;
+    shouldTriggerGhostClaimRewards: (license: License) => boolean;
 }
 
-const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim }: Props, ref) => {
+const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhostClaimRewards }: Props, ref) => {
     const [isLoading, setLoading] = useState<boolean>(false);
 
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
@@ -98,7 +99,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim }: Props, ref) => 
         };
 
         try {
-            if (Number(license.lastClaimEpoch) < getCurrentEpoch()) {
+            if (shouldTriggerGhostClaimRewards(license)) {
                 const receipt = await onClaim(license, true);
 
                 if (receipt?.status !== 'success') {
@@ -140,6 +141,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim }: Props, ref) => 
         <Form className="w-full" validationBehavior="native" onSubmit={onConfirmLinking}>
             <div className="col w-full gap-3">
                 <Input
+                    autoFocus
                     value={address}
                     onValueChange={(value: string) => {
                         if (isNodeAlreadyLinked) {
@@ -191,7 +193,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim }: Props, ref) => 
                     />
                 )}
 
-                {!!license && Number(license.lastClaimEpoch) < getCurrentEpoch() && (
+                {!!license && shouldTriggerGhostClaimRewards(license) && (
                     <Alert
                         color="warning"
                         title="Additional confirmation required"

@@ -1,6 +1,6 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { config, getCurrentEpoch } from '@lib/config';
+import { config } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
 import { Alert } from '@nextui-org/alert';
@@ -19,9 +19,10 @@ import { usePublicClient, useWalletClient } from 'wagmi';
 
 interface Props {
     onClaim: (license: License, skipFetchingRewards?: boolean) => Promise<TransactionReceipt | undefined>;
+    shouldTriggerGhostClaimRewards: (license: License) => boolean;
 }
 
-const LicenseUnlinkModal = forwardRef(({ onClaim }: Props, ref) => {
+const LicenseUnlinkModal = forwardRef(({ onClaim, shouldTriggerGhostClaimRewards }: Props, ref) => {
     const [isLoading, setLoading] = useState<boolean>(false);
 
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
@@ -70,7 +71,7 @@ const LicenseUnlinkModal = forwardRef(({ onClaim }: Props, ref) => {
         };
 
         try {
-            if (Number(license.lastClaimEpoch) < getCurrentEpoch()) {
+            if (shouldTriggerGhostClaimRewards(license)) {
                 const receipt = await onClaim(license, true);
 
                 if (receipt?.status !== 'success') {
@@ -117,7 +118,7 @@ const LicenseUnlinkModal = forwardRef(({ onClaim }: Props, ref) => {
                     title="Unlinking confirmation"
                     description={<div>Are you sure you want to unlink this license?</div>}
                 >
-                    {!!license && Number(license.lastClaimEpoch) < getCurrentEpoch() && (
+                    {!!license && shouldTriggerGhostClaimRewards(license) && (
                         <div className="text-slate-400 layoutBreak:px-6">
                             You'll need to approve <span className="font-medium text-primary">two transactions</span> because
                             rewards were last claimed in a previous epoch.
