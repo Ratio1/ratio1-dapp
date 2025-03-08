@@ -30,7 +30,9 @@ jobs:
 
             - name: Generate version from commit hash
               id: version
-              run: echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+              run: |
+                  echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+                  echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
             - name: Create GitHub Release
               uses: softprops/action-gh-release@v2
