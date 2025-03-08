@@ -1,4 +1,4 @@
-name: Create Release on Master Push
+name: Build and Release Ratio1 dApp
 
 on:
     push:
@@ -26,7 +26,7 @@ jobs:
               run: npm run build
 
             - name: Archive production build
-              run: tar -czvf react-vite-build.tar.gz dist
+              run: tar -czvf ratio1-dapp-build.tar.gz dist
 
             - name: Generate version from commit hash
               id: version
@@ -41,6 +41,6 @@ jobs:
                   name: Release v-${{ steps.version.outputs.VERSION }}
                   draft: false
                   prerelease: false
-                  files: react-vite-build.tar.gz
+                  files: ratio1-dapp-build.tar.gz
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
