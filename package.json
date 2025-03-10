@@ -1,7 +1,6 @@
 {
     "name": "ratio1-dapp",
     "private": true,
-    "version": "0.0.0",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -9,7 +8,8 @@
         "build": "tsc -b && vite build",
         "lint": "eslint .",
         "serve": "serve -s dist",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "deploy": "./scripts/deploy.sh"
     },
     "dependencies": {
         "@iframe-resizer/react": "^5.3.2",
