@@ -17,8 +17,6 @@ function Sider() {
             </div>
 
             <div className="col gap-6 pb-2 text-center">
-                <NetworkAndStatus />
-
                 <NavLink to={routePath.privacyPolicy} className="text-[15px] font-medium leading-none hover:opacity-70">
                     {mainRoutesInfo[routePath.privacyPolicy].title}
                 </NavLink>
@@ -26,6 +24,10 @@ function Sider() {
                 <NavLink to={routePath.termsAndConditions} className="text-[15px] font-medium leading-none hover:opacity-70">
                     {mainRoutesInfo[routePath.termsAndConditions].title}
                 </NavLink>
+
+                <div className="pt-1">
+                    <NetworkAndStatus />
+                </div>
             </div>
         </div>
     );
