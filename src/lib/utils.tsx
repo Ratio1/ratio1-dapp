@@ -163,9 +163,9 @@ const getNdNodeAndLicenseRewards = async (
 
     const baseResult = {
         rewards_amount: 0n,
-        epochs: [],
-        epochs_vals: [],
-        eth_signatures: [],
+        epochs,
+        epochs_vals,
+        eth_signatures,
         node_alias,
         node_is_online,
     };
@@ -191,18 +191,12 @@ const getNdNodeAndLicenseRewards = async (
         return {
             ...baseResult,
             rewards_amount: maxRemainingClaimAmount,
-            epochs,
-            epochs_vals,
-            eth_signatures,
         };
     }
 
     return {
         ...baseResult,
         rewards_amount,
-        epochs,
-        epochs_vals,
-        eth_signatures,
     };
 };
 
@@ -227,9 +221,9 @@ const getGndNodeAndLicenseRewards = async (
 
     const baseResult = {
         rewards_amount: 0n,
-        epochs: [],
-        epochs_vals: [],
-        eth_signatures: [],
+        epochs,
+        epochs_vals,
+        eth_signatures,
         node_alias,
         node_is_online,
     };
@@ -255,17 +249,11 @@ const getGndNodeAndLicenseRewards = async (
         return {
             ...baseResult,
             rewards_amount: maxRemainingClaimAmount,
-            epochs,
-            epochs_vals,
-            eth_signatures,
         };
     }
     return {
         ...baseResult,
         rewards_amount,
-        epochs,
-        epochs_vals,
-        eth_signatures,
     };
 };
 
@@ -293,9 +281,9 @@ const getMndNodeAndLicenseRewards = async (
 
     const baseResult = {
         rewards_amount: 0n,
-        epochs: [],
-        epochs_vals: [],
-        eth_signatures: [],
+        epochs,
+        epochs_vals,
+        eth_signatures,
         node_alias,
         node_is_online,
     };
@@ -321,18 +309,12 @@ const getMndNodeAndLicenseRewards = async (
         return {
             ...baseResult,
             rewards_amount: maxRemainingClaimAmount,
-            epochs,
-            epochs_vals,
-            eth_signatures,
         };
     }
 
     return {
         ...baseResult,
         rewards_amount,
-        epochs,
-        epochs_vals,
-        eth_signatures,
     };
 };
 
