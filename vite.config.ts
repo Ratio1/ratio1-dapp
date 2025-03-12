@@ -1,10 +1,7 @@
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import react from '@vitejs/plugin-react';
-import { execSync } from 'child_process';
 import path from 'path';
 import { defineConfig } from 'vite';
-
-const gitVersion = execSync('git describe --tags --abbrev=0').toString().trim();
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -28,8 +25,5 @@ export default defineConfig({
             '@blockchain': path.resolve(__dirname, './src/blockchain'),
             '@typedefs': path.resolve(__dirname, './src/typedefs'),
         },
-    },
-    define: {
-        'import.meta.env.VITE_APP_VERSION': JSON.stringify(gitVersion),
     },
 });
