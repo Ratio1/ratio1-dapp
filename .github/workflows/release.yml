@@ -40,11 +40,11 @@ jobs:
 
             - name: Download Caddy binary
               run: |
-                  curl -L "https://caddyserver.com/api/download?os=linux&arch=amd64" -o dist/caddy
-                  chmod +x dist/caddy
+                  curl -L "https://caddyserver.com/api/download?os=linux&arch=amd64" -o caddy
+                  chmod +x caddy
 
             - name: Archive production build
-              run: zip -r ratio1-dapp-build.zip dist
+              run: zip -r ratio1-dapp-build.zip dist caddy Caddyfile
 
             - name: Create GitHub Release
               uses: softprops/action-gh-release@v2
