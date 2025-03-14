@@ -1,5 +1,5 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
-import { config } from '@lib/config';
+import { config, getR1ExplorerUrl } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { fBI, fN } from '@lib/utils';
 import { Button } from '@nextui-org/button';
@@ -62,19 +62,9 @@ export const LicenseCardHeader = ({
 
     const [shouldShowBurnButton] = useAwait(shouldShowBurnButtonPromise);
 
-    const getContractAddress = (type: 'ND' | 'MND' | 'GND') => {
-        switch (type) {
-            case 'ND':
-                return config.ndContractAddress;
-
-            default:
-                return config.mndContractAddress;
-        }
-    };
-
     const getLicenseId = () => (
         <Link
-            to={`${config.explorerUrl}/token/${getContractAddress(license.type)}?a=${Number(license.licenseId)}`}
+            to={`${getR1ExplorerUrl()}/license/${license.type}/${Number(license.licenseId)}`}
             target="_blank"
             onClick={(e) => e.stopPropagation()}
             className={clsx('cursor-pointer transition-all hover:opacity-60', {

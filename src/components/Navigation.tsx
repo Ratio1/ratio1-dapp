@@ -20,10 +20,11 @@ function Route({ route }: { route: AppRoute }) {
     return (
         <div className="col gap-2">
             <Link
-                to={route.path}
+                to={route.externalLink || route.path}
                 className={clsx('min-w-40 cursor-pointer rounded-lg px-3 py-2.5 text-body transition-all hover:bg-[#e2eefb]', {
                     'bg-[#e2eefb] !text-primary': location.pathname.includes(route.path),
                 })}
+                target={route.externalLink ? '_blank' : undefined}
             >
                 <div className="row gap-2.5">
                     <div className="text-[22px]">{route.icon}</div>
