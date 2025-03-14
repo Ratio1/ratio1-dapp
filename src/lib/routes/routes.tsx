@@ -8,17 +8,17 @@ import KYC from '@pages/KYC';
 import Licenses from '@pages/Licenses';
 import PrivacyPolicy from '@pages/PrivacyPolicy';
 import Profile from '@pages/Profile';
-import Search from '@pages/Search';
 import TermsAndConditions from '@pages/T&C';
 import Unauthorized from '@pages/Unauthorized';
 import { TokenSvg } from '@shared/TokenSvg';
 import { RiCpuLine, RiFunctionLine, RiSearchLine, RiShieldUserLine, RiWaterFlashLine } from 'react-icons/ri';
-import { environment } from '../config';
+import { environment, getR1ExplorerUrl } from '../config';
 import { routePath } from './route-paths';
 
 export type AppRoute = {
     path: string;
-    page: () => JSX.Element;
+    externalLink?: string;
+    page?: () => JSX.Element;
     icon?: JSX.Element;
 };
 
@@ -39,9 +39,7 @@ export const mainRoutesInfo = {
         mobileTitle: 'Profile',
     },
     [routePath.search]: {
-        title: 'License Checker',
-        description: 'Find detailed information about any license',
-        mobileTitle: 'Search',
+        title: 'Explorer',
     },
     [routePath.faucet]: {
         title: 'Faucet',
@@ -95,11 +93,6 @@ export const routes: AppRoute[] = [
         page: Profile,
         icon: <RiShieldUserLine />,
     },
-    {
-        path: routePath.search,
-        page: Search,
-        icon: <RiSearchLine />,
-    },
     ...(environment === 'testnet' || environment === 'devnet'
         ? [
               {
@@ -115,13 +108,18 @@ export const routes: AppRoute[] = [
                   path: routePath.buy,
                   page: BuyR1,
                   icon: (
-                      <div className="center-all h-[26px] w-[26px] layoutBreak:h-[22px] layoutBreak:w-[22px]">
+                      <div className="center-all h-[24px] w-[24px] layoutBreak:h-[22px] layoutBreak:w-[22px]">
                           <TokenSvg classNames="h-6 w-6 layoutBreak:h-5 layoutBreak:w-5" />
                       </div>
                   ),
               },
           ]
         : []),
+    {
+        path: routePath.search,
+        externalLink: getR1ExplorerUrl(),
+        icon: <RiSearchLine />,
+    },
     {
         path: routePath.termsAndConditions,
         page: TermsAndConditions,

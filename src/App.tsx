@@ -29,9 +29,12 @@ function App() {
                 <Route path={routePath.root} element={<Layout />}>
                     <Route path="/" element={<Navigate to={routePath.dashboard} replace />} />
 
-                    {routes.map((route, index) => (
-                        <Route key={'route-key-' + index} path={route.path} element={<route.page />} />
-                    ))}
+                    {routes
+                        .filter((route) => !!route.page)
+                        .map((route, index) => {
+                            const Page = route.page as () => JSX.Element;
+                            return <Route key={'route-key-' + index} path={route.path} element={<Page />} />;
+                        })}
                 </Route>
 
                 <Route path="*" element={<Navigate to={routePath.dashboard} replace />} />

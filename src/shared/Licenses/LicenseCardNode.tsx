@@ -1,5 +1,5 @@
 import { getNodeInfo } from '@lib/api/oracles';
-import { config } from '@lib/config';
+import { getR1ExplorerUrl } from '@lib/config';
 import { getShortAddress } from '@lib/utils';
 import { Skeleton } from '@nextui-org/skeleton';
 import { Spinner } from '@nextui-org/spinner';
@@ -90,7 +90,7 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
                             )}
 
                             <Link
-                                to={`${config.explorerUrl}/address/${license.nodeAddress}`}
+                                to={`${getR1ExplorerUrl()}/node/${license.nodeAddress}`}
                                 target="_blank"
                                 onClick={(e) => e.stopPropagation()}
                                 className="cursor-pointer text-sm text-slate-400 transition-all hover:opacity-60"

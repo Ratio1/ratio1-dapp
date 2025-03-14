@@ -144,6 +144,8 @@ const domainMainnet = 'app.ratio1.ai';
 const domainDevnet = 'devnet-app.ratio1.ai';
 const domainTestnet = 'testnet-app.ratio1.ai';
 
+const explorerBaseDomain = 'explorer.ratio1.ai';
+
 export const domains = {
     mainnet: domainMainnet,
     devnet: domainDevnet,
@@ -157,7 +159,9 @@ export const environment: 'mainnet' | 'testnet' | 'devnet' =
           ? ('devnet' as const)
           : domain === domainTestnet
             ? ('testnet' as const)
-            : ('devnet' as const);
+            : ('testnet' as const);
+
+export const getR1ExplorerUrl = () => `https://${environment === 'mainnet' ? '' : `${environment}-`}${explorerBaseDomain}`;
 
 export const config = configs[environment];
 

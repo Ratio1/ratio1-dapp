@@ -1,6 +1,6 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { config } from '@lib/config';
+import { config, getR1ExplorerUrl } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { fBI, getShortAddress } from '@lib/utils';
 import { Button } from '@nextui-org/button';
@@ -316,7 +316,7 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
                                     <TableCell>{license.licenseId.toString()}</TableCell>
                                     <TableCell>
                                         <a
-                                            href={`${config.explorerUrl}/address/${license.owner}`}
+                                            href={`${getR1ExplorerUrl()}/account/${license.owner}`}
                                             target="_blank"
                                             className="underline"
                                         >
