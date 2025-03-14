@@ -26,7 +26,7 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
     const init = async () => {
         setLoading(true);
 
-        const type: 'individual' | 'company' = (account?.applicantType ?? isCompany) ? 'company' : 'individual';
+        const type: 'individual' | 'company' = account?.applicantType ?? (isCompany ? 'company' : 'individual');
 
         try {
             const tokenResponse: string = await initSumsubSession(type);
