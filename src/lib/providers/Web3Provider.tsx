@@ -31,16 +31,19 @@ const siweConfig: SIWEConfig = {
                 `We strongly advise familiarizing yourself with these materials to fully understand our data handling practices and your entitlements as a user`,
         }).prepareMessage(),
     verifyMessage: async ({ message, signature }: { message: string; signature: string }) => {
+        console.log('verifyMessage', message, signature);
         try {
             const siweMessage = new SiweMessage(message);
             const chainId = siweMessage.chainId;
             const address = siweMessage.address;
             if (address === config.safeAddress) {
+                console.log('safe address');
                 localStorage.setItem('chainId', chainId.toString());
                 localStorage.setItem('address', address);
                 localStorage.setItem('accessToken', 'safe');
                 return true;
             }
+            console.log('accessAuth');
             const response = await accessAuth({ message, signature });
             localStorage.setItem('chainId', chainId.toString());
             localStorage.setItem('address', address);
@@ -50,6 +53,7 @@ const siweConfig: SIWEConfig = {
             localStorage.setItem('expiration', response.expiration.toString());
             return true;
         } catch (error) {
+            console.error('verifyMessage error', error);
             return false;
         }
     },
