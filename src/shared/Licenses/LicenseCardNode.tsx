@@ -2,7 +2,6 @@ import { getNodeInfo } from '@lib/api/oracles';
 import { getR1ExplorerUrl } from '@lib/config';
 import { getShortAddress } from '@lib/utils';
 import { Skeleton } from '@nextui-org/skeleton';
-import { Spinner } from '@nextui-org/spinner';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
@@ -32,26 +31,37 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
         }
     }, [license.isLinked]);
 
-    useEffect(() => {
-        if (license.isLinked && !isLoading && node?.alias === undefined) {
-            console.log(`[${getShortAddress(license.nodeAddress, 4, true)}] refetching alias`);
-        }
-    }, [license.isLinked, isLoading, node]);
-
-    const { data: refetchedNodeInfo } = useQuery({
+    const {
+        data: refetchedNodeInfo,
+        refetch,
+        isFetching: isLoadingQuery,
+    } = useQuery({
         queryKey: ['refetchedNodeInfo', license.nodeAddress],
-        queryFn: ({ queryKey }) => getNodeInfo(queryKey[1] as EthAddress),
+        queryFn: ({ queryKey }) => {
+            const nodeEthAddress = queryKey[1] as EthAddress;
+            return getNodeInfo(nodeEthAddress);
+        },
         enabled: license.isLinked && !isLoading && node?.alias === undefined, // alias is undefined only in case of an error
         retry: 5,
-        refetchOnWindowFocus: false,
+        refetchOnWindowFocus: true,
     });
+
+    // Refetching node status every minute
+    useEffect(() => {
+        if (license.isLinked) {
+            const interval = setInterval(() => {
+                refetch();
+            }, 60000);
+
+            return () => {
+                clearInterval(interval);
+            };
+        }
+    }, [license.isLinked]);
 
     useEffect(() => {
         if (refetchedNodeInfo) {
-            console.log(
-                `[${getShortAddress(license.nodeAddress, 4, true)}] successfully refetched alias`,
-                refetchedNodeInfo.node_alias,
-            );
+            // console.log(`[${getShortAddress(license.nodeAddress, 4, true)}] refetched and received different data`);
 
             setNode({
                 alias: refetchedNodeInfo.node_alias,
@@ -67,9 +77,10 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
     return (
         <LicenseSmallCard>
             <div className="row gap-2.5">
-                {isLoading ? (
-                    <div className="center-all px-4 py-2">
-                        <Spinner size="sm" />
+                {isLoading || isLoadingQuery ? (
+                    <div className="col gap-1.5 py-1.5">
+                        <Skeleton className="h-4 w-24 rounded-lg" />
+                        <Skeleton className="h-4 w-28 rounded-lg" />
                     </div>
                 ) : (
                     <>
@@ -82,7 +93,7 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
 
                         <div className="col font-medium">
                             {node?.alias === undefined ? (
-                                <Skeleton className="mb-1 h-4 min-w-20 rounded-lg" />
+                                <Skeleton className="mb-1 h-4 min-w-24 rounded-lg" />
                             ) : (
                                 <div className="max-w-[176px] overflow-hidden text-ellipsis whitespace-nowrap text-sm leading-5">
                                     {node?.alias}
