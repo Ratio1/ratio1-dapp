@@ -197,25 +197,6 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
                         </div>
                     </div>
                 )}
-                <div className="col gap-4">
-                    <div className="row gap-2.5">
-                        <div>Individual</div>
-                        <Switch isSelected={isCompany} onValueChange={setCompany} size="sm" />
-                        <div>Company</div>
-                    </div>
-
-                    <div className="row gap-2.5">
-                        <div className="flex">
-                            <Button color="primary" variant="solid" isLoading={isLoading} onPress={init}>
-                                Start KYC
-                            </Button>
-                        </div>
-
-                        <div className="text-sm text-slate-500">
-                            * You'll continue the KYC process using <span className="font-medium text-primary">Sumsub</span>
-                        </div>
-                    </div>
-                </div>
             </div>
         </Card>
     );
