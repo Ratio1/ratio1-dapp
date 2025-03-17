@@ -23,10 +23,16 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
         fetchAccount(); // Always refresh to get the KYC state
     }, []);
 
+    useEffect(() => {
+        if (account?.applicantType) {
+            setCompany(account.applicantType === 'company');
+        }
+    }, [account]);
+
     const init = async () => {
         setLoading(true);
 
-        const type: 'individual' | 'company' = account?.applicantType ?? (isCompany ? 'company' : 'individual');
+        const type: 'individual' | 'company' = isCompany ? 'company' : 'individual';
 
         try {
             const tokenResponse: string = await initSumsubSession(type);
@@ -191,6 +197,25 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
                         </div>
                     </div>
                 )}
+                <div className="col gap-4">
+                    <div className="row gap-2.5">
+                        <div>Individual</div>
+                        <Switch isSelected={isCompany} onValueChange={setCompany} size="sm" />
+                        <div>Company</div>
+                    </div>
+
+                    <div className="row gap-2.5">
+                        <div className="flex">
+                            <Button color="primary" variant="solid" isLoading={isLoading} onPress={init}>
+                                Start KYC
+                            </Button>
+                        </div>
+
+                        <div className="text-sm text-slate-500">
+                            * You'll continue the KYC process using <span className="font-medium text-primary">Sumsub</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </Card>
     );
