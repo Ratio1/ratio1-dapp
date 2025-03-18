@@ -37,7 +37,7 @@ function App() {
                         })}
                 </Route>
 
-                <Route path="*" element={<Navigate to={routePath.dashboard} replace />} />
+                <Route path="*" element={<Navigate to={routePath.notFound} replace />} />
             </Routes>
 
             {/* Global overlays */}
