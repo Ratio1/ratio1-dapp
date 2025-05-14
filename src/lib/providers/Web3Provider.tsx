@@ -39,6 +39,7 @@ const siweConfig: SIWEConfig = {
                 localStorage.setItem('chainId', chainId.toString());
                 localStorage.setItem('address', address);
                 localStorage.setItem('accessToken', 'safe');
+                localStorage.setItem('expiration', '9999999999');
                 return true;
             }
             const response = await accessAuth({ message, signature });
@@ -50,6 +51,7 @@ const siweConfig: SIWEConfig = {
             localStorage.setItem('expiration', response.expiration.toString());
             return true;
         } catch (error) {
+            console.error('verifyMessage error', error);
             return false;
         }
     },
@@ -71,6 +73,7 @@ const siweConfig: SIWEConfig = {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('chainId');
         localStorage.removeItem('address');
+        localStorage.removeItem('expiration');
 
         return true;
     },

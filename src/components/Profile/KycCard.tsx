@@ -23,10 +23,16 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
         fetchAccount(); // Always refresh to get the KYC state
     }, []);
 
+    useEffect(() => {
+        if (account?.applicantType) {
+            setCompany(account.applicantType === 'company');
+        }
+    }, [account]);
+
     const init = async () => {
         setLoading(true);
 
-        const type: 'individual' | 'company' = (account?.applicantType ?? isCompany) ? 'company' : 'individual';
+        const type: 'individual' | 'company' = isCompany ? 'company' : 'individual';
 
         try {
             const tokenResponse: string = await initSumsubSession(type);

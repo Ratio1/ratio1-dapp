@@ -42,6 +42,10 @@ async function _doGet<T>(endpoint: string) {
         node_addr: `0xai${string}`;
     }>(endpoint);
     if ('error' in data.result) {
+        if (data.result.error.includes('[No internal node address found]')) {
+            console.warn(data.result.error);
+            return data.result as T;
+        }
         throw new Error(data.result.error);
     }
     return data.result;

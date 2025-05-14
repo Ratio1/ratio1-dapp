@@ -1,5 +1,4 @@
 import { config } from '@lib/config';
-import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { Spinner } from '@nextui-org/spinner';
 import Admin from '@pages/Admin';
 import { DetailedAlert } from '@shared/DetailedAlert';
@@ -10,21 +9,19 @@ import { Navigate } from 'react-router-dom';
 import { useAccount } from 'wagmi';
 
 export const ProtectedAdminRoute = () => {
-    const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
-
     const [isAuthorized, setAuthorized] = useState<boolean | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const { address } = useAccount();
+    const { address, isConnected } = useAccount();
 
     useEffect(() => {
-        if (authenticated && address) {
+        if (address) {
             setAuthorized(address === config.safeAddress);
             setLoading(false);
         }
-    }, [authenticated, address]);
+    }, [address]);
 
-    if (!authenticated) {
+    if (!isConnected) {
         return (
             <div className="col w-full p-6">
                 <DetailedAlert

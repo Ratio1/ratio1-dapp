@@ -6,19 +6,20 @@ import { throttle } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { AuthenticationContext } from './context';
+import { config } from '@lib/config';
 
 export const AuthenticationProvider = ({ children }) => {
-    const { isConnected } = useAccount();
+    const { isConnected, address } = useAccount();
     const { isSignedIn: authenticated } = useSIWE();
     const { open: modalOpen, openSIWE } = useModal();
     const [account, setAccount] = useState<ApiAccount>();
 
     // SIWE
     useEffect(() => {
-        if (isConnected && !authenticated && !modalOpen) {
+        if (isConnected && !authenticated && !modalOpen && address !== config.safeAddress) {
             openSIWE();
         }
-    }, [isConnected, authenticated, modalOpen]);
+    }, [isConnected, authenticated, modalOpen, address]);
 
     useEffect(() => {
         if (authenticated) {
