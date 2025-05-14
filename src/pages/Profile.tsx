@@ -1,4 +1,5 @@
 import KycCard from '@components/Profile/KycCard';
+import ReferralCard from '@components/Profile/ReferralCard';
 import RegistrationCard from '@components/Profile/RegistrationCard';
 import SubscriptionCard from '@components/Profile/SubscriptionCard';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
@@ -70,6 +71,8 @@ function Profile() {
             <KycCard getRegistrationStatus={getRegistrationStatus} />
 
             <SubscriptionCard getRegistrationStatus={getRegistrationStatus} />
+
+            <ReferralCard />
         </div>
     );
 }
