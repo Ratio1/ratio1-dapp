@@ -415,9 +415,9 @@ function Buy({ onClose }: { onClose: () => void }) {
                                                 </div>
                                             )}
 
-                                            <div className="row justify-between pt-2">
+                                            <div className="row justify-between pt-3">
                                                 <div>Total</div>
-                                                <div>
+                                                <div className="text-primary">
                                                     $
                                                     {(
                                                         (VAT + 1) *
@@ -454,9 +454,9 @@ function Buy({ onClose }: { onClose: () => void }) {
                                                 </div>
                                             </div>
 
-                                            <div className="row justify-between pt-2">
+                                            <div className="row justify-between pt-3">
                                                 <div>Max. $R1 spent</div>
-                                                <div>
+                                                <div className="text-primary">
                                                     {parseFloat(
                                                         Number(formatUnits(getTokenAmount(), 18)).toFixed(2),
                                                     ).toLocaleString('en-US')}
