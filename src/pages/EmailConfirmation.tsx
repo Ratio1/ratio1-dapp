@@ -146,11 +146,9 @@ function EmailConfirmation() {
                     </div>
 
                     <div className="mt-4">
-                        <Link to={routePath.profileKyc}>
-                            <Button color="primary" size="md" variant="solid">
-                                <div className="text-base font-medium">Go to KYC</div>
-                            </Button>
-                        </Link>
+                        <Button color="primary" size="md" variant="solid" as={Link} to={routePath.profileKyc}>
+                            <div className="text-base font-medium">Go to KYC</div>
+                        </Button>
                     </div>
                 </div>
             )}

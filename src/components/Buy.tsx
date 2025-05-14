@@ -49,6 +49,7 @@ function Buy({ onClose }: { onClose: () => void }) {
 
     const [slippageValue, setSlippageValue] = useState<string>('');
     const [slippage, setSlippage] = useState<number>(10);
+    const [VAT, setVAT] = useState<number>(0);
     const { isOpen, onOpen, onClose: onCloseSlippageModal, onOpenChange } = useDisclosure();
 
     const [quantity, setQuantity] = useState<string>('1');
@@ -82,18 +83,22 @@ function Buy({ onClose }: { onClose: () => void }) {
 
     useEffect(() => {
         if (account && userUsdMintedAmount !== undefined) {
+            console.log('Account', account);
+            setVAT(0.19);
             setAccountUsdSpendingLimit(account.usdBuyLimit - Number(userUsdMintedAmount));
             setLoading(false);
         }
     }, [account, userUsdMintedAmount]);
 
     const getTokenAmount = (withSlippage: boolean = true): bigint => {
+        const amount: bigint = (BigInt((VAT + 1) * 100) * BigInt(quantity) * licenseTokenPrice) / 100n;
+
         if (!withSlippage) {
-            return BigInt(quantity) * licenseTokenPrice;
+            return amount;
         }
 
         const slippageValue = Math.floor(slippage * 100) / 100; // Rounds down to 2 decimal places
-        return (BigInt(quantity) * licenseTokenPrice * BigInt(Math.floor(100 + slippageValue))) / 100n;
+        return (amount * BigInt(Math.floor(100 + slippageValue))) / 100n;
     };
 
     const hasEnoughAllowance = (): boolean => tokenAllowance !== undefined && tokenAllowance > MAX_ALLOWANCE / 2n;
@@ -390,7 +395,7 @@ function Buy({ onClose }: { onClose: () => void }) {
                                     <Divider className="mt-6 bg-slate-200" />
 
                                     <div className="col gap-2 text-sm font-medium">
-                                        <div className="text-base text-slate-400">Summary</div>
+                                        <div className="text-base text-slate-400">Summary ($)</div>
 
                                         <div className="col gap-2">
                                             <div className="row justify-between">
@@ -402,11 +407,30 @@ function Buy({ onClose }: { onClose: () => void }) {
                                                     ${(Number.parseInt(quantity) * priceTier.usdPrice).toLocaleString('en-US')}
                                                 </div>
                                             </div>
+
+                                            {!!VAT && (
+                                                <div className="row justify-between">
+                                                    <div>VAT {VAT * 100}%</div>
+                                                    <div>${VAT * Number.parseInt(quantity) * priceTier.usdPrice}</div>
+                                                </div>
+                                            )}
+
+                                            <div className="row justify-between pt-2">
+                                                <div>Total</div>
+                                                <div>
+                                                    $
+                                                    {(
+                                                        (VAT + 1) *
+                                                        Number.parseInt(quantity) *
+                                                        priceTier.usdPrice
+                                                    ).toLocaleString('en-US')}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div className="col gap-2 text-sm font-medium">
-                                        <div className="text-base text-slate-400">Breakdown</div>
+                                        <div className="text-base text-slate-400">Breakdown ($R1)</div>
 
                                         <div className="col gap-2">
                                             <div className="row justify-between">
@@ -487,17 +511,15 @@ function Buy({ onClose }: { onClose: () => void }) {
                         />
 
                         <div className="col center-all gap-2">
-                            <Link to={routePath.buy}>
-                                <Button className="px-3" variant="bordered">
-                                    <div className="row gap-1.5">
-                                        <div>
-                                            <img src={Logo} alt="Logo" className="h-6 w-6 rounded-full" />
-                                        </div>
-
-                                        <div>Get $R1 </div>
+                            <Button className="px-3" variant="bordered" as={Link} to={routePath.buy} onPress={onClose}>
+                                <div className="row gap-1.5">
+                                    <div>
+                                        <img src={Logo} alt="Logo" className="h-6 w-6 rounded-full" />
                                     </div>
-                                </Button>
-                            </Link>
+
+                                    <div>Get $R1</div>
+                                </div>
+                            </Button>
 
                             <AddTokenToWallet contractAddress={config.r1ContractAddress} symbol="R1" decimals={18} />
                         </div>

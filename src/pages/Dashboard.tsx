@@ -73,11 +73,9 @@ function Dashboard() {
                     title="Buying licenses is available after completing KYC."
                     endContent={
                         <div className="ml-2">
-                            <Link to={routePath.profileKyc}>
-                                <Button color="danger" size="sm" variant="solid">
-                                    <div className="text-xs sm:text-sm">Go to KYC</div>
-                                </Button>
-                            </Link>
+                            <Button color="danger" size="sm" variant="solid" as={Link} to={routePath.profileKyc}>
+                                <div className="text-xs sm:text-sm">Go to KYC</div>
+                            </Button>
                         </div>
                     }
                     classNames={{
