@@ -163,16 +163,7 @@ function Buy({ onClose }: { onClose: () => void }) {
             return;
         }
 
-        const { signature, uuid, usdLimitAmount } = await buyLicense({
-            name: 'a',
-            surname: 'a',
-            isCompany: false,
-            identificationCode: 'a',
-            address: 'a',
-            state: 'a',
-            city: 'a',
-            country: 'a',
-        });
+        const { signature, uuid, usdLimitAmount, vatPercentage } = await buyLicense();
 
         const txHash = await walletClient.writeContract({
             address: config.ndContractAddress,
@@ -184,6 +175,7 @@ function Buy({ onClose }: { onClose: () => void }) {
                 getTokenAmount(),
                 `0x${Buffer.from(uuid).toString('hex')}`,
                 BigInt(usdLimitAmount),
+                BigInt(vatPercentage),
                 `0x${signature}`,
             ],
         });

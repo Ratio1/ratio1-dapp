@@ -1,19 +1,174 @@
 export const NDContractAbi = [
     {
+        inputs: [],
+        name: 'ERC721EnumerableForbiddenBatchMint',
+        type: 'error',
+    },
+    {
         inputs: [
             {
                 internalType: 'address',
-                name: 'tokenAddress',
+                name: 'sender',
                 type: 'address',
             },
             {
+                internalType: 'uint256',
+                name: 'tokenId',
+                type: 'uint256',
+            },
+            {
                 internalType: 'address',
-                name: 'newOwner',
+                name: 'owner',
                 type: 'address',
             },
         ],
-        stateMutability: 'nonpayable',
-        type: 'constructor',
+        name: 'ERC721IncorrectOwner',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'operator',
+                type: 'address',
+            },
+            {
+                internalType: 'uint256',
+                name: 'tokenId',
+                type: 'uint256',
+            },
+        ],
+        name: 'ERC721InsufficientApproval',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'approver',
+                type: 'address',
+            },
+        ],
+        name: 'ERC721InvalidApprover',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'operator',
+                type: 'address',
+            },
+        ],
+        name: 'ERC721InvalidOperator',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'owner',
+                type: 'address',
+            },
+        ],
+        name: 'ERC721InvalidOwner',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'receiver',
+                type: 'address',
+            },
+        ],
+        name: 'ERC721InvalidReceiver',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'sender',
+                type: 'address',
+            },
+        ],
+        name: 'ERC721InvalidSender',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint256',
+                name: 'tokenId',
+                type: 'uint256',
+            },
+        ],
+        name: 'ERC721NonexistentToken',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'owner',
+                type: 'address',
+            },
+            {
+                internalType: 'uint256',
+                name: 'index',
+                type: 'uint256',
+            },
+        ],
+        name: 'ERC721OutOfBoundsIndex',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'EnforcedPause',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'ExpectedPause',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'InvalidInitialization',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'NotInitializing',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'owner',
+                type: 'address',
+            },
+        ],
+        name: 'OwnableInvalidOwner',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'account',
+                type: 'address',
+            },
+        ],
+        name: 'OwnableUnauthorizedAccount',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'ReentrancyGuardReentrantCall',
+        type: 'error',
     },
     {
         anonymous: false,
@@ -82,6 +237,19 @@ export const NDContractAbi = [
             },
         ],
         name: 'BatchMetadataUpdate',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: false,
+                internalType: 'uint64',
+                name: 'version',
+                type: 'uint64',
+            },
+        ],
+        name: 'Initialized',
         type: 'event',
     },
     {
@@ -258,32 +426,6 @@ export const NDContractAbi = [
         anonymous: false,
         inputs: [
             {
-                indexed: false,
-                internalType: 'address',
-                name: 'newSigner',
-                type: 'address',
-            },
-        ],
-        name: 'SignerAdded',
-        type: 'event',
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: false,
-                internalType: 'address',
-                name: 'removedSigner',
-                type: 'address',
-            },
-        ],
-        name: 'SignerRemoved',
-        type: 'event',
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
                 indexed: true,
                 internalType: 'address',
                 name: 'from',
@@ -357,6 +499,19 @@ export const NDContractAbi = [
         type: 'function',
     },
     {
+        inputs: [],
+        name: '_controller',
+        outputs: [
+            {
+                internalType: 'contract Controller',
+                name: '',
+                type: 'address',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
         inputs: [
             {
                 internalType: 'uint8',
@@ -383,19 +538,6 @@ export const NDContractAbi = [
             },
         ],
         stateMutability: 'view',
-        type: 'function',
-    },
-    {
-        inputs: [
-            {
-                internalType: 'address',
-                name: 'newSigner',
-                type: 'address',
-            },
-        ],
-        name: 'addSigner',
-        outputs: [],
-        stateMutability: 'nonpayable',
         type: 'function',
     },
     {
@@ -486,6 +628,11 @@ export const NDContractAbi = [
             {
                 internalType: 'uint256',
                 name: 'usdMintLimit',
+                type: 'uint256',
+            },
+            {
+                internalType: 'uint256',
+                name: 'vatPercent',
                 type: 'uint256',
             },
             {
@@ -766,16 +913,26 @@ export const NDContractAbi = [
         type: 'function',
     },
     {
-        inputs: [],
-        name: 'getSigners',
-        outputs: [
+        inputs: [
             {
-                internalType: 'address[]',
-                name: '',
-                type: 'address[]',
+                internalType: 'address',
+                name: 'tokenAddress',
+                type: 'address',
+            },
+            {
+                internalType: 'address',
+                name: 'controllerAddress',
+                type: 'address',
+            },
+            {
+                internalType: 'address',
+                name: 'newOwner',
+                type: 'address',
             },
         ],
-        stateMutability: 'view',
+        name: 'initialize',
+        outputs: [],
+        stateMutability: 'nonpayable',
         type: 'function',
     },
     {
@@ -896,23 +1053,15 @@ export const NDContractAbi = [
                 name: 'newNodeAddress',
                 type: 'address',
             },
+            {
+                internalType: 'bytes',
+                name: 'signature',
+                type: 'bytes',
+            },
         ],
         name: 'linkNode',
         outputs: [],
         stateMutability: 'nonpayable',
-        type: 'function',
-    },
-    {
-        inputs: [],
-        name: 'minimumRequiredSignatures',
-        outputs: [
-            {
-                internalType: 'uint8',
-                name: '',
-                type: 'uint8',
-            },
-        ],
-        stateMutability: 'view',
         type: 'function',
     },
     {
@@ -1019,19 +1168,6 @@ export const NDContractAbi = [
         type: 'function',
     },
     {
-        inputs: [
-            {
-                internalType: 'address',
-                name: 'signerToRemove',
-                type: 'address',
-            },
-        ],
-        name: 'removeSigner',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-    },
-    {
         inputs: [],
         name: 'renounceOwnership',
         outputs: [],
@@ -1124,44 +1260,21 @@ export const NDContractAbi = [
         inputs: [
             {
                 internalType: 'address',
+                name: 'newCompanyWallet',
+                type: 'address',
+            },
+            {
+                internalType: 'address',
                 name: 'newLpWallet',
                 type: 'address',
             },
             {
                 internalType: 'address',
-                name: 'newExpensesWallet',
-                type: 'address',
-            },
-            {
-                internalType: 'address',
-                name: 'newMarketingWallet',
-                type: 'address',
-            },
-            {
-                internalType: 'address',
-                name: 'newGrantsWallet',
-                type: 'address',
-            },
-            {
-                internalType: 'address',
-                name: 'newCsrWallet',
+                name: 'newVatReceiverWallet',
                 type: 'address',
             },
         ],
         name: 'setCompanyWallets',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-    },
-    {
-        inputs: [
-            {
-                internalType: 'address',
-                name: 'liquidityManager',
-                type: 'address',
-            },
-        ],
-        name: 'setLiquidityManager',
         outputs: [],
         stateMutability: 'nonpayable',
         type: 'function',
@@ -1182,71 +1295,24 @@ export const NDContractAbi = [
     {
         inputs: [
             {
-                internalType: 'uint8',
-                name: 'minimumRequiredSignatures_',
-                type: 'uint8',
+                internalType: 'address',
+                name: 'uniswapV2Router',
+                type: 'address',
+            },
+            {
+                internalType: 'address',
+                name: 'uniswapV2Pair',
+                type: 'address',
+            },
+            {
+                internalType: 'address',
+                name: 'usdcAddr',
+                type: 'address',
             },
         ],
-        name: 'setMinimumRequiredSignatures',
+        name: 'setUniswapParams',
         outputs: [],
         stateMutability: 'nonpayable',
-        type: 'function',
-    },
-    {
-        inputs: [
-            {
-                internalType: 'address',
-                name: '',
-                type: 'address',
-            },
-        ],
-        name: 'signerAdditionTimestamp',
-        outputs: [
-            {
-                internalType: 'uint256',
-                name: '',
-                type: 'uint256',
-            },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-    },
-    {
-        inputs: [
-            {
-                internalType: 'address',
-                name: '',
-                type: 'address',
-            },
-        ],
-        name: 'signerSignaturesCount',
-        outputs: [
-            {
-                internalType: 'uint256',
-                name: '',
-                type: 'uint256',
-            },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-    },
-    {
-        inputs: [
-            {
-                internalType: 'uint256',
-                name: '',
-                type: 'uint256',
-            },
-        ],
-        name: 'signers',
-        outputs: [
-            {
-                internalType: 'address',
-                name: '',
-                type: 'address',
-            },
-        ],
-        stateMutability: 'view',
         type: 'function',
     },
     {
@@ -1458,96 +1524,6 @@ export const NDContractAbi = [
                 internalType: 'uint256',
                 name: '',
                 type: 'uint256',
-            },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-    },
-    {
-        inputs: [
-            {
-                internalType: 'address',
-                name: 'addr',
-                type: 'address',
-            },
-            {
-                internalType: 'bytes32',
-                name: 'invoiceUuid',
-                type: 'bytes32',
-            },
-            {
-                internalType: 'uint256',
-                name: 'usdMintLimit',
-                type: 'uint256',
-            },
-            {
-                internalType: 'bytes',
-                name: 'signature',
-                type: 'bytes',
-            },
-        ],
-        name: 'verifyBuyLicenseSignature',
-        outputs: [
-            {
-                internalType: 'bool',
-                name: '',
-                type: 'bool',
-            },
-            {
-                internalType: 'address',
-                name: '',
-                type: 'address',
-            },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-    },
-    {
-        inputs: [
-            {
-                components: [
-                    {
-                        internalType: 'uint256',
-                        name: 'licenseId',
-                        type: 'uint256',
-                    },
-                    {
-                        internalType: 'address',
-                        name: 'nodeAddress',
-                        type: 'address',
-                    },
-                    {
-                        internalType: 'uint256[]',
-                        name: 'epochs',
-                        type: 'uint256[]',
-                    },
-                    {
-                        internalType: 'uint8[]',
-                        name: 'availabilies',
-                        type: 'uint8[]',
-                    },
-                ],
-                internalType: 'struct ComputeRewardsParams',
-                name: 'computeParam',
-                type: 'tuple',
-            },
-            {
-                internalType: 'bytes[]',
-                name: 'signatures',
-                type: 'bytes[]',
-            },
-        ],
-        name: 'verifyRewardsSignatures',
-        outputs: [
-            {
-                internalType: 'bool',
-                name: '',
-                type: 'bool',
-            },
-            {
-                internalType: 'address',
-                name: '',
-                type: 'address',
             },
         ],
         stateMutability: 'view',

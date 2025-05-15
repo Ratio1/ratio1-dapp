@@ -184,13 +184,20 @@ function Search() {
                 args: [licenseId],
             });
 
-            const [nodeAddress, totalAssignedAmount, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle] =
-                await publicClient.readContract({
-                    address: config.mndContractAddress,
-                    abi: MNDContractAbi,
-                    functionName: 'licenses',
-                    args: [licenseId],
-                });
+            const [
+                nodeAddress,
+                totalAssignedAmount,
+                totalClaimedAmount,
+                firstMiningEpoch,
+                lastClaimEpoch,
+                assignTimestamp,
+                lastClaimOracle,
+            ] = await publicClient.readContract({
+                address: config.mndContractAddress,
+                abi: MNDContractAbi,
+                functionName: 'licenses',
+                args: [licenseId],
+            });
 
             if (!totalAssignedAmount) {
                 return;

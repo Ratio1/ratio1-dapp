@@ -1,3 +1,4 @@
+import { ControllerAbi } from '@blockchain/Controller';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { config, getR1ExplorerUrl } from '@lib/config';
@@ -28,8 +29,7 @@ type AdminMndView = Omit<MNDLicense, 'claimableEpochs' | 'isLinked'> & { owner: 
 function Admin() {
     const publicClient = usePublicClient();
 
-    const [ndSigners, setNdSigners] = useState<EthAddress[]>([]);
-    const [mndSigners, setMndSigners] = useState<EthAddress[]>([]);
+    const [oracles, setOracles] = useState<EthAddress[]>([]);
     const [mnds, setMnds] = useState<(AdminMndView | null)[]>([]);
 
     const fetchData = () => {
@@ -37,22 +37,12 @@ function Admin() {
 
         publicClient
             .readContract({
-                address: config.ndContractAddress,
-                abi: NDContractAbi,
-                functionName: 'getSigners',
+                address: config.controllerContractAddress,
+                abi: ControllerAbi,
+                functionName: 'getOracles',
             })
             .then((result) => {
-                setNdSigners([...result]);
-            });
-
-        publicClient
-            .readContract({
-                address: config.mndContractAddress,
-                abi: MNDContractAbi,
-                functionName: 'getSigners',
-            })
-            .then((result) => {
-                setMndSigners([...result]);
+                setOracles([...result]);
             });
 
         publicClient
@@ -86,9 +76,9 @@ function Admin() {
                                 nodeAddress: result[0],
                                 totalAssignedAmount: result[1],
                                 totalClaimedAmount: result[2],
-                                lastClaimEpoch: result[3],
-                                assignTimestamp: result[4],
-                                lastClaimOracle: result[5],
+                                lastClaimEpoch: result[4],
+                                assignTimestamp: result[5],
+                                lastClaimOracle: result[6],
                                 remainingAmount: result[1] - result[2],
                                 isBanned: false as const,
                             })),
@@ -117,8 +107,8 @@ function Admin() {
         <div className="col gap-4">
             <CreateMnd mnds={mnds} fetchData={fetchData} />
             <MndsTable mnds={mnds} />
-            <AddSigner ndSigners={ndSigners} mndSigners={mndSigners} fetchData={fetchData} />
-            <RemoveSigner ndSigners={ndSigners} mndSigners={mndSigners} fetchData={fetchData} />
+            <AddSigner oracles={oracles} fetchData={fetchData} />
+            <RemoveSigner oracles={oracles} fetchData={fetchData} />
             <AllowMndTransfer />
             <AllowMndBurn />
         </div>
@@ -354,15 +344,7 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
     );
 }
 
-function AddSigner({
-    ndSigners,
-    mndSigners,
-    fetchData,
-}: {
-    ndSigners: EthAddress[];
-    mndSigners: EthAddress[];
-    fetchData: () => void;
-}) {
+function AddSigner({ oracles, fetchData }: { oracles: EthAddress[]; fetchData: () => void }) {
     const { watchTx } = useBlockchainContext() as BlockchainContextType;
 
     const [address, setAddress] = useState<string>('');
@@ -371,7 +353,7 @@ function AddSigner({
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
 
-    const onAddNd = async () => {
+    const onAdd = async () => {
         if (!walletClient) {
             toast.error('Unexpected error, please try again.');
             return;
@@ -380,30 +362,9 @@ function AddSigner({
         setIsLoading(true);
 
         const txHash = await walletClient.writeContract({
-            address: config.ndContractAddress,
-            abi: NDContractAbi,
-            functionName: 'addSigner',
-            args: [address as EthAddress],
-        });
-
-        await watchTx(txHash, publicClient);
-        fetchData();
-
-        setIsLoading(false);
-    };
-
-    const onAddMnd = async () => {
-        if (!walletClient) {
-            toast.error('Unexpected error, please try again.');
-            return;
-        }
-
-        setIsLoading(true);
-
-        const txHash = await walletClient.writeContract({
-            address: config.mndContractAddress,
-            abi: MNDContractAbi,
-            functionName: 'addSigner',
+            address: config.controllerContractAddress,
+            abi: ControllerAbi,
+            functionName: 'addOracle',
             args: [address as EthAddress],
         });
 
@@ -415,7 +376,7 @@ function AddSigner({
 
     return (
         <BigCard>
-            <div className="text-base font-semibold leading-6 lg:text-xl">Add new signer</div>
+            <div className="text-base font-semibold leading-6 lg:text-xl">Add new oracle</div>
 
             <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
                 <Input
@@ -429,7 +390,7 @@ function AddSigner({
                     }}
                     variant="bordered"
                     color="primary"
-                    label="Signer"
+                    label="Oracle"
                     labelPlacement="outside"
                     placeholder="0x..."
                 />
@@ -439,23 +400,11 @@ function AddSigner({
                         <Button
                             fullWidth
                             color="secondary"
-                            onPress={onAddNd}
+                            onPress={onAdd}
                             isLoading={isLoading}
-                            isDisabled={isLoading || !address || ndSigners.includes(address as EthAddress)}
+                            isDisabled={isLoading || !address || oracles.includes(address as EthAddress)}
                         >
-                            {!ndSigners.includes(address as EthAddress) ? 'Add to ND' : 'Added to ND'}
-                        </Button>
-                    </div>
-
-                    <div className="flex">
-                        <Button
-                            fullWidth
-                            color="primary"
-                            onPress={onAddMnd}
-                            isLoading={isLoading}
-                            isDisabled={isLoading || !address || mndSigners.includes(address as EthAddress)}
-                        >
-                            {!mndSigners.includes(address as EthAddress) ? 'Add to MND' : 'Added to MND'}
+                            {!oracles.includes(address as EthAddress) ? 'Add' : 'Added'}
                         </Button>
                     </div>
                 </div>
@@ -464,15 +413,7 @@ function AddSigner({
     );
 }
 
-function RemoveSigner({
-    ndSigners,
-    mndSigners,
-    fetchData,
-}: {
-    ndSigners: EthAddress[];
-    mndSigners: EthAddress[];
-    fetchData: () => void;
-}) {
+function RemoveSigner({ oracles, fetchData }: { oracles: EthAddress[]; fetchData: () => void }) {
     const { watchTx } = useBlockchainContext() as BlockchainContextType;
 
     const [address, setAddress] = useState<string>('');
@@ -481,7 +422,7 @@ function RemoveSigner({
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
 
-    const onRemoveNd = async () => {
+    const onRemove = async () => {
         if (!walletClient) {
             toast.error('Unexpected error, please try again.');
             return;
@@ -490,30 +431,9 @@ function RemoveSigner({
         setIsLoading(true);
 
         const txHash = await walletClient.writeContract({
-            address: config.ndContractAddress,
-            abi: NDContractAbi,
-            functionName: 'removeSigner',
-            args: [address as EthAddress],
-        });
-
-        await watchTx(txHash, publicClient);
-        fetchData();
-
-        setIsLoading(false);
-    };
-
-    const onRemoveMnd = async () => {
-        if (!walletClient) {
-            toast.error('Unexpected error, please try again.');
-            return;
-        }
-
-        setIsLoading(true);
-
-        const txHash = await walletClient.writeContract({
-            address: config.mndContractAddress,
-            abi: MNDContractAbi,
-            functionName: 'removeSigner',
+            address: config.controllerContractAddress,
+            abi: ControllerAbi,
+            functionName: 'removeOracle',
             args: [address as EthAddress],
         });
 
@@ -525,7 +445,7 @@ function RemoveSigner({
 
     return (
         <BigCard>
-            <div className="text-base font-semibold leading-6 lg:text-xl">Remove existing signer</div>
+            <div className="text-base font-semibold leading-6 lg:text-xl">Remove existing oracle</div>
 
             <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
                 <Input
@@ -539,7 +459,7 @@ function RemoveSigner({
                     }}
                     variant="bordered"
                     color="primary"
-                    label="Signer"
+                    label="Oracle"
                     labelPlacement="outside"
                     placeholder="0x..."
                 />
@@ -549,23 +469,11 @@ function RemoveSigner({
                         <Button
                             fullWidth
                             color="secondary"
-                            onPress={onRemoveNd}
+                            onPress={onRemove}
                             isLoading={isLoading}
-                            isDisabled={isLoading || !address || !ndSigners.includes(address as EthAddress)}
+                            isDisabled={isLoading || !address || !oracles.includes(address as EthAddress)}
                         >
-                            {ndSigners.includes(address as EthAddress) ? 'Remove from ND' : 'Not ND signer'}
-                        </Button>
-                    </div>
-
-                    <div className="flex">
-                        <Button
-                            fullWidth
-                            color="primary"
-                            onPress={onRemoveMnd}
-                            isLoading={isLoading}
-                            isDisabled={isLoading || !address || !mndSigners.includes(address as EthAddress)}
-                        >
-                            {mndSigners.includes(address as EthAddress) ? 'Remove from MND' : 'Not MND signer'}
+                            {oracles.includes(address as EthAddress) ? 'Remove' : 'Not an oracle'}
                         </Button>
                     </div>
                 </div>
