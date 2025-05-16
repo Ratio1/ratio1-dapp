@@ -206,16 +206,17 @@ function Search() {
             const isLinked = nodeAddress !== '0x0000000000000000000000000000000000000000';
 
             const baseLicense: Omit<MNDLicense | GNDLicense, 'rewards' | 'alias' | 'isOnline' | 'claimableEpochs'> = {
-                type: licenseId === 1n ? 'GND' : ('MND' as const),
+                type: licenseId === 1n ? 'GND' : 'MND',
                 licenseId,
                 nodeAddress,
                 totalClaimedAmount,
                 remainingAmount: totalAssignedAmount - totalClaimedAmount,
+                firstMiningEpoch,
                 lastClaimEpoch,
                 assignTimestamp,
                 lastClaimOracle,
                 totalAssignedAmount,
-                isBanned: false as const,
+                isBanned: false,
                 isLinked,
             };
 

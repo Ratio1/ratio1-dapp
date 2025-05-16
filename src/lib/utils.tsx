@@ -270,7 +270,7 @@ const getMndNodeAndLicenseRewards = async (
     const currentEpoch = getCurrentEpoch();
 
     const firstEpochToClaim =
-        license.lastClaimEpoch >= config.mndCliffEpochs ? Number(license.lastClaimEpoch) : config.mndCliffEpochs;
+        license.lastClaimEpoch >= license.firstMiningEpoch ? Number(license.lastClaimEpoch) : Number(license.firstMiningEpoch);
     const epochsToClaim = currentEpoch - firstEpochToClaim;
 
     const { epochs, epochs_vals, eth_signatures, node_alias, node_is_online } = await getNodeEpochsRange(
@@ -288,7 +288,7 @@ const getMndNodeAndLicenseRewards = async (
         node_is_online,
     };
 
-    if (currentEpoch < config.mndCliffEpochs || epochsToClaim === 0) {
+    if (currentEpoch < license.firstMiningEpoch || epochsToClaim === 0) {
         return baseResult;
     }
 
@@ -296,10 +296,12 @@ const getMndNodeAndLicenseRewards = async (
         throw new Error('Invalid epochs array length');
     }
 
-    const maxRewardsPerEpoch = license.totalAssignedAmount / BigInt(config.mndVestingEpochs);
+    const logisticPlateau = 392_778135785707100000n; // 392.77
+    const licensePlateau = (license.totalAssignedAmount * BigInt(1e18)) / logisticPlateau;
     let rewards_amount = 0n;
 
     for (let i = 0; i < epochsToClaim; i++) {
+        const maxRewardsPerEpoch = calculateMndMaxEpochRelease(license, licensePlateau);
         rewards_amount += (maxRewardsPerEpoch * BigInt(epochs_vals[i])) / 255n;
     }
 
@@ -316,6 +318,25 @@ const getMndNodeAndLicenseRewards = async (
         ...baseResult,
         rewards_amount,
     };
+};
+
+const calculateMndMaxEpochRelease = (license: MNDLicense, licensePlateau: bigint): bigint => {
+    const currentEpoch = getCurrentEpoch();
+
+    let x = currentEpoch - Number(license.firstMiningEpoch);
+    if (x > config.mndVestingEpochs) {
+        x = config.mndVestingEpochs;
+    }
+    const frac = logisticFraction(x);
+    return (licensePlateau * BigInt(frac * 1e18)) / BigInt(1e18);
+};
+
+const logisticFraction = (x: number): number => {
+    const length = config.mndVestingEpochs;
+    const k = 3.0;
+    const midPrc = 0.6;
+    const midpoint = length * midPrc;
+    return 1.0 / (1.0 + Math.exp((-k * (x - midpoint)) / length));
 };
 
 export const arrayAverage = (numbers: number[]): number => {

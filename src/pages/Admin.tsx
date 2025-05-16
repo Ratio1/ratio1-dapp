@@ -76,6 +76,7 @@ function Admin() {
                                 nodeAddress: result[0],
                                 totalAssignedAmount: result[1],
                                 totalClaimedAmount: result[2],
+                                firstMiningEpoch: result[3],
                                 lastClaimEpoch: result[4],
                                 assignTimestamp: result[5],
                                 lastClaimOracle: result[6],

@@ -37,11 +37,13 @@ type NDLicense = BaseLicense & {
 type MNDLicense = BaseLicense & {
     type: 'MND';
     isBanned: false;
+    firstMiningEpoch: bigint;
 };
 
 type GNDLicense = BaseLicense & {
     type: 'GND';
     isBanned: false;
+    firstMiningEpoch: bigint;
 };
 
 type License = NDLicense | MNDLicense | GNDLicense;
