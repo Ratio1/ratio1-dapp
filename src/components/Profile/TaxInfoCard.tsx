@@ -8,14 +8,14 @@ function TaxInfoCard() {
     return (
         <Card icon={<RiBillLine />} title="Tax Information">
             <div className="flex h-full w-full items-center justify-between">
-                <div className="col gap-1">
+                {/* <div className="col gap-1">
                     <div className="text-sm font-medium text-slate-500">Tax Country</div>
                     <div className="font-medium">Romania</div>
-                </div>
+                </div> */}
 
                 <div className="col gap-1">
                     <div className="text-sm font-medium text-slate-500">VAT</div>
-                    <div className="font-medium">19%</div>
+                    <div className="font-medium">{account?.vatPercentage}%</div>
                 </div>
             </div>
         </Card>

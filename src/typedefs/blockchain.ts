@@ -107,6 +107,8 @@ type ApiAccount = {
     blacklistedReason: string;
     receiveUpdates: boolean;
     usdBuyLimit: number;
+    vatPercentage: number;
+    viesRegistered: boolean;
 };
 
 type PriceTier = {

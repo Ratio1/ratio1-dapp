@@ -15,7 +15,7 @@ function ReferralCard() {
     const [isLoading, setLoading] = useState<boolean>(false);
 
     // TODO: Replace
-    const [code, setCode] = useState<string>('6fb791d3d18d57d28ae7677e4cff8c6e');
+    const [code, setCode] = useState<string>('FAE7C9D');
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -78,7 +78,7 @@ function ReferralCard() {
                     <div className="w-full rounded-lg bg-primary-50 px-4 py-3.5">
                         <div className="row justify-between">
                             <div className="text-sm font-medium text-slate-700">Referral Code</div>
-                            <CopyableValue value={code} />
+                            <CopyableValue value={code} size={7} />
                         </div>
                     </div>
                 )}

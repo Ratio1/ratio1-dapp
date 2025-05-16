@@ -27,7 +27,7 @@ export const CopyableValue = ({ value, size = 4, isLarge = false }: Props) => {
                 'text-[15px]': isLarge,
             })}
         >
-            {getShortAddress(value, size)}
+            {size >= value.length ? value : getShortAddress(value, size)}
         </div>
     );
 

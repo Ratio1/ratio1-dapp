@@ -49,7 +49,6 @@ function Buy({ onClose }: { onClose: () => void }) {
 
     const [slippageValue, setSlippageValue] = useState<string>('');
     const [slippage, setSlippage] = useState<number>(10);
-    const [VAT, setVAT] = useState<number>(0);
     const { isOpen, onOpen, onClose: onCloseSlippageModal, onOpenChange } = useDisclosure();
 
     const [quantity, setQuantity] = useState<string>('1');
@@ -84,14 +83,14 @@ function Buy({ onClose }: { onClose: () => void }) {
     useEffect(() => {
         if (account && userUsdMintedAmount !== undefined) {
             console.log('Account', account);
-            setVAT(0.19);
             setAccountUsdSpendingLimit(account.usdBuyLimit - Number(userUsdMintedAmount));
             setLoading(false);
         }
     }, [account, userUsdMintedAmount]);
 
     const getTokenAmount = (withSlippage: boolean = true): bigint => {
-        const amount: bigint = (BigInt((VAT + 1) * 100) * BigInt(quantity) * licenseTokenPrice) / 100n;
+        const vatPercentage: number = account?.vatPercentage || 0;
+        const amount: bigint = (BigInt((vatPercentage + 1) * 100) * BigInt(quantity) * licenseTokenPrice) / 100n;
 
         if (!withSlippage) {
             return amount;
@@ -408,10 +407,13 @@ function Buy({ onClose }: { onClose: () => void }) {
                                                 </div>
                                             </div>
 
-                                            {!!VAT && (
+                                            {!!account && (
                                                 <div className="row justify-between">
-                                                    <div>VAT {VAT * 100}%</div>
-                                                    <div>${VAT * Number.parseInt(quantity) * priceTier.usdPrice}</div>
+                                                    <div>VAT {account.vatPercentage * 100}%</div>
+                                                    <div>
+                                                        $
+                                                        {account.vatPercentage * Number.parseInt(quantity) * priceTier.usdPrice}
+                                                    </div>
                                                 </div>
                                             )}
 
@@ -420,7 +422,7 @@ function Buy({ onClose }: { onClose: () => void }) {
                                                 <div className="text-primary">
                                                     $
                                                     {(
-                                                        (VAT + 1) *
+                                                        ((account?.vatPercentage || 0) + 1) *
                                                         Number.parseInt(quantity) *
                                                         priceTier.usdPrice
                                                     ).toLocaleString('en-US')}
@@ -475,7 +477,7 @@ function Buy({ onClose }: { onClose: () => void }) {
 
                             <div className={!quantity ? 'mt-6' : ''}>
                                 <ConnectWalletWrapper isFullWidth>
-                                    {/* TODO: Disabled on mainnet */}
+                                    {/* ! Disabled on mainnet ! */}
                                     <Button
                                         fullWidth
                                         color="primary"
