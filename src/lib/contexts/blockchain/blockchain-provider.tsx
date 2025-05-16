@@ -265,17 +265,15 @@ export const BlockchainProvider = ({ children }) => {
     };
 
     const fetchR1Price = async () => {
-        /*
         if (publicClient) {
             const price = await publicClient.readContract({
-                address: config.liquidityManagerContractAddress,
+                address: config.ndContractAddress,
                 abi: NDContractAbi,
-                functionName: 'getTokenPrice', TODO function is internal
+                functionName: 'getTokenPrice',
             });
 
             setR1Price(price);
         }
-        */
     };
 
     return (
