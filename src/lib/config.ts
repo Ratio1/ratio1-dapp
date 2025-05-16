@@ -12,7 +12,6 @@ type Config = {
     ndContractAddress: EthAddress;
     mndContractAddress: EthAddress;
     controllerContractAddress: EthAddress;
-    liquidityManagerContractAddress: EthAddress;
     uniswapV2RouterAddress: EthAddress;
     faucetContractAddress?: EthAddress;
     safeAddress: EthAddress;
@@ -38,7 +37,6 @@ const configs: {
         ndContractAddress: '0xE20198EE2B76eED916A568a47cdea9681f7c79BF',
         mndContractAddress: '0xfD52a7958088dF734D523d618e583e4d53cD7420',
         controllerContractAddress: '0xTODO',
-        liquidityManagerContractAddress: '0xTODO',
         uniswapV2RouterAddress: '0xTODO',
         safeAddress: '0x52B56A307469B1f35BC53BF55E53bBf585428Ff4',
         explorerUrl: 'https://basescan.org',
@@ -60,7 +58,6 @@ const configs: {
         mndContractAddress: '0x911A520bB6a5F332377D6f24448d8B761Bc1d990',
         controllerContractAddress: '0x0B06f129BE9E7e867a6095da84A9Bb7745238373',
         faucetContractAddress: '0xec92d8B5DB97D6C38460CDa00a3D56ad74F11783',
-        liquidityManagerContractAddress: '0xTODO',
         uniswapV2RouterAddress: '0x6682375ebC1dF04676c0c5050934272368e6e883',
         safeAddress: '0xfad0050957E9261660FFd24BB49D42D920430FC8',
         explorerUrl: 'https://sepolia.basescan.org',
@@ -104,7 +101,6 @@ const configs: {
         mndContractAddress: '0x909d33Ab74d5A85F1fc963ae63af7B97eAe76f40',
         controllerContractAddress: '0xTODO',
         faucetContractAddress: '0x4a1bC775410067Ad5468945EF7ca5b0C510CDD99',
-        liquidityManagerContractAddress: '0xE5C61ADEeE7850a8656A10f3963036e5c045B508',
         uniswapV2RouterAddress: '0x6682375ebC1dF04676c0c5050934272368e6e883',
         safeAddress: '0x206F930e0b10a69A0ECe8110319af96a7E786Ec0',
         explorerUrl: 'https://sepolia.basescan.org',

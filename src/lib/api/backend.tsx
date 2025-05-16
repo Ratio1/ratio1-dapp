@@ -8,7 +8,6 @@ const backendUrl = config.backendUrl;
 // GET
 // *****
 
-//TODO here can also store in redux for example
 export const getAccount = async () => _doGet<types.ApiAccount>('accounts/account');
 
 export const linkLicense = (nodeAddress: types.EthAddress) =>
@@ -84,7 +83,7 @@ const axiosBackend = axios.create({
 
 axiosBackend.interceptors.request.use(
     async (config) => {
-        const token = localStorage.getItem('accessToken'); //TODO check where this should be taken from
+        const token = localStorage.getItem('accessToken');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
