@@ -82,7 +82,6 @@ function Buy({ onClose }: { onClose: () => void }) {
 
     useEffect(() => {
         if (account && userUsdMintedAmount !== undefined) {
-            console.log('Account', account);
             setAccountUsdSpendingLimit(account.usdBuyLimit - Number(userUsdMintedAmount));
             setLoading(false);
         }
@@ -90,7 +89,8 @@ function Buy({ onClose }: { onClose: () => void }) {
 
     const getTokenAmount = (withSlippage: boolean = true): bigint => {
         const vatPercentage: number = account?.vatPercentage || 0;
-        const amount: bigint = (BigInt((vatPercentage + 1) * 100) * BigInt(quantity) * licenseTokenPrice) / 100n;
+        const vatMultiplier = 10000n + BigInt(vatPercentage);
+        const amount: bigint = (BigInt(quantity) * licenseTokenPrice * vatMultiplier) / 10000n;
 
         if (!withSlippage) {
             return amount;
@@ -222,7 +222,7 @@ function Buy({ onClose }: { onClose: () => void }) {
         return parseInt(quantity) * priceTier.usdPrice > accountUsdSpendingLimit;
     };
 
-    const isBuyingDisabled = (): boolean =>
+    const isBuyButtonDisabled = (): boolean =>
         !quantity ||
         !account ||
         !licenseTokenPrice ||
@@ -380,10 +380,10 @@ function Buy({ onClose }: { onClose: () => void }) {
                             isAproximate
                         />
 
-                        <div className="col gap-6">
+                        <div className="col mt-6 gap-6">
                             {!!quantity && Number.parseInt(quantity) > 0 && (
                                 <>
-                                    <Divider className="mt-6 bg-slate-200" />
+                                    {/* <Divider className="mt-6 bg-slate-200" /> */}
 
                                     <div className="col gap-2 text-sm font-medium">
                                         <div className="text-base text-slate-400">Summary ($)</div>
@@ -401,20 +401,24 @@ function Buy({ onClose }: { onClose: () => void }) {
 
                                             {!!account && (
                                                 <div className="row justify-between">
-                                                    <div>VAT {account.vatPercentage * 100}%</div>
+                                                    <div>VAT {account.vatPercentage / 100}%</div>
                                                     <div>
                                                         $
-                                                        {account.vatPercentage * Number.parseInt(quantity) * priceTier.usdPrice}
+                                                        {(account.vatPercentage / 10000) *
+                                                            Number.parseInt(quantity) *
+                                                            priceTier.usdPrice}
                                                     </div>
                                                 </div>
                                             )}
 
-                                            <div className="row justify-between pt-3">
+                                            <Divider className="mt-1 bg-slate-200" />
+
+                                            <div className="row justify-between pt-1">
                                                 <div>Total</div>
                                                 <div className="text-primary">
                                                     $
                                                     {(
-                                                        ((account?.vatPercentage || 0) + 1) *
+                                                        ((account?.vatPercentage || 0) / 10000 + 1) *
                                                         Number.parseInt(quantity) *
                                                         priceTier.usdPrice
                                                     ).toLocaleString('en-US')}
@@ -448,7 +452,9 @@ function Buy({ onClose }: { onClose: () => void }) {
                                                 </div>
                                             </div>
 
-                                            <div className="row justify-between pt-3">
+                                            <Divider className="mt-1 bg-slate-200" />
+
+                                            <div className="row justify-between pt-1">
                                                 <div>Max. $R1 spent</div>
                                                 <div className="text-primary">
                                                     {parseFloat(
@@ -475,13 +481,15 @@ function Buy({ onClose }: { onClose: () => void }) {
                                         color="primary"
                                         onPress={onPress}
                                         isLoading={isLoadingTx}
-                                        isDisabled={environment === 'mainnet' || isBuyingDisabled()}
+                                        isDisabled={environment === 'mainnet' || isBuyButtonDisabled()}
                                     >
                                         {environment === 'mainnet'
                                             ? 'Coming Soon'
-                                            : isApprovalRequired()
-                                              ? 'Approve $R1'
-                                              : 'Buy'}
+                                            : r1Balance === 0n
+                                              ? 'Insufficient $R1 balance'
+                                              : isApprovalRequired()
+                                                ? 'Approve $R1'
+                                                : 'Buy'}
                                     </Button>
                                 </ConnectWalletWrapper>
                             </div>

@@ -15,7 +15,7 @@ function TaxInfoCard() {
 
                 <div className="col gap-1">
                     <div className="text-sm font-medium text-slate-500">VAT</div>
-                    <div className="font-medium">{account?.vatPercentage}%</div>
+                    <div className="font-medium">{(account?.vatPercentage || 0) / 100}%</div>
                 </div>
             </div>
         </Card>
