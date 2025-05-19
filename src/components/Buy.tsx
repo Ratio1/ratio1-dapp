@@ -88,12 +88,16 @@ function Buy({ onClose }: { onClose: () => void }) {
     }, [account, userUsdMintedAmount]);
 
     const getTokenAmount = (withSlippage: boolean = true): bigint => {
+        const vatPercentage: number = account?.vatPercentage || 0;
+        const vatMultiplier = 10000n + BigInt(vatPercentage);
+        const amount: bigint = (BigInt(quantity) * licenseTokenPrice * vatMultiplier) / 10000n;
+
         if (!withSlippage) {
-            return BigInt(quantity) * licenseTokenPrice;
+            return amount;
         }
 
         const slippageValue = Math.floor(slippage * 100) / 100; // Rounds down to 2 decimal places
-        return (BigInt(quantity) * licenseTokenPrice * BigInt(Math.floor(100 + slippageValue))) / 100n;
+        return (amount * BigInt(Math.floor(100 + slippageValue))) / 100n;
     };
 
     const hasEnoughAllowance = (): boolean => tokenAllowance !== undefined && tokenAllowance > MAX_ALLOWANCE / 2n;
@@ -158,16 +162,7 @@ function Buy({ onClose }: { onClose: () => void }) {
             return;
         }
 
-        const { signature, uuid, usdLimitAmount } = await buyLicense({
-            name: 'a',
-            surname: 'a',
-            isCompany: false,
-            identificationCode: 'a',
-            address: 'a',
-            state: 'a',
-            city: 'a',
-            country: 'a',
-        });
+        const { signature, uuid, usdLimitAmount, vatPercentage } = await buyLicense();
 
         const txHash = await walletClient.writeContract({
             address: config.ndContractAddress,
@@ -179,6 +174,7 @@ function Buy({ onClose }: { onClose: () => void }) {
                 getTokenAmount(),
                 `0x${Buffer.from(uuid).toString('hex')}`,
                 BigInt(usdLimitAmount),
+                BigInt(vatPercentage),
                 `0x${signature}`,
             ],
         });
@@ -226,7 +222,7 @@ function Buy({ onClose }: { onClose: () => void }) {
         return parseInt(quantity) * priceTier.usdPrice > accountUsdSpendingLimit;
     };
 
-    const isBuyingDisabled = (): boolean =>
+    const isBuyButtonDisabled = (): boolean =>
         !quantity ||
         !account ||
         !licenseTokenPrice ||
@@ -384,13 +380,13 @@ function Buy({ onClose }: { onClose: () => void }) {
                             isAproximate
                         />
 
-                        <div className="col gap-6">
+                        <div className="col mt-6 gap-6">
                             {!!quantity && Number.parseInt(quantity) > 0 && (
                                 <>
-                                    <Divider className="mt-6 bg-slate-200" />
+                                    {/* <Divider className="mt-6 bg-slate-200" /> */}
 
                                     <div className="col gap-2 text-sm font-medium">
-                                        <div className="text-base text-slate-400">Summary</div>
+                                        <div className="text-base text-slate-400">Summary ($)</div>
 
                                         <div className="col gap-2">
                                             <div className="row justify-between">
@@ -402,11 +398,37 @@ function Buy({ onClose }: { onClose: () => void }) {
                                                     ${(Number.parseInt(quantity) * priceTier.usdPrice).toLocaleString('en-US')}
                                                 </div>
                                             </div>
+
+                                            {!!account && (
+                                                <div className="row justify-between">
+                                                    <div>VAT {account.vatPercentage / 100}%</div>
+                                                    <div>
+                                                        $
+                                                        {(account.vatPercentage / 10000) *
+                                                            Number.parseInt(quantity) *
+                                                            priceTier.usdPrice}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <Divider className="mt-1 bg-slate-200" />
+
+                                            <div className="row justify-between pt-1">
+                                                <div>Total</div>
+                                                <div className="text-primary">
+                                                    $
+                                                    {(
+                                                        ((account?.vatPercentage || 0) / 10000 + 1) *
+                                                        Number.parseInt(quantity) *
+                                                        priceTier.usdPrice
+                                                    ).toLocaleString('en-US')}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div className="col gap-2 text-sm font-medium">
-                                        <div className="text-base text-slate-400">Breakdown</div>
+                                        <div className="text-base text-slate-400">Breakdown ($R1)</div>
 
                                         <div className="col gap-2">
                                             <div className="row justify-between">
@@ -430,9 +452,11 @@ function Buy({ onClose }: { onClose: () => void }) {
                                                 </div>
                                             </div>
 
-                                            <div className="row justify-between pt-2">
+                                            <Divider className="mt-1 bg-slate-200" />
+
+                                            <div className="row justify-between pt-1">
                                                 <div>Max. $R1 spent</div>
-                                                <div>
+                                                <div className="text-primary">
                                                     {parseFloat(
                                                         Number(formatUnits(getTokenAmount(), 18)).toFixed(2),
                                                     ).toLocaleString('en-US')}
@@ -451,19 +475,21 @@ function Buy({ onClose }: { onClose: () => void }) {
 
                             <div className={!quantity ? 'mt-6' : ''}>
                                 <ConnectWalletWrapper isFullWidth>
-                                    {/* TODO: Disabled on mainnet */}
+                                    {/* ! Disabled on mainnet ! */}
                                     <Button
                                         fullWidth
                                         color="primary"
                                         onPress={onPress}
                                         isLoading={isLoadingTx}
-                                        isDisabled={environment === 'mainnet' || isBuyingDisabled()}
+                                        isDisabled={environment === 'mainnet' || isBuyButtonDisabled()}
                                     >
                                         {environment === 'mainnet'
                                             ? 'Coming Soon'
-                                            : isApprovalRequired()
-                                              ? 'Approve $R1'
-                                              : 'Buy'}
+                                            : r1Balance === 0n
+                                              ? 'Insufficient $R1 balance'
+                                              : isApprovalRequired()
+                                                ? 'Approve $R1'
+                                                : 'Buy'}
                                     </Button>
                                 </ConnectWalletWrapper>
                             </div>
@@ -487,17 +513,15 @@ function Buy({ onClose }: { onClose: () => void }) {
                         />
 
                         <div className="col center-all gap-2">
-                            <Link to={routePath.buy}>
-                                <Button className="px-3" variant="bordered">
-                                    <div className="row gap-1.5">
-                                        <div>
-                                            <img src={Logo} alt="Logo" className="h-6 w-6 rounded-full" />
-                                        </div>
-
-                                        <div>Get $R1 </div>
+                            <Button className="px-3" variant="bordered" as={Link} to={routePath.buy} onPress={onClose}>
+                                <div className="row gap-1.5">
+                                    <div>
+                                        <img src={Logo} alt="Logo" className="h-6 w-6 rounded-full" />
                                     </div>
-                                </Button>
-                            </Link>
+
+                                    <div>Get $R1</div>
+                                </div>
+                            </Button>
 
                             <AddTokenToWallet contractAddress={config.r1ContractAddress} symbol="R1" decimals={18} />
                         </div>

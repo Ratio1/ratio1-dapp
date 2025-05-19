@@ -44,9 +44,11 @@ function SubscriptionCard({ getRegistrationStatus }: { getRegistrationStatus: ()
 
     return (
         <Card icon={<RiNewsLine />} title="Subscription">
-            <div className="row justify-between">
-                <div>Send me email updates.</div>
-                <Switch isSelected={isSelected} onValueChange={toggle} size="sm" />
+            <div className="flex h-full w-full items-center">
+                <div className="row w-full justify-between">
+                    <div className="text-sm larger:text-base">Receive important updates via email.</div>
+                    <Switch isSelected={isSelected} onValueChange={toggle} size="sm" />
+                </div>
             </div>
         </Card>
     );

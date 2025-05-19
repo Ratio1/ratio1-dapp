@@ -3,7 +3,7 @@ import { RiCloseLargeLine } from 'react-icons/ri';
 
 function NotFound() {
     return (
-        <div className="col w-full gap-6">
+        <div className="center-all w-full flex-1">
             <DetailedAlert
                 variant="red"
                 icon={<RiCloseLargeLine />}

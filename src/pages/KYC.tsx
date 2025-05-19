@@ -27,14 +27,12 @@ function KYC() {
 
     return (
         <div className="center-all w-full flex-col gap-6">
-            <Link to={routePath.profileKyc}>
-                <Button color="primary" variant="solid">
-                    <div className="row gap-1.5">
-                        <RiArrowLeftLine className="text-[18px]" />
-                        <div className="text-sm font-medium lg:text-base">Profile</div>
-                    </div>
-                </Button>
-            </Link>
+            <Button color="primary" variant="solid" as={Link} to={routePath.profileKyc}>
+                <div className="row gap-1.5">
+                    <RiArrowLeftLine className="text-[18px]" />
+                    <div className="text-sm font-medium lg:text-base">Profile</div>
+                </div>
+            </Button>
 
             {!accessToken || !type ? (
                 <Spinner />

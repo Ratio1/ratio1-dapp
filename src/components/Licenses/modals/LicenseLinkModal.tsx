@@ -1,7 +1,10 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { config } from '@lib/config';
+import { linkLicense } from '@lib/api/backend';
+import { config, environment } from '@lib/config';
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
+import { routePath } from '@lib/routes/route-paths';
 import useAwait from '@lib/useAwait';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
@@ -12,9 +15,11 @@ import { Spinner } from '@nextui-org/spinner';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
 import { TokenSvg } from '@shared/TokenSvg';
+import { KycStatus } from '@typedefs/profile';
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiWalletLine } from 'react-icons/ri';
+import { RiShieldUserLine, RiWalletLine } from 'react-icons/ri';
+import { Link } from 'react-router-dom';
 import { EthAddress, License } from 'typedefs/blockchain';
 import { TransactionReceipt, formatUnits } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
@@ -41,6 +46,8 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
     const [rewards, isLoadingRewards] = useAwait(rewardsPromise);
 
     const { watchTx, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
+    const { account } = useAuthenticationContext() as AuthenticationContextType;
+
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
 
@@ -88,11 +95,15 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
         }
 
         const link = async () => {
+            const addressToLink = address as EthAddress;
+            const { signature } = await linkLicense(addressToLink);
+            console.log('signature', signature);
+
             const linkTxHash = await walletClient.writeContract({
                 address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
                 abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
                 functionName: 'linkNode',
-                args: [license.licenseId, address as EthAddress],
+                args: [license.licenseId, addressToLink, `0x${signature}`],
             });
 
             await watchTx(linkTxHash, publicClient);
@@ -112,6 +123,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
             setAddress('');
             onClose();
         } catch (error) {
+            console.error('Error linking license:', error);
             toast.error('An error occurred, please try again.');
         } finally {
             fetchLicenses();
@@ -136,6 +148,9 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
             onClose();
         }
     };
+
+    const isLinkingDisabled = (): boolean =>
+        !account || (account.kycStatus !== KycStatus.Approved && environment === 'mainnet');
 
     const getLinkingContent = () => (
         <Form className="w-full" validationBehavior="native" onSubmit={onConfirmLinking}>
@@ -221,7 +236,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
         <>
             <div className="col w-full gap-6">
                 <DetailedAlert
-                    icon={<TokenSvg classNames="h-8 w-8 " />}
+                    icon={<TokenSvg classNames="h-8 w-8" />}
                     title="Unavailable"
                     description={<div>Rewards must be claimed before linking license.</div>}
                 >
@@ -233,9 +248,28 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
                 </DetailedAlert>
             </div>
 
-            <div className="row w-full justify-end gap-2 py-2">
+            <div className="center-all w-full gap-2 py-2">
                 <Button color="primary" onPress={onConfirmClaiming} isLoading={isLoading}>
                     Claim
+                </Button>
+            </div>
+        </>
+    );
+
+    const getLinkingDisabledContent = () => (
+        <>
+            <div className="col w-full">
+                <DetailedAlert
+                    variant="red"
+                    icon={<RiShieldUserLine />}
+                    title="Unavailable"
+                    description={<div>KYC (Know Your Customer) must be completed before linking license.</div>}
+                />
+            </div>
+
+            <div className="center-all w-full pb-4">
+                <Button color="primary" as={Link} to={routePath.profileKyc}>
+                    Go to KYC
                 </Button>
             </div>
         </>
@@ -245,13 +279,18 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
         <div>
             <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg" shouldBlockScroll={false}>
                 <ModalContent>
-                    {!license || isLoadingRewards || rewards === undefined ? (
+                    {!license || !account || isLoadingRewards || rewards === undefined ? (
                         <Spinner />
                     ) : (
                         <>
                             <ModalHeader>Link License #{Number(license.licenseId)}</ModalHeader>
-
-                            <ModalBody>{rewards > 0n ? getClaimRewardsContent() : getLinkingContent()}</ModalBody>
+                            <ModalBody>
+                                {isLinkingDisabled()
+                                    ? getLinkingDisabledContent()
+                                    : rewards > 0n
+                                      ? getClaimRewardsContent()
+                                      : getLinkingContent()}
+                            </ModalBody>
                         </>
                     )}
                 </ModalContent>

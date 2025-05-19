@@ -1,19 +1,275 @@
 export const MNDContractAbi = [
     {
+        inputs: [],
+        name: 'ERC721EnumerableForbiddenBatchMint',
+        type: 'error',
+    },
+    {
         inputs: [
             {
                 internalType: 'address',
-                name: 'tokenAddress',
+                name: 'sender',
                 type: 'address',
             },
             {
+                internalType: 'uint256',
+                name: 'tokenId',
+                type: 'uint256',
+            },
+            {
                 internalType: 'address',
-                name: 'newOwner',
+                name: 'owner',
                 type: 'address',
             },
         ],
-        stateMutability: 'nonpayable',
-        type: 'constructor',
+        name: 'ERC721IncorrectOwner',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'operator',
+                type: 'address',
+            },
+            {
+                internalType: 'uint256',
+                name: 'tokenId',
+                type: 'uint256',
+            },
+        ],
+        name: 'ERC721InsufficientApproval',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'approver',
+                type: 'address',
+            },
+        ],
+        name: 'ERC721InvalidApprover',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'operator',
+                type: 'address',
+            },
+        ],
+        name: 'ERC721InvalidOperator',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'owner',
+                type: 'address',
+            },
+        ],
+        name: 'ERC721InvalidOwner',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'receiver',
+                type: 'address',
+            },
+        ],
+        name: 'ERC721InvalidReceiver',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'sender',
+                type: 'address',
+            },
+        ],
+        name: 'ERC721InvalidSender',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint256',
+                name: 'tokenId',
+                type: 'uint256',
+            },
+        ],
+        name: 'ERC721NonexistentToken',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'owner',
+                type: 'address',
+            },
+            {
+                internalType: 'uint256',
+                name: 'index',
+                type: 'uint256',
+            },
+        ],
+        name: 'ERC721OutOfBoundsIndex',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'EnforcedPause',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'ExpectedPause',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'InvalidInitialization',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'NotInitializing',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'owner',
+                type: 'address',
+            },
+        ],
+        name: 'OwnableInvalidOwner',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'account',
+                type: 'address',
+            },
+        ],
+        name: 'OwnableUnauthorizedAccount',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint256',
+                name: 'x',
+                type: 'uint256',
+            },
+            {
+                internalType: 'uint256',
+                name: 'y',
+                type: 'uint256',
+            },
+        ],
+        name: 'PRBMath_MulDiv18_Overflow',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint256',
+                name: 'x',
+                type: 'uint256',
+            },
+            {
+                internalType: 'uint256',
+                name: 'y',
+                type: 'uint256',
+            },
+            {
+                internalType: 'uint256',
+                name: 'denominator',
+                type: 'uint256',
+            },
+        ],
+        name: 'PRBMath_MulDiv_Overflow',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'PRBMath_SD59x18_Div_InputTooSmall',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'SD59x18',
+                name: 'x',
+                type: 'int256',
+            },
+            {
+                internalType: 'SD59x18',
+                name: 'y',
+                type: 'int256',
+            },
+        ],
+        name: 'PRBMath_SD59x18_Div_Overflow',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'SD59x18',
+                name: 'x',
+                type: 'int256',
+            },
+        ],
+        name: 'PRBMath_SD59x18_Exp2_InputTooBig',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'SD59x18',
+                name: 'x',
+                type: 'int256',
+            },
+        ],
+        name: 'PRBMath_SD59x18_Exp_InputTooBig',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'PRBMath_SD59x18_Mul_InputTooSmall',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'SD59x18',
+                name: 'x',
+                type: 'int256',
+            },
+            {
+                internalType: 'SD59x18',
+                name: 'y',
+                type: 'int256',
+            },
+        ],
+        name: 'PRBMath_SD59x18_Mul_Overflow',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'ReentrancyGuardReentrantCall',
+        type: 'error',
     },
     {
         anonymous: false,
@@ -82,6 +338,19 @@ export const MNDContractAbi = [
             },
         ],
         name: 'BatchMetadataUpdate',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: false,
+                internalType: 'uint64',
+                name: 'version',
+                type: 'uint64',
+            },
+        ],
+        name: 'Initialized',
         type: 'event',
     },
     {
@@ -214,32 +483,6 @@ export const MNDContractAbi = [
         anonymous: false,
         inputs: [
             {
-                indexed: false,
-                internalType: 'address',
-                name: 'newSigner',
-                type: 'address',
-            },
-        ],
-        name: 'SignerAdded',
-        type: 'event',
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: false,
-                internalType: 'address',
-                name: 'removedSigner',
-                type: 'address',
-            },
-        ],
-        name: 'SignerRemoved',
-        type: 'event',
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
                 indexed: true,
                 internalType: 'address',
                 name: 'from',
@@ -301,12 +544,38 @@ export const MNDContractAbi = [
     },
     {
         inputs: [],
+        name: 'GENESIS_TOKEN_ID',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [],
         name: '_baseTokenURI',
         outputs: [
             {
                 internalType: 'string',
                 name: '',
                 type: 'string',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [],
+        name: '_controller',
+        outputs: [
+            {
+                internalType: 'contract Controller',
+                name: '',
+                type: 'address',
             },
         ],
         stateMutability: 'view',
@@ -326,19 +595,6 @@ export const MNDContractAbi = [
             },
         ],
         name: 'addLicense',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-    },
-    {
-        inputs: [
-            {
-                internalType: 'address',
-                name: 'newSigner',
-                type: 'address',
-            },
-        ],
-        name: 'addSigner',
         outputs: [],
         stateMutability: 'nonpayable',
         type: 'function',
@@ -391,6 +647,35 @@ export const MNDContractAbi = [
         name: 'burn',
         outputs: [],
         stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint256',
+                name: 'currentEpoch',
+                type: 'uint256',
+            },
+            {
+                internalType: 'uint256',
+                name: 'firstMiningEpoch',
+                type: 'uint256',
+            },
+            {
+                internalType: 'SD59x18',
+                name: 'plateau',
+                type: 'int256',
+            },
+        ],
+        name: 'calculateEpochRelease',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
         type: 'function',
     },
     {
@@ -519,19 +804,6 @@ export const MNDContractAbi = [
         type: 'function',
     },
     {
-        inputs: [],
-        name: 'getSigners',
-        outputs: [
-            {
-                internalType: 'address[]',
-                name: '',
-                type: 'address[]',
-            },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-    },
-    {
         inputs: [
             {
                 internalType: 'address',
@@ -561,6 +833,11 @@ export const MNDContractAbi = [
                     {
                         internalType: 'uint256',
                         name: 'totalClaimedAmount',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'firstMiningEpoch',
                         type: 'uint256',
                     },
                     {
@@ -595,6 +872,29 @@ export const MNDContractAbi = [
             },
         ],
         stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'tokenAddress',
+                type: 'address',
+            },
+            {
+                internalType: 'address',
+                name: 'controllerAddress',
+                type: 'address',
+            },
+            {
+                internalType: 'address',
+                name: 'newOwner',
+                type: 'address',
+            },
+        ],
+        name: 'initialize',
+        outputs: [],
+        stateMutability: 'nonpayable',
         type: 'function',
     },
     {
@@ -698,6 +998,25 @@ export const MNDContractAbi = [
                 type: 'address',
             },
         ],
+        name: 'isNodeActive',
+        outputs: [
+            {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'nodeAddress',
+                type: 'address',
+            },
+        ],
         name: 'isNodeAlreadyLinked',
         outputs: [
             {
@@ -736,6 +1055,11 @@ export const MNDContractAbi = [
             },
             {
                 internalType: 'uint256',
+                name: 'firstMiningEpoch',
+                type: 'uint256',
+            },
+            {
+                internalType: 'uint256',
                 name: 'lastClaimEpoch',
                 type: 'uint256',
             },
@@ -765,23 +1089,15 @@ export const MNDContractAbi = [
                 name: 'newNodeAddress',
                 type: 'address',
             },
+            {
+                internalType: 'bytes',
+                name: 'signature',
+                type: 'bytes',
+            },
         ],
         name: 'linkNode',
         outputs: [],
         stateMutability: 'nonpayable',
-        type: 'function',
-    },
-    {
-        inputs: [],
-        name: 'minimumRequiredSignatures',
-        outputs: [
-            {
-                internalType: 'uint8',
-                name: '',
-                type: 'uint8',
-            },
-        ],
-        stateMutability: 'view',
         type: 'function',
     },
     {
@@ -885,19 +1201,6 @@ export const MNDContractAbi = [
             },
         ],
         stateMutability: 'view',
-        type: 'function',
-    },
-    {
-        inputs: [
-            {
-                internalType: 'address',
-                name: 'signerToRemove',
-                type: 'address',
-            },
-        ],
-        name: 'removeSigner',
-        outputs: [],
-        stateMutability: 'nonpayable',
         type: 'function',
     },
     {
@@ -1025,19 +1328,6 @@ export const MNDContractAbi = [
     {
         inputs: [
             {
-                internalType: 'uint8',
-                name: 'minimumRequiredSignatures_',
-                type: 'uint8',
-            },
-        ],
-        name: 'setMinimumRequiredSignatures',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-    },
-    {
-        inputs: [
-            {
                 internalType: 'address',
                 name: 'ndContract_',
                 type: 'address',
@@ -1046,63 +1336,6 @@ export const MNDContractAbi = [
         name: 'setNDContract',
         outputs: [],
         stateMutability: 'nonpayable',
-        type: 'function',
-    },
-    {
-        inputs: [
-            {
-                internalType: 'address',
-                name: '',
-                type: 'address',
-            },
-        ],
-        name: 'signerAdditionTimestamp',
-        outputs: [
-            {
-                internalType: 'uint256',
-                name: '',
-                type: 'uint256',
-            },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-    },
-    {
-        inputs: [
-            {
-                internalType: 'address',
-                name: '',
-                type: 'address',
-            },
-        ],
-        name: 'signerSignaturesCount',
-        outputs: [
-            {
-                internalType: 'uint256',
-                name: '',
-                type: 'uint256',
-            },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-    },
-    {
-        inputs: [
-            {
-                internalType: 'uint256',
-                name: '',
-                type: 'uint256',
-            },
-        ],
-        name: 'signers',
-        outputs: [
-            {
-                internalType: 'address',
-                name: '',
-                type: 'address',
-            },
-        ],
-        stateMutability: 'view',
         type: 'function',
     },
     {
@@ -1319,17 +1552,12 @@ export const MNDContractAbi = [
         name: 'verifyRewardsSignatures',
         outputs: [
             {
-                internalType: 'bool',
-                name: '',
-                type: 'bool',
-            },
-            {
                 internalType: 'address',
                 name: '',
                 type: 'address',
             },
         ],
-        stateMutability: 'view',
+        stateMutability: 'nonpayable',
         type: 'function',
     },
 ] as const;
