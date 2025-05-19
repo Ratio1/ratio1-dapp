@@ -184,13 +184,20 @@ function Search() {
                 args: [licenseId],
             });
 
-            const [nodeAddress, totalAssignedAmount, totalClaimedAmount, lastClaimEpoch, assignTimestamp, lastClaimOracle] =
-                await publicClient.readContract({
-                    address: config.mndContractAddress,
-                    abi: MNDContractAbi,
-                    functionName: 'licenses',
-                    args: [licenseId],
-                });
+            const [
+                nodeAddress,
+                totalAssignedAmount,
+                totalClaimedAmount,
+                firstMiningEpoch,
+                lastClaimEpoch,
+                assignTimestamp,
+                lastClaimOracle,
+            ] = await publicClient.readContract({
+                address: config.mndContractAddress,
+                abi: MNDContractAbi,
+                functionName: 'licenses',
+                args: [licenseId],
+            });
 
             if (!totalAssignedAmount) {
                 return;
@@ -199,16 +206,17 @@ function Search() {
             const isLinked = nodeAddress !== '0x0000000000000000000000000000000000000000';
 
             const baseLicense: Omit<MNDLicense | GNDLicense, 'rewards' | 'alias' | 'isOnline' | 'claimableEpochs'> = {
-                type: licenseId === 1n ? 'GND' : ('MND' as const),
+                type: licenseId === 1n ? 'GND' : 'MND',
                 licenseId,
                 nodeAddress,
                 totalClaimedAmount,
                 remainingAmount: totalAssignedAmount - totalClaimedAmount,
+                firstMiningEpoch,
                 lastClaimEpoch,
                 assignTimestamp,
                 lastClaimOracle,
                 totalAssignedAmount,
-                isBanned: false as const,
+                isBanned: false,
                 isLinked,
             };
 

@@ -1,5 +1,4 @@
 import { ERC20Abi } from '@blockchain/ERC20';
-import { LiquidityManagerAbi } from '@blockchain/LiquidityManager';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { config } from '@lib/config';
@@ -266,10 +265,10 @@ export const BlockchainProvider = ({ children }) => {
     };
 
     const fetchR1Price = async () => {
-        if (publicClient && config.liquidityManagerContractAddress.length === 42) {
+        if (publicClient) {
             const price = await publicClient.readContract({
-                address: config.liquidityManagerContractAddress,
-                abi: LiquidityManagerAbi,
+                address: config.ndContractAddress,
+                abi: NDContractAbi,
                 functionName: 'getTokenPrice',
             });
 

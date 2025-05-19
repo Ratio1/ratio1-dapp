@@ -37,11 +37,13 @@ type NDLicense = BaseLicense & {
 type MNDLicense = BaseLicense & {
     type: 'MND';
     isBanned: false;
+    firstMiningEpoch: bigint;
 };
 
 type GNDLicense = BaseLicense & {
     type: 'GND';
     isBanned: false;
+    firstMiningEpoch: bigint;
 };
 
 type License = NDLicense | MNDLicense | GNDLicense;
@@ -68,17 +70,6 @@ type OraclesAvailabilityResult = {
 type EthSignedData = {
     input: string[];
     signature_field: string;
-};
-
-type BuyLicenseRequest = {
-    name: string;
-    surname: string;
-    isCompany: boolean;
-    identificationCode: string;
-    address: string;
-    state: string;
-    city: string;
-    country: string;
 };
 
 type OraclesDefaultResult = {
@@ -130,7 +121,6 @@ type SwapTokenDetails = {
 
 export type {
     ApiAccount,
-    BuyLicenseRequest,
     ComputeParam,
     EthAddress,
     GNDLicense,

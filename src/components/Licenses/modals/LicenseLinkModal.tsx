@@ -1,5 +1,6 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
+import { linkLicense } from '@lib/api/backend';
 import { config, environment } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
@@ -94,11 +95,15 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
         }
 
         const link = async () => {
+            const addressToLink = address as EthAddress;
+            const { signature } = await linkLicense(addressToLink);
+            console.log('signature', signature);
+
             const linkTxHash = await walletClient.writeContract({
                 address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
                 abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
                 functionName: 'linkNode',
-                args: [license.licenseId, address as EthAddress],
+                args: [license.licenseId, addressToLink, `0x${signature}`],
             });
 
             await watchTx(linkTxHash, publicClient);
@@ -118,6 +123,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
             setAddress('');
             onClose();
         } catch (error) {
+            console.error('Error linking license:', error);
             toast.error('An error occurred, please try again.');
         } finally {
             fetchLicenses();

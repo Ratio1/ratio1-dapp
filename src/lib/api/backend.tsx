@@ -8,8 +8,12 @@ const backendUrl = config.backendUrl;
 // GET
 // *****
 
-//TODO here can also store in redux for example
 export const getAccount = async () => _doGet<types.ApiAccount>('accounts/account');
+
+export const linkLicense = (nodeAddress: types.EthAddress) =>
+    _doGet<{
+        signature: `0x${string}`;
+    }>(`/license/link?nodeAddress=${nodeAddress}`);
 
 export const emailSubscribe = async () => _doGet<types.ApiAccount>('accounts/subscribe');
 
@@ -30,12 +34,13 @@ export const accessAuth = (params: { message: string; signature: string }) =>
         expiration: number;
     }>('/auth/access', params);
 
-export const buyLicense = (params: types.BuyLicenseRequest) =>
+export const buyLicense = () =>
     _doPost<{
         signature: string;
         uuid: string;
         usdLimitAmount: number;
-    }>('/license/buy', params);
+        vatPercentage: number;
+    }>('/license/buy', {});
 
 export const initSumsubSession = (type: 'individual' | 'company') => _doPost<string>('/sumsub/init/Kyc', { type });
 
@@ -78,7 +83,7 @@ const axiosBackend = axios.create({
 
 axiosBackend.interceptors.request.use(
     async (config) => {
-        const token = localStorage.getItem('accessToken'); //TODO check where this should be taken from
+        const token = localStorage.getItem('accessToken');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
