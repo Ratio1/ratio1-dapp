@@ -223,12 +223,7 @@ function BuyR1() {
                                                 setFromAmount('');
                                             } else if (n === 0) {
                                                 setFromAmount(value);
-                                            } else if (
-                                                isFinite(n) &&
-                                                !isNaN(n) &&
-                                                n >= 0 &&
-                                                n <= Number(formatUnits(userTokenBalance, selectedToken.decimals))
-                                            ) {
+                                            } else if (isFinite(n) && !isNaN(n) && n >= 0) {
                                                 setFromAmount(n.toString());
                                             }
                                         }}
