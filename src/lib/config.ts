@@ -57,7 +57,7 @@ const configs: {
         ndContractAddress: '0x18E86a5829CA1F02226FA123f30d90dCd7cFd0ED',
         mndContractAddress: '0xa8d7FFCE91a888872A9f5431B4Dd6c0c135055c1',
         controllerContractAddress: '0x63BEC1B3004154698830C7736107E7d3cfcbde79',
-        faucetContractAddress: '0xec92d8B5DB97D6C38460CDa00a3D56ad74F11783',
+        faucetContractAddress: '0x4a1bC775410067Ad5468945EF7ca5b0C510CDD99',
         uniswapV2RouterAddress: '0x6682375ebC1dF04676c0c5050934272368e6e883',
         safeAddress: '0x5afF90797f717Fe8432A1809b6b53A18863061D6',
         explorerUrl: 'https://sepolia.basescan.org',
@@ -100,7 +100,7 @@ const configs: {
         ndContractAddress: '0x8D0CE4933728FF7C04388f0bEcC9a45676E232F7',
         mndContractAddress: '0x7A14Be75135a7ebdef99339CCc700C25Cda60c6E',
         controllerContractAddress: '0xdd56E920810e2FD9a07C1718643E179839867253',
-        faucetContractAddress: '0xec92d8B5DB97D6C38460CDa00a3D56ad74F11783',
+        faucetContractAddress: '0x4a1bC775410067Ad5468945EF7ca5b0C510CDD99',
         uniswapV2RouterAddress: '0x6682375ebC1dF04676c0c5050934272368e6e883',
         safeAddress: '0x20b1ebc9c13A6F4f3dfBdF9bc9299ec40Ac988e3',
         explorerUrl: 'https://sepolia.basescan.org',
@@ -159,7 +159,7 @@ export const environment: 'mainnet' | 'testnet' | 'devnet' =
           ? ('devnet' as const)
           : domain === domainTestnet
             ? ('testnet' as const)
-            : ('testnet' as const);
+            : ('devnet' as const);
 
 export const getR1ExplorerUrl = () => `https://${environment === 'mainnet' ? '' : `${environment}-`}${explorerBaseDomain}`;
 
