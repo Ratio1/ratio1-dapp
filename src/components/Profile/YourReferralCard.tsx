@@ -1,5 +1,7 @@
 import { getSellerCode } from '@lib/api/backend';
+import { routePath } from '@lib/routes/route-paths';
 import { Card } from '@shared/Card';
+import { CopyableLink } from '@shared/CopyableLink';
 import { CopyableValue } from '@shared/CopyableValue';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -9,6 +11,9 @@ function YourReferralCard() {
     const { data, isLoading } = useQuery({
         queryKey: ['sellerCode'],
         queryFn: async () => {
+            // TODO: Remove
+            return 'FAE7C9D';
+
             try {
                 const response = await getSellerCode();
 
@@ -42,10 +47,15 @@ function YourReferralCard() {
                         </div>
                     </div>
                 ) : (
-                    <div className="w-full rounded-lg bg-primary-50 px-4 py-3.5">
+                    <div className="col w-full gap-2 rounded-lg bg-primary-50 px-4 py-3.5">
                         <div className="row justify-between">
-                            <div className="text-sm font-medium text-slate-700">Your Referral Code</div>
+                            <div className="text-sm font-medium text-slate-700">Your code</div>
                             <CopyableValue value={data} size={7} />
+                        </div>
+
+                        <div className="row justify-between text-sm">
+                            <div className="font-medium text-slate-700">Link for registering</div>
+                            <CopyableLink value={`${window.location.origin}${routePath.profileKyc}?referral=${data}`} />
                         </div>
                     </div>
                 )}

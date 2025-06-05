@@ -43,7 +43,7 @@ export const CopyableValue = ({ value, size = 4, isLarge = false }: Props) => {
                             e.preventDefault();
                             handleCopy();
                         }}
-                        className="cursor-pointer hover:opacity-50"
+                        className="cursor-pointer hover:opacity-70"
                     />
                 ) : (
                     <RiCheckLine />

@@ -1,4 +1,4 @@
-import { Button } from '@nextui-org/button';
+import { ClosableToastContent } from '@shared/ClosableToastContent';
 import { throttle } from 'lodash';
 import toast from 'react-hot-toast';
 import { RiCodeSSlashLine } from 'react-icons/ri';
@@ -118,22 +118,15 @@ export const throttledToastOracleError = throttle(
     () => {
         toast(
             (t) => (
-                <div className="row gap-3">
-                    <div className="flex">
-                        <RiCodeSSlashLine className="text-2xl text-red-600" />
-                    </div>
-
-                    <div>Oracle state is not valid, please contact the development team.</div>
-
-                    <Button size="sm" color="default" variant="flat" onPress={() => toast.dismiss(t.id)}>
-                        <div className="text-sm">Close</div>
-                    </Button>
-                </div>
+                <ClosableToastContent toastId={t.id} variant="error" icon={<RiCodeSSlashLine className="text-red-600" />}>
+                    <div className="text-sm">Oracle state is not valid, please contact the development team.</div>
+                </ClosableToastContent>
             ),
             {
                 duration: 10000,
                 style: {
-                    minWidth: '386px',
+                    width: '364px',
+                    maxWidth: '96vw',
                 },
             },
         );
