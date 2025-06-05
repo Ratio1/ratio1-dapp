@@ -87,9 +87,9 @@ function Buy({ onClose }: { onClose: () => void }) {
         }
     }, [account, userUsdMintedAmount]);
 
-    const getTokenAmount = (withSlippage: boolean = true): bigint => {
+    const getTokenAmount = (withSlippage: boolean = true, withVat: boolean = true): bigint => {
         const vatPercentage: number = account?.vatPercentage || 0;
-        const vatMultiplier = 10000n + BigInt(vatPercentage);
+        const vatMultiplier = 10000n + BigInt(withVat ? vatPercentage : 0);
         const amount: bigint = (BigInt(quantity) * licenseTokenPrice * vatMultiplier) / 10000n;
 
         if (!withSlippage) {
@@ -171,7 +171,7 @@ function Buy({ onClose }: { onClose: () => void }) {
             args: [
                 BigInt(quantity),
                 currentPriceTier,
-                getTokenAmount(),
+                getTokenAmount(true, false),
                 `0x${Buffer.from(uuid).toString('hex')}`,
                 BigInt(usdLimitAmount),
                 BigInt(vatPercentage),

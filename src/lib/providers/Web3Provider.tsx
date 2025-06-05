@@ -35,13 +35,6 @@ const siweConfig: SIWEConfig = {
             const siweMessage = new SiweMessage(message);
             const chainId = siweMessage.chainId;
             const address = siweMessage.address;
-            if (address === config.safeAddress) {
-                localStorage.setItem('chainId', chainId.toString());
-                localStorage.setItem('address', address);
-                localStorage.setItem('accessToken', 'safe');
-                localStorage.setItem('expiration', '9999999999');
-                return true;
-            }
             const response = await accessAuth({ message, signature });
             localStorage.setItem('chainId', chainId.toString());
             localStorage.setItem('address', address);
