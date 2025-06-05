@@ -3,6 +3,7 @@ import ReferralCard from '@components/Profile/ReferralCard';
 import RegistrationCard from '@components/Profile/RegistrationCard';
 import SubscriptionCard from '@components/Profile/SubscriptionCard';
 import TaxInfoCard from '@components/Profile/TaxInfoCard';
+import YourReferralCard from '@components/Profile/YourReferralCard';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { Spinner } from '@nextui-org/spinner';
 import { DetailedAlert } from '@shared/DetailedAlert';
@@ -73,9 +74,11 @@ function Profile() {
 
             <SubscriptionCard getRegistrationStatus={getRegistrationStatus} />
 
-            <ReferralCard />
-
             <TaxInfoCard />
+
+            <YourReferralCard />
+
+            <ReferralCard />
         </div>
     );
 }

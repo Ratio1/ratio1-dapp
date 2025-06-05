@@ -4,7 +4,7 @@ import { Switch } from '@nextui-org/switch';
 import { Card } from '@shared/Card';
 import { ApiAccount } from '@typedefs/blockchain';
 import { RegistrationStatus } from '@typedefs/profile';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiNewsLine } from 'react-icons/ri';
 
@@ -15,8 +15,13 @@ function SubscriptionCard({ getRegistrationStatus }: { getRegistrationStatus: ()
         return null;
     }
 
-    const [isSelected, setSelected] = useState<boolean>(account.receiveUpdates);
+    const [isSelected, setSelected] = useState<boolean>(false);
     const [isLoading, setLoading] = useState<boolean>(false);
+
+    useEffect(() => {
+        // Initialize the selected state based on the account's preference
+        setSelected(account.receiveUpdates);
+    }, [account.receiveUpdates]);
 
     const toggle = async () => {
         if (isLoading) {

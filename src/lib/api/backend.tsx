@@ -8,6 +8,10 @@ const backendUrl = config.backendUrl;
 // GET
 // *****
 
+export const getSellerCode = async () => _doGet<string>('seller/code');
+
+export const addReferralCode = (code: string) => _doPost(`accounts/add-seller-code?sellerCode=${code}`, {});
+
 export const getAccount = async () => _doGet<types.ApiAccount>('accounts/account');
 
 export const linkLicense = (nodeAddress: types.EthAddress) =>

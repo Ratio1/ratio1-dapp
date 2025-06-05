@@ -1,21 +1,21 @@
+import { addReferralCode } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { Button } from '@nextui-org/button';
 import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
 import { Card } from '@shared/Card';
-import { CopyableValue } from '@shared/CopyableValue';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiGroupLine } from 'react-icons/ri';
+import { RiGroupLine, RiInformationLine } from 'react-icons/ri';
 
 function ReferralCard() {
-    const { account } = useAuthenticationContext() as AuthenticationContextType;
+    const { account, fetchAccount } = useAuthenticationContext() as AuthenticationContextType;
 
     const [value, setValue] = useState<string>('');
     const [isLoading, setLoading] = useState<boolean>(false);
 
-    // TODO: Replace
-    const [code, setCode] = useState<string>('FAE7C9D');
+    // TODO: Replace with the property from account
+    const [code, setCode] = useState<string>(); // 'FAE7C9D'
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -26,9 +26,12 @@ function ReferralCard() {
         setLoading(true);
 
         try {
-            // const response = await ;
             console.log('Adding referral code:', value);
+            const response = await addReferralCode(value);
+            console.log('addReferralCode response', response);
+
             toast.success('Referral code added successfully.');
+            fetchAccount(); // Refresh account data after applying the code
         } catch (error: any) {
             console.error(error);
             toast.error('Unexpected error, please try again.');
@@ -75,10 +78,10 @@ function ReferralCard() {
                         </div>
                     </Form>
                 ) : (
-                    <div className="w-full rounded-lg bg-primary-50 px-4 py-3.5">
-                        <div className="row justify-between">
-                            <div className="text-sm font-medium text-slate-700">Referral Code</div>
-                            <CopyableValue value={code} size={7} />
+                    <div className="flex gap-1">
+                        <RiInformationLine className="h-6 text-[22px]" />
+                        <div>
+                            This is the referral code you used when you registered: <span className="text-primary">{code}</span>
                         </div>
                     </div>
                 )}
