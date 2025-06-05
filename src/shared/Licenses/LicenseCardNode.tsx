@@ -41,7 +41,7 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
             const nodeEthAddress = queryKey[1] as EthAddress;
             return getNodeInfo(nodeEthAddress);
         },
-        enabled: license.isLinked && !isLoading && node?.alias === undefined, // alias is undefined only in case of an error
+        enabled: license.isLinked && !isLoading && (node?.alias === undefined || node?.alias === 'missing_id'), // alias is undefined only in case of an error
         retry: 5,
         refetchOnWindowFocus: true,
     });
@@ -61,8 +61,6 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
 
     useEffect(() => {
         if (refetchedNodeInfo) {
-            // console.log(`[${getShortAddress(license.nodeAddress, 4, true)}] refetched and received different data`);
-
             setNode({
                 alias: refetchedNodeInfo.node_alias,
                 isOnline: refetchedNodeInfo.node_is_online,

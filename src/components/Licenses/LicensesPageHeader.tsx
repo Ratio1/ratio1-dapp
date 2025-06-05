@@ -230,7 +230,12 @@ function LicensesPageHeader({
                                 'Claimable ($R1)',
                                 isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)),
                             )}
-                            {renderItem('Earned ($R1)', fBI(earnedAmount, 18))}
+                            {renderItem(
+                                'Earned ($R1)',
+                                earnedAmount < 1000000000000000000000n
+                                    ? parseFloat(Number(formatUnits(earnedAmount ?? 0n, 18)).toFixed(2))
+                                    : fBI(earnedAmount, 18),
+                            )}
                             {renderItem('Future Claimable ($R1)', fBI(futureClaimableR1Amount, 18))}
                             {renderItem('Current Potential Value ($)', fN(futureClaimableUsd))}
                         </div>
