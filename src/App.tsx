@@ -17,7 +17,7 @@ function App() {
 
     useEffect(() => {
         if (!address && !authenticated) {
-            console.log('[App.tsx] User disconnected');
+            console.log('User not authenticated');
             setLicenses([]);
             setR1Balance(0n);
         }

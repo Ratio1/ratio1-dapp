@@ -11,17 +11,19 @@ import { RiNewsLine } from 'react-icons/ri';
 function SubscriptionCard({ getRegistrationStatus }: { getRegistrationStatus: () => RegistrationStatus }) {
     const { account } = useAuthenticationContext() as AuthenticationContextType;
 
-    if (!account || getRegistrationStatus() !== RegistrationStatus.REGISTERED) {
-        return null;
-    }
-
     const [isSelected, setSelected] = useState<boolean>(false);
     const [isLoading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
         // Initialize the selected state based on the account's preference
-        setSelected(account.receiveUpdates);
-    }, [account.receiveUpdates]);
+        if (account) {
+            setSelected(account.receiveUpdates);
+        }
+    }, [account]);
+
+    if (!account || getRegistrationStatus() !== RegistrationStatus.REGISTERED) {
+        return null;
+    }
 
     const toggle = async () => {
         if (isLoading) {

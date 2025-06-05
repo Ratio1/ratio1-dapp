@@ -42,7 +42,7 @@ export const DetailedAlert: FunctionComponent<PropsWithChildren<Props>> = ({
                     {title}
                 </div>
 
-                <div className="text-slate-400">{description}</div>
+                <div className="text-slate-500">{description}</div>
 
                 {!!children && <div className="mx-auto pt-4">{children}</div>}
             </div>

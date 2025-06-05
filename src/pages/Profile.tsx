@@ -76,9 +76,13 @@ function Profile() {
 
             <TaxInfoCard />
 
-            <YourReferralCard />
+            {getRegistrationStatus() === RegistrationStatus.REGISTERED && (
+                <>
+                    <YourReferralCard />
 
-            <ReferralCard />
+                    <ReferralCard />
+                </>
+            )}
         </div>
     );
 }

@@ -1,16 +1,20 @@
 import { getAccount } from '@lib/api/backend';
+import { config } from '@lib/config';
 import { useQuery } from '@tanstack/react-query';
 import { ApiAccount } from '@typedefs/blockchain';
-import { useModal, useSIWE } from 'connectkit';
+import { SIWESession, useModal, useSIWE } from 'connectkit';
 import { throttle } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { AuthenticationContext } from './context';
-import { config } from '@lib/config';
 
 export const AuthenticationProvider = ({ children }) => {
     const { isConnected, address } = useAccount();
-    const { isSignedIn: authenticated } = useSIWE();
+    const { isSignedIn: authenticated } = useSIWE({
+        onSignIn: (session?: SIWESession) => {
+            console.log('Signed in:', session);
+        },
+    });
     const { open: modalOpen, openSIWE } = useModal();
     const [account, setAccount] = useState<ApiAccount>();
 
@@ -23,6 +27,7 @@ export const AuthenticationProvider = ({ children }) => {
 
     useEffect(() => {
         if (authenticated) {
+            console.log('User is authenticated');
             fetchAccount();
         }
     }, [authenticated]);

@@ -11,9 +11,6 @@ function YourReferralCard() {
     const { data, isLoading } = useQuery({
         queryKey: ['sellerCode'],
         queryFn: async () => {
-            // TODO: Remove
-            return 'FAE7C9D';
-
             try {
                 const response = await getSellerCode();
 
