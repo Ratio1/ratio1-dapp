@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiLink } from 'react-icons/ri';
+import { RiCheckLine, RiLink } from 'react-icons/ri';
 import { ClosableToastContent } from './ClosableToastContent';
 
 interface Props {
@@ -16,7 +16,7 @@ export const CopyableLink = ({ value }: Props) => {
 
         toast(
             (t) => (
-                <ClosableToastContent toastId={t.id} variant="success" icon={<RiLink />}>
+                <ClosableToastContent toastId={t.id} variant="success" icon={<RiCheckLine />}>
                     <div className="col gap-1 text-sm">
                         <div>Link copied. It can be used by others to register using your referral code.</div>
                         <div className="text-xs text-slate-500">{value}</div>

@@ -5,7 +5,7 @@ import { CopyableLink } from '@shared/CopyableLink';
 import { CopyableValue } from '@shared/CopyableValue';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { RiInformationLine, RiUserAddLine } from 'react-icons/ri';
+import { RiGroupLine, RiInformationLine } from 'react-icons/ri';
 
 function YourReferralCard() {
     const { data, isLoading } = useQuery({
@@ -29,7 +29,7 @@ function YourReferralCard() {
     });
 
     return (
-        <Card icon={<RiUserAddLine />} title="Your Referral">
+        <Card icon={<RiGroupLine />} title="Your Referrals">
             <div className="h-full w-full">
                 {isLoading ? (
                     <></>
@@ -51,7 +51,7 @@ function YourReferralCard() {
                         </div>
 
                         <div className="row justify-between text-sm">
-                            <div className="font-medium text-slate-700">Link for registering</div>
+                            <div className="font-medium text-slate-700">Link for sharing</div>
                             <CopyableLink value={`${window.location.origin}${routePath.profileKyc}?referral=${data}`} />
                         </div>
                     </div>

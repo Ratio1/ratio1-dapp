@@ -4,9 +4,10 @@ import { Button } from '@nextui-org/button';
 import { Form } from '@nextui-org/form';
 import { Input } from '@nextui-org/input';
 import { Card } from '@shared/Card';
+import { ClosableToastContent } from '@shared/ClosableToastContent';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiGroupLine, RiInformationLine } from 'react-icons/ri';
+import { RiCoupon2Line, RiInformationLine } from 'react-icons/ri';
 
 function ReferralCard() {
     const { account, fetchAccount } = useAuthenticationContext() as AuthenticationContextType;
@@ -26,11 +27,27 @@ function ReferralCard() {
         setLoading(true);
 
         try {
-            console.log('Adding referral code:', value);
-            const response = await addReferralCode(value);
-            console.log('addReferralCode response', response);
+            await addReferralCode(value);
 
-            toast.success('Referral code added successfully.');
+            toast(
+                (t) => (
+                    <ClosableToastContent toastId={t.id} variant="success" icon={<RiCoupon2Line />}>
+                        <div className="col gap-1 text-sm">
+                            <div>Referral code successfully applied to your account.</div>
+                        </div>
+                    </ClosableToastContent>
+                ),
+                {
+                    position: 'top-center',
+                    duration: 5000,
+                    style: {
+                        width: '486px',
+                        maxWidth: '96vw',
+                        margin: '1rem',
+                    },
+                },
+            );
+
             fetchAccount(); // Refresh account data after applying the code
         } catch (error: any) {
             console.error(error);
@@ -45,7 +62,7 @@ function ReferralCard() {
     }
 
     return (
-        <Card icon={<RiGroupLine />} title="Referral">
+        <Card icon={<RiCoupon2Line />} title="Referral Code">
             <div className="flex h-full w-full items-center justify-between">
                 {!code ? (
                     <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>
