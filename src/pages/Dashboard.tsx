@@ -11,14 +11,11 @@ import { KycStatus } from '@typedefs/profile';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useMemo } from 'react';
 import { RiArrowRightUpLine, RiTimeLine } from 'react-icons/ri';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 
 function Dashboard() {
-    const [searchParams] = useSearchParams();
-    const referralCode = searchParams.get('referral');
-
     const {
         licenses,
         fetchLicenses,
@@ -34,17 +31,6 @@ function Dashboard() {
 
     const { address } = useAccount();
     const publicClient = usePublicClient();
-
-    useEffect(() => {
-        if (referralCode) {
-            // Store the referral code then clear the URL parameters
-            localStorage.setItem('referralCode', referralCode);
-            console.log('Referral code set in localStorage', referralCode);
-            const url = new URL(window.location.href);
-            url.search = '';
-            window.history.replaceState({}, document.title, url.toString());
-        }
-    }, [referralCode]);
 
     const rewardsPromise = useMemo(
         () =>

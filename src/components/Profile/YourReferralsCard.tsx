@@ -1,4 +1,5 @@
 import { getSellerCode } from '@lib/api/backend';
+import { routePath } from '@lib/routes/route-paths';
 import { Card } from '@shared/Card';
 import { CopyableLink } from '@shared/CopyableLink';
 import { CopyableValue } from '@shared/CopyableValue';
@@ -51,7 +52,7 @@ function YourReferralsCard() {
 
                         <div className="row justify-between text-sm">
                             <div className="font-medium text-slate-700">Link for sharing</div>
-                            <CopyableLink value={`${window.location.origin}?referral=${data}`} />
+                            <CopyableLink value={`${window.location.origin}${routePath.profile}?referral=${data}`} />
                         </div>
                     </div>
                 )}

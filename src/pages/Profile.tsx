@@ -9,11 +9,27 @@ import { Spinner } from '@nextui-org/spinner';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { RegistrationStatus } from '@typedefs/profile';
 import { ConnectKitButton } from 'connectkit';
+import { useEffect } from 'react';
 import { RiCloseLargeLine, RiWalletLine } from 'react-icons/ri';
+import { useSearchParams } from 'react-router-dom';
 
 function Profile() {
+    const [searchParams] = useSearchParams();
+    const referralCode = searchParams.get('referral');
+
     const { authenticated, account, isFetchingAccount, accountFetchError } =
         useAuthenticationContext() as AuthenticationContextType;
+
+    useEffect(() => {
+        if (referralCode) {
+            // Store the referral code then clear the URL parameters
+            localStorage.setItem('referralCode', referralCode);
+            console.log('Referral code set in localStorage', referralCode);
+            const url = new URL(window.location.href);
+            url.search = '';
+            window.history.replaceState({}, document.title, url.toString());
+        }
+    }, [referralCode]);
 
     const getRegistrationStatus = (): RegistrationStatus => {
         if (account && account.email && account.emailConfirmed) {
