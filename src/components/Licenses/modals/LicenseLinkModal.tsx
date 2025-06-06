@@ -268,7 +268,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
             </div>
 
             <div className="center-all w-full pb-4">
-                <Button color="primary" as={Link} to={routePath.profileKyc}>
+                <Button color="primary" as={Link} to={routePath.profile}>
                     Go to KYC
                 </Button>
             </div>

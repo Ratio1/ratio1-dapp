@@ -97,6 +97,7 @@ type ApiAccount = {
     isBlacklisted: boolean;
     blacklistedReason: string;
     receiveUpdates: boolean;
+    referral: string | null;
     usdBuyLimit: number;
     vatPercentage: number;
     viesRegistered: boolean;

@@ -1,4 +1,5 @@
 import { confirmEmail } from '@lib/api/backend';
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { routePath } from '@lib/routes/route-paths';
 import { Button } from '@nextui-org/button';
 import { Spinner } from '@nextui-org/spinner';
@@ -15,13 +16,15 @@ function EmailConfirmation() {
 
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
 
+    const { fetchAccount } = useAuthenticationContext() as AuthenticationContextType;
+
     useEffect(() => {
         if (!token) {
             navigate(routePath.notFound);
         } else {
             confirmEmail(token)
                 .then(() => {
-                    setStatus('success');
+                    onSuccessfulConfirmation();
                 })
                 .catch((e) => {
                     setStatus('error');
@@ -29,6 +32,11 @@ function EmailConfirmation() {
                 });
         }
     }, [token]);
+
+    const onSuccessfulConfirmation = async () => {
+        await fetchAccount();
+        setStatus('success');
+    };
 
     return (
         <div className="col w-full gap-6">
@@ -146,7 +154,7 @@ function EmailConfirmation() {
                     </div>
 
                     <div className="mt-4">
-                        <Button color="primary" size="md" variant="solid" as={Link} to={routePath.profileKyc}>
+                        <Button color="primary" size="md" variant="solid" as={Link} to={routePath.profile}>
                             <div className="text-base font-medium">Go to KYC</div>
                         </Button>
                     </div>

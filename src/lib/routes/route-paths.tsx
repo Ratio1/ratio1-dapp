@@ -2,7 +2,7 @@ export const routePath = {
     root: '/',
     dashboard: '/dashboard',
     licenses: '/licenses-and-nodes',
-    profileKyc: '/profile-and-kyc',
+    profile: '/profile',
     search: '/search',
     faucet: '/faucet',
     buy: '/buy-r1',

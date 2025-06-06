@@ -1,5 +1,4 @@
 import { getSellerCode } from '@lib/api/backend';
-import { routePath } from '@lib/routes/route-paths';
 import { Card } from '@shared/Card';
 import { CopyableLink } from '@shared/CopyableLink';
 import { CopyableValue } from '@shared/CopyableValue';
@@ -7,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { RiGroupLine, RiInformationLine } from 'react-icons/ri';
 
-function YourReferralCard() {
+function YourReferralsCard() {
     const { data, isLoading } = useQuery({
         queryKey: ['sellerCode'],
         queryFn: async () => {
@@ -52,7 +51,7 @@ function YourReferralCard() {
 
                         <div className="row justify-between text-sm">
                             <div className="font-medium text-slate-700">Link for sharing</div>
-                            <CopyableLink value={`${window.location.origin}${routePath.profileKyc}?referral=${data}`} />
+                            <CopyableLink value={`${window.location.origin}?referral=${data}`} />
                         </div>
                     </div>
                 )}
@@ -61,4 +60,4 @@ function YourReferralCard() {
     );
 }
 
-export default YourReferralCard;
+export default YourReferralsCard;

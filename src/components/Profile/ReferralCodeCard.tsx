@@ -9,14 +9,11 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiCoupon2Line, RiInformationLine } from 'react-icons/ri';
 
-function ReferralCard() {
+function ReferralCodeCard() {
     const { account, fetchAccount } = useAuthenticationContext() as AuthenticationContextType;
 
     const [value, setValue] = useState<string>('');
     const [isLoading, setLoading] = useState<boolean>(false);
-
-    // TODO: Replace with the property from account
-    const [code, setCode] = useState<string>(); // 'FAE7C9D'
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -50,8 +47,13 @@ function ReferralCard() {
 
             fetchAccount(); // Refresh account data after applying the code
         } catch (error: any) {
-            console.error(error);
-            toast.error('Unexpected error, please try again.');
+            console.error(error.message);
+
+            if (error.message.includes('own')) {
+                toast.error('Cannot apply your own code.');
+            } else {
+                toast.error('Error applying code, please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -64,7 +66,7 @@ function ReferralCard() {
     return (
         <Card icon={<RiCoupon2Line />} title="Referral Code">
             <div className="flex h-full w-full items-center justify-between">
-                {!code ? (
+                {!account.referral ? (
                     <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>
                         <div className="col w-full gap-4">
                             <div className="flex w-full gap-2">
@@ -98,7 +100,8 @@ function ReferralCard() {
                     <div className="flex gap-1">
                         <RiInformationLine className="h-6 text-[22px]" />
                         <div>
-                            This is the referral code you used when you registered: <span className="text-primary">{code}</span>
+                            This is the referral code you used when you registered:{' '}
+                            <span className="text-primary">{account.referral}</span>
                         </div>
                     </div>
                 )}
@@ -107,4 +110,4 @@ function ReferralCard() {
     );
 }
 
-export default ReferralCard;
+export default ReferralCodeCard;

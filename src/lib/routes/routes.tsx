@@ -11,7 +11,7 @@ import Profile from '@pages/Profile';
 import TermsAndConditions from '@pages/T&C';
 import Unauthorized from '@pages/Unauthorized';
 import { TokenSvg } from '@shared/TokenSvg';
-import { RiCpuLine, RiFunctionLine, RiSearchLine, RiShieldUserLine, RiWaterFlashLine } from 'react-icons/ri';
+import { RiCpuLine, RiFunctionLine, RiSearchLine, RiUserLine, RiWaterFlashLine } from 'react-icons/ri';
 import { environment, getR1ExplorerUrl } from '../config';
 import { routePath } from './route-paths';
 
@@ -33,9 +33,9 @@ export const mainRoutesInfo = {
         description: 'View, organize & assign your licenses to nodes',
         mobileTitle: 'Licenses',
     },
-    [routePath.profileKyc]: {
-        title: 'Profile & KYC',
-        description: 'Manage your profile and KYC (Know Your Customer)',
+    [routePath.profile]: {
+        title: 'Profile',
+        description: 'Manage your profile, referral and KYC (Know Your Customer)',
         mobileTitle: 'Profile',
     },
     [routePath.search]: {
@@ -89,9 +89,9 @@ export const routes: AppRoute[] = [
         icon: <RiCpuLine />,
     },
     {
-        path: routePath.profileKyc,
+        path: routePath.profile,
         page: Profile,
-        icon: <RiShieldUserLine />,
+        icon: <RiUserLine />,
     },
     ...(environment === 'testnet' || environment === 'devnet'
         ? [
@@ -151,7 +151,7 @@ export const routes: AppRoute[] = [
 ];
 
 export const getNavigationRoutes = () => {
-    const mainnetOnly = [routePath.profileKyc];
+    const mainnetOnly = [routePath.profile];
 
     return routes.filter((route: AppRoute) => {
         if (environment !== 'mainnet' && mainnetOnly.includes(route.path)) {

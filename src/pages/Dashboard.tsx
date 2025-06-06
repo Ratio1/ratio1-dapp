@@ -11,11 +11,14 @@ import { KycStatus } from '@typedefs/profile';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useMemo } from 'react';
 import { RiArrowRightUpLine, RiTimeLine } from 'react-icons/ri';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 
 function Dashboard() {
+    const [searchParams] = useSearchParams();
+    const referralCode = searchParams.get('referral');
+
     const {
         licenses,
         fetchLicenses,
@@ -26,10 +29,22 @@ function Dashboard() {
         fetchPriceTiers,
         onBuyDrawerOpen,
     } = useBlockchainContext() as BlockchainContextType;
+
     const { account, authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
     const { address } = useAccount();
     const publicClient = usePublicClient();
+
+    useEffect(() => {
+        if (referralCode) {
+            // Store the referral code then clear the URL parameters
+            localStorage.setItem('referralCode', referralCode);
+            console.log('Referral code set in localStorage', referralCode);
+            const url = new URL(window.location.href);
+            url.search = '';
+            window.history.replaceState({}, document.title, url.toString());
+        }
+    }, [referralCode]);
 
     const rewardsPromise = useMemo(
         () =>
@@ -73,7 +88,7 @@ function Dashboard() {
                     title="Buying licenses is available after completing KYC."
                     endContent={
                         <div className="ml-2">
-                            <Button color="danger" size="sm" variant="solid" as={Link} to={routePath.profileKyc}>
+                            <Button color="danger" size="sm" variant="solid" as={Link} to={routePath.profile}>
                                 <div className="text-xs sm:text-sm">Go to KYC</div>
                             </Button>
                         </div>
