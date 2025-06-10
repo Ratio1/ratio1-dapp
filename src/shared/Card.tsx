@@ -11,9 +11,9 @@ export const Card: FunctionComponent<PropsWithChildren<Props>> = ({ children, ic
         <div className="col gap-0 overflow-hidden rounded-2xl border border-[#e3e4e8] bg-light">
             <div className="bg-slate-100 px-6 py-4 larger:px-8 larger:py-6">
                 <div className="row justify-between">
-                    <div className="row gap-2 lg:gap-3">
-                        <div className="rounded-full bg-primary p-1.5 text-lg text-white lg:p-2 lg:text-xl">{icon}</div>
-                        <div className="text-lg font-bold leading-6 larger:text-xl">{title}</div>
+                    <div className="row gap-2 lg:gap-2.5">
+                        <div className="rounded-full bg-primary p-1.5 text-lg text-white">{icon}</div>
+                        <div className="text-base font-semibold leading-6 larger:text-lg">{title}</div>
                     </div>
 
                     {!!label && <div>{label}</div>}
