@@ -8,11 +8,9 @@
         "build": "tsc -b && vite build",
         "lint": "eslint .",
         "serve": "serve -s dist",
-        "preview": "vite preview",
-        "patch": "./scripts/patch.sh"
+        "preview": "vite preview"
     },
     "dependencies": {
-        "@iframe-resizer/react": "^5.3.2",
         "@nextui-org/alert": "^2.2.9",
         "@nextui-org/button": "^2.2.8",
         "@nextui-org/divider": "^2.2.5",
