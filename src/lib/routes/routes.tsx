@@ -102,19 +102,15 @@ export const routes: AppRoute[] = [
               },
           ]
         : []),
-    ...(environment === 'testnet' || environment === 'devnet' //TODO enable on mainnet when LP is available
-        ? [
-              {
-                  path: routePath.buy,
-                  page: BuyR1,
-                  icon: (
-                      <div className="center-all h-[24px] w-[24px] layoutBreak:h-[22px] layoutBreak:w-[22px]">
-                          <TokenSvg classNames="h-6 w-6 layoutBreak:h-5 layoutBreak:w-5" />
-                      </div>
-                  ),
-              },
-          ]
-        : []),
+    {
+        path: routePath.buy,
+        page: BuyR1,
+        icon: (
+            <div className="center-all h-[24px] w-[24px] layoutBreak:h-[22px] layoutBreak:w-[22px]">
+                <TokenSvg classNames="h-6 w-6 layoutBreak:h-5 layoutBreak:w-5" />
+            </div>
+        ),
+    },
     {
         path: routePath.search,
         externalLink: getR1ExplorerUrl(),

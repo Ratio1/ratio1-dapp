@@ -37,7 +37,7 @@ const configs: {
         ndContractAddress: '0xE658DF6dA3FB5d4FBa562F1D5934bd0F9c6bd423',
         mndContractAddress: '0x0C431e546371C87354714Fcc1a13365391A549E2',
         controllerContractAddress: '0x90dA5FdaA92edDC80FB73114fb7FE7D97f2be017',
-        uniswapV2RouterAddress: '0xTODO',
+        uniswapV2RouterAddress: '0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24',
         safeAddress: '0x2265539ae09c7A605A707E11a6ED4aF1d018750e',
         explorerUrl: 'https://basescan.org',
         genesisDate: new Date('2025-05-23T16:00:00.000Z'),
@@ -48,7 +48,29 @@ const configs: {
         ndVestingEpochs: 1080,
         networks: [base],
         ND_LICENSE_CAP: 1575_188843457943924200n,
-        swapTokensDetails: {},
+        swapTokensDetails: {
+            ETH: {
+                name: 'Ethereum',
+                decimals: 18,
+                displayDecimals: 4,
+                fromAmount: '0.2',
+                logo: EthLogo,
+                swapPath: [
+                    '0x4200000000000000000000000000000000000006',
+                    '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+                    '0x6444C6c2D527D85EA97032da9A7504d6d1448ecF',
+                ],
+            },
+            USDC: {
+                name: 'USDC',
+                address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+                decimals: 6,
+                displayDecimals: 2,
+                fromAmount: '500',
+                logo: UsdcLogo,
+                swapPath: ['0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', '0x6444C6c2D527D85EA97032da9A7504d6d1448ecF'],
+            },
+        },
     },
     testnet: {
         backendUrl: 'https://testnet-dapp-api.ratio1.ai',
@@ -159,7 +181,7 @@ export const environment: 'mainnet' | 'testnet' | 'devnet' =
           ? ('devnet' as const)
           : domain === domainTestnet
             ? ('testnet' as const)
-            : ('devnet' as const);
+            : ('mainnet' as const);
 
 export const getR1ExplorerUrl = () => `https://${environment === 'mainnet' ? '' : `${environment}-`}${explorerBaseDomain}`;
 
