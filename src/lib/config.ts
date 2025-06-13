@@ -37,7 +37,7 @@ const configs: {
         ndContractAddress: '0xE658DF6dA3FB5d4FBa562F1D5934bd0F9c6bd423',
         mndContractAddress: '0x0C431e546371C87354714Fcc1a13365391A549E2',
         controllerContractAddress: '0x90dA5FdaA92edDC80FB73114fb7FE7D97f2be017',
-        uniswapV2RouterAddress: '0x2626664c2603336E57B271c5C0b26F421741e481',
+        uniswapV2RouterAddress: '0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24',
         safeAddress: '0x2265539ae09c7A605A707E11a6ED4aF1d018750e',
         explorerUrl: 'https://basescan.org',
         genesisDate: new Date('2025-05-23T16:00:00.000Z'),
