@@ -68,6 +68,8 @@ function BuyR1() {
         return (parseUnits(r1Estimate, 18) * BigInt(Math.floor(100 - slippageValue))) / 100n;
     }, [r1Estimate, slippage]);
 
+    const dualTxsModalRef = useRef<{ progress: () => void; init: () => void }>(null);
+
     const { data: walletClient } = useWalletClient();
     const { address } = useAccount();
     const publicClient = usePublicClient();
@@ -152,6 +154,10 @@ function BuyR1() {
             setIsLoading(true);
 
             if (selectedToken.address) {
+                if (dualTxsModalRef.current) {
+                    dualTxsModalRef.current.init();
+                }
+
                 onDualTxsModalOpen();
 
                 const approve = async () => {
@@ -179,6 +185,11 @@ function BuyR1() {
                 };
 
                 await approve();
+
+                if (dualTxsModalRef.current) {
+                    dualTxsModalRef.current.progress();
+                }
+
                 await swap();
             } else {
                 const txHash = await walletClient.writeContract({
@@ -372,9 +383,10 @@ function BuyR1() {
             />
 
             <DualTxsModal
+                ref={dualTxsModalRef}
                 isOpen={isDualTxsModalOpen}
                 onOpenChange={onDualTxsModalOpenChange}
-                text="approve token spending and swap them"
+                text="approve token spending and then swap"
             />
         </div>
     );

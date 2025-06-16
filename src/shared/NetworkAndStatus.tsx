@@ -12,8 +12,8 @@ function NetworkAndStatus() {
     });
 
     return (
-        <div className="row gap-1.5">
-            <div className="row mx-auto gap-2 rounded-lg bg-slate-200 px-3.5 py-2.5">
+        <div className="center-all gap-2">
+            <div className="row gap-2 rounded-lg bg-slate-200 px-3.5 py-2.5">
                 <div className="center-all">
                     {isLoading ? (
                         <Spinner size="sm" className="scale-75" />
@@ -30,9 +30,7 @@ function NetworkAndStatus() {
                 <div className="text-sm font-medium text-slate-600">API Status</div>
             </div>
 
-            <div className="row mx-auto">
-                <NetworkSelector />
-            </div>
+            <NetworkSelector />
 
             {!!import.meta.env.VITE_APP_VERSION && (
                 <div className="pt-1 text-center text-sm font-medium text-slate-500">v{import.meta.env.VITE_APP_VERSION}</div>
