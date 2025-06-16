@@ -1,5 +1,5 @@
 import Logo from '@assets/token.svg';
-import { mainRoutesInfo } from '@lib/routes/routes';
+import { routeInfo } from '@lib/routes/routes';
 import { ConnectKitButton } from 'connectkit';
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
@@ -14,11 +14,11 @@ function Content() {
     useEffect(() => {
         // Exclude the root route
         if (location.pathname.length > 1) {
-            const path = Object.keys(mainRoutesInfo).find((p) => location.pathname.startsWith(p));
+            const path = Object.keys(routeInfo).find((p) => location.pathname === p);
 
             if (path) {
-                setTitle(mainRoutesInfo[path]?.title);
-                setDescription(mainRoutesInfo[path]?.description);
+                setTitle(routeInfo[path]?.title);
+                setDescription(routeInfo[path]?.description);
             }
         }
     }, [location]);

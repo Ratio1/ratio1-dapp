@@ -1,6 +1,6 @@
 import Logo from '@assets/logo_app.svg';
 import { routePath } from '@lib/routes/route-paths';
-import { mainRoutesInfo } from '@lib/routes/routes';
+import { routeInfo } from '@lib/routes/routes';
 import NetworkAndStatus from '@shared/NetworkAndStatus';
 import { RiDiscordLine, RiLinkedinBoxLine, RiTwitterXLine, RiYoutubeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
@@ -38,11 +38,11 @@ function FooterMobile() {
             </div>
 
             <div className="col gap-4 text-center text-sm font-semibold">
-                <Link to={routePath.termsAndConditions} className="hover:opacity-70">
-                    {mainRoutesInfo[routePath.termsAndConditions].title}
+                <Link to={`${routePath.compliance}/${routePath.termsAndConditions}`} className="hover:opacity-70">
+                    {routeInfo[`${routePath.compliance}/${routePath.termsAndConditions}`].title}
                 </Link>
-                <Link to={routePath.privacyPolicy} className="hover:opacity-70">
-                    {mainRoutesInfo[routePath.privacyPolicy].title}
+                <Link to={`${routePath.compliance}/${routePath.privacyPolicy}`} className="hover:opacity-70">
+                    {routeInfo[`${routePath.compliance}/${routePath.privacyPolicy}`].title}
                 </Link>
             </div>
 

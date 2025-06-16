@@ -11,18 +11,47 @@ import Profile from '@pages/Profile';
 import TermsAndConditions from '@pages/T&C';
 import Unauthorized from '@pages/Unauthorized';
 import { TokenSvg } from '@shared/TokenSvg';
-import { RiCpuLine, RiFunctionLine, RiSearchLine, RiUserLine, RiWaterFlashLine } from 'react-icons/ri';
+import { RiCpuLine, RiFunctionLine, RiSearchLine, RiShieldLine, RiUserLine, RiWaterFlashLine } from 'react-icons/ri';
 import { environment, getR1ExplorerUrl } from '../config';
 import { routePath } from './route-paths';
 
-export type AppRoute = {
+export type BaseRoute = {
     path: string;
-    externalLink?: string;
-    page?: () => JSX.Element;
-    icon?: JSX.Element;
+    icon?: React.ReactNode;
 };
 
-export const mainRoutesInfo = {
+export type SimpleRoute = BaseRoute & {
+    page: () => JSX.Element;
+};
+
+export type ExternalRoute = BaseRoute & {
+    externalLink: string;
+};
+
+export type ChildRoute = {
+    path: string;
+    page: () => JSX.Element;
+};
+
+export type ParentRoute = BaseRoute & {
+    children: ChildRoute[];
+};
+
+export type AppRoute = SimpleRoute | ParentRoute | ExternalRoute;
+
+export function isSimpleRoute(route: AppRoute): route is SimpleRoute {
+    return 'page' in route;
+}
+
+export function isParentRoute(route: AppRoute): route is ParentRoute {
+    return 'children' in route;
+}
+
+export function isExternalRoute(route: AppRoute): route is ExternalRoute {
+    return 'externalLink' in route;
+}
+
+export const routeInfo = {
     [routePath.dashboard]: {
         title: 'Dashboard',
         description: 'An organized view of your key information',
@@ -49,11 +78,14 @@ export const mainRoutesInfo = {
         title: 'Buy $R1',
         description: 'Swap for $R1 using the available tokens',
     },
-    [routePath.termsAndConditions]: {
+    [routePath.compliance]: {
+        title: 'Compliance',
+    },
+    [`${routePath.compliance}/${routePath.termsAndConditions}`]: {
         title: 'Terms & Conditions',
         description: 'Terms governing your use of our services',
     },
-    [routePath.privacyPolicy]: {
+    [`${routePath.compliance}/${routePath.privacyPolicy}`]: {
         title: 'Privacy Policy',
         description: 'Understand how we handle and protect your personal data',
     },
@@ -61,7 +93,7 @@ export const mainRoutesInfo = {
         title: 'Email Confirmation',
     },
     [routePath.kyc]: {
-        title: 'KYC',
+        title: 'KYC (Know Your Customer)',
         description: 'Ensure compliance and security with identity verification',
     },
     [routePath.admin]: {
@@ -117,12 +149,18 @@ export const routes: AppRoute[] = [
         icon: <RiSearchLine />,
     },
     {
-        path: routePath.termsAndConditions,
-        page: TermsAndConditions,
-    },
-    {
-        path: routePath.privacyPolicy,
-        page: PrivacyPolicy,
+        path: routePath.compliance,
+        icon: <RiShieldLine />,
+        children: [
+            {
+                path: routePath.termsAndConditions,
+                page: TermsAndConditions,
+            },
+            {
+                path: routePath.privacyPolicy,
+                page: PrivacyPolicy,
+            },
+        ],
     },
     {
         path: routePath.confirmEmail,
@@ -151,6 +189,18 @@ export const getNavigationRoutes = () => {
 
     return routes.filter((route: AppRoute) => {
         if (environment !== 'mainnet' && mainnetOnly.includes(route.path)) {
+            return false;
+        }
+
+        return !!route.icon;
+    });
+};
+
+export const getMobileNavigationRoutes = () => {
+    const mainnetOnly = [routePath.profile];
+
+    return routes.filter((route: AppRoute) => {
+        if ((environment !== 'mainnet' && mainnetOnly.includes(route.path)) || route.path === routePath.compliance) {
             return false;
         }
 

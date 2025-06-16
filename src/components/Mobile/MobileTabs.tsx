@@ -1,4 +1,4 @@
-import { getNavigationRoutes, mainRoutesInfo } from '@lib/routes/routes';
+import { getMobileNavigationRoutes, isExternalRoute, routeInfo } from '@lib/routes/routes';
 import clsx from 'clsx';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -10,25 +10,25 @@ function MobileTabs() {
             <div className="w-full gap-2 border-t border-slate-200 bg-slate-100 px-2.5 py-1">
                 <div
                     className={clsx('center-all nav-safe-padding', {
-                        'gap-1': getNavigationRoutes().length > 4,
-                        'gap-3': getNavigationRoutes().length <= 4,
+                        'gap-1': getMobileNavigationRoutes().length > 4,
+                        'gap-3': getMobileNavigationRoutes().length <= 4,
                     })}
                 >
-                    {getNavigationRoutes().map((route) => (
+                    {getMobileNavigationRoutes().map((route) => (
                         <div key={route.path}>
                             <Link
-                                to={route.externalLink || route.path}
+                                to={isExternalRoute(route) ? route.externalLink : route.path}
                                 className={clsx(
                                     'center-all col min-w-[64px] cursor-pointer gap-0.5 px-0.5 py-1 text-slate-500 hover:opacity-70',
                                     {
                                         '!text-primary': location.pathname.includes(route.path),
                                     },
                                 )}
-                                target={route.externalLink ? '_blank' : undefined}
+                                target={isExternalRoute(route) ? '_blank' : undefined}
                             >
                                 <div className="text-2xl">{route.icon}</div>
                                 <div className="text-sm font-semibold">
-                                    {mainRoutesInfo[route.path].mobileTitle || mainRoutesInfo[route.path].title}
+                                    {routeInfo[route.path].mobileTitle || routeInfo[route.path].title}
                                 </div>
                             </Link>
                         </div>

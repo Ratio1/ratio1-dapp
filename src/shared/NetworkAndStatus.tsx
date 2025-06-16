@@ -12,11 +12,7 @@ function NetworkAndStatus() {
     });
 
     return (
-        <div className="col gap-2">
-            <div className="row mx-auto">
-                <NetworkSelector />
-            </div>
-
+        <div className="row gap-1.5">
             <div className="row mx-auto gap-2 rounded-lg bg-slate-200 px-3.5 py-2.5">
                 <div className="center-all">
                     {isLoading ? (
@@ -32,6 +28,10 @@ function NetworkAndStatus() {
                 </div>
 
                 <div className="text-sm font-medium text-slate-600">API Status</div>
+            </div>
+
+            <div className="row mx-auto">
+                <NetworkSelector />
             </div>
 
             {!!import.meta.env.VITE_APP_VERSION && (

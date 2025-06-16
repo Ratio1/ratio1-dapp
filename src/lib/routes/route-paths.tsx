@@ -6,8 +6,11 @@ export const routePath = {
     search: '/search',
     faucet: '/faucet',
     buy: '/buy-r1',
-    termsAndConditions: '/terms-and-conditions',
-    privacyPolicy: '/privacy-policy',
+    compliance: '/compliance',
+    // Children of /compliance
+    termsAndConditions: 'terms-and-conditions',
+    privacyPolicy: 'privacy-policy',
+    //
     confirmEmail: '/confirm-email',
     notFound: '/404',
     unauthorized: '/unauthorized',

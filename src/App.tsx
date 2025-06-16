@@ -4,7 +4,7 @@ import { addReferralCode } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
-import { routes } from '@lib/routes/routes';
+import { isParentRoute, isSimpleRoute, routes } from '@lib/routes/routes';
 import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
 import { ClosableToastContent } from '@shared/ClosableToastContent';
 import { useEffect } from 'react';
@@ -92,12 +92,28 @@ function App() {
                 <Route path={routePath.root} element={<Layout />}>
                     <Route path="/" element={<Navigate to={routePath.dashboard} replace />} />
 
-                    {routes
-                        .filter((route) => !!route.page)
-                        .map((route, index) => {
-                            const Page = route.page as () => JSX.Element;
-                            return <Route key={'route-key-' + index} path={route.path} element={<Page />} />;
-                        })}
+                    {routes.map((route, index) => {
+                        if (isSimpleRoute(route)) {
+                            return <Route key={'route-key-' + index} path={route.path} element={<route.page />} />;
+                        } else if (isParentRoute(route) && route.children && route.children.length > 0) {
+                            return (
+                                <Route key={'route-key-' + index} path={route.path}>
+                                    <Route index element={<Navigate to={route.children[0].path} replace />} />
+
+                                    {route.children.map((child, childIndex) => (
+                                        <Route
+                                            key={'child-route-key-' + childIndex}
+                                            path={child.path}
+                                            element={<child.page />}
+                                        />
+                                    ))}
+                                </Route>
+                            );
+                        }
+
+                        // Fallback (not necessary if routes are validated)
+                        return null;
+                    })}
                 </Route>
 
                 <Route path="*" element={<Navigate to={routePath.notFound} replace />} />
