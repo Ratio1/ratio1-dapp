@@ -60,7 +60,7 @@ export const AddTokenToWallet = ({ contractAddress, symbol, decimals }: Props) =
 
     return (
         <div className="flex">
-            <Button fullWidth className="px-3" variant="bordered" onPress={add}>
+            <Button fullWidth className="h-[42px] px-3" variant="bordered" onPress={add}>
                 <div className="row gap-1.5">
                     {!!connector?.icon && <img src={connector.icon} alt="Wallet Logo" className="h-6 w-6 rounded-full" />}
                     <div>Add ${symbol} to wallet</div>

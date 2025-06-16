@@ -53,7 +53,7 @@ const configs: {
                 name: 'Ethereum',
                 decimals: 18,
                 displayDecimals: 4,
-                fromAmount: '0.2',
+                fromAmount: '0.1',
                 logo: EthLogo,
                 swapPath: [
                     '0x4200000000000000000000000000000000000006',
@@ -66,7 +66,7 @@ const configs: {
                 address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
                 decimals: 6,
                 displayDecimals: 2,
-                fromAmount: '500',
+                fromAmount: '250',
                 logo: UsdcLogo,
                 swapPath: ['0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', '0x6444C6c2D527D85EA97032da9A7504d6d1448ecF'],
             },

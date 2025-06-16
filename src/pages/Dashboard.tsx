@@ -4,6 +4,7 @@ import { AuthenticationContextType, useAuthenticationContext } from '@lib/contex
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
 import useAwait from '@lib/useAwait';
+import { fBI } from '@lib/utils';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
 import { BigCard } from '@shared/BigCard';
@@ -110,7 +111,9 @@ function Dashboard() {
 
                             <div className="row gap-2.5">
                                 <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">
-                                    {parseFloat(Number(formatUnits(r1Balance, 18)).toFixed(3))}
+                                    {r1Balance < 1000000000000000000000n
+                                        ? parseFloat(Number(formatUnits(r1Balance ?? 0n, 18)).toFixed(2))
+                                        : fBI(r1Balance, 18)}
                                 </div>
                             </div>
                         </div>

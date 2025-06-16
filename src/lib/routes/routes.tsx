@@ -47,7 +47,7 @@ export const mainRoutesInfo = {
     },
     [routePath.buy]: {
         title: 'Buy $R1',
-        description: 'Purchase $R1 tokens',
+        description: 'Swap for $R1 using the available tokens',
     },
     [routePath.termsAndConditions]: {
         title: 'Terms & Conditions',

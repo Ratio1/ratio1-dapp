@@ -5,6 +5,7 @@ import { TokenSelectorModal } from '@components/TokenSelectorModal';
 import { config } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
+import { fBI } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { useDisclosure } from '@nextui-org/modal';
 import { AddTokenToWallet } from '@shared/AddTokenToWallet';
@@ -20,7 +21,7 @@ import { formatUnits, parseUnits } from 'viem';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 function BuyR1() {
-    const { watchTx, fetchR1Balance, fetchErc20Balance } = useBlockchainContext() as BlockchainContextType;
+    const { watchTx, r1Balance, fetchR1Balance, fetchErc20Balance } = useBlockchainContext() as BlockchainContextType;
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
     const [selectedTokenKey, setSelectedTokenKey] = useState<string>(Object.keys(config.swapTokensDetails)[0]);
@@ -287,7 +288,21 @@ function BuyR1() {
                                         {parseFloat(Number(r1Estimate).toFixed(2)).toLocaleString('en-US')}
                                     </span>
 
-                                    <img src={R1Logo} alt="R1" className="h-8 w-8 rounded-full" />
+                                    <div className="row gap-1.5 rounded-full border border-slate-100 bg-white px-1.5 py-1 shadow-round">
+                                        <img src={R1Logo} alt="R1" className="h-7 w-7 rounded-full" />
+
+                                        <div className="mr-1 select-none text-sm font-medium">$R1</div>
+                                    </div>
+                                </div>
+
+                                <div className="row justify-end text-sm text-slate-500">
+                                    <div>
+                                        Balance:{' '}
+                                        {r1Balance < 1000000000000000000000n
+                                            ? parseFloat(Number(formatUnits(r1Balance ?? 0n, 18)).toFixed(2))
+                                            : fBI(r1Balance, 18)}{' '}
+                                        $R1
+                                    </div>
                                 </div>
                             </SwapInput>
                         </div>
@@ -305,10 +320,10 @@ function BuyR1() {
                             </Button>
                         </ConnectWalletWrapper>
 
-                        <div className="col gap-2">
+                        <div className="col gap-2 text-sm">
                             <Row label="Rate">
                                 <div>
-                                    1 R1 ={' '}
+                                    1 $R1 ={' '}
                                     {expectedPrice.toLocaleString('en-US', {
                                         minimumFractionDigits: 2,
                                         maximumFractionDigits: selectedToken.displayDecimals,
