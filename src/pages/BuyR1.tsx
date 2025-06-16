@@ -387,6 +387,7 @@ function BuyR1() {
                 isOpen={isDualTxsModalOpen}
                 onOpenChange={onDualTxsModalOpenChange}
                 text="approve token spending and then swap"
+                displayTxsProgress
             />
         </div>
     );
