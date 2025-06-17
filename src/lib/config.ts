@@ -100,18 +100,18 @@ const configs: {
                 logo: EthLogo,
                 swapPath: [
                     '0x24fe7807089e321395172633aA9c4bBa4Ac4a357',
-                    '0x2d6a9cda5179399Ee6c44d78550696e68400F677',
+                    '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
                     '0xCC96f389F45Fc08b4fa8e2bC4C7DA9920292ec64',
                 ],
             },
             USDC: {
                 name: 'USDC',
-                address: '0x2d6a9cda5179399Ee6c44d78550696e68400F677',
+                address: '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
                 decimals: 6,
                 displayDecimals: 2,
                 fromAmount: '500',
                 logo: UsdcLogo,
-                swapPath: ['0x2d6a9cda5179399Ee6c44d78550696e68400F677', '0xCC96f389F45Fc08b4fa8e2bC4C7DA9920292ec64'],
+                swapPath: ['0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF', '0xCC96f389F45Fc08b4fa8e2bC4C7DA9920292ec64'],
             },
         },
     },
@@ -181,7 +181,7 @@ export const environment: 'mainnet' | 'testnet' | 'devnet' =
           ? ('devnet' as const)
           : domain === domainTestnet
             ? ('testnet' as const)
-            : ('devnet' as const);
+            : ('testnet' as const);
 
 export const getR1ExplorerUrl = () => `https://${environment === 'mainnet' ? '' : `${environment}-`}${explorerBaseDomain}`;
 
