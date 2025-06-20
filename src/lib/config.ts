@@ -177,11 +177,11 @@ export const domains = {
 export const environment: 'mainnet' | 'testnet' | 'devnet' =
     domain === domainMainnet
         ? ('mainnet' as const)
-        : domain === domainDevnet
-          ? ('devnet' as const)
-          : domain === domainTestnet
-            ? ('testnet' as const)
-            : ('devnet' as const);
+        : domain === domainTestnet
+          ? ('testnet' as const)
+          : domain === domainDevnet
+            ? ('devnet' as const)
+            : ('mainnet' as const);
 
 export const getR1ExplorerUrl = () => `https://${environment === 'mainnet' ? '' : `${environment}-`}${explorerBaseDomain}`;
 

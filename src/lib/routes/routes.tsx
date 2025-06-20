@@ -67,7 +67,7 @@ export const routeInfo = {
         description: 'Manage your profile, referral and KYC (Know Your Customer)',
         mobileTitle: 'Profile',
     },
-    [routePath.search]: {
+    [`${getR1ExplorerUrl()}`]: {
         title: 'Explorer',
     },
     [routePath.faucet]: {
@@ -144,7 +144,7 @@ export const routes: AppRoute[] = [
         ),
     },
     {
-        path: routePath.search,
+        path: getR1ExplorerUrl(),
         externalLink: getR1ExplorerUrl(),
         icon: <RiSearchLine />,
     },

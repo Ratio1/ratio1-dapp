@@ -3,7 +3,6 @@ export const routePath = {
     dashboard: '/dashboard',
     licenses: '/licenses-and-nodes',
     profile: '/profile',
-    search: '/search',
     faucet: '/faucet',
     buy: '/buy-r1',
     compliance: '/compliance',
