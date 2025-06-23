@@ -14,20 +14,22 @@ import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
 import { DualTxsModal } from '@shared/DualTxsModal';
 import { SlippageModal } from '@shared/SlippageModal';
 import { EthAddress } from '@typedefs/blockchain';
-import { FunctionComponent, PropsWithChildren, useEffect, useMemo, useRef, useState } from 'react';
+import { debounce } from 'lodash';
+import { FunctionComponent, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiArrowDownLine, RiArrowDownSLine, RiSettings2Line } from 'react-icons/ri';
 import { formatUnits, parseUnits } from 'viem';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 function BuyR1() {
-    const { watchTx, r1Balance, fetchR1Balance, fetchErc20Balance } = useBlockchainContext() as BlockchainContextType;
+    const { watchTx, r1Balance, r1Price, fetchR1Price, fetchR1Balance, fetchErc20Balance } =
+        useBlockchainContext() as BlockchainContextType;
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
     const [selectedTokenKey, setSelectedTokenKey] = useState<string>(Object.keys(config.swapTokensDetails)[0]);
     const selectedToken = useMemo(() => config.swapTokensDetails[selectedTokenKey], [selectedTokenKey]);
     const [fromAmount, setFromAmount] = useState<string>(selectedToken.fromAmount);
-    const [r1Estimate, setR1Estimate] = useState<string>('0');
+    const [r1Estimate, setR1Estimate] = useState<bigint>(0n);
     const [expectedPrice, setExpectedPrice] = useState<number>(0);
     const [userTokenBalance, setUserTokenBalance] = useState<bigint>(0n);
     const [ethPriceInUsd, setEthPriceInUsd] = useState<number>(0);
@@ -65,7 +67,7 @@ function BuyR1() {
 
     const minAmountOut = useMemo(() => {
         const slippageValue = Math.floor(slippage * 100) / 100; // Rounds down to 2 decimal places
-        return (parseUnits(r1Estimate, 18) * BigInt(Math.floor(100 - slippageValue))) / 100n;
+        return (r1Estimate * BigInt(Math.floor(100 - slippageValue))) / 100n;
     }, [r1Estimate, slippage]);
 
     const dualTxsModalRef = useRef<{ progress: () => void; init: () => void }>(null);
@@ -74,32 +76,63 @@ function BuyR1() {
     const { address } = useAccount();
     const publicClient = usePublicClient();
 
-    const fetchEstimatedR1 = async () => {
-        if (Number(fromAmount) === 0) {
-            setR1Estimate('0');
+    const debouncedFetchEstimatedR1Ref = useRef<ReturnType<typeof debounce> | null>(null);
+    const latestValuesRef = useRef({ fromAmount, selectedToken, publicClient });
+
+    // Update the ref with latest values
+    useEffect(() => {
+        latestValuesRef.current = { fromAmount, selectedToken, publicClient };
+    }, [fromAmount, selectedToken, publicClient]);
+
+    // Init
+    useEffect(() => {
+        fetchR1Price();
+    }, []);
+
+    const fetchEstimatedR1 = useCallback(async () => {
+        const {
+            fromAmount: currentFromAmount,
+            selectedToken: currentSelectedToken,
+            publicClient: currentPublicClient,
+        } = latestValuesRef.current;
+
+        if (Number(currentFromAmount) === 0) {
+            setR1Estimate(0n);
             setExpectedPrice(0);
             return;
         }
-        if (!publicClient) return;
+        if (!currentPublicClient) return;
 
         try {
-            const amountsOut = await publicClient.readContract({
+            const amountsOut = await currentPublicClient.readContract({
                 address: config.uniswapV2RouterAddress,
                 abi: UniswapV2RouterAbi,
                 functionName: 'getAmountsOut',
-                args: [parseUnits(fromAmount, selectedToken.decimals), selectedToken.swapPath],
+                args: [parseUnits(currentFromAmount, currentSelectedToken.decimals), currentSelectedToken.swapPath],
             });
 
-            const estimatedR1 = formatUnits(amountsOut[amountsOut.length - 1], 18);
+            const estimatedR1: bigint = amountsOut[amountsOut.length - 1];
+
             setR1Estimate(estimatedR1);
-            setExpectedPrice(parseFloat(fromAmount) / parseFloat(estimatedR1));
+            setExpectedPrice(parseFloat(currentFromAmount) / parseFloat(formatUnits(estimatedR1, 18)));
         } catch (error) {
             toast.error('Unexpected error, please try again.');
             console.error(error);
-            setR1Estimate('0');
+            setR1Estimate(0n);
             setExpectedPrice(0);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        if (!debouncedFetchEstimatedR1Ref.current) {
+            debouncedFetchEstimatedR1Ref.current = debounce(fetchEstimatedR1, 350, {
+                leading: false,
+                trailing: true,
+            });
+        }
+    }, [fetchEstimatedR1]);
+
+    const debouncedFetchEstimatedR1 = debouncedFetchEstimatedR1Ref.current;
 
     const fetchUserBalance = () => {
         setUserTokenBalance(0n);
@@ -123,7 +156,7 @@ function BuyR1() {
     };
 
     useEffect(() => {
-        fetchEstimatedR1();
+        debouncedFetchEstimatedR1?.();
     }, [fromAmount, selectedToken]);
 
     useEffect(() => {
@@ -161,8 +194,6 @@ function BuyR1() {
                 onDualTxsModalOpen();
 
                 const approve = async () => {
-                    console.log('Approving token spending...', selectedToken.address);
-
                     const approveTxHash = await walletClient.writeContract({
                         address: selectedToken.address as EthAddress,
                         abi: ERC20Abi,
@@ -204,7 +235,7 @@ function BuyR1() {
 
             fetchR1Balance();
             fetchUserBalance();
-            fetchEstimatedR1();
+            debouncedFetchEstimatedR1?.();
         } catch (error) {
             toast.error('Unexpected error, please try again.');
             console.error(error);
@@ -257,7 +288,7 @@ function BuyR1() {
                                             className="h-7 w-7 min-w-7 overflow-hidden rounded-full"
                                         />
                                         <div className="select-none text-sm font-medium">{selectedTokenKey}</div>
-                                        <RiArrowDownSLine className="-ml-1 text-xl" />
+                                        <RiArrowDownSLine className="-ml-0.5 text-xl" />
                                     </div>
                                 </div>
 
@@ -296,7 +327,7 @@ function BuyR1() {
                             <SwapInput label="You receive">
                                 <div className="row justify-between">
                                     <span className="text-2xl font-semibold">
-                                        {parseFloat(Number(r1Estimate).toFixed(2)).toLocaleString('en-US')}
+                                        {parseFloat(Number(formatUnits(r1Estimate, 18)).toFixed(3)).toLocaleString('en-US')}
                                     </span>
 
                                     <div className="row gap-1.5 rounded-full border border-slate-100 bg-white px-1.5 py-1 shadow-round">
@@ -306,11 +337,13 @@ function BuyR1() {
                                     </div>
                                 </div>
 
-                                <div className="row justify-end text-sm text-slate-500">
+                                <div className="row justify-between text-sm text-slate-500">
+                                    {!!r1Estimate && <div>≈ ${Number(formatUnits(r1Estimate * r1Price, 36)).toFixed(2)}</div>}
+
                                     <div>
                                         Balance:{' '}
                                         {r1Balance < 1000000000000000000000n
-                                            ? parseFloat(Number(formatUnits(r1Balance ?? 0n, 18)).toFixed(2))
+                                            ? parseFloat(Number(formatUnits(r1Balance ?? 0n, 18)).toFixed(3))
                                             : fBI(r1Balance, 18)}{' '}
                                         $R1
                                     </div>
@@ -354,7 +387,7 @@ function BuyR1() {
                             </Row>
 
                             <Row label="Minimum Received">
-                                {parseFloat(Number(formatUnits(minAmountOut, 18)).toFixed(2)).toLocaleString('en-US')}
+                                {parseFloat(Number(formatUnits(minAmountOut, 18)).toFixed(3)).toLocaleString('en-US')}
                             </Row>
                         </div>
 
