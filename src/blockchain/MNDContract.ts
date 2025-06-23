@@ -652,35 +652,6 @@ export const MNDContractAbi = [
     {
         inputs: [
             {
-                internalType: 'uint256',
-                name: 'currentEpoch',
-                type: 'uint256',
-            },
-            {
-                internalType: 'uint256',
-                name: 'firstMiningEpoch',
-                type: 'uint256',
-            },
-            {
-                internalType: 'SD59x18',
-                name: 'plateau',
-                type: 'int256',
-            },
-        ],
-        name: 'calculateEpochRelease',
-        outputs: [
-            {
-                internalType: 'uint256',
-                name: '',
-                type: 'uint256',
-            },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-    },
-    {
-        inputs: [
-            {
                 components: [
                     {
                         internalType: 'uint256',
@@ -703,9 +674,9 @@ export const MNDContractAbi = [
                         type: 'uint8[]',
                     },
                 ],
-                internalType: 'struct ComputeRewardsParams',
-                name: 'paramsArray',
-                type: 'tuple',
+                internalType: 'struct ComputeRewardsParams[]',
+                name: 'computeParams',
+                type: 'tuple[]',
             },
         ],
         name: 'calculateRewards',
@@ -723,9 +694,9 @@ export const MNDContractAbi = [
                         type: 'uint256',
                     },
                 ],
-                internalType: 'struct ComputeRewardsResult',
+                internalType: 'struct ComputeRewardsResult[]',
                 name: '',
-                type: 'tuple',
+                type: 'tuple[]',
             },
         ],
         stateMutability: 'view',
@@ -756,14 +727,14 @@ export const MNDContractAbi = [
                         type: 'uint8[]',
                     },
                 ],
-                internalType: 'struct ComputeRewardsParams',
-                name: 'computeParam',
-                type: 'tuple',
+                internalType: 'struct ComputeRewardsParams[]',
+                name: 'computeParams',
+                type: 'tuple[]',
             },
             {
-                internalType: 'bytes[]',
-                name: 'signatures',
-                type: 'bytes[]',
+                internalType: 'bytes[][]',
+                name: 'nodesSignatures',
+                type: 'bytes[][]',
             },
         ],
         name: 'claimRewards',
@@ -811,7 +782,7 @@ export const MNDContractAbi = [
                 type: 'address',
             },
         ],
-        name: 'getUserLicense',
+        name: 'getLicenses',
         outputs: [
             {
                 components: [
@@ -866,9 +837,28 @@ export const MNDContractAbi = [
                         type: 'address',
                     },
                 ],
-                internalType: 'struct LicenseInfo',
+                internalType: 'struct LicenseInfo[]',
                 name: '',
-                type: 'tuple',
+                type: 'tuple[]',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'addr',
+                type: 'address',
+            },
+        ],
+        name: 'getUserTotalAssignedAmount',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
             },
         ],
         stateMutability: 'view',
@@ -1321,6 +1311,29 @@ export const MNDContractAbi = [
             },
         ],
         name: 'setCompanyWallets',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'int256',
+                name: '_logisticPlateau',
+                type: 'int256',
+            },
+            {
+                internalType: 'int256',
+                name: '_k',
+                type: 'int256',
+            },
+            {
+                internalType: 'int256',
+                name: '_midPrc',
+                type: 'int256',
+            },
+        ],
+        name: 'setMNDReleaseParams',
         outputs: [],
         stateMutability: 'nonpayable',
         type: 'function',
