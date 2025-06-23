@@ -166,48 +166,50 @@ export const BlockchainProvider = ({ children }) => {
 
         setLoadingLicenses(true);
 
-        const [mndLicense, ndLicenses] = await Promise.all([
+        const [mndLicenses, ndLicenses] = await Promise.all([
             publicClient
                 .readContract({
                     address: config.mndContractAddress,
                     abi: MNDContractAbi,
-                    functionName: 'getUserLicense',
+                    functionName: 'getLicenses',
                     args: [address],
                 })
-                .then((userLicense) => {
-                    const isLinked = userLicense.nodeAddress !== '0x0000000000000000000000000000000000000000';
-                    const type = userLicense.licenseId === 1n ? ('GND' as const) : ('MND' as const);
+                .then((userLicenses) => {
+                    return userLicenses.map((userLicense) => {
+                        const isLinked = userLicense.nodeAddress !== '0x0000000000000000000000000000000000000000';
+                        const type = userLicense.licenseId === 1n ? ('GND' as const) : ('MND' as const);
 
-                    if (!isLinked) {
-                        return { ...userLicense, type, isLinked, isBanned: false as const };
-                    }
+                        if (!isLinked) {
+                            return { ...userLicense, type, isLinked, isBanned: false as const };
+                        }
 
-                    const nodeAndLicenseRewardsPromise: Promise<{
-                        rewards_amount: bigint;
-                        epochs: number[];
-                        epochs_vals: number[];
-                        eth_signatures: EthAddress[];
-                        node_alias?: string;
-                        node_is_online: boolean;
-                    }> = getNodeAndLicenseRewards({
-                        ...userLicense,
-                        type,
-                        isLinked: false,
-                        isBanned: false,
+                        const nodeAndLicenseRewardsPromise: Promise<{
+                            rewards_amount: bigint;
+                            epochs: number[];
+                            epochs_vals: number[];
+                            eth_signatures: EthAddress[];
+                            node_alias?: string;
+                            node_is_online: boolean;
+                        }> = getNodeAndLicenseRewards({
+                            ...userLicense,
+                            type,
+                            isLinked: false,
+                            isBanned: false,
+                        });
+
+                        return {
+                            ...userLicense,
+                            type,
+                            isLinked,
+                            isBanned: false as const,
+                            rewards: nodeAndLicenseRewardsPromise.then(({ rewards_amount }) => rewards_amount),
+                            alias: nodeAndLicenseRewardsPromise.then(({ node_alias }) => node_alias),
+                            isOnline: nodeAndLicenseRewardsPromise.then(({ node_is_online }) => node_is_online),
+                            epochs: nodeAndLicenseRewardsPromise.then(({ epochs }) => epochs),
+                            epochsAvailabilities: nodeAndLicenseRewardsPromise.then(({ epochs_vals }) => epochs_vals),
+                            ethSignatures: nodeAndLicenseRewardsPromise.then(({ eth_signatures }) => eth_signatures),
+                        };
                     });
-
-                    return {
-                        ...userLicense,
-                        type,
-                        isLinked,
-                        isBanned: false as const,
-                        rewards: nodeAndLicenseRewardsPromise.then(({ rewards_amount }) => rewards_amount),
-                        alias: nodeAndLicenseRewardsPromise.then(({ node_alias }) => node_alias),
-                        isOnline: nodeAndLicenseRewardsPromise.then(({ node_is_online }) => node_is_online),
-                        epochs: nodeAndLicenseRewardsPromise.then(({ epochs }) => epochs),
-                        epochsAvailabilities: nodeAndLicenseRewardsPromise.then(({ epochs_vals }) => epochs_vals),
-                        ethSignatures: nodeAndLicenseRewardsPromise.then(({ eth_signatures }) => eth_signatures),
-                    };
                 }),
             publicClient
                 .readContract({
@@ -256,7 +258,7 @@ export const BlockchainProvider = ({ children }) => {
                 }),
         ]);
 
-        const licenses = mndLicense.totalAssignedAmount ? [mndLicense, ...ndLicenses] : ndLicenses;
+        const licenses = [...mndLicenses, ...ndLicenses];
         console.log('Licenses', licenses);
         setLicenses(licenses);
         setLoadingLicenses(false);

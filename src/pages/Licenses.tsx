@@ -147,7 +147,7 @@ function Licenses() {
                           address: config.mndContractAddress,
                           abi: MNDContractAbi,
                           functionName: 'claimRewards',
-                          args: [computeParam, ethSignatures],
+                          args: [[computeParam], [ethSignatures]],
                       });
 
             const receipt = await watchTx(txHash, publicClient);
