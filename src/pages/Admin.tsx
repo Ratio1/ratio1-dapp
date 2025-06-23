@@ -1,6 +1,6 @@
 import { ControllerAbi } from '@blockchain/Controller';
 import { MNDContractAbi } from '@blockchain/MNDContract';
-import { NDContractAbi } from '@blockchain/NDContract';
+import { newSellerCode } from '@lib/api/backend';
 import { config, getR1ExplorerUrl } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { fBI, getShortAddress } from '@lib/utils';
@@ -112,6 +112,7 @@ function Admin() {
             <RemoveSigner oracles={oracles} fetchData={fetchData} />
             <AllowMndTransfer />
             <AllowMndBurn />
+            <AddSellerCode />
         </div>
     );
 }
@@ -624,6 +625,71 @@ function AllowMndBurn() {
                         isDisabled={isLoading || !sender}
                     >
                         Allow Burn
+                    </Button>
+                </div>
+            </div>
+        </BigCard>
+    );
+}
+
+function AddSellerCode() {
+    const [address, setAddress] = useState<string>('');
+    const [code, setCode] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const onAdd = async () => {
+        setIsLoading(true);
+
+        await newSellerCode({ address, forcedCode: code || undefined });
+
+        setIsLoading(false);
+    };
+
+    return (
+        <BigCard>
+            <div className="text-base font-semibold leading-6 lg:text-xl">Create new referral code</div>
+
+            <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
+                <Input
+                    value={address}
+                    onValueChange={setAddress}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Address"
+                    labelPlacement="outside"
+                    placeholder="0x..."
+                />
+                <Input
+                    value={code}
+                    onValueChange={setCode}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Code (optional)"
+                    labelPlacement="outside"
+                    placeholder="ABC123"
+                />
+
+                <div className="flex">
+                    <Button
+                        fullWidth
+                        color="secondary"
+                        onPress={onAdd}
+                        isLoading={isLoading}
+                        isDisabled={isLoading || !address}
+                    >
+                        Create
                     </Button>
                 </div>
             </div>

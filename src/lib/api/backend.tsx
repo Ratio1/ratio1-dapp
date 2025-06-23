@@ -51,6 +51,9 @@ export const initSumsubSession = (type: 'individual' | 'company') => _doPost<str
 export const registerEmail = (params: { email: string; receiveUpdates: boolean }) =>
     _doPost<types.ApiAccount>('/accounts/email/register', params);
 
+export const newSellerCode = (params: { address: string; forcedCode?: string }) =>
+    _doPost<types.ApiAccount>('/seller/new', params);
+
 // *****
 // INTERNAL HELPERS
 // *****
