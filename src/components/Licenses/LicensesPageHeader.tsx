@@ -119,7 +119,10 @@ function LicensesPageHeader({
                         address: config.mndContractAddress,
                         abi: MNDContractAbi,
                         functionName: 'claimRewards',
-                        args: [txParamsMND[0].computeParam, txParamsMND[0].eth_signatures],
+                        args: [
+                            [...txParamsMND.map(({ computeParam }) => computeParam)],
+                            [...txParamsMND.map(({ eth_signatures }) => eth_signatures)],
+                        ],
                     });
 
                     await watchTx(txHashMND, publicClient);

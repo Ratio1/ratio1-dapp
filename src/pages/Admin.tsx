@@ -171,9 +171,6 @@ function CreateMnd({ mnds, fetchData }: { mnds: (AdminMndView | null)[]; fetchDa
                         if (!(value.startsWith('0x') && value.length === 42)) {
                             return 'Value must be a valid Ethereum address';
                         }
-                        if (mnds.some((mnd) => mnd?.owner === value)) {
-                            return 'Address already has a MND';
-                        }
 
                         return null;
                     }}
@@ -211,13 +208,7 @@ function CreateMnd({ mnds, fetchData }: { mnds: (AdminMndView | null)[]; fetchDa
                         color="primary"
                         onPress={onCreate}
                         isLoading={isLoading}
-                        isDisabled={
-                            isLoading ||
-                            !address ||
-                            !tokens ||
-                            Number.parseInt(tokens) <= 0 ||
-                            mnds.some((mnd) => mnd?.owner === address)
-                        }
+                        isDisabled={isLoading || !address || !tokens || Number.parseInt(tokens) <= 0}
                     >
                         Create MND
                     </Button>
