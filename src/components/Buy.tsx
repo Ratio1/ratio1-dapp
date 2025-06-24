@@ -69,13 +69,7 @@ function Buy({ onClose }: { onClose: () => void }) {
             return;
         }
 
-        publicClient
-            .readContract({
-                address: config.ndContractAddress,
-                abi: NDContractAbi,
-                functionName: 'getLicenseTokenPrice',
-            })
-            .then(setLicenseTokenPrice);
+        fetchLicenseTokenPrice(publicClient);
     }, []);
 
     useEffect(() => {
@@ -85,12 +79,36 @@ function Buy({ onClose }: { onClose: () => void }) {
         }
     }, [address, publicClient]);
 
+    // Periodically refresh price and relevant variables
+    useEffect(() => {
+        let timer: string | number | NodeJS.Timeout | undefined;
+
+        // eslint-disable-next-line prefer-const
+        timer = setInterval(() => {
+            refresh();
+        }, 15000);
+
+        return () => {
+            clearInterval(timer);
+        };
+    }, []);
+
     useEffect(() => {
         if (account && userUsdMintedAmount !== undefined) {
             setAccountUsdSpendingLimit(account.usdBuyLimit - Number(userUsdMintedAmount));
             setLoading(false);
         }
     }, [account, userUsdMintedAmount]);
+
+    const refresh = async () => {
+        if (publicClient && address) {
+            console.log('Refreshing...');
+
+            setLoading(true);
+            await Promise.all([fetchLicenseTokenPrice(publicClient), fetchR1Balance()]);
+            setLoading(false);
+        }
+    };
 
     const getTokenAmount = (withSlippage: boolean = true, withVat: boolean = true): bigint => {
         const vatPercentage: number = account?.vatPercentage || 0;
@@ -113,25 +131,40 @@ function Buy({ onClose }: { onClose: () => void }) {
      */
     const isApprovalRequired = (): boolean => !hasEnoughAllowance();
 
-    const fetchAllowance = (publicClient, address: string) =>
-        publicClient
-            .readContract({
-                address: config.r1ContractAddress,
-                abi: ERC20Abi,
-                functionName: 'allowance',
-                args: [address, config.ndContractAddress],
-            })
-            .then(setTokenAllowance);
+    const fetchLicenseTokenPrice = async (publicClient): Promise<void> => {
+        const price = await publicClient.readContract({
+            address: config.ndContractAddress,
+            abi: NDContractAbi,
+            functionName: 'getLicenseTokenPrice',
+        });
 
-    const fetchUserUsdMintedAmount = (publicClient, address: string) =>
-        publicClient
-            .readContract({
-                address: config.ndContractAddress,
-                abi: NDContractAbi,
-                functionName: 'userUsdMintedAmount',
-                args: [address],
-            })
-            .then(setUserUsdMintedAmount);
+        console.log('fetchLicenseTokenPrice', price);
+        setLicenseTokenPrice(price);
+    };
+
+    const fetchAllowance = async (publicClient, address: string): Promise<void> => {
+        const allowance = await publicClient.readContract({
+            address: config.r1ContractAddress,
+            abi: ERC20Abi,
+            functionName: 'allowance',
+            args: [address, config.ndContractAddress],
+        });
+
+        console.log('fetchAllowance', allowance);
+        setTokenAllowance(allowance);
+    };
+
+    const fetchUserUsdMintedAmount = async (publicClient, address: string): Promise<void> => {
+        const userUsdMintedAmount = await publicClient.readContract({
+            address: config.ndContractAddress,
+            abi: NDContractAbi,
+            functionName: 'userUsdMintedAmount',
+            args: [address],
+        });
+
+        console.log('fetchUserUsdMintedAmount', userUsdMintedAmount);
+        setUserUsdMintedAmount(userUsdMintedAmount);
+    };
 
     const approve = async () => {
         setLoadingTx(true);
@@ -228,7 +261,6 @@ function Buy({ onClose }: { onClose: () => void }) {
 
     const isOverAccountUsdSpendingLimit = (): boolean => {
         if (!accountUsdSpendingLimit) return false;
-
         return parseInt(quantity) * priceTier.usdPrice > accountUsdSpendingLimit;
     };
 
@@ -415,9 +447,13 @@ function Buy({ onClose }: { onClose: () => void }) {
                                                     <div>VAT {account.vatPercentage / 100}%</div>
                                                     <div>
                                                         $
-                                                        {(account.vatPercentage / 10000) *
-                                                            Number.parseInt(quantity) *
-                                                            priceTier.usdPrice}
+                                                        {parseFloat(
+                                                            (
+                                                                (account.vatPercentage / 10000) *
+                                                                Number.parseInt(quantity) *
+                                                                priceTier.usdPrice
+                                                            ).toFixed(2),
+                                                        ).toLocaleString('en-US')}
                                                     </div>
                                                 </div>
                                             )}
@@ -507,7 +543,7 @@ function Buy({ onClose }: { onClose: () => void }) {
                                                     }}
                                                 />
                                             </div>
-                                        ) : r1Balance === 0n ? (
+                                        ) : r1Balance < getTokenAmount() ? (
                                             'Insufficient $R1 balance'
                                         ) : isApprovalRequired() ? (
                                             'Approve $R1'
