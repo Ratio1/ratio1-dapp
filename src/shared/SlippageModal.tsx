@@ -53,6 +53,7 @@ export const SlippageModal = ({
 
                         <Form className="w-full" validationBehavior="native" onSubmit={onSubmitSlippage}>
                             <Input
+                                autoFocus
                                 value={slippageValue}
                                 onValueChange={(value) => {
                                     const n = Number.parseFloat(value.replace(',', '.'));

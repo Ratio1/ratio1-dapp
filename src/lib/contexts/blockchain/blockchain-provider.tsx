@@ -24,7 +24,7 @@ export const BlockchainProvider = ({ children }) => {
     const [r1Price, setR1Price] = useState<bigint>(0n);
 
     // Price tiers
-    const [currentPriceTier, setCurrentPriceTier] = useState<number>(1);
+    const [currentPriceTier, setCurrentPriceTier] = useState<number>(2);
     const [priceTiers, setPriceTiers] = useState<PriceTier[]>(INITIAL_TIERS_STATE);
     const [isLoadingPriceTiers, setLoadingPriceTiers] = useState<boolean>(false);
 

@@ -348,7 +348,7 @@ export const INITIAL_TIERS_STATE: PriceTier[] = [
         index: 1,
         usdPrice: 500,
         totalUnits: 89,
-        soldUnits: 0,
+        soldUnits: 89,
     },
     {
         index: 2,
