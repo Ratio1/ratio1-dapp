@@ -14,7 +14,9 @@ import { Spinner } from '@nextui-org/spinner';
 import { AddTokenToWallet } from '@shared/AddTokenToWallet';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
+import { Timer } from '@shared/Timer';
 import { KycStatus } from '@typedefs/profile';
+import { isAfter } from 'date-fns';
 import { isFinite, isNaN } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -27,6 +29,7 @@ import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 import { SlippageModal } from '../shared/SlippageModal';
 
 const MAX_ALLOWANCE: bigint = 2n ** 256n - 1n;
+const SALE_START_TIMESTAMP = new Date('2025-06-24T14:00:00Z');
 
 function Buy({ onClose }: { onClose: () => void }) {
     const navigate = useNavigate();
@@ -54,6 +57,8 @@ function Buy({ onClose }: { onClose: () => void }) {
     const [quantity, setQuantity] = useState<string>('1');
 
     const [isLoadingTx, setLoadingTx] = useState<boolean>(false);
+
+    const [hasSaleStarted, setSaleStarted] = useState<boolean>(isAfter(new Date(), SALE_START_TIMESTAMP));
 
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
@@ -149,6 +154,11 @@ function Buy({ onClose }: { onClose: () => void }) {
     };
 
     const buy = async () => {
+        if (!hasSaleStarted) {
+            toast.error('Sale has not started yet.');
+            return;
+        }
+
         if (getTokenAmount() > r1Balance) {
             toast.error('Not enough $R1 in your wallet.');
             console.error(`Required $R1 ${getTokenAmount()} > your balance ${r1Balance}`);
@@ -230,6 +240,7 @@ function Buy({ onClose }: { onClose: () => void }) {
         accountUsdSpendingLimit === undefined ||
         isOverAccountUsdSpendingLimit() ||
         r1Balance < getTokenAmount() ||
+        !hasSaleStarted ||
         (account.kycStatus !== KycStatus.Approved && environment === 'mainnet');
 
     return (
@@ -475,21 +486,34 @@ function Buy({ onClose }: { onClose: () => void }) {
 
                             <div className={!quantity ? 'mt-6' : ''}>
                                 <ConnectWalletWrapper isFullWidth>
-                                    {/* ! Disabled on mainnet ! */}
                                     <Button
+                                        className="min-h-[42px]"
                                         fullWidth
                                         color="primary"
                                         onPress={onPress}
                                         isLoading={isLoadingTx}
-                                        isDisabled={environment === 'mainnet' || isBuyButtonDisabled()}
+                                        isDisabled={isBuyButtonDisabled()}
                                     >
-                                        {environment === 'mainnet'
-                                            ? 'Coming Soon'
-                                            : r1Balance === 0n
-                                              ? 'Insufficient $R1 balance'
-                                              : isApprovalRequired()
-                                                ? 'Approve $R1'
-                                                : 'Buy'}
+                                        {environment === 'mainnet' && !hasSaleStarted ? (
+                                            <div className="row gap-1">
+                                                <div>Sale starts in</div>
+
+                                                <Timer
+                                                    variant="compact"
+                                                    timestamp={SALE_START_TIMESTAMP}
+                                                    callback={() => {
+                                                        console.log('Sale started');
+                                                        setSaleStarted(true);
+                                                    }}
+                                                />
+                                            </div>
+                                        ) : r1Balance === 0n ? (
+                                            'Insufficient $R1 balance'
+                                        ) : isApprovalRequired() ? (
+                                            'Approve $R1'
+                                        ) : (
+                                            'Buy'
+                                        )}
                                     </Button>
                                 </ConnectWalletWrapper>
                             </div>

@@ -28,27 +28,8 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
                 });
                 setLoading(false);
             })();
-        }
-    }, [license.isLinked]);
 
-    const {
-        data: refetchedNodeInfo,
-        refetch,
-        isFetching: isLoadingQuery,
-    } = useQuery({
-        queryKey: ['refetchedNodeInfo', license.nodeAddress],
-        queryFn: ({ queryKey }) => {
-            const nodeEthAddress = queryKey[1] as EthAddress;
-            return getNodeInfo(nodeEthAddress);
-        },
-        enabled: license.isLinked && !isLoading && (node?.alias === undefined || node?.alias === 'missing_id'), // alias is undefined only in case of an error
-        retry: 5,
-        refetchOnWindowFocus: true,
-    });
-
-    // Refetching node status every minute
-    useEffect(() => {
-        if (license.isLinked) {
+            // Refetching node status every minute
             const interval = setInterval(() => {
                 refetch();
             }, 60000);
@@ -58,6 +39,41 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
             };
         }
     }, [license.isLinked]);
+
+    const {
+        data: refetchedNodeInfo,
+        refetch,
+        isFetching: isLoadingQuery,
+    } = useQuery({
+        queryKey: ['refetchedNodeInfo', license.nodeAddress],
+        queryFn: async ({ queryKey }) => {
+            const nodeEthAddress = queryKey[1] as EthAddress;
+            // console.log(`[Query] Fetching node info for address: ${nodeEthAddress}`);
+
+            const nodeInfo = await getNodeInfo(nodeEthAddress);
+            // console.log(`[Query] Received node info:`, nodeInfo);
+
+            // Check if the alias is 'missing_id' and throw an error to trigger the retry
+            if (nodeInfo.node_alias === 'missing_id') {
+                // console.log(`[Query] Node alias is 'missing_id', throwing error to trigger retry`);
+                throw new Error('Node alias is missing_id - retrying...');
+            }
+
+            return nodeInfo;
+        },
+        enabled: license.isLinked && !isLoading && (node?.alias === undefined || node?.alias === 'missing_id'), // alias is undefined only in case of an error
+        retry: (failureCount, error) => {
+            // console.log(`[Query] Retry attempt ${failureCount + 1}/8 for node ${license.nodeAddress}`, error);
+            return failureCount < 8;
+        },
+        retryDelay: (attemptIndex) => {
+            const delay = 5000; // 5 seconds
+            // console.log(`[Query] Waiting ${delay}ms before retry ${attemptIndex + 1}`);
+            return delay;
+        },
+        refetchInterval: 5000,
+        refetchOnWindowFocus: true,
+    });
 
     useEffect(() => {
         if (refetchedNodeInfo) {
