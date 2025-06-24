@@ -50,6 +50,14 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
         }
     };
 
+    const getKYCorKYBTitle = (): string => {
+        if (account?.applicantType === 'company') {
+            return 'KYB';
+        }
+
+        return 'KYC';
+    };
+
     function getKycStatusInfo(status: KycStatus): { text: string; color: 'yellow' | 'green' | 'red' } | undefined {
         switch (status) {
             case KycStatus.Init:
@@ -94,17 +102,17 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
         }
 
         let alertColor: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' = 'warning';
-        let alertTitle = 'Your KYC submission has been received and is under review.';
+        let alertTitle = `Your ${getKYCorKYBTitle()} submission has been received and is under review.`;
 
         switch (statusInfo.color) {
             case 'green':
                 alertColor = 'success';
-                alertTitle = 'Your KYC submission has been approved.';
+                alertTitle = `Your ${getKYCorKYBTitle()} submission has been approved.`;
                 break;
 
             case 'red':
                 alertColor = 'danger';
-                alertTitle = 'Your KYC submission has been rejected.';
+                alertTitle = `Your ${getKYCorKYBTitle()} submission has been rejected.`;
                 break;
 
             default:
@@ -131,7 +139,7 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
     return (
         <Card
             icon={<RiUserFollowLine />}
-            title="KYC"
+            title="KYC/KYB"
             label={
                 !isKycInitiated ? (
                     <></>
@@ -187,12 +195,13 @@ function KycCard({ getRegistrationStatus }: { getRegistrationStatus: () => Regis
                         <div className="row gap-2.5">
                             <div className="flex">
                                 <Button color="primary" variant="solid" isLoading={isLoading} onPress={init}>
-                                    Start KYC
+                                    Start {isCompany ? 'KYB' : 'KYC'}
                                 </Button>
                             </div>
 
                             <div className="text-sm text-slate-500">
-                                * You'll continue the KYC process using <span className="font-medium text-primary">Sumsub</span>
+                                * You'll continue the {isCompany ? 'KYB' : 'KYC'} process using{' '}
+                                <span className="font-medium text-primary">Sumsub</span>
                             </div>
                         </div>
                     </div>
