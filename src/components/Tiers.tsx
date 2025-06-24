@@ -8,7 +8,7 @@ function Tiers({ currentStage, stages }: { currentStage: number; stages: PriceTi
         <>
             <div className="col gap-5 lg:gap-6">
                 <div className="flex justify-between">
-                    <div className="col flex w-full justify-between gap-8 lg:flex-row">
+                    <div className="col flex w-full justify-between gap-4 md:gap-6 lg:flex-row lg:gap-8">
                         <LargeValueWithLabel
                             label={`Current Price (T${currentStage})`}
                             value={`$${stages[currentStage - 1].usdPrice}`}

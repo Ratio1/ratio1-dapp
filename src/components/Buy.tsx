@@ -530,7 +530,7 @@ function Buy({ onClose }: { onClose: () => void }) {
                     </div>
 
                     {/* $R1 Balance, buy, add token to wallet */}
-                    <div className="flex w-full flex-col gap-6 rounded-md bg-slate-100 px-6 py-6">
+                    <div className="flex w-full flex-col gap-4 rounded-md bg-slate-100 px-6 py-6">
                         <R1ValueWithLabel
                             label="Balance"
                             value={parseFloat(Number(formatUnits(r1Balance, 18)).toFixed(2)).toLocaleString('en-US')}
