@@ -494,7 +494,10 @@ function Buy({ onClose }: { onClose: () => void }) {
                                                     <div>{slippage}%</div>
                                                     <RiSettings2Line
                                                         className="cursor-pointer text-lg text-slate-400 transition-all hover:opacity-50"
-                                                        onClick={onOpen}
+                                                        onClick={() => {
+                                                            setSlippageValue(slippage.toString());
+                                                            onOpen();
+                                                        }}
                                                     />
                                                 </div>
                                             </div>
