@@ -167,12 +167,6 @@ const getNdNodeAndLicenseRewards = async (
         return baseResult;
     }
 
-    // TODO: Development
-    return {
-        ...baseResult,
-        rewards_amount: undefined,
-    };
-
     if (epochsToClaim !== epochs.length || epochsToClaim !== epochs_vals.length) {
         // Oracles are still syncing
         return {
@@ -234,12 +228,6 @@ const getGndNodeAndLicenseRewards = async (
     if (epochsToClaim <= 0) {
         return baseResult;
     }
-
-    // TODO: Development
-    return {
-        ...baseResult,
-        rewards_amount: undefined,
-    };
 
     if (epochsToClaim !== epochs.length || epochsToClaim !== epochs_vals.length) {
         // Oracles are still syncing
@@ -304,12 +292,6 @@ const getMndNodeAndLicenseRewards = async (
     if (currentEpoch < license.firstMiningEpoch || epochsToClaim === 0) {
         return baseResult;
     }
-
-    // TODO: Development
-    return {
-        ...baseResult,
-        rewards_amount: undefined,
-    };
 
     if (epochsToClaim !== epochs.length || epochsToClaim !== epochs_vals.length) {
         // Oracles are still syncing

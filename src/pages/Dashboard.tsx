@@ -1,7 +1,6 @@
 import Tiers from '@components/Tiers';
 import { Alert } from '@heroui/alert';
 import { Button } from '@heroui/button';
-import { Spinner } from '@heroui/spinner';
 import { environment, getCurrentEpoch, getNextEpochTimestamp } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
@@ -9,7 +8,7 @@ import { routePath } from '@lib/routes/route-paths';
 import useAwait from '@lib/useAwait';
 import { fBI } from '@lib/utils';
 import { BigCard } from '@shared/BigCard';
-import { Label } from '@shared/Label';
+import SyncingOraclesTag from '@shared/SyncingOraclesTag';
 import { KycStatus } from '@typedefs/profile';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useMemo } from 'react';
@@ -112,15 +111,7 @@ function Dashboard() {
                                     {isLoadingRewards ? (
                                         <div>...</div>
                                     ) : rewards === undefined ? (
-                                        <Label
-                                            text={
-                                                <div className="row gap-2">
-                                                    <Spinner className="-mt-0.5" size="sm" variant="dots" />
-                                                    <div className="whitespace-nowrap">Syncing oracles</div>
-                                                </div>
-                                            }
-                                            variant="blue"
-                                        />
+                                        <SyncingOraclesTag />
                                     ) : (
                                         parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2))
                                     )}

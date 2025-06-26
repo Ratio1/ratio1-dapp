@@ -1,10 +1,9 @@
-import { Spinner } from '@heroui/spinner';
 import { getNodeEpochsRange, getNodeLastEpoch } from '@lib/api/oracles';
 import { getCurrentEpoch, getLicenseAssignEpoch } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { arrayAverage, throttledToastOracleError } from '@lib/utils';
 import { CardHorizontal } from '@shared/cards/CardHorizontal';
-import { Label } from '@shared/Label';
+import SyncingOraclesTag from '@shared/SyncingOraclesTag';
 import clsx from 'clsx';
 import { cloneElement, useMemo } from 'react';
 import { License } from 'typedefs/blockchain';
@@ -25,9 +24,15 @@ const nodePerformanceItems = [
 export const LicenseCardDetails = ({ license }: { license: License }) => {
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
 
-    const nodeEpochsPromise = useMemo(async () => {
+    const nodePerformancePromise: Promise<{
+        epochs: number[];
+        epochsVals: number[];
+    }> = useMemo(async () => {
         if (!license.isLinked) {
-            return [];
+            return {
+                epochs: [],
+                epochsVals: [],
+            };
         }
 
         const licenseAssignEpoch = getLicenseAssignEpoch(license.assignTimestamp);
@@ -42,17 +47,24 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                     ? await getNodeLastEpoch(license.nodeAddress)
                     : await getNodeEpochsRange(license.nodeAddress, startEpoch, endEpoch);
 
-            return result.epochs_vals;
+            return {
+                epochs: result.epochs,
+                epochsVals: result.epochs_vals,
+            };
         } catch (error) {
             console.error(error);
             throttledToastOracleError();
-            return [];
+
+            return {
+                epochs: [],
+                epochsVals: [],
+            };
         }
     }, [license]);
 
-    const [nodeEpochs, isLoadingNodeEpochs] = useAwait(nodeEpochsPromise);
+    const [nodePerformance, isLoadingNodePerformance] = useAwait(nodePerformancePromise);
 
-    const getTitle = (text: string) => <div className="font-medium">{text}</div>;
+    const getTitle = (text: string) => <div className="text-[15px] font-medium md:text-[17px]">{text}</div>;
 
     const getLine = (
         label: string,
@@ -86,23 +98,34 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
         );
 
     const getNodePerformanceValue = (index: number): number | undefined => {
-        if (!nodeEpochs || !nodeEpochs.length) {
+        if (!nodePerformance || !nodePerformance.epochs.length) {
             return;
         }
 
+        const values = nodePerformance.epochsVals;
+
         switch (index) {
             case 0:
-                return nodeEpochs[nodeEpochs.length - 1];
+                return values[values.length - 1];
 
             case 1:
-                return arrayAverage(nodeEpochs);
+                return arrayAverage(values);
 
             case 2:
-                return arrayAverage(nodeEpochs.slice(-7));
+                return arrayAverage(values.slice(-7));
 
             default:
                 return;
         }
+    };
+
+    // Checks if the last epoch isn't the expected current epoch - 1, which means the oracles are still syncing the new epoch
+    const isEpochTransitioning = () => {
+        if (!nodePerformance) {
+            return false;
+        }
+
+        return nodePerformance.epochs[nodePerformance.epochs.length - 1] !== getCurrentEpoch() - 1;
     };
 
     return (
@@ -162,15 +185,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                                 isLoadingRewards ? (
                                     '...'
                                 ) : rewards === undefined ? (
-                                    <Label
-                                        text={
-                                            <div className="row gap-2">
-                                                <Spinner className="-mt-0.5" size="sm" variant="dots" />
-                                                <div className="whitespace-nowrap">Syncing oracles</div>
-                                            </div>
-                                        }
-                                        variant="blue"
-                                    />
+                                    <SyncingOraclesTag />
                                 ) : (
                                     parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString()
                                 ),
@@ -186,15 +201,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                                         isLoadingRewards ? (
                                             '...'
                                         ) : rewards === undefined ? (
-                                            <Label
-                                                text={
-                                                    <div className="row gap-2">
-                                                        <Spinner className="-mt-0.5" size="sm" variant="dots" />
-                                                        <div className="whitespace-nowrap">Syncing oracles</div>
-                                                    </div>
-                                                }
-                                                variant="blue"
-                                            />
+                                            <SyncingOraclesTag />
                                         ) : (
                                             parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString()
                                         ),
@@ -210,23 +217,29 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
                 {license.isLinked && (
                     <div className="col -mt-0.5 gap-3">
-                        {getTitle('Node performance')}
+                        <div className="row gap-3">
+                            {getTitle('Node performance')}
 
-                        <div className="flex flex-wrap items-stretch gap-2 md:gap-3">
-                            {isLoadingNodeEpochs ? (
-                                <>
-                                    {nodePerformanceItems.map(({ label }, index) =>
-                                        getNodePerformanceItem(index, label, undefined),
-                                    )}
-                                </>
-                            ) : (
-                                <>
-                                    {nodePerformanceItems.map(({ label }, index) =>
-                                        getNodePerformanceItem(index, label, getNodePerformanceValue(index)),
-                                    )}
-                                </>
-                            )}
+                            {isEpochTransitioning() && <SyncingOraclesTag />}
                         </div>
+
+                        {!isEpochTransitioning() && (
+                            <div className="flex flex-wrap items-stretch gap-2 md:gap-3">
+                                {isLoadingNodePerformance ? (
+                                    <>
+                                        {nodePerformanceItems.map(({ label }, index) =>
+                                            getNodePerformanceItem(index, label, undefined),
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        {nodePerformanceItems.map(({ label }, index) =>
+                                            getNodePerformanceItem(index, label, getNodePerformanceValue(index)),
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
