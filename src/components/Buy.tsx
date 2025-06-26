@@ -1,16 +1,16 @@
 import Logo from '@assets/token.svg';
 import { ERC20Abi } from '@blockchain/ERC20';
 import { NDContractAbi } from '@blockchain/NDContract';
+import { Button } from '@heroui/button';
+import { Divider } from '@heroui/divider';
+import { Input } from '@heroui/input';
+import { useDisclosure } from '@heroui/modal';
+import { Spinner } from '@heroui/spinner';
 import { buyLicense } from '@lib/api/backend';
 import { config, environment } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
-import { Button } from "@heroui/button";
-import { Divider } from "@heroui/divider";
-import { Input } from "@heroui/input";
-import { useDisclosure } from "@heroui/modal";
-import { Spinner } from "@heroui/spinner";
 import { AddTokenToWallet } from '@shared/AddTokenToWallet';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
@@ -102,8 +102,6 @@ function Buy({ onClose }: { onClose: () => void }) {
 
     const refresh = async () => {
         if (publicClient && address) {
-            console.log('Refreshing...');
-
             setLoading(true);
             await Promise.all([fetchLicenseTokenPrice(publicClient), fetchR1Balance()]);
             setLoading(false);
@@ -138,7 +136,6 @@ function Buy({ onClose }: { onClose: () => void }) {
             functionName: 'getLicenseTokenPrice',
         });
 
-        console.log('fetchLicenseTokenPrice', price);
         setLicenseTokenPrice(price);
     };
 
@@ -150,7 +147,6 @@ function Buy({ onClose }: { onClose: () => void }) {
             args: [address, config.ndContractAddress],
         });
 
-        console.log('fetchAllowance', allowance);
         setTokenAllowance(allowance);
     };
 
@@ -162,7 +158,6 @@ function Buy({ onClose }: { onClose: () => void }) {
             args: [address],
         });
 
-        console.log('fetchUserUsdMintedAmount', userUsdMintedAmount);
         setUserUsdMintedAmount(userUsdMintedAmount);
     };
 
@@ -541,7 +536,6 @@ function Buy({ onClose }: { onClose: () => void }) {
                                                     variant="compact"
                                                     timestamp={SALE_START_TIMESTAMP}
                                                     callback={() => {
-                                                        console.log('Sale started');
                                                         setSaleStarted(true);
                                                     }}
                                                 />

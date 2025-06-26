@@ -1,8 +1,10 @@
+import { Spinner } from '@heroui/spinner';
 import { getNodeEpochsRange, getNodeLastEpoch } from '@lib/api/oracles';
 import { getCurrentEpoch, getLicenseAssignEpoch } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { arrayAverage, throttledToastOracleError } from '@lib/utils';
 import { CardHorizontal } from '@shared/cards/CardHorizontal';
+import { Label } from '@shared/Label';
 import clsx from 'clsx';
 import { cloneElement, useMemo } from 'react';
 import { License } from 'typedefs/blockchain';
@@ -52,7 +54,12 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
     const getTitle = (text: string) => <div className="font-medium">{text}</div>;
 
-    const getLine = (label: string, value: string | number, isHighlighted: boolean = false, isAproximate: boolean = false) => (
+    const getLine = (
+        label: string,
+        value: string | number | JSX.Element,
+        isHighlighted: boolean = false,
+        isAproximate: boolean = false,
+    ) => (
         <div className="row justify-between gap-3 min-[410px]:justify-start">
             <div className="min-w-[50%] text-slate-500">{label}</div>
             <div
@@ -110,31 +117,41 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                         <div className="col flex-1 gap-3">
                             {getTitle('Details')}
 
-                            {getLine('License type', license.type)}
-                            {getLine(
-                                'Assign timestamp',
-                                license.assignTimestamp === 0n
-                                    ? 'N/A'
-                                    : new Date(Number(license.assignTimestamp) * 1000).toLocaleString(),
-                            )}
-                            {getLine(
-                                'Last claimed epoch',
-                                license.lastClaimEpoch === 0n ? 'N/A' : Number(license.lastClaimEpoch),
-                            )}
-                            {getLine('Claimable epochs', Number(license.claimableEpochs), Number(license.claimableEpochs) > 0)}
+                            <div className="col flex-1 gap-1.5">
+                                {getLine('License type', license.type)}
+                                {getLine(
+                                    'Assign timestamp',
+                                    license.assignTimestamp === 0n
+                                        ? 'N/A'
+                                        : new Date(Number(license.assignTimestamp) * 1000).toLocaleString(),
+                                )}
+                                {getLine(
+                                    'Last claimed epoch',
+                                    license.lastClaimEpoch === 0n ? 'N/A' : Number(license.lastClaimEpoch),
+                                )}
+                                {getLine(
+                                    'Claimable epochs',
+                                    Number(license.claimableEpochs),
+                                    Number(license.claimableEpochs) > 0,
+                                )}
+                            </div>
 
                             <div className="mt-3">{getTitle('Proof of Availability')}</div>
 
-                            {getLine(
-                                'Initial amount',
-                                parseFloat(
-                                    Number(formatUnits(license.totalAssignedAmount ?? 0n, 18)).toFixed(2),
-                                ).toLocaleString(),
-                            )}
-                            {getLine(
-                                'Remaining amount',
-                                parseFloat(Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2)).toLocaleString(),
-                            )}
+                            <div className="col flex-1 gap-1.5">
+                                {getLine(
+                                    'Initial amount',
+                                    parseFloat(
+                                        Number(formatUnits(license.totalAssignedAmount ?? 0n, 18)).toFixed(2),
+                                    ).toLocaleString(),
+                                )}
+                                {getLine(
+                                    'Remaining amount',
+                                    parseFloat(
+                                        Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2),
+                                    ).toLocaleString(),
+                                )}
+                            </div>
                         </div>
 
                         <div className="col flex-1 gap-3">
@@ -142,24 +159,50 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
                             {getLine(
                                 'Total amount ($R1)',
-                                isLoadingRewards
-                                    ? '...'
-                                    : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString(),
+                                isLoadingRewards ? (
+                                    '...'
+                                ) : rewards === undefined ? (
+                                    <Label
+                                        text={
+                                            <div className="row gap-2">
+                                                <Spinner className="-mt-0.5" size="sm" variant="dots" />
+                                                <div className="whitespace-nowrap">Syncing oracles</div>
+                                            </div>
+                                        }
+                                        variant="blue"
+                                    />
+                                ) : (
+                                    parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString()
+                                ),
                                 (rewards ?? 0n) > 0,
                             )}
 
                             <div className="col gap-3">
                                 <div className="mt-3">{getTitle('Summary')}</div>
 
-                                {getLine(
-                                    'Proof of Availability',
-                                    isLoadingRewards
-                                        ? '...'
-                                        : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString(),
-                                    false,
-                                )}
+                                <div className="col flex-1 gap-1.5">
+                                    {getLine(
+                                        'Proof of Availability',
+                                        isLoadingRewards ? (
+                                            '...'
+                                        ) : rewards === undefined ? (
+                                            <Label
+                                                text={
+                                                    <div className="row gap-2">
+                                                        <Spinner className="-mt-0.5" size="sm" variant="dots" />
+                                                        <div className="whitespace-nowrap">Syncing oracles</div>
+                                                    </div>
+                                                }
+                                                variant="blue"
+                                            />
+                                        ) : (
+                                            parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString()
+                                        ),
+                                        false,
+                                    )}
 
-                                {getLine('Proof of AI', '0')}
+                                    {getLine('Proof of AI', '0')}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -169,7 +212,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                     <div className="col -mt-0.5 gap-3">
                         {getTitle('Node performance')}
 
-                        <div className="flex flex-wrap items-stretch gap-3">
+                        <div className="flex flex-wrap items-stretch gap-2 md:gap-3">
                             {isLoadingNodeEpochs ? (
                                 <>
                                     {nodePerformanceItems.map(({ label }, index) =>
