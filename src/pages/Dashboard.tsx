@@ -1,13 +1,13 @@
 import Tiers from '@components/Tiers';
+import { Alert } from '@heroui/alert';
+import { Button } from '@heroui/button';
+import { Spinner } from '@heroui/spinner';
 import { environment, getCurrentEpoch, getNextEpochTimestamp } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
 import useAwait from '@lib/useAwait';
 import { fBI } from '@lib/utils';
-import { Alert } from "@heroui/alert";
-import { Button } from "@heroui/button";
-import { Spinner } from "@heroui/spinner";
 import { BigCard } from '@shared/BigCard';
 import { Label } from '@shared/Label';
 import { KycStatus } from '@typedefs/profile';
@@ -50,7 +50,6 @@ function Dashboard() {
             ),
         [licenses],
     );
-
     const [rewards, isLoadingRewards] = useAwait(rewardsPromise);
 
     // Init
@@ -116,7 +115,7 @@ function Dashboard() {
                                         <Label
                                             text={
                                                 <div className="row gap-2">
-                                                    <Spinner size="sm" />
+                                                    <Spinner className="-mt-0.5" size="sm" variant="dots" />
                                                     <div className="whitespace-nowrap">Syncing oracles</div>
                                                 </div>
                                             }

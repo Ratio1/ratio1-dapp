@@ -1,11 +1,11 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
+import { Button } from '@heroui/button';
+import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@heroui/dropdown';
+import { Skeleton } from '@heroui/skeleton';
+import { Spinner } from '@heroui/spinner';
 import { config, getR1ExplorerUrl } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { fBI, fN } from '@lib/utils';
-import { Button } from "@heroui/button";
-import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/dropdown";
-import { Skeleton } from "@heroui/skeleton";
-import { Spinner } from "@heroui/spinner";
 import { Label } from '@shared/Label';
 import { Timer } from '@shared/Timer';
 import clsx from 'clsx';
@@ -139,8 +139,8 @@ export const LicenseCardHeader = ({
             return (
                 <Label
                     text={
-                        <div className="row gap-2 px-1 py-1">
-                            <Spinner size="sm" />
+                        <div className="row gap-1.5 px-1 py-1">
+                            <Spinner className="-mt-0.5" size="sm" variant="dots" />
                             <div className="whitespace-nowrap">Syncing oracles</div>
                         </div>
                     }

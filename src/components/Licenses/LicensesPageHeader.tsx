@@ -1,14 +1,14 @@
 import Logo from '@assets/token_white.svg';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
+import { Button } from '@heroui/button';
+import { useDisclosure } from '@heroui/modal';
+import { Tab, Tabs } from '@heroui/tabs';
 import { config, environment, getNextEpochTimestamp } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
 import { fBI, fN } from '@lib/utils';
-import { Button } from "@heroui/button";
-import { useDisclosure } from "@heroui/modal";
-import { Tab, Tabs } from "@heroui/tabs";
 import { DualTxsModal } from '@shared/DualTxsModal';
 import { Timer } from '@shared/Timer';
 import { KycStatus } from '@typedefs/profile';
@@ -42,11 +42,18 @@ function LicensesPageHeader({
     const publicClient = usePublicClient();
     const { data: walletClient } = useWalletClient();
 
-    // Data
-    const rewardsPromise = useMemo(
+    const rewardsPromise: Promise<bigint | undefined> = useMemo(
         () =>
-            Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then((rewards) =>
-                rewards.reduce((acc, reward) => acc + reward, 0n),
+            Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then(
+                (rewardsArray) => {
+                    const isError = rewardsArray.some((amount) => amount === undefined);
+
+                    if (isError) {
+                        return undefined;
+                    } else {
+                        return rewardsArray.reduce((acc, val) => (acc as bigint) + (val ?? 0n), 0n);
+                    }
+                },
             ),
         [licenses],
     );
@@ -156,7 +163,7 @@ function LicensesPageHeader({
             licenses
                 .filter((license) => license.type === type)
                 .map(async (license) => {
-                    if (!license.isLinked || (await license.rewards) === 0n) {
+                    if (!license.isLinked || !(await license.rewards)) {
                         return;
                     }
                     const [epochs, availabilies, eth_signatures] = await Promise.all([
@@ -231,15 +238,20 @@ function LicensesPageHeader({
                         <div className="grid grid-cols-2 gap-4 lg:flex lg:flex-row lg:justify-between">
                             {renderItem(
                                 'Claimable ($R1)',
-                                isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)),
+                                isLoadingRewards || rewards === undefined
+                                    ? '...'
+                                    : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)),
                             )}
+
                             {renderItem(
                                 'Earned ($R1)',
                                 earnedAmount < 1000000000000000000000n
                                     ? parseFloat(Number(formatUnits(earnedAmount ?? 0n, 18)).toFixed(2))
                                     : fBI(earnedAmount, 18),
                             )}
+
                             {renderItem('Future Claimable ($R1)', fBI(futureClaimableR1Amount, 18))}
+
                             {renderItem('Current Potential Value ($)', fN(futureClaimableUsd))}
                         </div>
 
