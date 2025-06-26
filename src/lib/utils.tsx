@@ -48,13 +48,13 @@ export const getNodeAndLicenseRewards = async (
 ): Promise<{
     node_alias?: string;
     node_is_online: boolean;
-    rewards_amount: bigint;
+    rewards_amount: bigint | undefined;
     epochs: number[];
     epochs_vals: number[];
     eth_signatures: EthAddress[];
 }> => {
     let nodeAndLicenseRewards: {
-        rewards_amount: bigint;
+        rewards_amount: bigint | undefined;
         epochs: number[];
         epochs_vals: number[];
         eth_signatures: EthAddress[];
@@ -100,7 +100,7 @@ export const getNodeAndLicenseRewards = async (
             console.error(error);
         }
 
-        throttledToastError('An error occurred while loading one of your licenses.');
+        throttledToastError('An error occurred while loading one of your nodes/licenses.');
     }
 
     return nodeAndLicenseRewards;
@@ -138,7 +138,7 @@ export const throttledToastOracleError = throttle(
 const getNdNodeAndLicenseRewards = async (
     license: License,
 ): Promise<{
-    rewards_amount: bigint;
+    rewards_amount: bigint | undefined;
     epochs: number[];
     epochs_vals: number[];
     eth_signatures: EthAddress[];
@@ -167,8 +167,18 @@ const getNdNodeAndLicenseRewards = async (
         return baseResult;
     }
 
+    // TODO: Development
+    return {
+        ...baseResult,
+        rewards_amount: undefined,
+    };
+
     if (epochsToClaim !== epochs.length || epochsToClaim !== epochs_vals.length) {
-        throw new Error('Invalid epochs array length');
+        // Oracles are still syncing
+        return {
+            ...baseResult,
+            rewards_amount: undefined,
+        };
     }
 
     const maxRewardsPerEpoch = license.totalAssignedAmount / BigInt(config.ndVestingEpochs);
@@ -196,7 +206,7 @@ const getNdNodeAndLicenseRewards = async (
 const getGndNodeAndLicenseRewards = async (
     license: GNDLicense,
 ): Promise<{
-    rewards_amount: bigint;
+    rewards_amount: bigint | undefined;
     epochs: number[];
     epochs_vals: number[];
     eth_signatures: EthAddress[];
@@ -225,8 +235,18 @@ const getGndNodeAndLicenseRewards = async (
         return baseResult;
     }
 
+    // TODO: Development
+    return {
+        ...baseResult,
+        rewards_amount: undefined,
+    };
+
     if (epochsToClaim !== epochs.length || epochsToClaim !== epochs_vals.length) {
-        throw new Error('Invalid epochs array length');
+        // Oracles are still syncing
+        return {
+            ...baseResult,
+            rewards_amount: undefined,
+        };
     }
 
     const maxRewardsPerEpoch = license.totalAssignedAmount / BigInt(config.gndVestingEpochs);
@@ -253,7 +273,7 @@ const getGndNodeAndLicenseRewards = async (
 const getMndNodeAndLicenseRewards = async (
     license: MNDLicense,
 ): Promise<{
-    rewards_amount: bigint;
+    rewards_amount: bigint | undefined;
     epochs: number[];
     epochs_vals: number[];
     eth_signatures: EthAddress[];
@@ -285,8 +305,18 @@ const getMndNodeAndLicenseRewards = async (
         return baseResult;
     }
 
+    // TODO: Development
+    return {
+        ...baseResult,
+        rewards_amount: undefined,
+    };
+
     if (epochsToClaim !== epochs.length || epochsToClaim !== epochs_vals.length) {
-        throw new Error('Invalid epochs array length');
+        // Oracles are still syncing
+        return {
+            ...baseResult,
+            rewards_amount: undefined,
+        };
     }
 
     const logisticPlateau = 392_778135785707100000n; // 392.77

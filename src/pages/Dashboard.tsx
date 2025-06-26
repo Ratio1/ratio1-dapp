@@ -7,7 +7,9 @@ import useAwait from '@lib/useAwait';
 import { fBI } from '@lib/utils';
 import { Alert } from '@nextui-org/alert';
 import { Button } from '@nextui-org/button';
+import { Spinner } from '@nextui-org/spinner';
 import { BigCard } from '@shared/BigCard';
+import { Label } from '@shared/Label';
 import { KycStatus } from '@typedefs/profile';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useMemo } from 'react';
@@ -33,13 +35,22 @@ function Dashboard() {
     const { address } = useAccount();
     const publicClient = usePublicClient();
 
-    const rewardsPromise = useMemo(
+    const rewardsPromise: Promise<bigint | undefined> = useMemo(
         () =>
-            Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then((rewards) =>
-                rewards.reduce((acc, reward) => acc + reward, 0n),
+            Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then(
+                (rewardsArray) => {
+                    const isError = rewardsArray.some((amount) => amount === undefined);
+
+                    if (isError) {
+                        return undefined;
+                    } else {
+                        return rewardsArray.reduce((acc, val) => (acc as bigint) + (val ?? 0n), 0n);
+                    }
+                },
             ),
         [licenses],
     );
+
     const [rewards, isLoadingRewards] = useAwait(rewardsPromise);
 
     // Init
@@ -94,22 +105,36 @@ function Dashboard() {
             <div className="flex w-full flex-col gap-4 lg:gap-6">
                 <div className="grid grid-cols-2 gap-4 lg:gap-6 larger:grid-cols-3">
                     <BigCard>
-                        <div className="col h-full justify-between gap-2">
+                        <div className="col h-full justify-between gap-2.5">
                             <div className="text-base font-semibold leading-6 lg:text-xl">Claimable $R1</div>
 
                             <div className="row gap-2.5">
                                 <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">
-                                    {isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2))}
+                                    {isLoadingRewards ? (
+                                        <div>...</div>
+                                    ) : rewards === undefined ? (
+                                        <Label
+                                            text={
+                                                <div className="row gap-2">
+                                                    <Spinner size="sm" />
+                                                    <div className="whitespace-nowrap">Syncing oracles</div>
+                                                </div>
+                                            }
+                                            variant="blue"
+                                        />
+                                    ) : (
+                                        parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2))
+                                    )}
                                 </div>
                             </div>
                         </div>
                     </BigCard>
 
                     <BigCard>
-                        <div className="col h-full justify-between gap-2">
+                        <div className="col h-full justify-between gap-2.5">
                             <div className="text-base font-semibold leading-6 lg:text-xl">$R1 Balance</div>
 
-                            <div className="row gap-2.5">
+                            <div className="min-h-[28px]">
                                 <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">
                                     {r1Balance < 1000000000000000000000n
                                         ? parseFloat(Number(formatUnits(r1Balance ?? 0n, 18)).toFixed(2))
@@ -120,7 +145,7 @@ function Dashboard() {
                     </BigCard>
 
                     <BigCard>
-                        <div className="col h-full justify-between gap-2">
+                        <div className="col h-full justify-between gap-2.5">
                             <div className="text-base font-semibold leading-6 lg:text-xl">Current Epoch</div>
 
                             <div className="row gap-2.5">

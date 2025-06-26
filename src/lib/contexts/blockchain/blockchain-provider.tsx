@@ -184,7 +184,7 @@ export const BlockchainProvider = ({ children }) => {
                         }
 
                         const nodeAndLicenseRewardsPromise: Promise<{
-                            rewards_amount: bigint;
+                            rewards_amount: bigint | undefined;
                             epochs: number[];
                             epochs_vals: number[];
                             eth_signatures: EthAddress[];
@@ -229,7 +229,7 @@ export const BlockchainProvider = ({ children }) => {
                         }
 
                         const nodeAndLicenseRewardsPromise: Promise<{
-                            rewards_amount: bigint;
+                            rewards_amount: bigint | undefined;
                             epochs: number[];
                             epochs_vals: number[];
                             eth_signatures: EthAddress[];

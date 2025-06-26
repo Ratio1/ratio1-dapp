@@ -5,6 +5,8 @@ import { fBI, fN } from '@lib/utils';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
 import { Skeleton } from '@nextui-org/skeleton';
+import { Spinner } from '@nextui-org/spinner';
+import { Label } from '@shared/Label';
 import { Timer } from '@shared/Timer';
 import clsx from 'clsx';
 import { addDays, formatDistanceToNow, isBefore } from 'date-fns';
@@ -133,6 +135,20 @@ export const LicenseCardHeader = ({
     const getNodeCard = () => <LicenseCardNode license={license} />;
 
     const getNodeRewards = () => {
+        if (rewards === undefined) {
+            return (
+                <Label
+                    text={
+                        <div className="row gap-2 px-1 py-1">
+                            <Spinner size="sm" />
+                            <div className="whitespace-nowrap">Syncing oracles</div>
+                        </div>
+                    }
+                    variant="default"
+                />
+            );
+        }
+
         const rewardsN: number = Number(formatUnits(rewards ?? 0n, 18));
         const hasRewards = rewardsN > 0;
 
