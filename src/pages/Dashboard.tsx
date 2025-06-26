@@ -11,7 +11,7 @@ import { BigCard } from '@shared/BigCard';
 import SyncingOraclesTag from '@shared/SyncingOraclesTag';
 import { KycStatus } from '@typedefs/profile';
 import { formatDistanceToNow } from 'date-fns';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { RiArrowRightUpLine, RiTimeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
 import { formatUnits } from 'viem';
@@ -34,6 +34,8 @@ function Dashboard() {
     const { address } = useAccount();
     const publicClient = usePublicClient();
 
+    const [isEpochTransitioning, setEpochTransitioning] = useState<boolean>(false);
+
     const rewardsPromise: Promise<bigint | undefined> = useMemo(
         () =>
             Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then(
@@ -41,8 +43,10 @@ function Dashboard() {
                     const isError = rewardsArray.some((amount) => amount === undefined);
 
                     if (isError) {
+                        setEpochTransitioning(true);
                         return undefined;
                     } else {
+                        setEpochTransitioning(false);
                         return rewardsArray.reduce((acc, val) => (acc as bigint) + (val ?? 0n), 0n);
                     }
                 },
@@ -57,18 +61,20 @@ function Dashboard() {
     }, []);
 
     useEffect(() => {
-        if (!publicClient) {
-            return;
-        }
-
-        if (!address) {
-            return;
-        }
-
-        if (authenticated) {
+        if (publicClient && address && authenticated) {
             fetchLicenses();
         }
-    }, [authenticated]);
+    }, [publicClient, address, authenticated]);
+
+    // Epoch transition
+    useEffect(() => {
+        if (!isLoadingRewards && isEpochTransitioning) {
+            // Refresh licenses every minute to check if the epoch transition is over, which will also trigger a new rewards fetch
+            setTimeout(() => {
+                fetchLicenses();
+            }, 60000);
+        }
+    }, [isLoadingRewards, isEpochTransitioning]);
 
     const isBuyingDisabled = (): boolean =>
         !authenticated ||

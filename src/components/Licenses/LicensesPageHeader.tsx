@@ -42,6 +42,8 @@ function LicensesPageHeader({
     const publicClient = usePublicClient();
     const { data: walletClient } = useWalletClient();
 
+    const [isEpochTransitioning, setEpochTransitioning] = useState<boolean>(false);
+
     const rewardsPromise: Promise<bigint | undefined> = useMemo(
         () =>
             Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then(
@@ -49,8 +51,10 @@ function LicensesPageHeader({
                     const isError = rewardsArray.some((amount) => amount === undefined);
 
                     if (isError) {
+                        setEpochTransitioning(true);
                         return undefined;
                     } else {
+                        setEpochTransitioning(false);
                         return rewardsArray.reduce((acc, val) => (acc as bigint) + (val ?? 0n), 0n);
                     }
                 },
@@ -82,6 +86,16 @@ function LicensesPageHeader({
             setR1PriceUsd(Number((r1Price * scale) / divisor) / Number(scale));
         }
     }, [r1Price]);
+
+    // Epoch transition
+    useEffect(() => {
+        if (!isLoadingRewards && isEpochTransitioning) {
+            // Refresh licenses every minute to check if the epoch transition is over, which will also trigger a new rewards fetch
+            setTimeout(() => {
+                fetchLicenses();
+            }, 60000);
+        }
+    }, [isLoadingRewards, isEpochTransitioning]);
 
     const claimAll = async () => {
         if (!walletClient || !publicClient) {
