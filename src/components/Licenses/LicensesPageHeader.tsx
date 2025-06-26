@@ -6,9 +6,9 @@ import { AuthenticationContextType, useAuthenticationContext } from '@lib/contex
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
 import { fBI, fN } from '@lib/utils';
-import { Button } from '@nextui-org/button';
-import { useDisclosure } from '@nextui-org/modal';
-import { Tab, Tabs } from '@nextui-org/tabs';
+import { Button } from "@heroui/button";
+import { useDisclosure } from "@heroui/modal";
+import { Tab, Tabs } from "@heroui/tabs";
 import { DualTxsModal } from '@shared/DualTxsModal';
 import { Timer } from '@shared/Timer';
 import { KycStatus } from '@typedefs/profile';

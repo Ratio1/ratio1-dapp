@@ -1,7 +1,7 @@
 import { getNodeInfo } from '@lib/api/oracles';
 import { getR1ExplorerUrl } from '@lib/config';
 import { getShortAddress } from '@lib/utils';
-import { Skeleton } from '@nextui-org/skeleton';
+import { Skeleton } from "@heroui/skeleton";
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';

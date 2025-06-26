@@ -1,4 +1,4 @@
-import { Button } from '@nextui-org/button';
+import { Button } from "@heroui/button";
 import clsx from 'clsx';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import toast from 'react-hot-toast';

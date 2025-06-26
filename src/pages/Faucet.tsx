@@ -8,7 +8,7 @@ import { AuthenticationContextType, useAuthenticationContext } from '@lib/contex
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
 import { fBI } from '@lib/utils';
-import { Button } from '@nextui-org/button';
+import { Button } from "@heroui/button";
 import { AddTokenToWallet } from '@shared/AddTokenToWallet';
 import { BigCard } from '@shared/BigCard';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';

@@ -5,9 +5,9 @@ import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/block
 import { routePath } from '@lib/routes/route-paths';
 import useAwait from '@lib/useAwait';
 import { fBI } from '@lib/utils';
-import { Alert } from '@nextui-org/alert';
-import { Button } from '@nextui-org/button';
-import { Spinner } from '@nextui-org/spinner';
+import { Alert } from "@heroui/alert";
+import { Button } from "@heroui/button";
+import { Spinner } from "@heroui/spinner";
 import { BigCard } from '@shared/BigCard';
 import { Label } from '@shared/Label';
 import { KycStatus } from '@typedefs/profile';

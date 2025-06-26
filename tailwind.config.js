@@ -1,11 +1,11 @@
-import { nextui } from '@nextui-org/theme';
+import { heroui } from "@heroui/theme";
 
 /** @type {import('tailwindcss').Config} */
 export default {
     content: [
         './index.html',
         './src/**/*.{js,ts,jsx,tsx,mdx}',
-        './node_modules/@nextui-org/theme/dist/components/(alert|button|divider|drawer|dropdown|form|input|modal|pagination|select|skeleton|spinner|toggle|table|tabs|ripple|menu|popover|listbox|scroll-shadow|checkbox|spacer).js',
+        "./node_modules/@heroui/theme/dist/components/(alert|button|divider|drawer|dropdown|form|input|modal|pagination|select|skeleton|spinner|toggle|table|tabs|ripple|menu|popover|listbox|scroll-shadow|checkbox|spacer).js",
     ],
     theme: {
         extend: {
@@ -44,5 +44,5 @@ export default {
     },
 
     darkMode: 'class',
-    plugins: [nextui()],
+    plugins: [heroui()],
 };

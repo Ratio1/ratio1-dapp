@@ -1,4 +1,4 @@
-import { Button } from '@nextui-org/button';
+import { Button } from "@heroui/button";
 import { useModal } from 'connectkit';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import { useAccount } from 'wagmi';

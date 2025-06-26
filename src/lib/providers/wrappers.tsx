@@ -1,5 +1,5 @@
 import ScrollToTop from '@components/ScrollToTop';
-import { NextUIProvider } from '@nextui-org/system';
+import { HeroUIProvider } from "@heroui/system";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Toaster } from 'react-hot-toast';
@@ -15,7 +15,7 @@ export function Wrappers({ children }: { children: React.ReactNode }) {
         <BrowserRouter>
             <Web3Provider>
                 <QueryClientProvider client={queryClient}>
-                    <NextUIProvider>
+                    <HeroUIProvider>
                         <AuthenticationProvider>
                             <BlockchainProvider>{children}</BlockchainProvider>
                         </AuthenticationProvider>
@@ -33,7 +33,7 @@ export function Wrappers({ children }: { children: React.ReactNode }) {
                         />
 
                         <ScrollToTop />
-                    </NextUIProvider>
+                    </HeroUIProvider>
                 </QueryClientProvider>
             </Web3Provider>
         </BrowserRouter>

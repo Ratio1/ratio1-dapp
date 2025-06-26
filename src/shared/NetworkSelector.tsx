@@ -1,6 +1,6 @@
 import { domains, environment } from '@lib/config';
-import { Select, SelectItem } from '@nextui-org/select';
-import { SharedSelection } from '@nextui-org/system';
+import { Select, SelectItem } from "@heroui/select";
+import { SharedSelection } from "@heroui/system";
 import clsx from 'clsx';
 import { useState } from 'react';
 import { RiGlobalLine } from 'react-icons/ri';

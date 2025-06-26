@@ -1,8 +1,8 @@
 import { addReferralCode } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
-import { Button } from '@nextui-org/button';
-import { Form } from '@nextui-org/form';
-import { Input } from '@nextui-org/input';
+import { Button } from "@heroui/button";
+import { Form } from "@heroui/form";
+import { Input } from "@heroui/input";
 import { Card } from '@shared/Card';
 import { ClosableToastContent } from '@shared/ClosableToastContent';
 import { useState } from 'react';

@@ -1,5 +1,5 @@
 import { config } from '@lib/config';
-import { Spinner } from '@nextui-org/spinner';
+import { Spinner } from "@heroui/spinner";
 import Admin from '@pages/Admin';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { ConnectKitButton } from 'connectkit';

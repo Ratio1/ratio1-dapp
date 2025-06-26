@@ -6,7 +6,7 @@ import { AuthenticationContextType, useAuthenticationContext } from '@lib/contex
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
 import { isParentRoute, isSimpleRoute, routes } from '@lib/routes/routes';
-import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
+import { Drawer, DrawerBody, DrawerContent } from "@heroui/drawer";
 import { ClosableToastContent } from '@shared/ClosableToastContent';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';

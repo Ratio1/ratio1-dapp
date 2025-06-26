@@ -1,9 +1,9 @@
 import { initSumsubSession } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { routePath } from '@lib/routes/route-paths';
-import { Alert } from '@nextui-org/alert';
-import { Button } from '@nextui-org/button';
-import { Switch } from '@nextui-org/switch';
+import { Alert } from "@heroui/alert";
+import { Button } from "@heroui/button";
+import { Switch } from "@heroui/switch";
 import { Card } from '@shared/Card';
 import { Label } from '@shared/Label';
 import { KycStatus, RegistrationStatus } from '@typedefs/profile';

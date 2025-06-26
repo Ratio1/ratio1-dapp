@@ -1,10 +1,10 @@
 import { registerEmail } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
-import { Button } from '@nextui-org/button';
-import { Form } from '@nextui-org/form';
-import { Input } from '@nextui-org/input';
-import { Modal, ModalBody, ModalContent, useDisclosure } from '@nextui-org/modal';
-import { Switch } from '@nextui-org/switch';
+import { Button } from "@heroui/button";
+import { Form } from "@heroui/form";
+import { Input } from "@heroui/input";
+import { Modal, ModalBody, ModalContent, useDisclosure } from "@heroui/modal";
+import { Switch } from "@heroui/switch";
 import { Card } from '@shared/Card';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { Label } from '@shared/Label';

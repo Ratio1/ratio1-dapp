@@ -1,5 +1,5 @@
 import { ping } from '@lib/api/backend';
-import { Spinner } from '@nextui-org/spinner';
+import { Spinner } from "@heroui/spinner";
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { NetworkSelector } from './NetworkSelector';
