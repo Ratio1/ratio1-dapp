@@ -22,6 +22,7 @@ function Dashboard() {
         licenses,
         fetchLicenses,
         r1Balance,
+        fetchR1Balance,
         currentPriceTier,
         priceTiers,
         isLoadingPriceTiers,
@@ -58,6 +59,7 @@ function Dashboard() {
     // Init
     useEffect(() => {
         fetchPriceTiers();
+        fetchR1Balance();
     }, []);
 
     useEffect(() => {
