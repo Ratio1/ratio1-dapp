@@ -1,5 +1,5 @@
-import { Modal, ModalBody, ModalContent, ModalHeader } from '@nextui-org/modal';
-import { Spinner } from '@nextui-org/spinner';
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/modal";
+import { Spinner } from "@heroui/spinner";
 import clsx from 'clsx';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { RiArrowUpDownLine, RiCheckDoubleLine, RiCheckLine } from 'react-icons/ri';

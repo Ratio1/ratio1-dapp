@@ -1,11 +1,12 @@
 import Buy from '@components/Buy';
 import Layout from '@components/Layout';
 import { addReferralCode } from '@lib/api/backend';
+import { domains, environment } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
 import { isParentRoute, isSimpleRoute, routes } from '@lib/routes/routes';
-import { Drawer, DrawerBody, DrawerContent } from '@nextui-org/drawer';
+import { Drawer, DrawerBody, DrawerContent } from "@heroui/drawer";
 import { ClosableToastContent } from '@shared/ClosableToastContent';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
@@ -18,6 +19,45 @@ function App() {
     const { setLicenses, setR1Balance, isBuyDrawerOpen, onBuyDrawerClose } = useBlockchainContext() as BlockchainContextType;
 
     const { address } = useAccount();
+
+    // Init
+    useEffect(() => {
+        if (window.innerWidth < 768) {
+            toast(
+                (_t) => (
+                    <div className="-mx-1 text-sm text-slate-500">
+                        Always confirm you're visiting
+                        <br />
+                        <span className="font-medium text-primary">{`https://${domains[environment]}`}</span> to avoid scams.
+                    </div>
+                ),
+                {
+                    position: 'top-center',
+                    duration: 5000,
+                    style: {
+                        maxWidth: '98vw',
+                    },
+                },
+            );
+        } else {
+            toast(
+                (_t) => (
+                    <div className="-mx-1 text-sm text-slate-500">
+                        Always confirm you're visiting{' '}
+                        <span className="font-medium text-primary">{`https://${domains[environment]}`}</span> to avoid scams.
+                    </div>
+                ),
+                {
+                    position: 'bottom-center',
+                    duration: 8000,
+                    style: {
+                        minWidth: '416px',
+                        maxWidth: '98vw',
+                    },
+                },
+            );
+        }
+    }, []);
 
     useEffect(() => {
         if (!address && !authenticated) {

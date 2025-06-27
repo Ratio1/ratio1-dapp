@@ -1,16 +1,17 @@
 import Tiers from '@components/Tiers';
+import { Alert } from '@heroui/alert';
+import { Button } from '@heroui/button';
 import { environment, getCurrentEpoch, getNextEpochTimestamp } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
 import useAwait from '@lib/useAwait';
 import { fBI } from '@lib/utils';
-import { Alert } from '@nextui-org/alert';
-import { Button } from '@nextui-org/button';
 import { BigCard } from '@shared/BigCard';
+import SyncingOraclesTag from '@shared/SyncingOraclesTag';
 import { KycStatus } from '@typedefs/profile';
 import { formatDistanceToNow } from 'date-fns';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { RiArrowRightUpLine, RiTimeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
 import { formatUnits } from 'viem';
@@ -21,6 +22,7 @@ function Dashboard() {
         licenses,
         fetchLicenses,
         r1Balance,
+        fetchR1Balance,
         currentPriceTier,
         priceTiers,
         isLoadingPriceTiers,
@@ -33,10 +35,22 @@ function Dashboard() {
     const { address } = useAccount();
     const publicClient = usePublicClient();
 
-    const rewardsPromise = useMemo(
+    const [isEpochTransitioning, setEpochTransitioning] = useState<boolean>(false);
+
+    const rewardsPromise: Promise<bigint | undefined> = useMemo(
         () =>
-            Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then((rewards) =>
-                rewards.reduce((acc, reward) => acc + reward, 0n),
+            Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then(
+                (rewardsArray) => {
+                    const isError = rewardsArray.some((amount) => amount === undefined);
+
+                    if (isError) {
+                        setEpochTransitioning(true);
+                        return undefined;
+                    } else {
+                        setEpochTransitioning(false);
+                        return rewardsArray.reduce((acc, val) => (acc as bigint) + (val ?? 0n), 0n);
+                    }
+                },
             ),
         [licenses],
     );
@@ -45,21 +59,24 @@ function Dashboard() {
     // Init
     useEffect(() => {
         fetchPriceTiers();
+        fetchR1Balance();
     }, []);
 
     useEffect(() => {
-        if (!publicClient) {
-            return;
-        }
-
-        if (!address) {
-            return;
-        }
-
-        if (authenticated) {
+        if (publicClient && address && authenticated) {
             fetchLicenses();
         }
-    }, [authenticated]);
+    }, [publicClient, address, authenticated]);
+
+    // Epoch transition
+    useEffect(() => {
+        if (!isLoadingRewards && isEpochTransitioning) {
+            // Refresh licenses every minute to check if the epoch transition is over, which will also trigger a new rewards fetch
+            setTimeout(() => {
+                fetchLicenses();
+            }, 60000);
+        }
+    }, [isLoadingRewards, isEpochTransitioning]);
 
     const isBuyingDisabled = (): boolean =>
         !authenticated ||
@@ -94,22 +111,28 @@ function Dashboard() {
             <div className="flex w-full flex-col gap-4 lg:gap-6">
                 <div className="grid grid-cols-2 gap-4 lg:gap-6 larger:grid-cols-3">
                     <BigCard>
-                        <div className="col h-full justify-between gap-2">
+                        <div className="col h-full justify-between gap-2.5">
                             <div className="text-base font-semibold leading-6 lg:text-xl">Claimable $R1</div>
 
                             <div className="row gap-2.5">
                                 <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">
-                                    {isLoadingRewards ? '...' : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2))}
+                                    {isLoadingRewards ? (
+                                        <div>...</div>
+                                    ) : rewards === undefined ? (
+                                        <SyncingOraclesTag />
+                                    ) : (
+                                        parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2))
+                                    )}
                                 </div>
                             </div>
                         </div>
                     </BigCard>
 
                     <BigCard>
-                        <div className="col h-full justify-between gap-2">
+                        <div className="col h-full justify-between gap-2.5">
                             <div className="text-base font-semibold leading-6 lg:text-xl">$R1 Balance</div>
 
-                            <div className="row gap-2.5">
+                            <div className="min-h-[28px]">
                                 <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">
                                     {r1Balance < 1000000000000000000000n
                                         ? parseFloat(Number(formatUnits(r1Balance ?? 0n, 18)).toFixed(2))
@@ -120,7 +143,7 @@ function Dashboard() {
                     </BigCard>
 
                     <BigCard>
-                        <div className="col h-full justify-between gap-2">
+                        <div className="col h-full justify-between gap-2.5">
                             <div className="text-base font-semibold leading-6 lg:text-xl">Current Epoch</div>
 
                             <div className="row gap-2.5">

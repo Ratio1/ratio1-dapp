@@ -1,6 +1,6 @@
 import { emailSubscribe, emailUnsubscribe } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
-import { Switch } from '@nextui-org/switch';
+import { Switch } from "@heroui/switch";
 import { Card } from '@shared/Card';
 import { ApiAccount } from '@typedefs/blockchain';
 import { RegistrationStatus } from '@typedefs/profile';

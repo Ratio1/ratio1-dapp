@@ -1,10 +1,11 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
+import { Button } from '@heroui/button';
+import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@heroui/dropdown';
+import { Skeleton } from '@heroui/skeleton';
 import { config, getR1ExplorerUrl } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { fBI, fN } from '@lib/utils';
-import { Button } from '@nextui-org/button';
-import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
-import { Skeleton } from '@nextui-org/skeleton';
+import SyncingOraclesTag from '@shared/SyncingOraclesTag';
 import { Timer } from '@shared/Timer';
 import clsx from 'clsx';
 import { addDays, formatDistanceToNow, isBefore } from 'date-fns';
@@ -133,6 +134,10 @@ export const LicenseCardHeader = ({
     const getNodeCard = () => <LicenseCardNode license={license} />;
 
     const getNodeRewards = () => {
+        if (!isLoadingRewards && rewards === undefined) {
+            return <SyncingOraclesTag variant="default" />;
+        }
+
         const rewardsN: number = Number(formatUnits(rewards ?? 0n, 18));
         const hasRewards = rewardsN > 0;
 
@@ -141,7 +146,7 @@ export const LicenseCardHeader = ({
         }
 
         return isLoadingRewards ? (
-            <Skeleton className="h-4 min-w-20 rounded-lg" />
+            <Skeleton className="h-5 min-w-20 rounded-lg" />
         ) : (
             <div className="row gap-1.5 text-lg font-semibold">
                 <div className="text-slate-400">~$R1</div>

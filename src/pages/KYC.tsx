@@ -1,7 +1,7 @@
 import { initSumsubSession } from '@lib/api/backend';
 import { routePath } from '@lib/routes/route-paths';
-import { Button } from '@nextui-org/button';
-import { Spinner } from '@nextui-org/spinner';
+import { Button } from "@heroui/button";
+import { Spinner } from "@heroui/spinner";
 import { BigCard } from '@shared/BigCard';
 import SumsubWebSdk from '@sumsub/websdk-react';
 import { useEffect, useState } from 'react';

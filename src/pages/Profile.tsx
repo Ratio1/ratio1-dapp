@@ -5,7 +5,7 @@ import SubscriptionCard from '@components/Profile/SubscriptionCard';
 import TaxInfoCard from '@components/Profile/TaxInfoCard';
 import YourReferralsCard from '@components/Profile/YourReferralsCard';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
-import { Spinner } from '@nextui-org/spinner';
+import { Spinner } from "@heroui/spinner";
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { RegistrationStatus } from '@typedefs/profile';
 import { ConnectKitButton } from 'connectkit';

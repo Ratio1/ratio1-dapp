@@ -3,6 +3,7 @@ import { getCurrentEpoch, getLicenseAssignEpoch } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { arrayAverage, throttledToastOracleError } from '@lib/utils';
 import { CardHorizontal } from '@shared/cards/CardHorizontal';
+import SyncingOraclesTag from '@shared/SyncingOraclesTag';
 import clsx from 'clsx';
 import { cloneElement, useMemo } from 'react';
 import { License } from 'typedefs/blockchain';
@@ -23,9 +24,15 @@ const nodePerformanceItems = [
 export const LicenseCardDetails = ({ license }: { license: License }) => {
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
 
-    const nodeEpochsPromise = useMemo(async () => {
+    const nodePerformancePromise: Promise<{
+        epochs: number[];
+        epochsVals: number[];
+    }> = useMemo(async () => {
         if (!license.isLinked) {
-            return [];
+            return {
+                epochs: [],
+                epochsVals: [],
+            };
         }
 
         const licenseAssignEpoch = getLicenseAssignEpoch(license.assignTimestamp);
@@ -40,19 +47,31 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                     ? await getNodeLastEpoch(license.nodeAddress)
                     : await getNodeEpochsRange(license.nodeAddress, startEpoch, endEpoch);
 
-            return result.epochs_vals;
+            return {
+                epochs: result.epochs,
+                epochsVals: result.epochs_vals,
+            };
         } catch (error) {
             console.error(error);
             throttledToastOracleError();
-            return [];
+
+            return {
+                epochs: [],
+                epochsVals: [],
+            };
         }
     }, [license]);
 
-    const [nodeEpochs, isLoadingNodeEpochs] = useAwait(nodeEpochsPromise);
+    const [nodePerformance, isLoadingNodePerformance] = useAwait(nodePerformancePromise);
 
-    const getTitle = (text: string) => <div className="font-medium">{text}</div>;
+    const getTitle = (text: string) => <div className="text-[15px] font-medium md:text-[17px]">{text}</div>;
 
-    const getLine = (label: string, value: string | number, isHighlighted: boolean = false, isAproximate: boolean = false) => (
+    const getLine = (
+        label: string,
+        value: string | number | JSX.Element,
+        isHighlighted: boolean = false,
+        isAproximate: boolean = false,
+    ) => (
         <div className="row justify-between gap-3 min-[410px]:justify-start">
             <div className="min-w-[50%] text-slate-500">{label}</div>
             <div
@@ -79,23 +98,34 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
         );
 
     const getNodePerformanceValue = (index: number): number | undefined => {
-        if (!nodeEpochs || !nodeEpochs.length) {
+        if (!nodePerformance || !nodePerformance.epochs.length) {
             return;
         }
 
+        const values = nodePerformance.epochsVals;
+
         switch (index) {
             case 0:
-                return nodeEpochs[nodeEpochs.length - 1];
+                return values[values.length - 1];
 
             case 1:
-                return arrayAverage(nodeEpochs);
+                return arrayAverage(values);
 
             case 2:
-                return arrayAverage(nodeEpochs.slice(-7));
+                return arrayAverage(values.slice(-7));
 
             default:
                 return;
         }
+    };
+
+    // Checks if the last epoch isn't the expected current epoch - 1, which means the oracles are still syncing the new epoch
+    const isEpochTransitioning = () => {
+        if (!nodePerformance) {
+            return false;
+        }
+
+        return nodePerformance.epochs[nodePerformance.epochs.length - 1] !== getCurrentEpoch() - 1;
     };
 
     return (
@@ -110,31 +140,41 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                         <div className="col flex-1 gap-3">
                             {getTitle('Details')}
 
-                            {getLine('License type', license.type)}
-                            {getLine(
-                                'Assign timestamp',
-                                license.assignTimestamp === 0n
-                                    ? 'N/A'
-                                    : new Date(Number(license.assignTimestamp) * 1000).toLocaleString(),
-                            )}
-                            {getLine(
-                                'Last claimed epoch',
-                                license.lastClaimEpoch === 0n ? 'N/A' : Number(license.lastClaimEpoch),
-                            )}
-                            {getLine('Claimable epochs', Number(license.claimableEpochs), Number(license.claimableEpochs) > 0)}
+                            <div className="col flex-1 gap-1.5">
+                                {getLine('License type', license.type)}
+                                {getLine(
+                                    'Assign timestamp',
+                                    license.assignTimestamp === 0n
+                                        ? 'N/A'
+                                        : new Date(Number(license.assignTimestamp) * 1000).toLocaleString(),
+                                )}
+                                {getLine(
+                                    'Last claimed epoch',
+                                    license.lastClaimEpoch === 0n ? 'N/A' : Number(license.lastClaimEpoch),
+                                )}
+                                {getLine(
+                                    'Claimable epochs',
+                                    Number(license.claimableEpochs),
+                                    Number(license.claimableEpochs) > 0,
+                                )}
+                            </div>
 
                             <div className="mt-3">{getTitle('Proof of Availability')}</div>
 
-                            {getLine(
-                                'Initial amount',
-                                parseFloat(
-                                    Number(formatUnits(license.totalAssignedAmount ?? 0n, 18)).toFixed(2),
-                                ).toLocaleString(),
-                            )}
-                            {getLine(
-                                'Remaining amount',
-                                parseFloat(Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2)).toLocaleString(),
-                            )}
+                            <div className="col flex-1 gap-1.5">
+                                {getLine(
+                                    'Initial amount',
+                                    parseFloat(
+                                        Number(formatUnits(license.totalAssignedAmount ?? 0n, 18)).toFixed(2),
+                                    ).toLocaleString(),
+                                )}
+                                {getLine(
+                                    'Remaining amount',
+                                    parseFloat(
+                                        Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2),
+                                    ).toLocaleString(),
+                                )}
+                            </div>
                         </div>
 
                         <div className="col flex-1 gap-3">
@@ -142,24 +182,34 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
                             {getLine(
                                 'Total amount ($R1)',
-                                isLoadingRewards
-                                    ? '...'
-                                    : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString(),
+                                isLoadingRewards ? (
+                                    '...'
+                                ) : rewards === undefined ? (
+                                    <SyncingOraclesTag />
+                                ) : (
+                                    parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString()
+                                ),
                                 (rewards ?? 0n) > 0,
                             )}
 
                             <div className="col gap-3">
                                 <div className="mt-3">{getTitle('Summary')}</div>
 
-                                {getLine(
-                                    'Proof of Availability',
-                                    isLoadingRewards
-                                        ? '...'
-                                        : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString(),
-                                    false,
-                                )}
+                                <div className="col flex-1 gap-1.5">
+                                    {getLine(
+                                        'Proof of Availability',
+                                        isLoadingRewards ? (
+                                            '...'
+                                        ) : rewards === undefined ? (
+                                            <SyncingOraclesTag />
+                                        ) : (
+                                            parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString()
+                                        ),
+                                        false,
+                                    )}
 
-                                {getLine('Proof of AI', '0')}
+                                    {getLine('Proof of AI', '0')}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -167,23 +217,29 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
                 {license.isLinked && (
                     <div className="col -mt-0.5 gap-3">
-                        {getTitle('Node performance')}
+                        <div className="row gap-3">
+                            {getTitle('Node performance')}
 
-                        <div className="flex flex-wrap items-stretch gap-3">
-                            {isLoadingNodeEpochs ? (
-                                <>
-                                    {nodePerformanceItems.map(({ label }, index) =>
-                                        getNodePerformanceItem(index, label, undefined),
-                                    )}
-                                </>
-                            ) : (
-                                <>
-                                    {nodePerformanceItems.map(({ label }, index) =>
-                                        getNodePerformanceItem(index, label, getNodePerformanceValue(index)),
-                                    )}
-                                </>
-                            )}
+                            {isEpochTransitioning() && <SyncingOraclesTag />}
                         </div>
+
+                        {!isEpochTransitioning() && (
+                            <div className="flex flex-wrap items-stretch gap-2 md:gap-3">
+                                {isLoadingNodePerformance ? (
+                                    <>
+                                        {nodePerformanceItems.map(({ label }, index) =>
+                                            getNodePerformanceItem(index, label, undefined),
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        {nodePerformanceItems.map(({ label }, index) =>
+                                            getNodePerformanceItem(index, label, getNodePerformanceValue(index)),
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

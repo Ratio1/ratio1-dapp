@@ -1,5 +1,5 @@
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
-import { Button } from '@nextui-org/button';
+import { Button } from "@heroui/button";
 import { EthAddress } from '@typedefs/blockchain';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';

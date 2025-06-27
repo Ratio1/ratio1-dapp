@@ -1,8 +1,8 @@
-import { Alert } from '@nextui-org/alert';
-import { Button } from '@nextui-org/button';
-import { Form } from '@nextui-org/form';
-import { Input } from '@nextui-org/input';
-import { Modal, ModalBody, ModalContent, ModalHeader } from '@nextui-org/modal';
+import { Alert } from "@heroui/alert";
+import { Button } from "@heroui/button";
+import { Form } from "@heroui/form";
+import { Input } from "@heroui/input";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/modal";
 import { isFinite, isNaN } from 'lodash';
 
 const DANGEROUS_SLIPPAGE = 0.5;

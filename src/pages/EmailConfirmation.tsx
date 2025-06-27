@@ -1,8 +1,8 @@
 import { confirmEmail } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { routePath } from '@lib/routes/route-paths';
-import { Button } from '@nextui-org/button';
-import { Spinner } from '@nextui-org/spinner';
+import { Button } from "@heroui/button";
+import { Spinner } from "@heroui/spinner";
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { useEffect, useState } from 'react';
 import { RiCheckLine, RiCloseLargeLine, RiCpuLine, RiMailCheckLine, RiShieldCheckLine } from 'react-icons/ri';
