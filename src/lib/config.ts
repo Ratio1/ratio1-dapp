@@ -12,6 +12,7 @@ type Config = {
     ndContractAddress: EthAddress;
     mndContractAddress: EthAddress;
     controllerContractAddress: EthAddress;
+    readerContractAddress: EthAddress;
     uniswapV2RouterAddress: EthAddress;
     faucetContractAddress?: EthAddress;
     safeAddress: EthAddress;
@@ -37,6 +38,7 @@ const configs: {
         ndContractAddress: '0xE658DF6dA3FB5d4FBa562F1D5934bd0F9c6bd423',
         mndContractAddress: '0x0C431e546371C87354714Fcc1a13365391A549E2',
         controllerContractAddress: '0x90dA5FdaA92edDC80FB73114fb7FE7D97f2be017',
+        readerContractAddress: '0xa2fDD4c7E93790Ff68a01f01AA789D619F12c6AC',
         uniswapV2RouterAddress: '0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24',
         safeAddress: '0x2265539ae09c7A605A707E11a6ED4aF1d018750e',
         explorerUrl: 'https://basescan.org',
@@ -79,6 +81,7 @@ const configs: {
         ndContractAddress: '0x18E86a5829CA1F02226FA123f30d90dCd7cFd0ED',
         mndContractAddress: '0xa8d7FFCE91a888872A9f5431B4Dd6c0c135055c1',
         controllerContractAddress: '0x63BEC1B3004154698830C7736107E7d3cfcbde79',
+        readerContractAddress: '0xd1c7Dca934B37FAA402EB2EC64F6644d6957bE3b',
         faucetContractAddress: '0x4a1bC775410067Ad5468945EF7ca5b0C510CDD99',
         uniswapV2RouterAddress: '0x6682375ebC1dF04676c0c5050934272368e6e883',
         safeAddress: '0x5afF90797f717Fe8432A1809b6b53A18863061D6',
@@ -122,6 +125,7 @@ const configs: {
         ndContractAddress: '0x8D0CE4933728FF7C04388f0bEcC9a45676E232F7',
         mndContractAddress: '0x7A14Be75135a7ebdef99339CCc700C25Cda60c6E',
         controllerContractAddress: '0xdd56E920810e2FD9a07C1718643E179839867253',
+        readerContractAddress: '0x2c62a818967D3396b535De3d1EC47aF1f2B1282D',
         faucetContractAddress: '0x4a1bC775410067Ad5468945EF7ca5b0C510CDD99',
         uniswapV2RouterAddress: '0x6682375ebC1dF04676c0c5050934272368e6e883',
         safeAddress: '0x20b1ebc9c13A6F4f3dfBdF9bc9299ec40Ac988e3',

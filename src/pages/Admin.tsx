@@ -14,6 +14,7 @@ import toast from 'react-hot-toast';
 import { EthAddress, MNDLicense } from 'typedefs/blockchain';
 import { usePublicClient, useWalletClient } from 'wagmi';
 import { getNodeInfo } from '@lib/api/oracles';
+import { ReaderAbi } from '@blockchain/Reader';
 
 const columnsMndsTable = [
     { key: 1, label: 'ID' },
@@ -28,14 +29,24 @@ const columnsMndsTable = [
 const columnsOraclesTable = [
     { key: 1, label: 'Node Alias' },
     { key: 2, label: 'Node Address' },
+    { key: 3, label: 'Signatures' },
+    { key: 4, label: 'Days Added' },
+    { key: 4, label: 'Signatures per Day' },
 ];
 
 type AdminMndView = Omit<MNDLicense, 'claimableEpochs' | 'isLinked'> & { owner: EthAddress };
+type OracleDetails = {
+    oracleAddress: EthAddress;
+    signaturesCount: bigint;
+    additionTimestamp: bigint;
+    node_alias: string;
+    node_is_online: boolean;
+};
 
 function Admin() {
     const publicClient = usePublicClient();
 
-    const [oracles, setOracles] = useState<EthAddress[]>([]);
+    const [oracles, setOracles] = useState<OracleDetails[]>([]);
     const [mnds, setMnds] = useState<(AdminMndView | null)[]>([]);
 
     const fetchData = () => {
@@ -43,12 +54,21 @@ function Admin() {
 
         publicClient
             .readContract({
-                address: config.controllerContractAddress,
-                abi: ControllerAbi,
-                functionName: 'getOracles',
+                address: config.readerContractAddress,
+                abi: ReaderAbi,
+                functionName: 'getOraclesDetails',
             })
             .then((result) => {
-                setOracles([...result]);
+                Promise.all(
+                    result.map(async (oracle) => {
+                        return {
+                            ...oracle,
+                            ...(await getNodeInfo(oracle.oracleAddress)),
+                        };
+                    }),
+                ).then((oraclesInfo) => {
+                    setOracles(oraclesInfo);
+                });
             });
 
         publicClient
@@ -344,7 +364,7 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
     );
 }
 
-function AddOracle({ oracles, fetchData }: { oracles: EthAddress[]; fetchData: () => void }) {
+function AddOracle({ oracles, fetchData }: { oracles: OracleDetails[]; fetchData: () => void }) {
     const { watchTx } = useBlockchainContext() as BlockchainContextType;
 
     const [address, setAddress] = useState<string>('');
@@ -402,9 +422,13 @@ function AddOracle({ oracles, fetchData }: { oracles: EthAddress[]; fetchData: (
                             color="secondary"
                             onPress={onAdd}
                             isLoading={isLoading}
-                            isDisabled={isLoading || !address || oracles.includes(address as EthAddress)}
+                            isDisabled={
+                                isLoading ||
+                                !address ||
+                                oracles.map((oracle) => oracle.oracleAddress).includes(address as EthAddress)
+                            }
                         >
-                            {!oracles.includes(address as EthAddress) ? 'Add' : 'Added'}
+                            {!oracles.map((oracle) => oracle.oracleAddress).includes(address as EthAddress) ? 'Add' : 'Added'}
                         </Button>
                     </div>
                 </div>
@@ -413,7 +437,7 @@ function AddOracle({ oracles, fetchData }: { oracles: EthAddress[]; fetchData: (
     );
 }
 
-function RemoveOracle({ oracles, fetchData }: { oracles: EthAddress[]; fetchData: () => void }) {
+function RemoveOracle({ oracles, fetchData }: { oracles: OracleDetails[]; fetchData: () => void }) {
     const { watchTx } = useBlockchainContext() as BlockchainContextType;
 
     const [address, setAddress] = useState<string>('');
@@ -471,9 +495,15 @@ function RemoveOracle({ oracles, fetchData }: { oracles: EthAddress[]; fetchData
                             color="secondary"
                             onPress={onRemove}
                             isLoading={isLoading}
-                            isDisabled={isLoading || !address || !oracles.includes(address as EthAddress)}
+                            isDisabled={
+                                isLoading ||
+                                !address ||
+                                !oracles.map((oracle) => oracle.oracleAddress).includes(address as EthAddress)
+                            }
                         >
-                            {oracles.includes(address as EthAddress) ? 'Remove' : 'Not an oracle'}
+                            {oracles.map((oracle) => oracle.oracleAddress).includes(address as EthAddress)
+                                ? 'Remove'
+                                : 'Not an oracle'}
                         </Button>
                     </div>
                 </div>
@@ -482,22 +512,7 @@ function RemoveOracle({ oracles, fetchData }: { oracles: EthAddress[]; fetchData
     );
 }
 
-function OraclesTable({ oracles }: { oracles: EthAddress[] }) {
-    const [oraclesInfo, setOraclesInfo] = useState<{ address: EthAddress; node_alias: string; node_is_online: boolean }[]>([]);
-
-    useEffect(() => {
-        Promise.all(
-            oracles.map(async (address) => {
-                return {
-                    address,
-                    ...(await getNodeInfo(address)),
-                };
-            }),
-        ).then((oraclesInfo) => {
-            setOraclesInfo(oraclesInfo);
-        });
-    }, [oracles]);
-
+function OraclesTable({ oracles }: { oracles: OracleDetails[] }) {
     return (
         <BigCard>
             <div className="text-base font-semibold leading-6 lg:text-xl">Oracles</div>
@@ -513,21 +528,30 @@ function OraclesTable({ oracles }: { oracles: EthAddress[] }) {
                     <TableHeader columns={columnsOraclesTable}>
                         {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                     </TableHeader>
-                    <TableBody items={oraclesInfo}>
-                        {(oracle) => (
-                            <TableRow key={oracle.address}>
-                                <TableCell>{oracle.node_alias}</TableCell>
-                                <TableCell>
-                                    <a
-                                        href={`${getR1ExplorerUrl()}/node/${oracle.address}`}
-                                        target="_blank"
-                                        className="underline"
-                                    >
-                                        {oracle.address}
-                                    </a>
-                                </TableCell>
-                            </TableRow>
-                        )}
+                    <TableBody items={oracles}>
+                        {(oracle) => {
+                            const timeAdded = Date.now() - Number(oracle.additionTimestamp) * 1000;
+                            const daysAdded = Number((timeAdded / (1000 * 60 * 60 * 24)).toFixed(2));
+                            const signaturesPerDay = Number((Number(oracle.signaturesCount) / daysAdded).toFixed(2));
+
+                            return (
+                                <TableRow key={oracle.oracleAddress}>
+                                    <TableCell>{oracle.node_alias}</TableCell>
+                                    <TableCell>
+                                        <a
+                                            href={`${getR1ExplorerUrl()}/node/${oracle.oracleAddress}`}
+                                            target="_blank"
+                                            className="underline"
+                                        >
+                                            {oracle.oracleAddress}
+                                        </a>
+                                    </TableCell>
+                                    <TableCell>{oracle.signaturesCount.toString()}</TableCell>
+                                    <TableCell>{daysAdded} days</TableCell>
+                                    <TableCell>{signaturesPerDay} sig/day</TableCell>
+                                </TableRow>
+                            );
+                        }}
                     </TableBody>
                 </Table>
             </div>
