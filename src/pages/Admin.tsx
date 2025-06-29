@@ -4,17 +4,18 @@ import { newSellerCode } from '@lib/api/backend';
 import { config, getR1ExplorerUrl } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { fBI, getShortAddress } from '@lib/utils';
-import { Button } from "@heroui/button";
-import { Input } from "@heroui/input";
-import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@heroui/table";
+import { Button } from '@heroui/button';
+import { Input } from '@heroui/input';
+import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/table';
 import { BigCard } from '@shared/BigCard';
 import { LargeValueWithLabel } from '@shared/LargeValueWithLabel';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { EthAddress, MNDLicense } from 'typedefs/blockchain';
 import { usePublicClient, useWalletClient } from 'wagmi';
+import { getNodeInfo } from '@lib/api/oracles';
 
-const columns = [
+const columnsMndsTable = [
     { key: 1, label: 'ID' },
     { key: 2, label: 'Owner' },
     { key: 3, label: 'Node Address' },
@@ -22,6 +23,11 @@ const columns = [
     { key: 5, label: 'Last Claim Epoch' },
     { key: 6, label: 'Assigned' },
     { key: 7, label: 'Last Claim Oracle' },
+];
+
+const columnsOraclesTable = [
+    { key: 1, label: 'Node Alias' },
+    { key: 2, label: 'Node Address' },
 ];
 
 type AdminMndView = Omit<MNDLicense, 'claimableEpochs' | 'isLinked'> & { owner: EthAddress };
@@ -108,8 +114,9 @@ function Admin() {
         <div className="col gap-4">
             <CreateMnd mnds={mnds} fetchData={fetchData} />
             <MndsTable mnds={mnds} />
-            <AddSigner oracles={oracles} fetchData={fetchData} />
-            <RemoveSigner oracles={oracles} fetchData={fetchData} />
+            <AddOracle oracles={oracles} fetchData={fetchData} />
+            <RemoveOracle oracles={oracles} fetchData={fetchData} />
+            <OraclesTable oracles={oracles} />
             <AllowMndTransfer />
             <AllowMndBurn />
             <AddSellerCode />
@@ -289,7 +296,7 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
                     }}
                     removeWrapper
                 >
-                    <TableHeader columns={columns}>
+                    <TableHeader columns={columnsMndsTable}>
                         {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                     </TableHeader>
                     <TableBody items={mnds}>
@@ -337,7 +344,7 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
     );
 }
 
-function AddSigner({ oracles, fetchData }: { oracles: EthAddress[]; fetchData: () => void }) {
+function AddOracle({ oracles, fetchData }: { oracles: EthAddress[]; fetchData: () => void }) {
     const { watchTx } = useBlockchainContext() as BlockchainContextType;
 
     const [address, setAddress] = useState<string>('');
@@ -406,7 +413,7 @@ function AddSigner({ oracles, fetchData }: { oracles: EthAddress[]; fetchData: (
     );
 }
 
-function RemoveSigner({ oracles, fetchData }: { oracles: EthAddress[]; fetchData: () => void }) {
+function RemoveOracle({ oracles, fetchData }: { oracles: EthAddress[]; fetchData: () => void }) {
     const { watchTx } = useBlockchainContext() as BlockchainContextType;
 
     const [address, setAddress] = useState<string>('');
@@ -470,6 +477,59 @@ function RemoveSigner({ oracles, fetchData }: { oracles: EthAddress[]; fetchData
                         </Button>
                     </div>
                 </div>
+            </div>
+        </BigCard>
+    );
+}
+
+function OraclesTable({ oracles }: { oracles: EthAddress[] }) {
+    const [oraclesInfo, setOraclesInfo] = useState<{ address: EthAddress; node_alias: string; node_is_online: boolean }[]>([]);
+
+    useEffect(() => {
+        Promise.all(
+            oracles.map(async (address) => {
+                return {
+                    address,
+                    ...(await getNodeInfo(address)),
+                };
+            }),
+        ).then((oraclesInfo) => {
+            setOraclesInfo(oraclesInfo);
+        });
+    }, [oracles]);
+
+    return (
+        <BigCard>
+            <div className="text-base font-semibold leading-6 lg:text-xl">Oracles</div>
+
+            <div className="rounded-xl border border-[#e3e4e</div>8] bg-light p-3">
+                <Table
+                    aria-label="MNDs Table"
+                    classNames={{
+                        th: 'bg-slate-100 text-body text-[13px]',
+                    }}
+                    removeWrapper
+                >
+                    <TableHeader columns={columnsOraclesTable}>
+                        {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+                    </TableHeader>
+                    <TableBody items={oraclesInfo}>
+                        {(oracle) => (
+                            <TableRow key={oracle.address}>
+                                <TableCell>{oracle.node_alias}</TableCell>
+                                <TableCell>
+                                    <a
+                                        href={`${getR1ExplorerUrl()}/node/${oracle.address}`}
+                                        target="_blank"
+                                        className="underline"
+                                    >
+                                        {oracle.address}
+                                    </a>
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
             </div>
         </BigCard>
     );
