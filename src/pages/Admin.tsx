@@ -31,7 +31,7 @@ const columnsOraclesTable = [
     { key: 2, label: 'Node Address' },
     { key: 3, label: 'Signatures' },
     { key: 4, label: 'Days Added' },
-    { key: 4, label: 'Signatures per Day' },
+    { key: 5, label: 'Signatures per Day' },
 ];
 
 type AdminMndView = Omit<MNDLicense, 'claimableEpochs' | 'isLinked'> & { owner: EthAddress };
