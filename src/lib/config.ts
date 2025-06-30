@@ -118,15 +118,15 @@ const configs: {
     devnet: {
         backendUrl: 'https://devnet-dapp-api.ratio1.ai',
         oraclesUrl: 'https://devnet-oracle.ratio1.ai',
-        r1ContractAddress: '0x07C5678F0f4aC347496eAA8D6031b37FF3402CE5',
-        ndContractAddress: '0x8D0CE4933728FF7C04388f0bEcC9a45676E232F7',
-        mndContractAddress: '0x7A14Be75135a7ebdef99339CCc700C25Cda60c6E',
-        controllerContractAddress: '0xdd56E920810e2FD9a07C1718643E179839867253',
+        r1ContractAddress: '0x277CbD0Cf25F4789Bc04035eCd03d811FAf73691',
+        ndContractAddress: '0x90025B92240E3070d5CdcB3f44D6411855c55a73',
+        mndContractAddress: '0x17B8934dc5833CdBa1eF42D13D65D677C4727748',
+        controllerContractAddress: '0x46fB56B7499925179d81380199E238f7AE75857B',
         faucetContractAddress: '0x4a1bC775410067Ad5468945EF7ca5b0C510CDD99',
         uniswapV2RouterAddress: '0x6682375ebC1dF04676c0c5050934272368e6e883',
         safeAddress: '0x20b1ebc9c13A6F4f3dfBdF9bc9299ec40Ac988e3',
         explorerUrl: 'https://sepolia.basescan.org',
-        genesisDate: new Date('2025-05-23T16:00:00.000Z'),
+        genesisDate: new Date('2025-06-30T07:00:00.000Z'),
         epochDurationInSeconds: 3600, // 1 hour
         mndCliffEpochs: 223,
         gndVestingEpochs: 365,
@@ -144,7 +144,7 @@ const configs: {
                 swapPath: [
                     '0x24fe7807089e321395172633aA9c4bBa4Ac4a357',
                     '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
-                    '0x07C5678F0f4aC347496eAA8D6031b37FF3402CE5',
+                    '0x277CbD0Cf25F4789Bc04035eCd03d811FAf73691',
                 ],
             },
             USDC: {
@@ -154,7 +154,7 @@ const configs: {
                 displayDecimals: 2,
                 fromAmount: '500',
                 logo: UsdcLogo,
-                swapPath: ['0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF', '0x07C5678F0f4aC347496eAA8D6031b37FF3402CE5'],
+                swapPath: ['0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF', '0x277CbD0Cf25F4789Bc04035eCd03d811FAf73691'],
             },
         },
     },
