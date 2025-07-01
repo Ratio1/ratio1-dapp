@@ -1,11 +1,11 @@
-import { heroui } from "@heroui/theme";
+import { heroui } from '@heroui/theme';
 
 /** @type {import('tailwindcss').Config} */
 export default {
     content: [
         './index.html',
         './src/**/*.{js,ts,jsx,tsx,mdx}',
-        "./node_modules/@heroui/theme/dist/components/(alert|button|divider|drawer|dropdown|form|input|modal|pagination|select|skeleton|spinner|toggle|table|tabs|ripple|menu|popover|listbox|scroll-shadow|checkbox|spacer).js",
+        './node_modules/@heroui/theme/dist/components/(alert|button|divider|drawer|dropdown|form|input|modal|pagination|select|skeleton|spinner|toggle|table|tabs|ripple|menu|popover|listbox|scroll-shadow|checkbox|spacer).js',
     ],
     theme: {
         extend: {
@@ -30,6 +30,12 @@ export default {
             },
             boxShadow: {
                 round: '0 0px 2px 0 rgb(0 0 0 / 0.05)',
+            },
+            width: {
+                sider: '306px',
+            },
+            margin: {
+                'sider-with-padding': 'calc(306px + 1rem)',
             },
         },
         screens: {
