@@ -4,16 +4,18 @@ import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
 import LicenseBurnModal from '@components/Licenses/modals/LicenseBurnModal';
 import LicenseLinkModal from '@components/Licenses/modals/LicenseLinkModal';
 import LicenseUnlinkModal from '@components/Licenses/modals/LicenseUnlinkModal';
+import { Pagination } from '@heroui/pagination';
+import { Skeleton } from '@heroui/skeleton';
 import { config, getCurrentEpoch } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { getLicenseSectionHeader } from '@lib/utils';
-import { Pagination } from "@heroui/pagination";
-import { Skeleton } from "@heroui/skeleton";
+import EmptyData from '@shared/EmptyData';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { LicenseSkeleton } from '@shared/Licenses/LicenseSkeleton';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import { RiCpuLine } from 'react-icons/ri';
 import { License } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
@@ -238,6 +240,16 @@ function Licenses() {
                             setLoading={setClaimingAll}
                         />
                     </div>
+
+                    {!isLoadingLicenses && !licensesToShow?.length && (
+                        <div className="center-all w-full py-14">
+                            <EmptyData
+                                title="No licenses found"
+                                description="Your licenses will be displayed here."
+                                icon={<RiCpuLine />}
+                            />
+                        </div>
+                    )}
 
                     {isLoadingLicenses ? (
                         <>
