@@ -166,14 +166,9 @@ const configs: {
 
 export const adminAddresses = [
     '0x95E9EeEf459a9cDA096af7C6033D4d9582B9513c',
-    '0x07F460c8C41cBf309422BFBC6EfDBBd6f4415298',
-    '0x077b9165484Ff8356848895d213A955bF9747528',
-    '0x129C3756CE1fb2ADd0E4bE2ffFb731645245eaB5',
-    '0x2d5a27E711A14cDC5FFc055E0EA5F4e9326F2AB2',
-    '0x311a63B88df90f19cd9bD7D9000B70480d842472',
-    '0x58fFB0F89e50DcC25Bc208757a63dDA06d30433A',
-    '0xA59eF3f6B10723577e7F8966dC88670233B8a0d5',
     '0xDA05C48CDbA9A67A422cFA40b4C0F6b7FFB0E4a5',
+    '0xE75981c3fb2734F263cEa7F81fF2Dd6586c1BF9A',
+    '0xA59eF3f6B10723577e7F8966dC88670233B8a0d5',
 ];
 
 const domain = window.location.hostname;
@@ -197,7 +192,7 @@ export const environment: 'mainnet' | 'testnet' | 'devnet' =
           ? ('testnet' as const)
           : domain === domainDevnet
             ? ('devnet' as const)
-            : ('devnet' as const);
+            : ('mainnet' as const);
 
 export const getR1ExplorerUrl = () => `https://${environment === 'mainnet' ? '' : `${environment}-`}${explorerBaseDomain}`;
 
