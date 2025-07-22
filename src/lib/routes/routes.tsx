@@ -1,14 +1,15 @@
 import { ProtectedAdminRoute } from '@components/ProtectedAdminRoute';
 import NotFound from '@pages/404';
 import BuyR1 from '@pages/BuyR1';
+import PrivacyPolicy from '@pages/compliance/PrivacyPolicy';
+import TermsAndConditions from '@pages/compliance/T&C';
+import TermsOfUseNDs from '@pages/compliance/TermsOfUseNDs';
 import Dashboard from '@pages/Dashboard';
 import EmailConfirmation from '@pages/EmailConfirmation';
 import Faucet from '@pages/Faucet';
 import KYC from '@pages/KYC';
 import Licenses from '@pages/Licenses';
-import PrivacyPolicy from '@pages/PrivacyPolicy';
 import Profile from '@pages/Profile';
-import TermsAndConditions from '@pages/T&C';
 import Unauthorized from '@pages/Unauthorized';
 import { TokenSvg } from '@shared/TokenSvg';
 import { RiCpuLine, RiFunctionLine, RiSearchLine, RiShieldLine, RiUserLine, RiWaterFlashLine } from 'react-icons/ri';
@@ -85,6 +86,10 @@ export const routeInfo = {
         title: 'Terms & Conditions',
         description: 'Terms governing your use of our services',
     },
+    [`${routePath.compliance}/${routePath.termsOfUseNDs}`]: {
+        title: 'Terms of Use NDs',
+        description: 'Terms governing the use and operation of Edge Node licenses',
+    },
     [`${routePath.compliance}/${routePath.privacyPolicy}`]: {
         title: 'Privacy Policy',
         description: 'Understand how we handle and protect your personal data',
@@ -155,6 +160,10 @@ export const routes: AppRoute[] = [
             {
                 path: routePath.termsAndConditions,
                 page: TermsAndConditions,
+            },
+            {
+                path: routePath.termsOfUseNDs,
+                page: TermsOfUseNDs,
             },
             {
                 path: routePath.privacyPolicy,

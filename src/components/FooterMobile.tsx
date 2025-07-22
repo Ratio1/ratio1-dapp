@@ -41,6 +41,9 @@ function FooterMobile() {
                 <Link to={`${routePath.compliance}/${routePath.termsAndConditions}`} className="hover:opacity-70">
                     {routeInfo[`${routePath.compliance}/${routePath.termsAndConditions}`].title}
                 </Link>
+                <Link to={`${routePath.compliance}/${routePath.termsOfUseNDs}`} className="hover:opacity-70">
+                    {routeInfo[`${routePath.compliance}/${routePath.termsOfUseNDs}`].title}
+                </Link>
                 <Link to={`${routePath.compliance}/${routePath.privacyPolicy}`} className="hover:opacity-70">
                     {routeInfo[`${routePath.compliance}/${routePath.privacyPolicy}`].title}
                 </Link>

@@ -9,6 +9,7 @@ export const routePath = {
     // Children of /compliance
     termsAndConditions: 'terms-and-conditions',
     privacyPolicy: 'privacy-policy',
+    termsOfUseNDs: 'terms-of-use-nds',
     //
     confirmEmail: '/confirm-email',
     notFound: '/404',
