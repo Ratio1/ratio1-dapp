@@ -173,6 +173,7 @@ export const adminAddresses = [
     '0x311a63B88df90f19cd9bD7D9000B70480d842472',
     '0x58fFB0F89e50DcC25Bc208757a63dDA06d30433A',
     '0xA59eF3f6B10723577e7F8966dC88670233B8a0d5',
+    '0xDA05C48CDbA9A67A422cFA40b4C0F6b7FFB0E4a5',
 ];
 
 const domain = window.location.hostname;
