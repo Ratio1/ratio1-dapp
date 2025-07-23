@@ -22,8 +22,12 @@ export default function TermsOfUseNDs() {
                                     holders to operate individual edge nodes, contribute compute power to the Ratio 1 Protocol,
                                     and mine utility tokens ("Tokens") through their activity in the Ratio 1 Ecosystem
                                     ("Ecosystem"), as described in the White Paper available on the URL address at{' '}
-                                    <a href="https://ratio1.ai/docs" className="text-blue-600 underline hover:text-blue-800">
-                                        https://ratio1.ai/docs
+                                    <a
+                                        href="https://ratio1.ai/whitepaper"
+                                        target="_blank"
+                                        className="text-blue-600 underline hover:text-blue-800"
+                                    >
+                                        https://ratio1.ai/whitepaper
                                     </a>{' '}
                                     (the "Website").
                                 </p>
@@ -43,7 +47,11 @@ export default function TermsOfUseNDs() {
                                     Your acquisition of and/or operation of the Node Deed constitutes your full and
                                     unconditional agreement to these Terms. We may update these Terms by providing a new version
                                     online and your continued use of Our website located at URL address{' '}
-                                    <a href="https://ratio1.ai/docs" className="text-blue-600 underline hover:text-blue-800">
+                                    <a
+                                        href="https://ratio1.ai/docs"
+                                        target="_blank"
+                                        className="text-blue-600 underline hover:text-blue-800"
+                                    >
                                         https://ratio1.ai/docs
                                     </a>{' '}
                                     and the Ecosystem after any such update constitutes your binding acceptance of such changes.
