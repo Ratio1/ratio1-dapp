@@ -1,6 +1,6 @@
 import { ControllerAbi } from '@blockchain/Controller';
 import { MNDContractAbi } from '@blockchain/MNDContract';
-import { newSellerCode } from '@lib/api/backend';
+import { newSellerCode, sendBatchNews } from '@lib/api/backend';
 import { config, getR1ExplorerUrl } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { fBI, getShortAddress } from '@lib/utils';
@@ -140,6 +140,7 @@ function Admin() {
             <AllowMndTransfer />
             <AllowMndBurn />
             <AddSellerCode />
+            <SendBatchNews />
         </div>
     );
 }
@@ -765,6 +766,99 @@ function AddSellerCode() {
                         isDisabled={isLoading || !address}
                     >
                         Create
+                    </Button>
+                </div>
+            </div>
+        </BigCard>
+    );
+}
+
+function SendBatchNews() {
+    const [subject, setSubject] = useState<string>('');
+    const [newsFile, setNewsFile] = useState<File | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const onSend = async () => {
+        if (!newsFile) {
+            toast.error('Please select an HTML file');
+            return;
+        }
+
+        if (!subject.trim()) {
+            toast.error('Please enter a subject');
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            await sendBatchNews({
+                news: newsFile,
+                subject: subject.trim(),
+            });
+
+            toast.success('Batch news sent successfully');
+            setSubject('');
+            setNewsFile(null);
+        } catch (error) {
+            toast.error('Failed to send batch news');
+            console.error('Error sending batch news:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file && file.type === 'text/html') {
+            setNewsFile(file);
+        } else if (file) {
+            toast.error('Please select an HTML file');
+            event.target.value = '';
+        }
+    };
+
+    return (
+        <BigCard>
+            <div className="text-base font-semibold leading-6 lg:text-xl">Send Batch News</div>
+
+            <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
+                <Input
+                    value={subject}
+                    onValueChange={setSubject}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Subject"
+                    labelPlacement="outside"
+                    placeholder="Email subject"
+                />
+
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-foreground">HTML File</label>
+                    <input
+                        type="file"
+                        accept=".html,.htm"
+                        onChange={handleFileChange}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-primary/90"
+                    />
+                    {newsFile && <p className="text-xs text-gray-600">Selected: {newsFile.name}</p>}
+                </div>
+
+                <div className="flex">
+                    <Button
+                        fullWidth
+                        color="secondary"
+                        onPress={onSend}
+                        isLoading={isLoading}
+                        isDisabled={isLoading || !subject.trim() || !newsFile}
+                    >
+                        Send Batch News
                     </Button>
                 </div>
             </div>
