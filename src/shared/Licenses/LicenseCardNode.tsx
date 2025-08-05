@@ -22,13 +22,18 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
     useEffect(() => {
         if (license.isLinked) {
             (async () => {
-                const [alias, isOnline] = await Promise.all([license.alias, license.isOnline]);
+                try {
+                    const [alias, isOnline] = await Promise.all([license.alias, license.isOnline]);
 
-                setNode({
-                    alias,
-                    isOnline,
-                });
-                setLoading(false);
+                    setNode({
+                        alias,
+                        isOnline,
+                    });
+                } catch (error) {
+                    console.log(`[LicenseCardNode] Error fetching node info:`, error);
+                } finally {
+                    setLoading(false);
+                }
             })();
 
             // Refetching node status every minute
@@ -50,10 +55,10 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
         queryKey: ['refetchedNodeInfo', license.nodeAddress],
         queryFn: async ({ queryKey }) => {
             const nodeEthAddress = queryKey[1] as EthAddress;
-            // console.log(`[Query] Fetching node info for address: ${nodeEthAddress}`);
+            console.log(`[Query] Fetching node info for address: ${nodeEthAddress}`);
 
             const nodeInfo = await getNodeInfo(nodeEthAddress);
-            // console.log(`[Query] Received node info:`, nodeInfo);
+            console.log(`[Query] Received node info:`, nodeInfo);
 
             // Check if the alias is 'missing_id' and throw an error to trigger the retry
             if (nodeInfo.node_alias === 'missing_id') {
@@ -62,16 +67,15 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
 
             return nodeInfo;
         },
-        enabled:
-            license.isLinked && !isLoading && (node?.alias === undefined || node?.alias === 'missing_id') && failureCount < 6, // alias is undefined only in case of an error
+        enabled: license.isLinked && !isLoading && node?.alias === 'missing_id' && failureCount < 6, // alias is undefined only in case of an error
         retry: (count, error) => {
-            // console.log(`[Query] Retry attempt ${count + 1} for node ${license.nodeAddress}`, error);
+            console.log(`[Query] Retry attempt ${count + 1} for node ${license.nodeAddress}`, error);
             setFailureCount(count + 1);
             return count < 6;
         },
         retryDelay: (attemptIndex) => {
             const delay = 5000; // 5 seconds
-            // console.log(`[Query] Waiting ${delay}ms before retry ${attemptIndex + 1}`);
+            console.log(`[Query] Waiting ${delay}ms before retry ${attemptIndex + 1}`);
             return delay;
         },
         refetchInterval: 5000,
