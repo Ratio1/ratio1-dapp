@@ -12,6 +12,7 @@ type Config = {
     ndContractAddress: EthAddress;
     mndContractAddress: EthAddress;
     controllerContractAddress: EthAddress;
+    readerContractAddress: EthAddress;
     uniswapV2RouterAddress: EthAddress;
     faucetContractAddress?: EthAddress;
     safeAddress: EthAddress;
@@ -37,6 +38,7 @@ const configs: {
         ndContractAddress: '0xE658DF6dA3FB5d4FBa562F1D5934bd0F9c6bd423',
         mndContractAddress: '0x0C431e546371C87354714Fcc1a13365391A549E2',
         controllerContractAddress: '0x90dA5FdaA92edDC80FB73114fb7FE7D97f2be017',
+        readerContractAddress: '0xa2fDD4c7E93790Ff68a01f01AA789D619F12c6AC',
         uniswapV2RouterAddress: '0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24',
         safeAddress: '0x2265539ae09c7A605A707E11a6ED4aF1d018750e',
         explorerUrl: 'https://basescan.org',
@@ -49,6 +51,15 @@ const configs: {
         networks: [base],
         ND_LICENSE_CAP: 1575_188843457943924200n,
         swapTokensDetails: {
+            USDC: {
+                name: 'USDC',
+                address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+                decimals: 6,
+                displayDecimals: 2,
+                fromAmount: '250',
+                logo: UsdcLogo,
+                swapPath: ['0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', '0x6444C6c2D527D85EA97032da9A7504d6d1448ecF'],
+            },
             ETH: {
                 name: 'Ethereum',
                 decimals: 18,
@@ -61,15 +72,6 @@ const configs: {
                     '0x6444C6c2D527D85EA97032da9A7504d6d1448ecF',
                 ],
             },
-            USDC: {
-                name: 'USDC',
-                address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-                decimals: 6,
-                displayDecimals: 2,
-                fromAmount: '250',
-                logo: UsdcLogo,
-                swapPath: ['0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', '0x6444C6c2D527D85EA97032da9A7504d6d1448ecF'],
-            },
         },
     },
     testnet: {
@@ -79,6 +81,7 @@ const configs: {
         ndContractAddress: '0x18E86a5829CA1F02226FA123f30d90dCd7cFd0ED',
         mndContractAddress: '0xa8d7FFCE91a888872A9f5431B4Dd6c0c135055c1',
         controllerContractAddress: '0x63BEC1B3004154698830C7736107E7d3cfcbde79',
+        readerContractAddress: '0xd1c7Dca934B37FAA402EB2EC64F6644d6957bE3b',
         faucetContractAddress: '0x4a1bC775410067Ad5468945EF7ca5b0C510CDD99',
         uniswapV2RouterAddress: '0x6682375ebC1dF04676c0c5050934272368e6e883',
         safeAddress: '0x5afF90797f717Fe8432A1809b6b53A18863061D6',
@@ -92,6 +95,15 @@ const configs: {
         networks: [baseSepolia],
         ND_LICENSE_CAP: 1575_188843457943924200n,
         swapTokensDetails: {
+            USDC: {
+                name: 'USDC',
+                address: '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
+                decimals: 6,
+                displayDecimals: 2,
+                fromAmount: '500',
+                logo: UsdcLogo,
+                swapPath: ['0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF', '0xCC96f389F45Fc08b4fa8e2bC4C7DA9920292ec64'],
+            },
             ETH: {
                 name: 'Ethereum',
                 decimals: 18,
@@ -104,29 +116,21 @@ const configs: {
                     '0xCC96f389F45Fc08b4fa8e2bC4C7DA9920292ec64',
                 ],
             },
-            USDC: {
-                name: 'USDC',
-                address: '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
-                decimals: 6,
-                displayDecimals: 2,
-                fromAmount: '500',
-                logo: UsdcLogo,
-                swapPath: ['0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF', '0xCC96f389F45Fc08b4fa8e2bC4C7DA9920292ec64'],
-            },
         },
     },
     devnet: {
         backendUrl: 'https://devnet-dapp-api.ratio1.ai',
         oraclesUrl: 'https://devnet-oracle.ratio1.ai',
-        r1ContractAddress: '0x07C5678F0f4aC347496eAA8D6031b37FF3402CE5',
-        ndContractAddress: '0x8D0CE4933728FF7C04388f0bEcC9a45676E232F7',
-        mndContractAddress: '0x7A14Be75135a7ebdef99339CCc700C25Cda60c6E',
-        controllerContractAddress: '0xdd56E920810e2FD9a07C1718643E179839867253',
+        r1ContractAddress: '0x277CbD0Cf25F4789Bc04035eCd03d811FAf73691',
+        ndContractAddress: '0x90025B92240E3070d5CdcB3f44D6411855c55a73',
+        mndContractAddress: '0x17B8934dc5833CdBa1eF42D13D65D677C4727748',
+        controllerContractAddress: '0x46fB56B7499925179d81380199E238f7AE75857B',
+        readerContractAddress: '0xFcF04c9A67330431Af75a546615E4881BD8bdC78',
         faucetContractAddress: '0x4a1bC775410067Ad5468945EF7ca5b0C510CDD99',
         uniswapV2RouterAddress: '0x6682375ebC1dF04676c0c5050934272368e6e883',
         safeAddress: '0x20b1ebc9c13A6F4f3dfBdF9bc9299ec40Ac988e3',
         explorerUrl: 'https://sepolia.basescan.org',
-        genesisDate: new Date('2025-05-23T16:00:00.000Z'),
+        genesisDate: new Date('2025-06-30T07:00:00.000Z'),
         epochDurationInSeconds: 3600, // 1 hour
         mndCliffEpochs: 223,
         gndVestingEpochs: 365,
@@ -135,6 +139,15 @@ const configs: {
         networks: [baseSepolia],
         ND_LICENSE_CAP: 1575_188843457943924200n,
         swapTokensDetails: {
+            USDC: {
+                name: 'USDC',
+                address: '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
+                decimals: 6,
+                displayDecimals: 2,
+                fromAmount: '500',
+                logo: UsdcLogo,
+                swapPath: ['0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF', '0x277CbD0Cf25F4789Bc04035eCd03d811FAf73691'],
+            },
             ETH: {
                 name: 'Ethereum',
                 decimals: 18,
@@ -144,21 +157,19 @@ const configs: {
                 swapPath: [
                     '0x24fe7807089e321395172633aA9c4bBa4Ac4a357',
                     '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
-                    '0x07C5678F0f4aC347496eAA8D6031b37FF3402CE5',
+                    '0x277CbD0Cf25F4789Bc04035eCd03d811FAf73691',
                 ],
-            },
-            USDC: {
-                name: 'USDC',
-                address: '0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF',
-                decimals: 6,
-                displayDecimals: 2,
-                fromAmount: '500',
-                logo: UsdcLogo,
-                swapPath: ['0xfD9A4a17D76087f7c94950b67c3A5b7638427ECF', '0x07C5678F0f4aC347496eAA8D6031b37FF3402CE5'],
             },
         },
     },
 };
+
+export const adminAddresses = [
+    '0x95E9EeEf459a9cDA096af7C6033D4d9582B9513c',
+    '0xDA05C48CDbA9A67A422cFA40b4C0F6b7FFB0E4a5',
+    '0xE75981c3fb2734F263cEa7F81fF2Dd6586c1BF9A',
+    '0xA59eF3f6B10723577e7F8966dC88670233B8a0d5',
+];
 
 const domain = window.location.hostname;
 
@@ -181,7 +192,7 @@ export const environment: 'mainnet' | 'testnet' | 'devnet' =
           ? ('testnet' as const)
           : domain === domainDevnet
             ? ('devnet' as const)
-            : ('devnet' as const);
+            : ('mainnet' as const);
 
 export const getR1ExplorerUrl = () => `https://${environment === 'mainnet' ? '' : `${environment}-`}${explorerBaseDomain}`;
 

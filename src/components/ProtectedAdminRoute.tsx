@@ -1,5 +1,5 @@
-import { config } from '@lib/config';
-import { Spinner } from "@heroui/spinner";
+import { adminAddresses, config } from '@lib/config';
+import { Spinner } from '@heroui/spinner';
 import Admin from '@pages/Admin';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { ConnectKitButton } from 'connectkit';
@@ -16,7 +16,7 @@ export const ProtectedAdminRoute = () => {
 
     useEffect(() => {
         if (address) {
-            setAuthorized(address === config.safeAddress);
+            setAuthorized(address === config.safeAddress || adminAddresses.includes(address));
             setLoading(false);
         }
     }, [address]);

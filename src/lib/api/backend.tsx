@@ -51,6 +51,29 @@ export const initSumsubSession = (type: 'individual' | 'company') => _doPost<str
 export const registerEmail = (params: { email: string; receiveUpdates: boolean }) =>
     _doPost<types.ApiAccount>('/accounts/email/register', params);
 
+export const newSellerCode = (params: { address: string; forcedCode?: string }) =>
+    _doPost<types.ApiAccount>('/seller/new', params);
+
+export const sendBatchNews = async (params: { news: File; subject: string }) => {
+    const formData = new FormData();
+    formData.append('news', params.news);
+    formData.append('subject', params.subject);
+
+    const { data } = await axiosBackend.post<{
+        data: any;
+        error: string;
+    }>('/admin/news', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+
+    if (data.error) {
+        throw new Error(data.error);
+    }
+    return data.data;
+};
+
 // *****
 // INTERNAL HELPERS
 // *****

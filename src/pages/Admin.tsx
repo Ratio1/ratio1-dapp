@@ -1,20 +1,22 @@
 import { ControllerAbi } from '@blockchain/Controller';
 import { MNDContractAbi } from '@blockchain/MNDContract';
-import { NDContractAbi } from '@blockchain/NDContract';
+import { newSellerCode, sendBatchNews } from '@lib/api/backend';
 import { config, getR1ExplorerUrl } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { fBI, getShortAddress } from '@lib/utils';
-import { Button } from "@heroui/button";
-import { Input } from "@heroui/input";
-import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@heroui/table";
+import { Button } from '@heroui/button';
+import { Input } from '@heroui/input';
+import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/table';
 import { BigCard } from '@shared/BigCard';
 import { LargeValueWithLabel } from '@shared/LargeValueWithLabel';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { EthAddress, MNDLicense } from 'typedefs/blockchain';
 import { usePublicClient, useWalletClient } from 'wagmi';
+import { getNodeInfo } from '@lib/api/oracles';
+import { ReaderAbi } from '@blockchain/Reader';
 
-const columns = [
+const columnsMndsTable = [
     { key: 1, label: 'ID' },
     { key: 2, label: 'Owner' },
     { key: 3, label: 'Node Address' },
@@ -24,12 +26,27 @@ const columns = [
     { key: 7, label: 'Last Claim Oracle' },
 ];
 
+const columnsOraclesTable = [
+    { key: 1, label: 'Node Alias' },
+    { key: 2, label: 'Node Address' },
+    { key: 3, label: 'Signatures' },
+    { key: 4, label: 'Days Added' },
+    { key: 5, label: 'Signatures per Day' },
+];
+
 type AdminMndView = Omit<MNDLicense, 'claimableEpochs' | 'isLinked'> & { owner: EthAddress };
+type OracleDetails = {
+    oracleAddress: EthAddress;
+    signaturesCount: bigint;
+    additionTimestamp: bigint;
+    node_alias: string;
+    node_is_online: boolean;
+};
 
 function Admin() {
     const publicClient = usePublicClient();
 
-    const [oracles, setOracles] = useState<EthAddress[]>([]);
+    const [oracles, setOracles] = useState<OracleDetails[]>([]);
     const [mnds, setMnds] = useState<(AdminMndView | null)[]>([]);
 
     const fetchData = () => {
@@ -37,12 +54,21 @@ function Admin() {
 
         publicClient
             .readContract({
-                address: config.controllerContractAddress,
-                abi: ControllerAbi,
-                functionName: 'getOracles',
+                address: config.readerContractAddress,
+                abi: ReaderAbi,
+                functionName: 'getOraclesDetails',
             })
             .then((result) => {
-                setOracles([...result]);
+                Promise.all(
+                    result.map(async (oracle) => {
+                        return {
+                            ...oracle,
+                            ...(await getNodeInfo(oracle.oracleAddress)),
+                        };
+                    }),
+                ).then((oraclesInfo) => {
+                    setOracles(oraclesInfo);
+                });
             });
 
         publicClient
@@ -108,10 +134,13 @@ function Admin() {
         <div className="col gap-4">
             <CreateMnd mnds={mnds} fetchData={fetchData} />
             <MndsTable mnds={mnds} />
-            <AddSigner oracles={oracles} fetchData={fetchData} />
-            <RemoveSigner oracles={oracles} fetchData={fetchData} />
+            <AddOracle oracles={oracles} fetchData={fetchData} />
+            <RemoveOracle oracles={oracles} fetchData={fetchData} />
+            <OraclesTable oracles={oracles} />
             <AllowMndTransfer />
             <AllowMndBurn />
+            <AddSellerCode />
+            <SendBatchNews />
         </div>
     );
 }
@@ -288,7 +317,7 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
                     }}
                     removeWrapper
                 >
-                    <TableHeader columns={columns}>
+                    <TableHeader columns={columnsMndsTable}>
                         {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                     </TableHeader>
                     <TableBody items={mnds}>
@@ -336,7 +365,7 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
     );
 }
 
-function AddSigner({ oracles, fetchData }: { oracles: EthAddress[]; fetchData: () => void }) {
+function AddOracle({ oracles, fetchData }: { oracles: OracleDetails[]; fetchData: () => void }) {
     const { watchTx } = useBlockchainContext() as BlockchainContextType;
 
     const [address, setAddress] = useState<string>('');
@@ -394,9 +423,13 @@ function AddSigner({ oracles, fetchData }: { oracles: EthAddress[]; fetchData: (
                             color="secondary"
                             onPress={onAdd}
                             isLoading={isLoading}
-                            isDisabled={isLoading || !address || oracles.includes(address as EthAddress)}
+                            isDisabled={
+                                isLoading ||
+                                !address ||
+                                oracles.map((oracle) => oracle.oracleAddress).includes(address as EthAddress)
+                            }
                         >
-                            {!oracles.includes(address as EthAddress) ? 'Add' : 'Added'}
+                            {!oracles.map((oracle) => oracle.oracleAddress).includes(address as EthAddress) ? 'Add' : 'Added'}
                         </Button>
                     </div>
                 </div>
@@ -405,7 +438,7 @@ function AddSigner({ oracles, fetchData }: { oracles: EthAddress[]; fetchData: (
     );
 }
 
-function RemoveSigner({ oracles, fetchData }: { oracles: EthAddress[]; fetchData: () => void }) {
+function RemoveOracle({ oracles, fetchData }: { oracles: OracleDetails[]; fetchData: () => void }) {
     const { watchTx } = useBlockchainContext() as BlockchainContextType;
 
     const [address, setAddress] = useState<string>('');
@@ -463,12 +496,65 @@ function RemoveSigner({ oracles, fetchData }: { oracles: EthAddress[]; fetchData
                             color="secondary"
                             onPress={onRemove}
                             isLoading={isLoading}
-                            isDisabled={isLoading || !address || !oracles.includes(address as EthAddress)}
+                            isDisabled={
+                                isLoading ||
+                                !address ||
+                                !oracles.map((oracle) => oracle.oracleAddress).includes(address as EthAddress)
+                            }
                         >
-                            {oracles.includes(address as EthAddress) ? 'Remove' : 'Not an oracle'}
+                            {oracles.map((oracle) => oracle.oracleAddress).includes(address as EthAddress)
+                                ? 'Remove'
+                                : 'Not an oracle'}
                         </Button>
                     </div>
                 </div>
+            </div>
+        </BigCard>
+    );
+}
+
+function OraclesTable({ oracles }: { oracles: OracleDetails[] }) {
+    return (
+        <BigCard>
+            <div className="text-base font-semibold leading-6 lg:text-xl">Oracles</div>
+
+            <div className="rounded-xl border border-[#e3e4e</div>8] bg-light p-3">
+                <Table
+                    aria-label="MNDs Table"
+                    classNames={{
+                        th: 'bg-slate-100 text-body text-[13px]',
+                    }}
+                    removeWrapper
+                >
+                    <TableHeader columns={columnsOraclesTable}>
+                        {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+                    </TableHeader>
+                    <TableBody items={oracles}>
+                        {(oracle) => {
+                            const timeAdded = Date.now() - Number(oracle.additionTimestamp) * 1000;
+                            const daysAdded = Number((timeAdded / (1000 * 60 * 60 * 24)).toFixed(2));
+                            const signaturesPerDay = Number((Number(oracle.signaturesCount) / daysAdded).toFixed(2));
+
+                            return (
+                                <TableRow key={oracle.oracleAddress}>
+                                    <TableCell>{oracle.node_alias}</TableCell>
+                                    <TableCell>
+                                        <a
+                                            href={`${getR1ExplorerUrl()}/node/${oracle.oracleAddress}`}
+                                            target="_blank"
+                                            className="underline"
+                                        >
+                                            {oracle.oracleAddress}
+                                        </a>
+                                    </TableCell>
+                                    <TableCell>{oracle.signaturesCount.toString()}</TableCell>
+                                    <TableCell>{daysAdded} days</TableCell>
+                                    <TableCell>{signaturesPerDay} sig/day</TableCell>
+                                </TableRow>
+                            );
+                        }}
+                    </TableBody>
+                </Table>
             </div>
         </BigCard>
     );
@@ -615,6 +701,164 @@ function AllowMndBurn() {
                         isDisabled={isLoading || !sender}
                     >
                         Allow Burn
+                    </Button>
+                </div>
+            </div>
+        </BigCard>
+    );
+}
+
+function AddSellerCode() {
+    const [address, setAddress] = useState<string>('');
+    const [code, setCode] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const onAdd = async () => {
+        setIsLoading(true);
+
+        await newSellerCode({ address, forcedCode: code || undefined });
+
+        setIsLoading(false);
+    };
+
+    return (
+        <BigCard>
+            <div className="text-base font-semibold leading-6 lg:text-xl">Create new referral code</div>
+
+            <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
+                <Input
+                    value={address}
+                    onValueChange={setAddress}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Address"
+                    labelPlacement="outside"
+                    placeholder="0x..."
+                />
+                <Input
+                    value={code}
+                    onValueChange={setCode}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Code (optional)"
+                    labelPlacement="outside"
+                    placeholder="ABC123"
+                />
+
+                <div className="flex">
+                    <Button
+                        fullWidth
+                        color="secondary"
+                        onPress={onAdd}
+                        isLoading={isLoading}
+                        isDisabled={isLoading || !address}
+                    >
+                        Create
+                    </Button>
+                </div>
+            </div>
+        </BigCard>
+    );
+}
+
+function SendBatchNews() {
+    const [subject, setSubject] = useState<string>('');
+    const [newsFile, setNewsFile] = useState<File | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const onSend = async () => {
+        if (!newsFile) {
+            toast.error('Please select an HTML file');
+            return;
+        }
+
+        if (!subject.trim()) {
+            toast.error('Please enter a subject');
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            await sendBatchNews({
+                news: newsFile,
+                subject: subject.trim(),
+            });
+
+            toast.success('Batch news sent successfully');
+            setSubject('');
+            setNewsFile(null);
+        } catch (error) {
+            toast.error('Failed to send batch news');
+            console.error('Error sending batch news:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file && file.type === 'text/html') {
+            setNewsFile(file);
+        } else if (file) {
+            toast.error('Please select an HTML file');
+            event.target.value = '';
+        }
+    };
+
+    return (
+        <BigCard>
+            <div className="text-base font-semibold leading-6 lg:text-xl">Send Batch News</div>
+
+            <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
+                <Input
+                    value={subject}
+                    onValueChange={setSubject}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Subject"
+                    labelPlacement="outside"
+                    placeholder="Email subject"
+                />
+
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-foreground">HTML File</label>
+                    <input
+                        type="file"
+                        accept=".html,.htm"
+                        onChange={handleFileChange}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-primary/90"
+                    />
+                    {newsFile && <p className="text-xs text-gray-600">Selected: {newsFile.name}</p>}
+                </div>
+
+                <div className="flex">
+                    <Button
+                        fullWidth
+                        color="secondary"
+                        onPress={onSend}
+                        isLoading={isLoading}
+                        isDisabled={isLoading || !subject.trim() || !newsFile}
+                    >
+                        Send Batch News
                     </Button>
                 </div>
             </div>
