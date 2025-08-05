@@ -1,7 +1,7 @@
+import { Modal, ModalBody, ModalContent, ModalHeader } from '@heroui/modal';
 import { config } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { getShortAddress } from '@lib/utils';
-import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/modal";
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { RiCoinLine } from 'react-icons/ri';
 import { formatUnits } from 'viem';

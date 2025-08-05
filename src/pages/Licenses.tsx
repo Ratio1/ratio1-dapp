@@ -245,7 +245,7 @@ function Licenses() {
                         <div className="center-all w-full py-14">
                             <EmptyData
                                 title="No licenses found"
-                                description="Your licenses will be displayed here."
+                                description="Your licenses will be displayed here"
                                 icon={<RiCpuLine />}
                             />
                         </div>

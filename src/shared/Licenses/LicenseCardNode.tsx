@@ -1,7 +1,7 @@
+import { Skeleton } from '@heroui/skeleton';
 import { getNodeInfo } from '@lib/api/oracles';
 import { getR1ExplorerUrl } from '@lib/config';
 import { getShortAddress } from '@lib/utils';
-import { Skeleton } from "@heroui/skeleton";
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
@@ -11,6 +11,8 @@ import { LicenseSmallCard } from './LicenseSmallCard';
 
 export const LicenseCardNode = ({ license }: { license: License }) => {
     const [isLoading, setLoading] = useState(license.isLinked);
+
+    const [failureCount, setFailureCount] = useState(0);
 
     const [node, setNode] = useState<{
         alias: string | undefined;
@@ -55,16 +57,17 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
 
             // Check if the alias is 'missing_id' and throw an error to trigger the retry
             if (nodeInfo.node_alias === 'missing_id') {
-                // console.log(`[Query] Node alias is 'missing_id', throwing error to trigger retry`);
                 throw new Error('Node alias is missing_id - retrying...');
             }
 
             return nodeInfo;
         },
-        enabled: license.isLinked && !isLoading && (node?.alias === undefined || node?.alias === 'missing_id'), // alias is undefined only in case of an error
-        retry: (failureCount, error) => {
-            // console.log(`[Query] Retry attempt ${failureCount + 1}/8 for node ${license.nodeAddress}`, error);
-            return failureCount < 8;
+        enabled:
+            license.isLinked && !isLoading && (node?.alias === undefined || node?.alias === 'missing_id') && failureCount < 6, // alias is undefined only in case of an error
+        retry: (count, error) => {
+            // console.log(`[Query] Retry attempt ${count + 1} for node ${license.nodeAddress}`, error);
+            setFailureCount(count + 1);
+            return count < 6;
         },
         retryDelay: (attemptIndex) => {
             const delay = 5000; // 5 seconds
