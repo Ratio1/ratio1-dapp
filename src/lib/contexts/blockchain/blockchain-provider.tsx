@@ -159,8 +159,40 @@ export const BlockchainProvider = ({ children }) => {
         }
     };
 
+    const fetchLicensesWithRewards = async (): Promise<any[]> => {
+        if (!publicClient || !address) {
+            console.error('No public client or address.');
+            return [];
+        }
+
+        setLoadingLicenses(true);
+
+        const [mndLicenses, ndLicenses] = await Promise.all([
+            publicClient.readContract({
+                address: config.mndContractAddress,
+                abi: MNDContractAbi,
+                functionName: 'getLicenses',
+                args: [address],
+            }),
+            publicClient.readContract({
+                address: config.ndContractAddress,
+                abi: NDContractAbi,
+                functionName: 'getLicenses',
+                args: [address],
+            }),
+        ]);
+
+        // TODO: Implement multi_node_epochs_range
+
+        const licenses = [...mndLicenses, ...ndLicenses];
+        console.log('fetchLicensesWithRewards', licenses);
+
+        return licenses;
+    };
+
     const fetchLicenses = async (): Promise<Array<License>> => {
         if (!publicClient || !address) {
+            console.error('No public client or address.');
             return [];
         }
 
@@ -285,6 +317,7 @@ export const BlockchainProvider = ({ children }) => {
                 // Licenses
                 licenses,
                 isLoadingLicenses,
+                fetchLicensesWithRewards,
                 fetchLicenses,
                 setLicenses,
                 // R1 Balance

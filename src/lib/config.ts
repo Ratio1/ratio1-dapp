@@ -210,7 +210,7 @@ export const getLicenseAssignEpoch = (assignTimestamp: bigint) =>
     Math.floor((Number(assignTimestamp) - config.genesisDate.getTime() / 1000) / config.epochDurationInSeconds);
 
 export const getDevAddress = (): {
-    address: string;
+    address: EthAddress;
 } => ({
     address: import.meta.env.VITE_DEV_ADDRESS,
 });

@@ -22,7 +22,8 @@ import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 const PAGE_SIZE = 10;
 
 function Licenses() {
-    const { watchTx, licenses, isLoadingLicenses, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
+    const { watchTx, licenses, isLoadingLicenses, fetchLicensesWithRewards, fetchLicenses } =
+        useBlockchainContext() as BlockchainContextType;
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
     const [licensesToShow, setLicensesToShow] = useState<Array<License>>([]);
@@ -60,6 +61,7 @@ function Licenses() {
             return;
         } else {
             if (authenticated && !!address && publicClient) {
+                fetchLicensesWithRewards();
                 fetchLicenses();
             }
         }

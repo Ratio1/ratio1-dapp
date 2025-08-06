@@ -8,6 +8,7 @@ export interface BlockchainContextType {
     // Licenses
     licenses: License[];
     isLoadingLicenses: boolean;
+    fetchLicensesWithRewards: () => Promise<any[]>;
     fetchLicenses: () => Promise<License[]>;
     setLicenses: React.Dispatch<React.SetStateAction<License[]>>;
 
