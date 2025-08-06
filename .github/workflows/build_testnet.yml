@@ -2,7 +2,7 @@ name: Build and Push Testnet & Devnet Container
 
 on:
   push:
-    branches: [ development, add-build-gh-actions ]
+    branches: [ development ]
   # also allow manual runs
   workflow_dispatch:
 
