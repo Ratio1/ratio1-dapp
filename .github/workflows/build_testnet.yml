@@ -35,7 +35,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-                ratio1/ratio1_dapp:testnet
+                ratio1/dapp:testnet
 
       - name: Build & Push Devnet Image
         uses: docker/build-push-action@v5
@@ -47,4 +47,4 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-                ratio1/ratio1_dapp:devnet
+                ratio1/dapp:devnet

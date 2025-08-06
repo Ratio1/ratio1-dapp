@@ -35,4 +35,4 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-                ratio1/ratio1_dapp:mainnet
+                ratio1/dapp:mainnet
