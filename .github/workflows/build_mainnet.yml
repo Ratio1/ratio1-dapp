@@ -2,7 +2,7 @@ name: Build and Push Mainnet Container
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, add-build-gh-actions ]
   # also allow manual runs
   workflow_dispatch:
 
