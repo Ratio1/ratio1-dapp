@@ -2,7 +2,7 @@ import { MNDContractAbi } from '@blockchain/MNDContract';
 import { Button } from '@heroui/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@heroui/dropdown';
 import { Skeleton } from '@heroui/skeleton';
-import { config, getR1ExplorerUrl } from '@lib/config';
+import { config, getDevAddress, getR1ExplorerUrl, isDebugging } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { fBI, fN } from '@lib/utils';
 import SyncingOraclesTag from '@shared/SyncingOraclesTag';
@@ -33,7 +33,7 @@ export const LicenseCardHeader = ({
     disableActions?: boolean;
 }) => {
     const publicClient = usePublicClient();
-    const { address } = useAccount();
+    const { address } = isDebugging ? getDevAddress() : useAccount();
 
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
 

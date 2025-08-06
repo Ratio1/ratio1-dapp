@@ -1,7 +1,7 @@
 import Tiers from '@components/Tiers';
 import { Alert } from '@heroui/alert';
 import { Button } from '@heroui/button';
-import { environment, getCurrentEpoch, getNextEpochTimestamp } from '@lib/config';
+import { environment, getCurrentEpoch, getDevAddress, getNextEpochTimestamp, isDebugging } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
@@ -32,7 +32,7 @@ function Dashboard() {
 
     const { account, authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
-    const { address } = useAccount();
+    const { address } = isDebugging ? getDevAddress() : useAccount();
     const publicClient = usePublicClient();
 
     const [isEpochTransitioning, setEpochTransitioning] = useState<boolean>(false);

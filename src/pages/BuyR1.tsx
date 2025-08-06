@@ -2,12 +2,12 @@ import R1Logo from '@assets/token.svg';
 import { ERC20Abi } from '@blockchain/ERC20';
 import { UniswapV2RouterAbi } from '@blockchain/UniswapV2Router';
 import { TokenSelectorModal } from '@components/TokenSelectorModal';
-import { config } from '@lib/config';
+import { Button } from '@heroui/button';
+import { useDisclosure } from '@heroui/modal';
+import { config, getDevAddress, isDebugging } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { fBI } from '@lib/utils';
-import { Button } from "@heroui/button";
-import { useDisclosure } from "@heroui/modal";
 import { AddTokenToWallet } from '@shared/AddTokenToWallet';
 import { BigCard } from '@shared/BigCard';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
@@ -73,7 +73,7 @@ function BuyR1() {
     const dualTxsModalRef = useRef<{ progress: () => void; init: () => void }>(null);
 
     const { data: walletClient } = useWalletClient();
-    const { address } = useAccount();
+    const { address } = isDebugging ? getDevAddress() : useAccount();
     const publicClient = usePublicClient();
 
     const debouncedFetchEstimatedR1Ref = useRef<ReturnType<typeof debounce> | null>(null);

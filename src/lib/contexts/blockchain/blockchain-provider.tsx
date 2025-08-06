@@ -1,9 +1,9 @@
 import { ERC20Abi } from '@blockchain/ERC20';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
-import { config } from '@lib/config';
+import { useDisclosure } from '@heroui/modal';
+import { config, getDevAddress, isDebugging } from '@lib/config';
 import { INITIAL_TIERS_STATE, getNodeAndLicenseRewards } from '@lib/utils';
-import { useDisclosure } from "@heroui/modal";
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiExternalLinkLine } from 'react-icons/ri';
@@ -31,7 +31,7 @@ export const BlockchainProvider = ({ children }) => {
     // License buying
     const { isOpen: isBuyDrawerOpen, onOpen: onBuyDrawerOpen, onClose: onBuyDrawerClose } = useDisclosure();
 
-    const { address } = useAccount();
+    const { address } = isDebugging ? getDevAddress() : useAccount();
     const publicClient = usePublicClient();
 
     useEffect(() => {

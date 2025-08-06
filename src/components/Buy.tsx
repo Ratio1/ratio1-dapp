@@ -7,7 +7,7 @@ import { Input } from '@heroui/input';
 import { useDisclosure } from '@heroui/modal';
 import { Spinner } from '@heroui/spinner';
 import { buyLicense } from '@lib/api/backend';
-import { config, environment } from '@lib/config';
+import { config, environment, getDevAddress, isDebugging } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
@@ -62,7 +62,7 @@ function Buy({ onClose }: { onClose: () => void }) {
 
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
-    const { address } = useAccount();
+    const { address } = isDebugging ? getDevAddress() : useAccount();
 
     useEffect(() => {
         if (!publicClient) {

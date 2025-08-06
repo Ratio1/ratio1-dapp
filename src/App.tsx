@@ -2,7 +2,7 @@ import Buy from '@components/Buy';
 import Layout from '@components/Layout';
 import { Drawer, DrawerBody, DrawerContent } from '@heroui/drawer';
 import { addReferralCode } from '@lib/api/backend';
-import { domains, environment } from '@lib/config';
+import { domains, environment, getDevAddress, isDebugging } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
@@ -18,7 +18,7 @@ function App() {
     const { authenticated, account, fetchAccount } = useAuthenticationContext() as AuthenticationContextType;
     const { setLicenses, setR1Balance, isBuyDrawerOpen, onBuyDrawerClose } = useBlockchainContext() as BlockchainContextType;
 
-    const { address } = useAccount();
+    const { address } = isDebugging ? getDevAddress() : useAccount();
 
     // Init
     useEffect(() => {

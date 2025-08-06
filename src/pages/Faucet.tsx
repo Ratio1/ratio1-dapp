@@ -3,12 +3,12 @@ import Coinbase from '@assets/faucets/coinbase.png';
 import Optimism from '@assets/faucets/optimism.jpeg';
 import Thirdweb from '@assets/faucets/thirdweb.png';
 import { TestnetFaucetContractAbi } from '@blockchain/TestnetFaucet';
-import { config } from '@lib/config';
+import { Button } from '@heroui/button';
+import { config, getDevAddress, isDebugging } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
 import { fBI } from '@lib/utils';
-import { Button } from "@heroui/button";
 import { AddTokenToWallet } from '@shared/AddTokenToWallet';
 import { BigCard } from '@shared/BigCard';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
@@ -33,7 +33,7 @@ function Faucet() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const { data: walletClient } = useWalletClient();
-    const { address } = useAccount();
+    const { address } = isDebugging ? getDevAddress() : useAccount();
     const publicClient = usePublicClient();
 
     const onClaim = async () => {
