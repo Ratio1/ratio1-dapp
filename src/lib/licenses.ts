@@ -30,14 +30,11 @@ export const getLicensesWithNodesWithRewards = async (licenses: (BaseGNDLicense 
         {} as Record<types.EthAddress, [number, number]>,
     );
 
-    const result = await getMultiNodeEpochsRange(nodesWithRanges);
-
-    console.log(`getMultiNodeEpochsRange (${result.query_time}s)`);
+    const result = getMultiNodeEpochsRange(nodesWithRanges);
 
     const licensesWithNodesWithRewards: types.License[] = licenses.map((license) => {
-        const availability: types.OraclesAvailabilityResult = result[license.nodeAddress];
-        const { epochs, epochs_vals, eth_signatures, node_alias, node_is_online } = availability;
-        let rewards: bigint | undefined;
+        const availability: Promise<types.OraclesAvailabilityResult> = result.then((result) => result[license.nodeAddress]);
+        let rewards: Promise<bigint | undefined>;
 
         switch (license.type) {
             case 'ND':
@@ -53,18 +50,18 @@ export const getLicensesWithNodesWithRewards = async (licenses: (BaseGNDLicense 
                 break;
 
             default:
-                rewards = undefined;
+                rewards = Promise.resolve(undefined);
         }
 
         return {
             ...license,
             isLinked: true as const,
-            rewards: Promise.resolve(rewards),
-            alias: Promise.resolve(node_alias),
-            isOnline: Promise.resolve(node_is_online),
-            epochs: Promise.resolve(epochs),
-            epochsAvailabilities: Promise.resolve(epochs_vals),
-            ethSignatures: Promise.resolve(eth_signatures),
+            rewards,
+            alias: availability.then(({ node_alias }) => node_alias),
+            isOnline: availability.then(({ node_is_online }) => node_is_online),
+            epochs: availability.then(({ epochs }) => epochs),
+            epochsAvailabilities: availability.then(({ epochs_vals }) => epochs_vals),
+            ethSignatures: availability.then(({ eth_signatures }) => eth_signatures),
         };
     });
 
@@ -110,15 +107,15 @@ const getMndRewardsEpochsRange = (license: BaseMNDLicense, currentEpoch: number)
     return [currentEpoch >= config.mndCliffEpochs ? firstEpochToClaim : currentEpoch - 1, currentEpoch - 1];
 };
 
-const getNdOrGndRewards = (
+const getNdOrGndRewards = async (
     license: BaseNDLicense | BaseGNDLicense,
-    availability: types.OraclesAvailabilityResult,
+    availability: Promise<types.OraclesAvailabilityResult>,
     vestingEpochs: number,
-): bigint | undefined => {
+): Promise<bigint | undefined> => {
     const currentEpoch = getCurrentEpoch();
     const epochsToClaim = currentEpoch - Number(license.lastClaimEpoch);
 
-    const { epochs, epochs_vals } = availability;
+    const { epochs, epochs_vals } = await availability;
 
     if (!epochsToClaim) {
         return 0n;
@@ -145,13 +142,16 @@ const getNdOrGndRewards = (
     return rewards_amount;
 };
 
-const getMndRewards = (license: BaseMNDLicense, availability: types.OraclesAvailabilityResult): bigint | undefined => {
+const getMndRewards = async (
+    license: BaseMNDLicense,
+    availability: Promise<types.OraclesAvailabilityResult>,
+): Promise<bigint | undefined> => {
     const currentEpoch = getCurrentEpoch();
     const firstEpochToClaim =
         license.lastClaimEpoch >= license.firstMiningEpoch ? Number(license.lastClaimEpoch) : Number(license.firstMiningEpoch);
     const epochsToClaim = currentEpoch - firstEpochToClaim;
 
-    const { epochs, epochs_vals } = availability;
+    const { epochs, epochs_vals } = await availability;
 
     if (currentEpoch < license.firstMiningEpoch || !epochsToClaim) {
         return 0n;
