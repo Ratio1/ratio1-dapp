@@ -2,15 +2,9 @@ import { ERC20Abi } from '@blockchain/ERC20';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { useDisclosure } from '@heroui/modal';
-import { config, getCurrentEpoch, getDevAddress, isDebugging } from '@lib/config';
-import {
-    BaseGNDLicense,
-    BaseMNDLicense,
-    BaseNDLicense,
-    getLicensesWithNodesWithoutRewards,
-    getLicensesWithNodesWithRewards,
-} from '@lib/licenses';
-import { getNodeAndLicenseRewards, INITIAL_TIERS_STATE, isZeroAddress } from '@lib/utils';
+import { config, getDevAddress, isDebugging } from '@lib/config';
+import { BaseGNDLicense, BaseMNDLicense, BaseNDLicense, getLicensesWithNodesAndRewards } from '@lib/licenses';
+import { INITIAL_TIERS_STATE, isZeroAddress } from '@lib/utils';
 import { partition } from 'lodash';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -167,7 +161,7 @@ export const BlockchainProvider = ({ children }) => {
         }
     };
 
-    const fetchLicensesV2 = async (): Promise<License[]> => {
+    const fetchLicenses = async (): Promise<License[]> => {
         if (!publicClient || !address) {
             console.error('No public client or address.');
             return [];
@@ -227,27 +221,17 @@ export const BlockchainProvider = ({ children }) => {
 
             const [linked, notLinked] = partition(baseLicenses, (license) => !isZeroAddress(license.nodeAddress));
 
-            const [linkedWithRewards, linkedWithoutRewards] = partition(
-                linked,
-                (license) =>
-                    license.totalClaimedAmount !== license.totalAssignedAmount &&
-                    Number(license.lastClaimEpoch) < getCurrentEpoch(),
-            );
-
-            const linkedLicensesWithNodesWithRewards = await getLicensesWithNodesWithRewards(linkedWithRewards);
-            const linkedLicensesWithNodesWithoutRewards: License[] =
-                await getLicensesWithNodesWithoutRewards(linkedWithoutRewards);
+            const licensesWithNodesAndRewards = getLicensesWithNodesAndRewards(linked);
 
             licenses = [
                 ...notLinked.map((license) => ({
                     ...license,
                     isLinked: false as const,
                 })),
-                ...linkedLicensesWithNodesWithoutRewards,
-                ...linkedLicensesWithNodesWithRewards,
+                ...licensesWithNodesAndRewards,
             ];
 
-            console.log('fetchLicensesV2', licenses);
+            console.log('fetchLicenses', licenses);
             setLicenses(licenses);
         } catch (error) {
             console.error(error);
@@ -255,114 +239,6 @@ export const BlockchainProvider = ({ children }) => {
         } finally {
             setLoadingLicenses(false);
         }
-
-        return licenses;
-    };
-
-    const fetchLicenses = async (): Promise<Array<License>> => {
-        if (!publicClient || !address) {
-            console.error('No public client or address.');
-            return [];
-        }
-
-        setLoadingLicenses(true);
-
-        const [mndLicenses, ndLicenses] = await Promise.all([
-            publicClient
-                .readContract({
-                    address: config.mndContractAddress,
-                    abi: MNDContractAbi,
-                    functionName: 'getLicenses',
-                    args: [address],
-                })
-                .then((userLicenses) => {
-                    return userLicenses.map((userLicense) => {
-                        const isLinked = !isZeroAddress(userLicense.nodeAddress);
-                        const type = userLicense.licenseId === 1n ? ('GND' as const) : ('MND' as const);
-
-                        if (!isLinked) {
-                            return { ...userLicense, type, isLinked, isBanned: false as const };
-                        }
-
-                        const nodeAndLicenseRewardsPromise: Promise<{
-                            rewards_amount: bigint | undefined;
-                            epochs: number[];
-                            epochs_vals: number[];
-                            eth_signatures: EthAddress[];
-                            node_alias?: string;
-                            node_is_online: boolean;
-                        }> = getNodeAndLicenseRewards({
-                            ...userLicense,
-                            type,
-                            isLinked: false,
-                            isBanned: false,
-                        });
-
-                        return {
-                            ...userLicense,
-                            type,
-                            isLinked,
-                            isBanned: false as const,
-                            rewards: nodeAndLicenseRewardsPromise.then(({ rewards_amount }) => rewards_amount),
-                            alias: nodeAndLicenseRewardsPromise.then(({ node_alias }) => node_alias),
-                            isOnline: nodeAndLicenseRewardsPromise.then(({ node_is_online }) => node_is_online),
-                            epochs: nodeAndLicenseRewardsPromise.then(({ epochs }) => epochs),
-                            epochsAvailabilities: nodeAndLicenseRewardsPromise.then(({ epochs_vals }) => epochs_vals),
-                            ethSignatures: nodeAndLicenseRewardsPromise.then(({ eth_signatures }) => eth_signatures),
-                        };
-                    });
-                }),
-            publicClient
-                .readContract({
-                    address: config.ndContractAddress,
-                    abi: NDContractAbi,
-                    functionName: 'getLicenses',
-                    args: [address],
-                })
-                .then((userLicenses) => {
-                    return userLicenses.map((license) => {
-                        const type = 'ND' as const;
-                        const isLinked = !isZeroAddress(license.nodeAddress);
-                        const totalAssignedAmount = config.ND_LICENSE_CAP;
-
-                        if (!isLinked) {
-                            return { ...license, type, totalAssignedAmount, isLinked };
-                        }
-
-                        const nodeAndLicenseRewardsPromise: Promise<{
-                            rewards_amount: bigint | undefined;
-                            epochs: number[];
-                            epochs_vals: number[];
-                            eth_signatures: EthAddress[];
-                            node_alias?: string;
-                            node_is_online: boolean;
-                        }> = getNodeAndLicenseRewards({
-                            ...license,
-                            type,
-                            totalAssignedAmount,
-                            isLinked: false,
-                        });
-
-                        return {
-                            ...license,
-                            type,
-                            totalAssignedAmount,
-                            isLinked,
-                            rewards: nodeAndLicenseRewardsPromise.then(({ rewards_amount }) => rewards_amount),
-                            alias: nodeAndLicenseRewardsPromise.then(({ node_alias }) => node_alias),
-                            isOnline: nodeAndLicenseRewardsPromise.then(({ node_is_online }) => node_is_online),
-                            epochs: nodeAndLicenseRewardsPromise.then(({ epochs }) => epochs),
-                            epochsAvailabilities: nodeAndLicenseRewardsPromise.then(({ epochs_vals }) => epochs_vals),
-                            ethSignatures: nodeAndLicenseRewardsPromise.then(({ eth_signatures }) => eth_signatures),
-                        };
-                    });
-                }),
-        ]);
-
-        const licenses = [...mndLicenses, ...ndLicenses];
-        console.log('Licenses', licenses);
-        setLicenses(licenses);
-        setLoadingLicenses(false);
 
         return licenses;
     };
@@ -386,7 +262,6 @@ export const BlockchainProvider = ({ children }) => {
                 // Licenses
                 licenses,
                 isLoadingLicenses,
-                fetchLicensesV2: fetchLicensesV2,
                 fetchLicenses,
                 setLicenses,
                 // R1 Balance

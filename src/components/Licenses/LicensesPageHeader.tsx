@@ -1,4 +1,3 @@
-import Logo from '@assets/token_white.svg';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { Button } from '@heroui/button';
@@ -210,119 +209,114 @@ function LicensesPageHeader({
 
     return (
         <>
-            <div className="relative w-full rounded-3xl">
-                <div className="col relative z-10 h-full gap-4 rounded-3xl bg-[#436cc8] px-8 py-7 lg:gap-6">
-                    <div className="flex flex-col justify-between gap-3.5 border-b-2 border-white/10 pb-4 layoutBreak:flex-row lg:pb-6">
-                        <div className="row gap-2.5">
-                            <img src={Logo} alt="Logo" className="h-7" />
-                            <div className="text-lg font-medium text-white">Licenses</div>
-                        </div>
-
-                        <div className="row justify-between gap-2.5 layoutBreak:justify-end">
-                            <Button
-                                className="h-9"
-                                color="primary"
-                                size="sm"
-                                variant="faded"
-                                isLoading={isLoadingPriceTiers}
-                                onPress={buyLicense}
-                                isDisabled={isBuyingDisabled()}
-                            >
-                                <div className="row gap-1">
-                                    <div className="text-sm">Buy License</div>
-                                    <RiArrowRightUpLine className="text-base" />
-                                </div>
-                            </Button>
-
-                            <Button
-                                className="h-9"
-                                color="primary"
-                                size="sm"
-                                variant="faded"
-                                isLoading={isLoading}
-                                onPress={claimAll}
-                                isDisabled={!authenticated || !rewards}
-                            >
-                                <div className="text-sm">Claim rewards</div>
-                            </Button>
-                        </div>
+            <div className="col relative z-10 h-full w-full gap-4 rounded-2xl bg-[#436cc8] px-6 py-5">
+                <div className="flex flex-col justify-between gap-3.5 border-b-2 border-white/10 pb-5 layoutBreak:flex-row">
+                    <div className="row gap-2.5">
+                        <div className="text-lg font-medium text-white">Licenses</div>
                     </div>
 
-                    <div className="col gap-8 lg:gap-10">
-                        <div className="grid grid-cols-2 gap-4 lg:flex lg:flex-row lg:justify-between">
-                            {renderItem(
-                                'Claimable ($R1)',
-                                isLoadingRewards || rewards === undefined
-                                    ? '...'
-                                    : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)),
-                            )}
-
-                            {renderItem(
-                                'Earned ($R1)',
-                                earnedAmount < 1000000000000000000000n
-                                    ? parseFloat(Number(formatUnits(earnedAmount ?? 0n, 18)).toFixed(2))
-                                    : fBI(earnedAmount, 18),
-                            )}
-
-                            {renderItem('Future Claimable ($R1)', fBI(futureClaimableR1Amount, 18))}
-
-                            {renderItem('Current Potential Value ($)', fN(futureClaimableUsd))}
-                        </div>
-
-                        <div className="flex flex-col-reverse justify-between gap-4 lg:flex-row lg:items-end lg:gap-0">
-                            <div className="col gap-1">
-                                <div className="text-base font-medium text-white lg:text-lg">Filter</div>
-
-                                <Tabs
-                                    aria-label="Tabs"
-                                    color="default"
-                                    radius="lg"
-                                    size="lg"
-                                    classNames={{
-                                        tabList: 'p-1.5 bg-[#345eba]',
-                                        tabContent: 'text-[15px] text-white',
-                                    }}
-                                    onSelectionChange={(key) => {
-                                        onFilterChange(key as 'all' | 'linked' | 'unlinked');
-                                    }}
-                                >
-                                    <Tab key="all" title={`All (${licenses.length})`} />
-                                    <Tab
-                                        key="linked"
-                                        title={
-                                            <div className="row gap-2">
-                                                <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                                                Linked ({licenses.filter((license) => license.isLinked).length})
-                                            </div>
-                                        }
-                                    />
-                                    <Tab
-                                        key="unlinked"
-                                        title={
-                                            <div className="row gap-2">
-                                                <div className="h-2 w-2 rounded-full bg-red-500"></div>
-                                                Unlinked ({licenses.filter((license) => !license.isLinked).length})
-                                            </div>
-                                        }
-                                    />
-                                </Tabs>
+                    <div className="row justify-between gap-2.5 layoutBreak:justify-end">
+                        <Button
+                            className="h-9"
+                            color="primary"
+                            size="sm"
+                            variant="faded"
+                            isLoading={isLoadingPriceTiers}
+                            onPress={buyLicense}
+                            isDisabled={isBuyingDisabled()}
+                        >
+                            <div className="row gap-1">
+                                <div className="text-sm">Buy License</div>
+                                <RiArrowRightUpLine className="text-base" />
                             </div>
+                        </Button>
 
-                            <div className="row gap-3">
-                                <div className="text-sm font-medium text-white lg:text-base">Next rewards in</div>
-                                <Timer
-                                    timestamp={timestamp}
-                                    callback={() => {
-                                        setTimestamp(getNextEpochTimestamp());
-                                        fetchLicenses();
-                                    }}
-                                />
-                            </div>
-                        </div>
+                        <Button
+                            className="h-9"
+                            color="primary"
+                            size="sm"
+                            variant="faded"
+                            isLoading={isLoading}
+                            onPress={claimAll}
+                            isDisabled={!authenticated || !rewards}
+                        >
+                            <div className="text-sm">Claim rewards</div>
+                        </Button>
                     </div>
                 </div>
 
-                <div className="absolute -bottom-1 left-0 right-0 h-20 rounded-3xl bg-[#658bdc]"></div>
+                <div className="col gap-6 xl:gap-8">
+                    <div className="grid grid-cols-2 gap-4 lg:flex lg:flex-row lg:justify-between">
+                        {renderItem(
+                            'Claimable ($R1)',
+                            isLoadingRewards || rewards === undefined
+                                ? '...'
+                                : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)),
+                        )}
+
+                        {renderItem(
+                            'Earned ($R1)',
+                            earnedAmount < 1000000000000000000000n
+                                ? parseFloat(Number(formatUnits(earnedAmount ?? 0n, 18)).toFixed(2))
+                                : fBI(earnedAmount, 18),
+                        )}
+
+                        {renderItem('Future Claimable ($R1)', fBI(futureClaimableR1Amount, 18))}
+
+                        {renderItem('Current Potential Value ($)', fN(futureClaimableUsd))}
+                    </div>
+
+                    <div className="flex flex-col-reverse justify-between gap-4 lg:flex-row lg:items-end lg:gap-0">
+                        <div className="col gap-1">
+                            <div className="text-base font-medium text-white lg:text-lg">Filter</div>
+
+                            <Tabs
+                                aria-label="Tabs"
+                                color="default"
+                                radius="lg"
+                                size="lg"
+                                classNames={{
+                                    tabList: 'p-1.5 bg-[#345eba]',
+                                    tabContent: 'text-[15px] text-white',
+                                }}
+                                onSelectionChange={(key) => {
+                                    onFilterChange(key as 'all' | 'linked' | 'unlinked');
+                                }}
+                            >
+                                <Tab key="all" title={`All (${licenses.length})`} />
+                                <Tab
+                                    key="linked"
+                                    title={
+                                        <div className="row gap-2">
+                                            <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                                            Linked ({licenses.filter((license) => license.isLinked).length})
+                                        </div>
+                                    }
+                                />
+                                <Tab
+                                    key="unlinked"
+                                    title={
+                                        <div className="row gap-2">
+                                            <div className="h-2 w-2 rounded-full bg-red-500"></div>
+                                            Unlinked ({licenses.filter((license) => !license.isLinked).length})
+                                        </div>
+                                    }
+                                />
+                            </Tabs>
+                        </div>
+
+                        <div className="row gap-3">
+                            <div className="text-sm font-medium text-white lg:text-base">Next rewards in</div>
+                            <Timer
+                                timestamp={timestamp}
+                                callback={() => {
+                                    setTimestamp(getNextEpochTimestamp());
+                                    fetchLicenses();
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <DualTxsModal isOpen={isOpen} onOpenChange={onOpenChange} text="claim both ND and MND rewards" />

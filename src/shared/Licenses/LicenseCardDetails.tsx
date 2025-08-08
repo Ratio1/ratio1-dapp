@@ -3,6 +3,7 @@ import { getCurrentEpoch, getLicenseAssignEpoch } from '@lib/config';
 import useAwait from '@lib/useAwait';
 import { arrayAverage, throttledToastOracleError } from '@lib/utils';
 import { CardHorizontal } from '@shared/cards/CardHorizontal';
+import { SmallTag } from '@shared/SmallTag';
 import SyncingOraclesTag from '@shared/SyncingOraclesTag';
 import clsx from 'clsx';
 import { cloneElement, useMemo } from 'react';
@@ -64,7 +65,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
     const [nodePerformance, isLoadingNodePerformance] = useAwait(nodePerformancePromise);
 
-    const getTitle = (text: string) => <div className="text-[15px] font-medium md:text-[17px]">{text}</div>;
+    const getTitle = (text: string) => <div className="text-base font-medium">{text}</div>;
 
     const getLine = (
         label: string,
@@ -72,7 +73,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
         isHighlighted: boolean = false,
         isAproximate: boolean = false,
     ) => (
-        <div className="row justify-between gap-3 min-[410px]:justify-start">
+        <div className="row justify-between gap-3 text-sm min-[410px]:justify-start">
             <div className="min-w-[50%] text-slate-500">{label}</div>
             <div
                 className={clsx({
@@ -129,11 +130,11 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
     };
 
     return (
-        <div className="px-5 py-5 md:px-8 md:py-7">
-            <div className="col gap-6 lg:gap-7">
+        <div className="mx-4 mb-3 rounded-2xl bg-slate-100 px-6 py-[18px]">
+            <div className="col gap-[18px]">
                 <div
                     className={clsx('text-sm lg:text-base xl:gap-0', {
-                        'border-b-2 border-slate-200 pb-6 lg:pb-7': license.isLinked,
+                        'border-b-2 border-slate-200 pb-[18px]': license.isLinked,
                     })}
                 >
                     <div className="flex w-full flex-col gap-6 larger:flex-row">
@@ -141,7 +142,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                             {getTitle('Details')}
 
                             <div className="col flex-1 gap-1.5">
-                                {getLine('License type', license.type)}
+                                {getLine('License type', <SmallTag variant={license.type}>{license.type}</SmallTag>)}
                                 {getLine(
                                     'Assign timestamp',
                                     license.assignTimestamp === 0n

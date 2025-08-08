@@ -9,8 +9,8 @@ import { Skeleton } from '@heroui/skeleton';
 import { config, getCurrentEpoch, getDevAddress, isDebugging } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
-import { getLicenseSectionHeader } from '@lib/utils';
 import EmptyData from '@shared/EmptyData';
+import { Label } from '@shared/Label';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { LicenseSkeleton } from '@shared/Licenses/LicenseSkeleton';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -22,8 +22,7 @@ import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 const PAGE_SIZE = 10;
 
 function Licenses() {
-    const { watchTx, licenses, isLoadingLicenses, fetchLicensesV2, fetchLicenses } =
-        useBlockchainContext() as BlockchainContextType;
+    const { watchTx, licenses, isLoadingLicenses, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
     const [licensesToShow, setLicensesToShow] = useState<Array<License>>([]);
@@ -61,8 +60,7 @@ function Licenses() {
             return;
         } else {
             if (authenticated && !!address && publicClient) {
-                fetchLicensesV2();
-                // fetchLicenses(); TODO: uncomment
+                fetchLicenses();
             }
         }
     }, [authenticated, address, publicClient]);
@@ -157,8 +155,7 @@ function Licenses() {
             const receipt = await watchTx(txHash, publicClient);
 
             if (!skipFetchingRewards) {
-                // fetchLicenses(); TODO:
-                fetchLicensesV2();
+                fetchLicenses();
             }
 
             return receipt;
@@ -230,6 +227,18 @@ function Licenses() {
 
     // Used in order to split 'licensesToShow' into sections
     const filterLicensesOfType = (type: License['type']) => licensesToShow.filter((license) => license.type === type);
+
+    const getLicenseSectionHeader = (type: License['type']) => (
+        <div className="mx-auto">
+            <div className="row gap-2 pt-4">
+                <div className="text-2xl font-semibold">{type}</div>
+                <Label
+                    variant="default"
+                    text={`${filterLicensesOfType(type).length} license${filterLicensesOfType(type).length > 1 ? 's' : ''}`}
+                />
+            </div>
+        </div>
+    );
 
     return (
         <div className="h-full">

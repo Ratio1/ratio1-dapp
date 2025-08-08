@@ -1,5 +1,5 @@
 import * as types from 'typedefs/blockchain';
-import { getMultiNodeEpochsRange, getNodeInfo } from './api/oracles';
+import { getMultiNodeEpochsRange } from './api/oracles';
 import { config, getCurrentEpoch } from './config';
 
 type BaseNDLicense = types.BaseLicense & {
@@ -21,7 +21,7 @@ type BaseGNDLicense = types.BaseLicense & {
 
 export type { BaseGNDLicense, BaseMNDLicense, BaseNDLicense };
 
-export const getLicensesWithNodesWithRewards = async (licenses: (BaseGNDLicense | BaseMNDLicense | BaseNDLicense)[]) => {
+export const getLicensesWithNodesAndRewards = (licenses: (BaseGNDLicense | BaseMNDLicense | BaseNDLicense)[]) => {
     const nodesWithRanges = licenses.reduce(
         (acc, license) => {
             acc[license.nodeAddress] = getRewardsEpochsRange(license);
@@ -68,35 +68,21 @@ export const getLicensesWithNodesWithRewards = async (licenses: (BaseGNDLicense 
     return licensesWithNodesWithRewards;
 };
 
-export const getLicensesWithNodesWithoutRewards = async (
-    licenses: (BaseGNDLicense | BaseMNDLicense | BaseNDLicense)[],
-): Promise<types.License[]> => {
-    const licensesWithNodes = licenses.map((license) => {
-        return {
-            ...license,
-            isLinked: true as const,
-            rewards: Promise.resolve(0n),
-            alias: getNodeInfo(license.nodeAddress).then(({ node_alias }) => node_alias),
-            isOnline: getNodeInfo(license.nodeAddress).then(({ node_is_online }) => node_is_online),
-            epochs: Promise.resolve([]),
-            epochsAvailabilities: Promise.resolve([]),
-            ethSignatures: Promise.resolve([]),
-        };
-    });
-
-    return licensesWithNodes;
-};
-
 const getRewardsEpochsRange = (license: BaseGNDLicense | BaseMNDLicense | BaseNDLicense): [number, number] => {
     const currentEpoch = getCurrentEpoch();
     const lastClaimEpoch = Number(license.lastClaimEpoch);
 
-    switch (license.type) {
-        case 'MND':
-            return getMndRewardsEpochsRange(license, currentEpoch);
+    if (license.totalClaimedAmount !== license.totalAssignedAmount && Number(license.lastClaimEpoch) < getCurrentEpoch()) {
+        switch (license.type) {
+            case 'MND':
+                return getMndRewardsEpochsRange(license, currentEpoch);
 
-        default:
-            return [lastClaimEpoch, currentEpoch - 1];
+            default:
+                return [lastClaimEpoch, currentEpoch - 1];
+        }
+    } else {
+        // Node already claimed current epoch rewards, so we simulate a node_last_epoch call
+        return [lastClaimEpoch - 1, currentEpoch - 1];
     }
 };
 

@@ -317,9 +317,9 @@ export const LicenseCardHeader = ({
     return (
         <div
             className={clsx(
-                'flex flex-col-reverse justify-between gap-4 bg-white px-6 py-6 md:gap-6 md:px-8 lg:gap-8 larger:flex-row larger:items-center',
+                'flex flex-col-reverse justify-between gap-4 bg-white px-4 py-3 md:gap-6 lg:gap-8 larger:flex-row larger:items-center',
                 {
-                    'rounded-bl-3xl rounded-br-3xl': isExpanded,
+                    'rounded-bl-2xl rounded-br-2xl': isExpanded,
                 },
             )}
         >
