@@ -108,14 +108,14 @@ function Dashboard() {
 
     return (
         <>
-            <div className="flex w-full flex-col gap-4 lg:gap-6">
-                <div className="grid grid-cols-2 gap-4 lg:gap-6 larger:grid-cols-3">
+            <div className="flex w-full flex-col gap-4">
+                <div className="grid grid-cols-2 gap-4 larger:grid-cols-3">
                     <BigCard>
                         <div className="col h-full justify-between gap-2.5">
-                            <div className="text-base font-semibold leading-6 lg:text-xl">Claimable $R1</div>
+                            <div className="text-base font-semibold leading-6 lg:text-lg">Claimable $R1</div>
 
                             <div className="row gap-2.5">
-                                <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">
+                                <div className="text-xl font-semibold leading-6 text-primary">
                                     {isLoadingRewards ? (
                                         <div>...</div>
                                     ) : rewards === undefined ? (
@@ -130,10 +130,10 @@ function Dashboard() {
 
                     <BigCard>
                         <div className="col h-full justify-between gap-2.5">
-                            <div className="text-base font-semibold leading-6 lg:text-xl">$R1 Balance</div>
+                            <div className="text-base font-semibold leading-6 lg:text-lg">$R1 Balance</div>
 
                             <div className="min-h-[28px]">
-                                <div className="text-xl font-semibold leading-6 text-primary lg:text-[22px]">
+                                <div className="text-xl font-semibold leading-6 text-primary">
                                     {r1Balance < 1000000000000000000000n
                                         ? parseFloat(Number(formatUnits(r1Balance ?? 0n, 18)).toFixed(2))
                                         : fBI(r1Balance, 18)}
@@ -144,10 +144,10 @@ function Dashboard() {
 
                     <BigCard>
                         <div className="col h-full justify-between gap-2.5">
-                            <div className="text-base font-semibold leading-6 lg:text-xl">Current Epoch</div>
+                            <div className="text-base font-semibold leading-6 lg:text-lg">Current Epoch</div>
 
                             <div className="row gap-2.5">
-                                <div className="text-xl font-semibold leading-6 lg:text-[22px]">{getCurrentEpoch()}</div>
+                                <div className="text-xl font-semibold leading-6">{getCurrentEpoch()}</div>
 
                                 <div className="web-only-block rounded-md bg-orange-100 px-2 py-1 text-sm font-medium tracking-wider text-orange-600">
                                     <div className="row gap-1">
@@ -164,7 +164,7 @@ function Dashboard() {
 
                 <BigCard fullWidth>
                     <div className="row justify-between gap-3">
-                        <div className="text-xl font-bold leading-7 lg:text-[26px]">Licenses & Tiers</div>
+                        <div className="text-xl font-bold lg:text-[22px]">Licenses & Tiers</div>
 
                         <div className="row gap-3">
                             {!!account && authenticated && !isLoadingPriceTiers && isBuyingDisabled() && (
@@ -186,7 +186,7 @@ function Dashboard() {
                         <div className="block larger:hidden">{getKycNotCompletedAlert()}</div>
                     )}
 
-                    <div className="col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-6 lg:p-7">
+                    <div className="col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-5">
                         <Tiers currentStage={currentPriceTier} stages={priceTiers} />
                     </div>
                 </BigCard>

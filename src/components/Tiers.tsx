@@ -6,22 +6,25 @@ import { PriceTier } from 'typedefs/blockchain';
 function Tiers({ currentStage, stages }: { currentStage: number; stages: PriceTier[] }) {
     return (
         <>
-            <div className="col gap-5 lg:gap-6">
+            <div className="col gap-5">
                 <div className="flex justify-between">
                     <div className="col flex w-full justify-between gap-4 md:gap-6 lg:flex-row lg:gap-8">
                         <LargeValueWithLabel
                             label={`Current Price (T${currentStage})`}
                             value={`$${stages[currentStage - 1].usdPrice}`}
+                            isCompact
                         />
 
                         <LargeValueWithLabel
                             label="Remaining Units"
                             value={`${stages[currentStage - 1].totalUnits - stages[currentStage - 1].soldUnits}/${stages[currentStage - 1].totalUnits}`}
+                            isCompact
                         />
 
                         <LargeValueWithLabel
                             label={`Next Price (T${currentStage + 1})`}
                             value={`$${stages[currentStage].usdPrice}`}
+                            isCompact
                         />
                     </div>
                 </div>
