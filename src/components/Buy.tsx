@@ -11,6 +11,7 @@ import { config, environment, getDevAddress, isDebugging } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
+import { sleep } from '@lib/utils';
 import { AddTokenToWallet } from '@shared/AddTokenToWallet';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
@@ -139,7 +140,7 @@ function Buy({ onClose }: { onClose: () => void }) {
         setLicenseTokenPrice(price);
     };
 
-    const fetchAllowance = async (publicClient, address: string): Promise<void> => {
+    const fetchAllowance = async (publicClient, address: string): Promise<bigint> => {
         const allowance = await publicClient.readContract({
             address: config.r1ContractAddress,
             abi: ERC20Abi,
@@ -148,6 +149,8 @@ function Buy({ onClose }: { onClose: () => void }) {
         });
 
         setTokenAllowance(allowance);
+
+        return allowance;
     };
 
     const fetchUserUsdMintedAmount = async (publicClient, address: string): Promise<void> => {
@@ -178,7 +181,8 @@ function Buy({ onClose }: { onClose: () => void }) {
 
         await watchTx(txHash, publicClient);
 
-        fetchAllowance(publicClient, address);
+        await sleep(2000);
+        await fetchAllowance(publicClient, address);
     };
 
     const buy = async () => {
@@ -220,7 +224,8 @@ function Buy({ onClose }: { onClose: () => void }) {
         await watchTx(txHash, publicClient);
 
         // Refresh buying/tx state
-        fetchAllowance(publicClient, address);
+        await sleep(1000);
+        await fetchAllowance(publicClient, address);
         fetchR1Balance();
 
         // Refresh data about the user's account spending limit
