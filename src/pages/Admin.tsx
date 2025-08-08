@@ -1,20 +1,20 @@
 import { ControllerAbi } from '@blockchain/Controller';
 import { MNDContractAbi } from '@blockchain/MNDContract';
-import { newSellerCode, sendBatchNews } from '@lib/api/backend';
-import { config, getR1ExplorerUrl } from '@lib/config';
-import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
-import { fBI, getShortAddress } from '@lib/utils';
+import { ReaderAbi } from '@blockchain/Reader';
 import { Button } from '@heroui/button';
 import { Input } from '@heroui/input';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/table';
+import { newSellerCode, sendBatchNews } from '@lib/api/backend';
+import { getNodeInfo } from '@lib/api/oracles';
+import { config, getR1ExplorerUrl } from '@lib/config';
+import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
+import { fBI, getShortAddress, isZeroAddress } from '@lib/utils';
 import { BigCard } from '@shared/BigCard';
 import { LargeValueWithLabel } from '@shared/LargeValueWithLabel';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { EthAddress, MNDLicense } from 'typedefs/blockchain';
 import { usePublicClient, useWalletClient } from 'wagmi';
-import { getNodeInfo } from '@lib/api/oracles';
-import { ReaderAbi } from '@blockchain/Reader';
 
 const columnsMndsTable = [
     { key: 1, label: 'ID' },
@@ -335,9 +335,7 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
                                         </a>
                                     </TableCell>
                                     <TableCell>
-                                        {license.nodeAddress !== '0x0000000000000000000000000000000000000000'
-                                            ? getShortAddress(license.nodeAddress)
-                                            : '-'}
+                                        {!isZeroAddress(license.nodeAddress) ? getShortAddress(license.nodeAddress) : '-'}
                                     </TableCell>
                                     <TableCell>{getLicenseUsageStats(license)}</TableCell>
                                     <TableCell>{license.lastClaimEpoch.toString()}</TableCell>
@@ -347,7 +345,7 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
                                             : '-'}
                                     </TableCell>
                                     <TableCell>
-                                        {license.lastClaimOracle !== '0x0000000000000000000000000000000000000000'
+                                        {!isZeroAddress(license.lastClaimOracle)
                                             ? getShortAddress(license.lastClaimOracle)
                                             : '-'}
                                     </TableCell>

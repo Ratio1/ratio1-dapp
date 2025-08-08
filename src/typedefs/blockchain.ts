@@ -13,34 +13,37 @@ type BaseLicense = {
     assignTimestamp: bigint;
     lastClaimOracle: EthAddress;
     totalAssignedAmount: bigint;
+};
+
+type LicenseWithNodeInfo = BaseLicense & {
     isClaimingRewards?: boolean;
 } & (
-    | {
-          isLinked: true;
-          alias: Promise<string | undefined>;
-          rewards: Promise<bigint | undefined>;
-          isOnline: Promise<boolean>;
-          epochs: Promise<number[]>;
-          epochsAvailabilities: Promise<number[]>;
-          ethSignatures: Promise<EthAddress[]>;
-      }
-    | {
-          isLinked: false;
-      }
-);
+        | {
+              isLinked: true;
+              alias: Promise<string | undefined>;
+              rewards: Promise<bigint | undefined>;
+              isOnline: Promise<boolean>;
+              epochs: Promise<number[]>;
+              epochsAvailabilities: Promise<number[]>;
+              ethSignatures: Promise<EthAddress[]>;
+          }
+        | {
+              isLinked: false;
+          }
+    );
 
-type NDLicense = BaseLicense & {
+type NDLicense = LicenseWithNodeInfo & {
     type: 'ND';
     isBanned: boolean;
 };
 
-type MNDLicense = BaseLicense & {
+type MNDLicense = LicenseWithNodeInfo & {
     type: 'MND';
     isBanned: false;
     firstMiningEpoch: bigint;
 };
 
-type GNDLicense = BaseLicense & {
+type GNDLicense = LicenseWithNodeInfo & {
     type: 'GND';
     isBanned: false;
     firstMiningEpoch: bigint;
@@ -78,6 +81,7 @@ type OraclesDefaultResult = {
     server_time: string;
     server_current_epoch: number;
     server_uptime: string;
+    query_time?: number;
     EE_SIGN: string;
     EE_SENDER: R1Address;
     EE_ETH_SENDER: EthAddress;
@@ -122,6 +126,7 @@ type SwapTokenDetails = {
 
 export type {
     ApiAccount,
+    BaseLicense,
     ComputeParam,
     EthAddress,
     GNDLicense,

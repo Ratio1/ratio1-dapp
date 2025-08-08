@@ -429,3 +429,5 @@ export const INITIAL_TIERS_STATE: PriceTier[] = [
         soldUnits: 0,
     },
 ];
+
+export const isZeroAddress = (address: string): boolean => address === '0x0000000000000000000000000000000000000000';

@@ -2,8 +2,16 @@ import { ERC20Abi } from '@blockchain/ERC20';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { useDisclosure } from '@heroui/modal';
-import { config, getDevAddress, isDebugging } from '@lib/config';
-import { INITIAL_TIERS_STATE, getNodeAndLicenseRewards } from '@lib/utils';
+import { config, getCurrentEpoch, getDevAddress, isDebugging } from '@lib/config';
+import {
+    BaseGNDLicense,
+    BaseMNDLicense,
+    BaseNDLicense,
+    getLicensesWithNodesWithoutRewards,
+    getLicensesWithNodesWithRewards,
+} from '@lib/licenses';
+import { getNodeAndLicenseRewards, INITIAL_TIERS_STATE, isZeroAddress } from '@lib/utils';
+import { partition } from 'lodash';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiExternalLinkLine } from 'react-icons/ri';
@@ -159,7 +167,7 @@ export const BlockchainProvider = ({ children }) => {
         }
     };
 
-    const fetchLicensesWithRewards = async (): Promise<any[]> => {
+    const fetchLicensesV2 = async (): Promise<License[]> => {
         if (!publicClient || !address) {
             console.error('No public client or address.');
             return [];
@@ -168,24 +176,83 @@ export const BlockchainProvider = ({ children }) => {
         setLoadingLicenses(true);
 
         const [mndLicenses, ndLicenses] = await Promise.all([
-            publicClient.readContract({
-                address: config.mndContractAddress,
-                abi: MNDContractAbi,
-                functionName: 'getLicenses',
-                args: [address],
-            }),
-            publicClient.readContract({
-                address: config.ndContractAddress,
-                abi: NDContractAbi,
-                functionName: 'getLicenses',
-                args: [address],
-            }),
+            publicClient
+                .readContract({
+                    address: config.mndContractAddress,
+                    abi: MNDContractAbi,
+                    functionName: 'getLicenses',
+                    args: [address],
+                })
+                .then((licenses) =>
+                    licenses.map((license) => {
+                        const type: 'GND' | 'MND' = license.licenseId === 1n ? ('GND' as const) : ('MND' as const);
+                        const isBanned = false as const;
+
+                        const baseGNDOrMNDLicense: BaseGNDLicense | BaseMNDLicense = {
+                            ...license,
+                            type,
+                            isBanned,
+                        };
+
+                        return baseGNDOrMNDLicense;
+                    }),
+                ),
+            publicClient
+                .readContract({
+                    address: config.ndContractAddress,
+                    abi: NDContractAbi,
+                    functionName: 'getLicenses',
+                    args: [address],
+                })
+                .then((licenses) =>
+                    licenses.map((license) => {
+                        const type = 'ND' as const;
+                        const totalAssignedAmount = config.ND_LICENSE_CAP;
+
+                        const baseNDLicense: BaseNDLicense = {
+                            ...license,
+                            type,
+                            totalAssignedAmount,
+                        };
+
+                        return baseNDLicense;
+                    }),
+                ),
         ]);
 
-        // TODO: Implement multi_node_epochs_range
+        // TODO: multi_node_epochs_range
 
-        const licenses = [...mndLicenses, ...ndLicenses];
-        console.log('fetchLicensesWithRewards', licenses);
+        const baseLicenses: (BaseGNDLicense | BaseMNDLicense | BaseNDLicense)[] = [...mndLicenses, ...ndLicenses];
+
+        const [linked, notLinked] = partition(baseLicenses, (license) => !isZeroAddress(license.nodeAddress));
+
+        const [linkedWithRewards, linkedWithoutRewards] = partition(
+            linked,
+            (license) =>
+                license.totalClaimedAmount !== license.totalAssignedAmount &&
+                Number(license.lastClaimEpoch) < getCurrentEpoch(),
+        );
+
+        const linkedLicensesWithNodesWithRewards = await getLicensesWithNodesWithRewards(linked);
+        const linkedLicensesWithNodesWithoutRewards = await getLicensesWithNodesWithoutRewards(linkedWithoutRewards);
+
+        console.log('linkedLicensesWithRewards', linkedLicensesWithNodesWithRewards);
+
+        const licenses = [
+            ...notLinked.map((license) => ({
+                ...license,
+                isLinked: false as const,
+            })),
+            ...linkedLicensesWithNodesWithoutRewards.map((license) => ({
+                ...license,
+                isLinked: true as const,
+            })),
+        ];
+
+        setLicenses(licenses);
+        setLoadingLicenses(false);
+
+        console.log('fetchLicensesV2', licenses);
 
         return licenses;
     };
@@ -208,7 +275,7 @@ export const BlockchainProvider = ({ children }) => {
                 })
                 .then((userLicenses) => {
                     return userLicenses.map((userLicense) => {
-                        const isLinked = userLicense.nodeAddress !== '0x0000000000000000000000000000000000000000';
+                        const isLinked = !isZeroAddress(userLicense.nodeAddress);
                         const type = userLicense.licenseId === 1n ? ('GND' as const) : ('MND' as const);
 
                         if (!isLinked) {
@@ -253,7 +320,7 @@ export const BlockchainProvider = ({ children }) => {
                 .then((userLicenses) => {
                     return userLicenses.map((license) => {
                         const type = 'ND' as const;
-                        const isLinked = license.nodeAddress !== '0x0000000000000000000000000000000000000000';
+                        const isLinked = !isZeroAddress(license.nodeAddress);
                         const totalAssignedAmount = config.ND_LICENSE_CAP;
 
                         if (!isLinked) {
@@ -317,7 +384,7 @@ export const BlockchainProvider = ({ children }) => {
                 // Licenses
                 licenses,
                 isLoadingLicenses,
-                fetchLicensesWithRewards,
+                fetchLicensesV2: fetchLicensesV2,
                 fetchLicenses,
                 setLicenses,
                 // R1 Balance

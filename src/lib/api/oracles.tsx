@@ -38,6 +38,15 @@ export const getNodeEpochsRange = (nodeAddress: types.EthAddress, startEpoch: nu
         });
 };
 
+export const getMultiNodeEpochsRange = (nodesWithRanges: Record<types.EthAddress, [number, number]>) => {
+    return _doPost<types.OraclesDefaultResult & Record<types.EthAddress, types.OraclesAvailabilityResult>>(
+        '/multi_node_epochs_range',
+        {
+            dct_eth_nodes_request: nodesWithRanges,
+        },
+    );
+};
+
 export const getNodeLastEpoch = (nodeAddress: types.EthAddress) => {
     if (isLoggingEnabled) console.log(`[Oracles API] getNodeLastEpoch called for node: ${nodeAddress}`);
     return _doGet<types.OraclesAvailabilityResult>(`/node_last_epoch?eth_node_addr=${nodeAddress}`)
