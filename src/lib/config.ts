@@ -192,7 +192,7 @@ export const environment: 'mainnet' | 'testnet' | 'devnet' =
           ? ('testnet' as const)
           : domain === domainDevnet
             ? ('devnet' as const)
-            : ('mainnet' as const);
+            : ('devnet' as const);
 
 export const getR1ExplorerUrl = () => `https://${environment === 'mainnet' ? '' : `${environment}-`}${explorerBaseDomain}`;
 
@@ -215,4 +215,4 @@ export const getDevAddress = (): {
     address: import.meta.env.VITE_DEV_ADDRESS,
 });
 
-export const isDebugging = true;
+export const isDebugging = false;
