@@ -157,7 +157,8 @@ function Licenses() {
             const receipt = await watchTx(txHash, publicClient);
 
             if (!skipFetchingRewards) {
-                fetchLicenses();
+                // fetchLicenses(); TODO:
+                fetchLicensesV2();
             }
 
             return receipt;

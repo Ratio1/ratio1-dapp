@@ -175,84 +175,86 @@ export const BlockchainProvider = ({ children }) => {
 
         setLoadingLicenses(true);
 
-        const [mndLicenses, ndLicenses] = await Promise.all([
-            publicClient
-                .readContract({
-                    address: config.mndContractAddress,
-                    abi: MNDContractAbi,
-                    functionName: 'getLicenses',
-                    args: [address],
-                })
-                .then((licenses) =>
-                    licenses.map((license) => {
-                        const type: 'GND' | 'MND' = license.licenseId === 1n ? ('GND' as const) : ('MND' as const);
-                        const isBanned = false as const;
+        let licenses: License[] = [];
 
-                        const baseGNDOrMNDLicense: BaseGNDLicense | BaseMNDLicense = {
-                            ...license,
-                            type,
-                            isBanned,
-                        };
+        try {
+            const [mndLicenses, ndLicenses] = await Promise.all([
+                publicClient
+                    .readContract({
+                        address: config.mndContractAddress,
+                        abi: MNDContractAbi,
+                        functionName: 'getLicenses',
+                        args: [address],
+                    })
+                    .then((licenses) =>
+                        licenses.map((license) => {
+                            const type: 'GND' | 'MND' = license.licenseId === 1n ? ('GND' as const) : ('MND' as const);
+                            const isBanned = false as const;
 
-                        return baseGNDOrMNDLicense;
-                    }),
-                ),
-            publicClient
-                .readContract({
-                    address: config.ndContractAddress,
-                    abi: NDContractAbi,
-                    functionName: 'getLicenses',
-                    args: [address],
-                })
-                .then((licenses) =>
-                    licenses.map((license) => {
-                        const type = 'ND' as const;
-                        const totalAssignedAmount = config.ND_LICENSE_CAP;
+                            const baseGndOrMndLicense: BaseGNDLicense | BaseMNDLicense = {
+                                ...license,
+                                type,
+                                isBanned,
+                            };
 
-                        const baseNDLicense: BaseNDLicense = {
-                            ...license,
-                            type,
-                            totalAssignedAmount,
-                        };
+                            return baseGndOrMndLicense;
+                        }),
+                    ),
+                publicClient
+                    .readContract({
+                        address: config.ndContractAddress,
+                        abi: NDContractAbi,
+                        functionName: 'getLicenses',
+                        args: [address],
+                    })
+                    .then((licenses) =>
+                        licenses.map((license) => {
+                            const type = 'ND' as const;
+                            const totalAssignedAmount = config.ND_LICENSE_CAP;
 
-                        return baseNDLicense;
-                    }),
-                ),
-        ]);
+                            const baseNdLicense: BaseNDLicense = {
+                                ...license,
+                                type,
+                                totalAssignedAmount,
+                            };
 
-        // TODO: multi_node_epochs_range
+                            return baseNdLicense;
+                        }),
+                    ),
+            ]);
 
-        const baseLicenses: (BaseGNDLicense | BaseMNDLicense | BaseNDLicense)[] = [...mndLicenses, ...ndLicenses];
+            const baseLicenses: (BaseGNDLicense | BaseMNDLicense | BaseNDLicense)[] = [...mndLicenses, ...ndLicenses];
 
-        const [linked, notLinked] = partition(baseLicenses, (license) => !isZeroAddress(license.nodeAddress));
+            const [linked, notLinked] = partition(baseLicenses, (license) => !isZeroAddress(license.nodeAddress));
 
-        const [linkedWithRewards, linkedWithoutRewards] = partition(
-            linked,
-            (license) =>
-                license.totalClaimedAmount !== license.totalAssignedAmount &&
-                Number(license.lastClaimEpoch) < getCurrentEpoch(),
-        );
+            const [linkedWithRewards, linkedWithoutRewards] = partition(
+                linked,
+                (license) =>
+                    license.totalClaimedAmount !== license.totalAssignedAmount &&
+                    Number(license.lastClaimEpoch) < getCurrentEpoch(),
+            );
 
-        const linkedLicensesWithNodesWithRewards = await getLicensesWithNodesWithRewards(linked);
-        const linkedLicensesWithNodesWithoutRewards = await getLicensesWithNodesWithoutRewards(linkedWithoutRewards);
+            const linkedLicensesWithNodesWithRewards = await getLicensesWithNodesWithRewards(linkedWithRewards);
+            const linkedLicensesWithNodesWithoutRewards: License[] =
+                await getLicensesWithNodesWithoutRewards(linkedWithoutRewards);
 
-        console.log('linkedLicensesWithRewards', linkedLicensesWithNodesWithRewards);
+            licenses = [
+                ...notLinked.map((license) => ({
+                    ...license,
+                    isLinked: false as const,
+                })),
+                ...linkedLicensesWithNodesWithoutRewards,
+                ...linkedLicensesWithNodesWithRewards,
+            ];
 
-        const licenses = [
-            ...notLinked.map((license) => ({
-                ...license,
-                isLinked: false as const,
-            })),
-            ...linkedLicensesWithNodesWithoutRewards.map((license) => ({
-                ...license,
-                isLinked: true as const,
-            })),
-        ];
-
-        setLicenses(licenses);
-        setLoadingLicenses(false);
-
-        console.log('fetchLicensesV2', licenses);
+            console.log('fetchLicensesV2', licenses);
+            setLicenses(licenses);
+        } catch (error) {
+            console.error(error);
+            toast.error('An error occurred while fetching licenses.');
+        } finally {
+            setLoadingLicenses(false);
+        }
 
         return licenses;
     };
