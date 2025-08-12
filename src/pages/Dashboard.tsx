@@ -111,7 +111,7 @@ function Dashboard() {
             <div className="flex w-full flex-col gap-4">
                 <div className="grid grid-cols-2 gap-4 larger:grid-cols-3">
                     <BigCard>
-                        <div className="col h-full justify-between gap-2.5">
+                        <div className="col h-full justify-between gap-1.5">
                             <div className="text-base font-semibold leading-6 lg:text-lg">Claimable $R1</div>
 
                             <div className="row gap-2.5">
@@ -129,7 +129,7 @@ function Dashboard() {
                     </BigCard>
 
                     <BigCard>
-                        <div className="col h-full justify-between gap-2.5">
+                        <div className="col h-full justify-between gap-1.5">
                             <div className="text-base font-semibold leading-6 lg:text-lg">$R1 Balance</div>
 
                             <div className="min-h-[28px]">
@@ -143,7 +143,7 @@ function Dashboard() {
                     </BigCard>
 
                     <BigCard>
-                        <div className="col h-full justify-between gap-2.5">
+                        <div className="col h-full justify-between gap-1.5">
                             <div className="text-base font-semibold leading-6 lg:text-lg">Current Epoch</div>
 
                             <div className="row gap-2.5">

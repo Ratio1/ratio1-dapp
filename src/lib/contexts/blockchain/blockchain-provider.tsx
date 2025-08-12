@@ -161,13 +161,15 @@ export const BlockchainProvider = ({ children }) => {
         }
     };
 
-    const fetchLicenses = async (): Promise<License[]> => {
+    const fetchLicenses = async (useSilentUpdate: boolean = false): Promise<License[]> => {
         if (!publicClient || !address) {
             console.error('No public client or address.');
             return [];
         }
 
-        setLoadingLicenses(true);
+        if (!useSilentUpdate) {
+            setLoadingLicenses(true);
+        }
 
         let licenses: License[] = [];
 

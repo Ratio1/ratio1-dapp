@@ -35,15 +35,6 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
                     setLoading(false);
                 }
             })();
-
-            // Refetching node status every minute
-            const interval = setInterval(() => {
-                refetch();
-            }, 60000);
-
-            return () => {
-                clearInterval(interval);
-            };
         }
     }, [license.isLinked]);
 

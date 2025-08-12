@@ -19,7 +19,7 @@ import { RiCpuLine } from 'react-icons/ri';
 import { License } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 12;
 
 function Licenses() {
     const { watchTx, licenses, isLoadingLicenses, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
@@ -61,6 +61,15 @@ function Licenses() {
         } else {
             if (authenticated && !!address && publicClient) {
                 fetchLicenses();
+
+                // Refresh licenses every minute
+                const interval = setInterval(() => {
+                    fetchLicenses(true);
+                }, 60000);
+
+                return () => {
+                    clearInterval(interval);
+                };
             }
         }
     }, [authenticated, address, publicClient]);
