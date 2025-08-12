@@ -4,7 +4,7 @@ import { UniswapV2RouterAbi } from '@blockchain/UniswapV2Router';
 import { TokenSelectorModal } from '@components/TokenSelectorModal';
 import { Button } from '@heroui/button';
 import { useDisclosure } from '@heroui/modal';
-import { config, getDevAddress, isDebugging } from '@lib/config';
+import { config, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { fBI } from '@lib/utils';
@@ -73,7 +73,7 @@ function BuyR1() {
     const dualTxsModalRef = useRef<{ progress: () => void; init: () => void }>(null);
 
     const { data: walletClient } = useWalletClient();
-    const { address } = isDebugging ? getDevAddress() : useAccount();
+    const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
     const publicClient = usePublicClient();
 
     const debouncedFetchEstimatedR1Ref = useRef<ReturnType<typeof debounce> | null>(null);

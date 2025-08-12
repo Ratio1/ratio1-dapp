@@ -6,7 +6,7 @@ import LicenseLinkModal from '@components/Licenses/modals/LicenseLinkModal';
 import LicenseUnlinkModal from '@components/Licenses/modals/LicenseUnlinkModal';
 import { Pagination } from '@heroui/pagination';
 import { Skeleton } from '@heroui/skeleton';
-import { config, getCurrentEpoch, getDevAddress, isDebugging } from '@lib/config';
+import { config, getCurrentEpoch, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import EmptyData from '@shared/EmptyData';
@@ -51,7 +51,7 @@ function Licenses() {
     const unlinkModalRef = useRef<{ trigger: (_license) => void }>(null);
     const burnModalRef = useRef<{ trigger: (_license) => void }>(null);
 
-    const { address } = isDebugging ? getDevAddress() : useAccount();
+    const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
     const { data: walletClient } = useWalletClient();
     const publicClient = usePublicClient();
 

@@ -4,7 +4,7 @@ import Optimism from '@assets/faucets/optimism.jpeg';
 import Thirdweb from '@assets/faucets/thirdweb.png';
 import { TestnetFaucetContractAbi } from '@blockchain/TestnetFaucet';
 import { Button } from '@heroui/button';
-import { config, getDevAddress, isDebugging } from '@lib/config';
+import { config, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
@@ -33,7 +33,7 @@ function Faucet() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const { data: walletClient } = useWalletClient();
-    const { address } = isDebugging ? getDevAddress() : useAccount();
+    const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
     const publicClient = usePublicClient();
 
     const onClaim = async () => {

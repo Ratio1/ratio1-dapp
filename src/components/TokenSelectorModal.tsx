@@ -1,5 +1,5 @@
 import { Modal, ModalBody, ModalContent, ModalHeader } from '@heroui/modal';
-import { config, getDevAddress, isDebugging } from '@lib/config';
+import { config, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { getShortAddress } from '@lib/utils';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
@@ -22,7 +22,7 @@ export const TokenSelectorModal = forwardRef(({ isOpen, onOpenChange, onClose, o
     useEffect(() => {}, [tokenBalances]);
 
     const publicClient = usePublicClient();
-    const { address } = isDebugging ? getDevAddress() : useAccount();
+    const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
 
     const onTokenSelect = (key: string) => {
         onSelect(key);

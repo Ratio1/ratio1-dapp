@@ -1,7 +1,6 @@
 import Tiers from '@components/Tiers';
-import { Alert } from '@heroui/alert';
 import { Button } from '@heroui/button';
-import { environment, getCurrentEpoch, getDevAddress, getNextEpochTimestamp, isDebugging } from '@lib/config';
+import { environment, getCurrentEpoch, getDevAddress, getNextEpochTimestamp, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
@@ -12,7 +11,7 @@ import SyncingOraclesTag from '@shared/SyncingOraclesTag';
 import { KycStatus } from '@typedefs/profile';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
-import { RiArrowRightUpLine, RiTimeLine } from 'react-icons/ri';
+import { RiArrowRightUpLine, RiErrorWarningLine, RiTimeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
@@ -32,7 +31,7 @@ function Dashboard() {
 
     const { account, authenticated } = useAuthenticationContext() as AuthenticationContextType;
 
-    const { address } = isDebugging ? getDevAddress() : useAccount();
+    const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
     const publicClient = usePublicClient();
 
     const [isEpochTransitioning, setEpochTransitioning] = useState<boolean>(false);
@@ -87,21 +86,26 @@ function Dashboard() {
     const getKycNotCompletedAlert = () => (
         <>
             {!!authenticated && (
-                <Alert
-                    color="danger"
-                    title="Buying licenses is available after completing KYC."
-                    endContent={
-                        <div className="ml-2">
-                            <Button color="danger" size="sm" variant="solid" as={Link} to={routePath.profile}>
-                                <div className="text-xs sm:text-sm">Go to KYC</div>
-                            </Button>
-                        </div>
-                    }
-                    classNames={{
-                        title: 'text-xs sm:text-sm',
-                        base: 'items-center py-2 px-3.5',
-                    }}
-                />
+                <div className="row justify-between gap-2 rounded-lg bg-red-100 px-4 py-3 text-sm text-red-700">
+                    <div className="row gap-1.5">
+                        <RiErrorWarningLine className="hidden text-[20px] lg:block" />
+
+                        <div className="md:font-medium">Buying licenses is available after completing KYC.</div>
+                    </div>
+
+                    <div className="flex">
+                        <Button
+                            className="bg-red-600"
+                            color="danger"
+                            size="sm"
+                            variant="solid"
+                            as={Link}
+                            to={routePath.profile}
+                        >
+                            <div className="text-sm">Go to KYC</div>
+                        </Button>
+                    </div>
+                </div>
             )}
         </>
     );
@@ -166,7 +170,14 @@ function Dashboard() {
                     <div className="row justify-between gap-3">
                         <div className="text-xl font-bold lg:text-[22px]">Licenses & Tiers</div>
 
-                        <div className="row gap-3">
+                        <Button color="primary" onPress={onBuyDrawerOpen} isDisabled={isBuyingDisabled()}>
+                            <div className="row gap-1.5">
+                                <div className="text-sm font-medium lg:text-base">Buy License</div>
+                                <RiArrowRightUpLine className="text-[18px]" />
+                            </div>
+                        </Button>
+
+                        {/* <div className="row gap-3">
                             {!!account && authenticated && !isLoadingPriceTiers && isBuyingDisabled() && (
                                 <div className="hidden larger:block">{getKycNotCompletedAlert()}</div>
                             )}
@@ -179,12 +190,10 @@ function Dashboard() {
                                     </div>
                                 </Button>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
 
-                    {!!account && !isLoadingPriceTiers && isBuyingDisabled() && (
-                        <div className="block larger:hidden">{getKycNotCompletedAlert()}</div>
-                    )}
+                    {!!account && !isLoadingPriceTiers && isBuyingDisabled() && <>{getKycNotCompletedAlert()}</>}
 
                     <div className="col gap-4 rounded-2xl border border-[#e3e4e8] bg-light p-5">
                         <Tiers currentStage={currentPriceTier} stages={priceTiers} />

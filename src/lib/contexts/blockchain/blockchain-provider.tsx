@@ -2,7 +2,7 @@ import { ERC20Abi } from '@blockchain/ERC20';
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
 import { useDisclosure } from '@heroui/modal';
-import { config, getDevAddress, isDebugging } from '@lib/config';
+import { config, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { BaseGNDLicense, BaseMNDLicense, BaseNDLicense, getLicensesWithNodesAndRewards } from '@lib/licenses';
 import { INITIAL_TIERS_STATE, isZeroAddress } from '@lib/utils';
 import { partition } from 'lodash';
@@ -33,7 +33,7 @@ export const BlockchainProvider = ({ children }) => {
     // License buying
     const { isOpen: isBuyDrawerOpen, onOpen: onBuyDrawerOpen, onClose: onBuyDrawerClose } = useDisclosure();
 
-    const { address } = isDebugging ? getDevAddress() : useAccount();
+    const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
     const publicClient = usePublicClient();
 
     useEffect(() => {
