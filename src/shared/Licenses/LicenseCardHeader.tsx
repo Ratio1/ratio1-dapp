@@ -9,7 +9,7 @@ import SyncingOraclesTag from '@shared/SyncingOraclesTag';
 import { Timer } from '@shared/Timer';
 import clsx from 'clsx';
 import { addDays, formatDistanceToNow, isBefore } from 'date-fns';
-import { FunctionComponent, PropsWithChildren, useMemo, useState } from 'react';
+import { FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiCpuLine, RiExchange2Line, RiFireLine, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
@@ -35,10 +35,12 @@ export const LicenseCardHeader = ({
     const publicClient = usePublicClient();
     const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
 
-    const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
+    const [isLoadingRewards, setLoadingRewards] = useState<boolean>(true);
+    const [isClaimDisabled, setClaimDisabled] = useState<boolean>(true);
+    const [rewards, setRewards] = useState<bigint | undefined>();
 
-    // Used to restrict actions unless it's loaded
-    const [_nodeAlias, isLoadingNodeAlias] = useAwait(license.isLinked ? license.alias : undefined);
+    // Used to restrict actions until all data is loaded
+    const [_, isLoadingNodeAlias] = useAwait(license.isLinked ? license.alias : undefined);
 
     const getAssignTimestamp = (): Date => new Date(Number(license.assignTimestamp) * 1000);
     const getCooldownEndTimestamp = (): Date => addDays(getAssignTimestamp(), 1);
@@ -62,6 +64,24 @@ export const LicenseCardHeader = ({
     }, [license]);
 
     const [shouldShowBurnButton] = useAwait(shouldShowBurnButtonPromise);
+
+    useEffect(() => {
+        if (license.isLinked) {
+            (async () => {
+                try {
+                    setClaimDisabled(true);
+                    const licenseRewards = await license.rewards;
+
+                    setRewards(licenseRewards);
+                } catch (error) {
+                    console.log(`[LicenseCardHeader] Error fetching rewards for license #${Number(license.licenseId)}`, error);
+                } finally {
+                    setLoadingRewards(false);
+                    setClaimDisabled(false);
+                }
+            })();
+        }
+    }, [license, license.isLinked]);
 
     const getLicenseId = () => (
         <Link
@@ -171,7 +191,7 @@ export const LicenseCardHeader = ({
                     }
                 }}
                 isLoading={license.isClaimingRewards}
-                isDisabled={isClaimingAll || isLoadingRewards || !hasRewards}
+                isDisabled={isClaimingAll || isLoadingRewards || !hasRewards || isClaimDisabled}
             >
                 <div className="text-sm">Claim</div>
             </Button>

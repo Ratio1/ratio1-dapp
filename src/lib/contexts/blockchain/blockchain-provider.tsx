@@ -233,7 +233,7 @@ export const BlockchainProvider = ({ children }) => {
                 ...licensesWithNodesAndRewards,
             ];
 
-            console.log('fetchLicenses', licenses);
+            console.log('[BlockchainProvider] fetchLicenses', licenses);
             setLicenses(licenses);
         } catch (error) {
             console.error(error);
