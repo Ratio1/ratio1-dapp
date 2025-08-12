@@ -60,19 +60,32 @@ export const getNodeLastEpoch = (nodeAddress: types.EthAddress) => {
         });
 };
 
-export const getNodeInfo = (
+export const getNodeInfo = async (
     nodeAddress: types.EthAddress,
 ): Promise<{
     node_alias: string;
     node_is_online: boolean;
-}> => getNodeLastEpoch(nodeAddress).then(({ node_alias, node_is_online }) => ({ node_alias, node_is_online }));
+}> => {
+    const { data } = await axiosInstance.get<{
+        result: types.OraclesAvailabilityResult & types.OraclesDefaultResult;
+    }>(`/node_last_epoch?eth_node_addr=${nodeAddress}`);
+
+    if (!data.result.node_alias || !data.result.node_is_online) {
+        throw new Error('Node info missing from response');
+    }
+
+    return {
+        node_alias: data.result.node_alias,
+        node_is_online: data.result.node_is_online,
+    };
+};
 
 // *****
 // INTERNAL HELPERS
 // *****
 
 async function _doGet<T>(endpoint: string) {
-    const { data } = await axiosOracles.get<{
+    const { data } = await axiosInstance.get<{
         result: (
             | {
                   error: string;
@@ -93,7 +106,7 @@ async function _doGet<T>(endpoint: string) {
 }
 
 async function _doPost<T>(endpoint: string, body: any) {
-    const { data } = await axiosOracles.post<{
+    const { data } = await axiosInstance.post<{
         result: types.OraclesDefaultResult &
             (
                 | {
@@ -109,7 +122,7 @@ async function _doPost<T>(endpoint: string, body: any) {
     return data.result;
 }
 
-const axiosOracles = axios.create({
+const axiosInstance = axios.create({
     baseURL: oraclesUrl,
     headers: {
         Accept: 'application/json',
@@ -117,7 +130,7 @@ const axiosOracles = axios.create({
     },
 });
 
-axiosOracles.interceptors.response.use(
+axiosInstance.interceptors.response.use(
     (response) => {
         return response;
     },

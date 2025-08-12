@@ -1,3 +1,4 @@
+import { isEmpty } from 'lodash';
 import * as types from 'typedefs/blockchain';
 import { getMultiNodeEpochsRange } from './api/oracles';
 import { config, getCurrentEpoch } from './config';
@@ -29,6 +30,15 @@ export const getLicensesWithNodesAndRewards = (licenses: (BaseGNDLicense | BaseM
         },
         {} as Record<types.EthAddress, [number, number]>,
     );
+
+    if (isEmpty(nodesWithRanges)) {
+        console.log('[getLicensesWithNodesAndRewards] No licenses linked');
+
+        return licenses.map((license) => ({
+            ...license,
+            isLinked: false as const,
+        }));
+    }
 
     const result = getMultiNodeEpochsRange(nodesWithRanges);
 

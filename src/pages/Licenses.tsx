@@ -64,6 +64,7 @@ function Licenses() {
 
                 // Refresh licenses every minute
                 const interval = setInterval(() => {
+                    console.log('Refetching licenses with silent update');
                     fetchLicenses(true);
                 }, 60000);
 

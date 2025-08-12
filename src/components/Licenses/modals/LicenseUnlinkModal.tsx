@@ -1,12 +1,12 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
+import { Alert } from '@heroui/alert';
+import { Button } from '@heroui/button';
+import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@heroui/modal';
+import { Spinner } from '@heroui/spinner';
 import { config } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
-import { Alert } from "@heroui/alert";
-import { Button } from "@heroui/button";
-import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from "@heroui/modal";
-import { Spinner } from "@heroui/spinner";
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
 import { TokenSvg } from '@shared/TokenSvg';
@@ -86,8 +86,13 @@ const LicenseUnlinkModal = forwardRef(({ onClaim, shouldTriggerGhostClaimRewards
             console.error(error);
             toast.error('Unexpected error, please try again.');
         } finally {
-            fetchLicenses();
-            setLoading(false);
+            console.log('Node unlinked, fetching licenses');
+
+            // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
+            setTimeout(() => {
+                fetchLicenses(true);
+                setLoading(false);
+            }, 500);
         }
     };
 

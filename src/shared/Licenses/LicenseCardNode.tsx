@@ -9,6 +9,8 @@ import { Link } from 'react-router-dom';
 import { EthAddress, License } from 'typedefs/blockchain';
 import { LicenseSmallCard } from './LicenseSmallCard';
 
+const MAX_RETRIES = 8;
+
 export const LicenseCardNode = ({ license }: { license: License }) => {
     const [isLoading, setLoading] = useState(license.isLinked);
 
@@ -25,6 +27,11 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
                 try {
                     const [alias, isOnline] = await Promise.all([license.alias, license.isOnline]);
 
+                    console.log(`[Query] (${getShortAddress(license.nodeAddress, 4, true)})`, {
+                        alias,
+                        isOnline,
+                    });
+
                     setNode({
                         alias,
                         isOnline,
@@ -38,11 +45,8 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
         }
     }, [license.isLinked]);
 
-    const {
-        data: refetchedNodeInfo,
-        refetch,
-        isFetching: isLoadingQuery,
-    } = useQuery({
+    // This query will try to refetch the node info 6 times, with a delay of 4 seconds between each attempt
+    const { data: refetchedNodeInfo, isFetching: isLoadingQuery } = useQuery({
         queryKey: ['refetchedNodeInfo', license.nodeAddress],
         queryFn: async ({ queryKey }) => {
             const nodeEthAddress = queryKey[1] as EthAddress;
@@ -60,11 +64,16 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
 
             return nodeInfo;
         },
-        enabled: license.isLinked && !isLoading && node?.alias === 'missing_id' && failureCount < 6, // alias is undefined only in case of an error
+        // The alias of a node is undefined only in case of an error
+        enabled:
+            license.isLinked &&
+            !isLoading &&
+            (node?.alias === 'missing_id' || node?.alias === undefined) &&
+            failureCount < MAX_RETRIES - 1,
         retry: (count, error) => {
             console.log(`[Query] (${getShortAddress(license.nodeAddress, 4, true)}) Retry attempt ${count + 1}`, error);
             setFailureCount(count + 1);
-            return count < 6;
+            return count < MAX_RETRIES - 1;
         },
         retryDelay: (attemptIndex) => {
             const delay = 5000; // 5 seconds
@@ -72,11 +81,16 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
             return delay;
         },
         refetchInterval: 5000,
-        refetchOnWindowFocus: true,
+        refetchOnWindowFocus: false,
     });
 
     useEffect(() => {
         if (refetchedNodeInfo) {
+            console.log(`[Query] (${getShortAddress(license.nodeAddress, 4, true)}) refetchedNodeInfo:`, {
+                alias: refetchedNodeInfo.node_alias,
+                isOnline: refetchedNodeInfo.node_is_online,
+            });
+
             setNode({
                 alias: refetchedNodeInfo.node_alias,
                 isOnline: refetchedNodeInfo.node_is_online,

@@ -1,17 +1,17 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
+import { Alert } from '@heroui/alert';
+import { Button } from '@heroui/button';
+import { Form } from '@heroui/form';
+import { Input } from '@heroui/input';
+import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@heroui/modal';
+import { Spinner } from '@heroui/spinner';
 import { linkLicense } from '@lib/api/backend';
 import { config, environment } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
 import useAwait from '@lib/useAwait';
-import { Alert } from "@heroui/alert";
-import { Button } from "@heroui/button";
-import { Form } from "@heroui/form";
-import { Input } from "@heroui/input";
-import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from "@heroui/modal";
-import { Spinner } from "@heroui/spinner";
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
 import { TokenSvg } from '@shared/TokenSvg';
@@ -89,15 +89,16 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
         });
 
         if (isAlreadyLinked) {
+            console.log('Node already linked');
             setNodeAlreadyLinked(true);
             setLoading(false);
             return;
         }
 
         const link = async () => {
+            console.log('Linking node');
             const addressToLink = address as EthAddress;
             const { signature } = await linkLicense(addressToLink);
-            console.log('signature', signature);
 
             const linkTxHash = await walletClient.writeContract({
                 address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
@@ -126,8 +127,13 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
             console.error('Error linking license:', error);
             toast.error('An error occurred, please try again.');
         } finally {
-            fetchLicenses();
-            setLoading(false);
+            console.log('Node linked, fetching licenses');
+
+            // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
+            setTimeout(() => {
+                fetchLicenses(true);
+                setLoading(false);
+            }, 500);
         }
     };
 

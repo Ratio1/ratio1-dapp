@@ -1,10 +1,10 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
+import { Button } from '@heroui/button';
+import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@heroui/modal';
+import { Spinner } from '@heroui/spinner';
 import { config } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
-import { Button } from "@heroui/button";
-import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from "@heroui/modal";
-import { Spinner } from "@heroui/spinner";
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -49,8 +49,12 @@ const LicenseBurnModal = forwardRef((_, ref) => {
             });
 
             await watchTx(txHash, publicClient);
-            fetchLicenses();
-            onClose();
+
+            // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
+            setTimeout(() => {
+                fetchLicenses(true);
+                onClose();
+            }, 500);
         } catch (error) {
             toast.error('Unexpected error, please try again.');
         } finally {
