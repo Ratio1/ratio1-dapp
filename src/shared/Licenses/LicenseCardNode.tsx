@@ -55,27 +55,29 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
         queryKey: ['refetchedNodeInfo', license.nodeAddress],
         queryFn: async ({ queryKey }) => {
             const nodeEthAddress = queryKey[1] as EthAddress;
-            // console.log(`[Query] Fetching node info for address: ${nodeEthAddress}`);
+            console.log(`[Query] (${getShortAddress(nodeEthAddress, 4, true)}) Calling node_last_epoch`);
 
             const nodeInfo = await getNodeInfo(nodeEthAddress);
-            // console.log(`[Query] Received node info:`, nodeInfo);
+            console.log(
+                `[Query] (${getShortAddress(nodeEthAddress, 4, true)}) Received node info: ${JSON.stringify(nodeInfo)}`,
+            );
 
             // Check if the alias is 'missing_id' and throw an error to trigger the retry
             if (nodeInfo.node_alias === 'missing_id') {
-                throw new Error('Node alias is missing_id - retrying...');
+                throw new Error('Node alias is missing_id');
             }
 
             return nodeInfo;
         },
         enabled: license.isLinked && !isLoading && node?.alias === 'missing_id' && failureCount < 6, // alias is undefined only in case of an error
         retry: (count, error) => {
-            // console.log(`[Query] Retry attempt ${count + 1} for node ${license.nodeAddress}`, error);
+            console.log(`[Query] (${getShortAddress(license.nodeAddress, 4, true)}) Retry attempt ${count + 1}`, error);
             setFailureCount(count + 1);
             return count < 6;
         },
         retryDelay: (attemptIndex) => {
             const delay = 5000; // 5 seconds
-            // console.log(`[Query] Waiting ${delay}ms before retry ${attemptIndex + 1}`);
+            console.log(`[Query] Waiting ${delay}ms before retry #${attemptIndex + 1}`);
             return delay;
         },
         refetchInterval: 5000,
