@@ -164,7 +164,10 @@ function Licenses() {
             const receipt = await watchTx(txHash, publicClient);
 
             if (!skipFetchingRewards) {
-                fetchLicenses();
+                // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
+                setTimeout(() => {
+                    fetchLicenses();
+                }, 500);
             }
 
             return receipt;
