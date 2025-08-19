@@ -155,7 +155,10 @@ function LicensesPageHeader({
         } finally {
             onClose();
             setLoading(false);
-            fetchLicenses(); // Refresh because only one tx might fail and the other one might work
+            // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
+            setTimeout(() => {
+                fetchLicenses();
+            }, 500);
         }
     };
 

@@ -70,7 +70,7 @@ export const getNodeInfo = async (
         result: types.OraclesAvailabilityResult & types.OraclesDefaultResult;
     }>(`/node_last_epoch?eth_node_addr=${nodeAddress}`);
 
-    if (!data.result.node_alias || !data.result.node_is_online) {
+    if (!data.result.node_alias) {
         throw new Error('Node info missing from response');
     }
 
