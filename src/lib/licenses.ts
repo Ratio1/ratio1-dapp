@@ -6,6 +6,8 @@ import { config, getCurrentEpoch } from './config';
 type BaseNDLicense = types.BaseLicense & {
     type: 'ND';
     isBanned: boolean;
+    usdcPoaiRewards: bigint;
+    r1PoaiRewards: bigint;
 };
 
 type BaseMNDLicense = types.BaseLicense & {

@@ -24,6 +24,7 @@ const nodePerformanceItems = [
 
 export const LicenseCardDetails = ({ license }: { license: License }) => {
     const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
+    const poaiRewards = license.type === 'ND' ? license.r1PoaiRewards : 0n;
 
     const nodePerformancePromise: Promise<{
         epochs: number[];
@@ -208,8 +209,17 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                                         ),
                                         false,
                                     )}
-
-                                    {getLine('Proof of AI', '0')}
+                                    {getLine(
+                                        'Proof of AI',
+                                        isLoadingRewards ? (
+                                            '...'
+                                        ) : rewards === undefined ? (
+                                            <SyncingOraclesTag />
+                                        ) : (
+                                            parseFloat(Number(formatUnits(poaiRewards ?? 0n, 18)).toFixed(4)).toLocaleString()
+                                        ),
+                                        false,
+                                    )}
                                 </div>
                             </div>
                         </div>

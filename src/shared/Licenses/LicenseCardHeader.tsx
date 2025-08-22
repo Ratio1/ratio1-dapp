@@ -71,8 +71,13 @@ export const LicenseCardHeader = ({
                 try {
                     setClaimDisabled(true);
                     const licenseRewards = await license.rewards;
+                    const licensePoaiRewards = license.type === 'ND' ? license.r1PoaiRewards || undefined : undefined;
 
-                    setRewards(licenseRewards);
+                    setRewards(
+                        licenseRewards !== undefined || licensePoaiRewards !== undefined
+                            ? (licenseRewards ?? 0n) + (licensePoaiRewards ?? 0n)
+                            : undefined,
+                    );
                 } catch (error) {
                     console.log(`[LicenseCardHeader] Error fetching rewards for license #${Number(license.licenseId)}`, error);
                 } finally {
