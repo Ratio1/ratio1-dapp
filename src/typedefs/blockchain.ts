@@ -35,6 +35,8 @@ type LicenseWithNodeInfo = BaseLicense & {
 type NDLicense = LicenseWithNodeInfo & {
     type: 'ND';
     isBanned: boolean;
+    usdcPoaiRewards: bigint;
+    r1PoaiRewards: bigint;
 };
 
 type MNDLicense = LicenseWithNodeInfo & {
