@@ -37,7 +37,11 @@ export const LicenseCardHeader = ({
 
     const [isLoadingRewards, setLoadingRewards] = useState<boolean>(true);
     const [isClaimDisabled, setClaimDisabled] = useState<boolean>(true);
-    const [rewards, setRewards] = useState<bigint | undefined>();
+
+    // Rewards
+    const [rewardsTotal, setRewardsTotal] = useState<bigint | undefined>();
+    const [licenseRewardsPoA, setLicenseRewardsPoA] = useState<bigint | undefined>();
+    const licenseRewardsPoAI: bigint | undefined = license.type === 'ND' ? license.r1PoaiRewards || undefined : undefined;
 
     // Used to restrict actions until all data is loaded
     const [_, isLoadingNodeAlias] = useAwait(license.isLinked ? license.alias : undefined);
@@ -70,12 +74,12 @@ export const LicenseCardHeader = ({
             (async () => {
                 try {
                     setClaimDisabled(true);
-                    const licenseRewards = await license.rewards;
-                    const licensePoaiRewards = license.type === 'ND' ? license.r1PoaiRewards || undefined : undefined;
+                    const rewardsPoA = await license.rewards;
+                    setLicenseRewardsPoA(rewardsPoA);
 
-                    setRewards(
-                        licenseRewards !== undefined || licensePoaiRewards !== undefined
-                            ? (licenseRewards ?? 0n) + (licensePoaiRewards ?? 0n)
+                    setRewardsTotal(
+                        rewardsPoA !== undefined || licenseRewardsPoAI !== undefined
+                            ? (rewardsPoA ?? 0n) + (licenseRewardsPoAI ?? 0n)
                             : undefined,
                     );
                 } catch (error) {
@@ -159,29 +163,44 @@ export const LicenseCardHeader = ({
     const getNodeCard = () => <LicenseCardNode license={license} />;
 
     const getNodeRewards = () => {
-        if (!isLoadingRewards && rewards === undefined) {
+        if (!isLoadingRewards && rewardsTotal === undefined) {
             return <SyncingOraclesTag variant="default" />;
         }
 
-        const rewardsN: number = Number(formatUnits(rewards ?? 0n, 18));
-        const hasRewards = rewardsN > 0;
+        const nRewardsPoA: number = Number(formatUnits(licenseRewardsPoA ?? 0n, 18));
+        const nRewardsPoAI: number = Number(formatUnits(licenseRewardsPoAI ?? 0n, 18));
+
+        const hasRewards = nRewardsPoA > 0 || nRewardsPoAI > 0;
 
         if (!isLoadingRewards && !hasRewards) {
             return undefined;
         }
 
         return isLoadingRewards ? (
-            <Skeleton className="h-5 min-w-20 rounded-lg" />
+            <Skeleton className="h-5 min-w-28 rounded-lg" />
         ) : (
-            <div className="row gap-1.5 text-lg font-semibold">
-                <div className="text-slate-400">~$R1</div>
-                <div className="text-primary">{fN(rewardsN)}</div>
+            <div className="row gap-1.5 font-medium text-slate-400">
+                <div className="whitespace-nowrap">~$R1</div>
+
+                {!!nRewardsPoA && (
+                    <>
+                        PoA
+                        <div className="font-semibold text-primary">{fN(nRewardsPoA)}</div>
+                    </>
+                )}
+
+                {!!nRewardsPoAI && (
+                    <>
+                        PoAI
+                        <div className="font-semibold text-primary">{fN(nRewardsPoAI)}</div>
+                    </>
+                )}
             </div>
         );
     };
 
     const getClaimRewardsButton = () => {
-        const rewardsN: number = Number(formatUnits(rewards ?? 0n, 18));
+        const rewardsN: number = Number(formatUnits(rewardsTotal ?? 0n, 18));
         const hasRewards = rewardsN > 0;
 
         return (
@@ -223,7 +242,7 @@ export const LicenseCardHeader = ({
                 disabledKeys={[
                     'title',
                     ...(hasCooldown ? ['link'] : []),
-                    ...(isLoadingRewards || isLoadingNodeAlias || rewards === undefined ? ['unlink', 'changeNode'] : []),
+                    ...(isLoadingRewards || isLoadingNodeAlias || rewardsTotal === undefined ? ['unlink', 'changeNode'] : []),
                 ]}
                 itemClasses={{
                     base: [
@@ -263,7 +282,7 @@ export const LicenseCardHeader = ({
 
                                 <div className="col">
                                     <div className="font-medium leading-4 text-body">Link</div>
-                                    <div className="text-xs text-slate-500">Assign license to a node</div>
+                                    <div className="text-[13px] text-slate-500">Assign license to a node</div>
                                 </div>
                             </div>
                         </DropdownItem>
@@ -287,7 +306,7 @@ export const LicenseCardHeader = ({
 
                                 <div className="col">
                                     <div className="font-medium leading-4 text-body">Change Node</div>
-                                    <div className="text-xs text-slate-500">Switch license to another node</div>
+                                    <div className="text-[13px] text-slate-500">Switch license to another node</div>
                                 </div>
                             </div>
                         </DropdownItem>
@@ -305,7 +324,7 @@ export const LicenseCardHeader = ({
 
                                 <div className="col">
                                     <div className="font-medium leading-4 text-body">Unlink</div>
-                                    <div className="text-xs text-slate-500">Remove license from node</div>
+                                    <div className="text-[13px] text-slate-500">Remove license from node</div>
                                 </div>
                             </div>
                         </DropdownItem>
@@ -328,7 +347,7 @@ export const LicenseCardHeader = ({
 
                             <div className="col">
                                 <div className="font-medium leading-4 text-red-500">Burn</div>
-                                <div className="text-xs text-slate-500">Permanently erase the license</div>
+                                <div className="text-[13px] text-slate-500">Permanently erase the license</div>
                             </div>
                         </div>
                     </DropdownItem>
@@ -349,7 +368,7 @@ export const LicenseCardHeader = ({
             )}
         >
             {/* On mobile, the rewards and claim button are displayed in the bottom row, but 'flex-col-reverse' is used */}
-            {!!rewards && (
+            {!!rewardsTotal && (
                 <div className="row justify-between sm:hidden">
                     {getNodeRewards()}
                     {getClaimRewardsButton()}
@@ -363,7 +382,7 @@ export const LicenseCardHeader = ({
             </div>
 
             {/* Controls */}
-            <div className="flex justify-end">
+            <div className="flex flex-0 justify-end">
                 {license.isBanned ? (
                     <>{getBannedLicenseTag()}</>
                 ) : (

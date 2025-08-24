@@ -189,13 +189,15 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                                 ) : rewards === undefined ? (
                                     <SyncingOraclesTag />
                                 ) : (
-                                    parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString()
+                                    parseFloat(
+                                        Number(formatUnits((rewards ?? 0n) + (poaiRewards ?? 0n), 18)).toFixed(4),
+                                    ).toLocaleString()
                                 ),
                                 (rewards ?? 0n) > 0,
                             )}
 
                             <div className="col gap-3">
-                                <div className="mt-3">{getTitle('Summary')}</div>
+                                <div className="mt-3">{getTitle('Rewards Summary')}</div>
 
                                 <div className="col flex-1 gap-1.5">
                                     {getLine(
