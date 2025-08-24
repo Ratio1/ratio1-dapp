@@ -197,7 +197,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                             )}
 
                             <div className="col gap-3">
-                                <div className="mt-3">{getTitle('Summary')}</div>
+                                <div className="mt-3">{getTitle('Rewards Summary')}</div>
 
                                 <div className="col flex-1 gap-1.5">
                                     {getLine(
