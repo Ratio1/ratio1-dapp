@@ -189,7 +189,9 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                                 ) : rewards === undefined ? (
                                     <SyncingOraclesTag />
                                 ) : (
-                                    parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString()
+                                    parseFloat(
+                                        Number(formatUnits((rewards ?? 0n) + (poaiRewards ?? 0n), 18)).toFixed(4),
+                                    ).toLocaleString()
                                 ),
                                 (rewards ?? 0n) > 0,
                             )}
