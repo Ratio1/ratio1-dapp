@@ -7,7 +7,7 @@ import { config, environment, getNextEpochTimestamp } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
-import { fBI, fN } from '@lib/utils';
+import { fBI, fN, sleep } from '@lib/utils';
 import { DualTxsModal } from '@shared/DualTxsModal';
 import { Timer } from '@shared/Timer';
 import { KycStatus } from '@typedefs/profile';
@@ -21,13 +21,17 @@ import { usePublicClient, useWalletClient } from 'wagmi';
 function LicensesPageHeader({
     onFilterChange,
     licenses,
-    isLoading,
-    setLoading,
+    isClaimingAllRewardsPoA,
+    setClaimingAllRewardsPoA,
+    isClaimingAllRewardsPoAI,
+    setClaimingAllRewardsPoAI,
 }: {
     onFilterChange: (key: 'all' | 'linked' | 'unlinked') => void;
     licenses: Array<License>;
-    isLoading: boolean;
-    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+    isClaimingAllRewardsPoA: boolean;
+    setClaimingAllRewardsPoA: React.Dispatch<React.SetStateAction<boolean>>;
+    isClaimingAllRewardsPoAI: boolean;
+    setClaimingAllRewardsPoAI: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
     const { watchTx, fetchLicenses, r1Price, fetchR1Price, fetchPriceTiers, isLoadingPriceTiers, onBuyDrawerOpen } =
         useBlockchainContext() as BlockchainContextType;
@@ -41,37 +45,40 @@ function LicensesPageHeader({
     const publicClient = usePublicClient();
     const { data: walletClient } = useWalletClient();
 
-    const [isEpochTransitioning, setEpochTransitioning] = useState<boolean>(false);
-
-    const rewardsPromise: Promise<bigint | undefined> = useMemo(
+    // Proof of Availability
+    const rewardsPoAPromise: Promise<bigint | undefined> = useMemo(
         () =>
             Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then(
                 (rewardsArray) => {
                     const isError = rewardsArray.some((amount) => amount === undefined);
 
                     if (isError) {
-                        setEpochTransitioning(true);
                         return undefined;
                     } else {
-                        setEpochTransitioning(false);
                         return rewardsArray.reduce((acc, val) => (acc as bigint) + (val ?? 0n), 0n);
                     }
                 },
             ),
         [licenses],
     );
-    const [rewards, isLoadingRewards] = useAwait(rewardsPromise);
+    const [rewardsPoA, isLoadingRewardsPoA] = useAwait(rewardsPoAPromise);
 
-    const earnedAmount = useMemo(() => licenses.reduce((acc, license) => acc + license.totalClaimedAmount, 0n), [licenses]);
-    const futureClaimableR1Amount: bigint = useMemo(
+    const earnedAmountPoA = useMemo(() => licenses.reduce((acc, license) => acc + license.totalClaimedAmount, 0n), [licenses]);
+    const futureClaimableR1AmountPoA: bigint = useMemo(
         () => licenses.reduce((acc, license) => acc + license.remainingAmount, 0n),
         [licenses],
     );
 
-    const futureClaimableUsd: number = useMemo(() => {
+    const futureClaimableUsdPoA: number = useMemo(() => {
         if (!r1PriceUsd) return 0;
-        return Number(formatUnits(futureClaimableR1Amount, 18)) * r1PriceUsd;
-    }, [futureClaimableR1Amount, r1PriceUsd]);
+        return Number(formatUnits(futureClaimableR1AmountPoA, 18)) * r1PriceUsd;
+    }, [futureClaimableR1AmountPoA, r1PriceUsd]);
+
+    // Proof of AI
+    const rewardsPoAI = useMemo(
+        () => licenses.filter((license) => license.type === 'ND').reduce((acc, license) => acc + license.r1PoaiRewards, 0n),
+        [licenses],
+    );
 
     // Init
     useEffect(() => {
@@ -86,24 +93,14 @@ function LicensesPageHeader({
         }
     }, [r1Price]);
 
-    // Epoch transition
-    useEffect(() => {
-        if (!isLoadingRewards && isEpochTransitioning) {
-            // Refresh licenses every minute to check if the epoch transition is over, which will also trigger a new rewards fetch
-            setTimeout(() => {
-                fetchLicenses();
-            }, 60000);
-        }
-    }, [isLoadingRewards, isEpochTransitioning]);
-
-    const claimAll = async () => {
+    const claimAllRewardsPoA = async () => {
         if (!walletClient || !publicClient) {
             toast.error('Unexpected error, please try again.');
             return;
         }
 
         try {
-            setLoading(true);
+            setClaimingAllRewardsPoA(true);
 
             const txParamsND = await getClaimTxParams('ND');
             const txParamsMND = await getClaimTxParams('MND');
@@ -152,9 +149,32 @@ function LicensesPageHeader({
             await Promise.all([claimND(), claimMND()]);
         } catch (err: any) {
             console.error(err.message);
+            toast.error('An error occurred, please try again.');
         } finally {
             onClose();
-            setLoading(false);
+            setClaimingAllRewardsPoA(false);
+            // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
+            setTimeout(() => {
+                fetchLicenses();
+            }, 500);
+        }
+    };
+
+    const claimAllRewardsPoAI = async () => {
+        if (!walletClient || !publicClient) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        try {
+            setClaimingAllRewardsPoAI(true);
+            await sleep(1000);
+        } catch (err: any) {
+            console.error(err.message);
+            toast.error('An error occurred, please try again.');
+        } finally {
+            onClose();
+            setClaimingAllRewardsPoAI(false);
             // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
             setTimeout(() => {
                 fetchLicenses();
@@ -206,7 +226,7 @@ function LicensesPageHeader({
     const renderItem = (label: string, value) => (
         <div className="col gap-1">
             <div className="text-sm font-medium text-white/85">{label}</div>
-            <div className="text-lg font-medium text-white lg:text-xl">{value}</div>
+            <div className="text-lg font-medium text-white">{value}</div>
         </div>
     );
 
@@ -239,34 +259,58 @@ function LicensesPageHeader({
                             color="primary"
                             size="sm"
                             variant="faded"
-                            isLoading={isLoading}
-                            onPress={claimAll}
-                            isDisabled={!authenticated || !rewards}
+                            isLoading={isClaimingAllRewardsPoA}
+                            onPress={claimAllRewardsPoA}
+                            isDisabled={!authenticated || !rewardsPoA}
                         >
-                            <div className="text-sm">Claim rewards</div>
+                            <div className="text-sm">Claim rewards (PoA)</div>
+                        </Button>
+
+                        <Button
+                            className="h-9"
+                            color="primary"
+                            size="sm"
+                            variant="faded"
+                            isLoading={isClaimingAllRewardsPoAI}
+                            onPress={claimAllRewardsPoAI}
+                            isDisabled={!authenticated || !rewardsPoAI}
+                        >
+                            <div className="text-sm">Claim rewards (PoAI)</div>
                         </Button>
                     </div>
                 </div>
 
                 <div className="col gap-6 xl:gap-8">
-                    <div className="grid grid-cols-2 gap-4 lg:flex lg:flex-row lg:justify-between">
-                        {renderItem(
-                            'Claimable ($R1)',
-                            isLoadingRewards || rewards === undefined
-                                ? '...'
-                                : parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2)),
-                        )}
+                    <div className="col gap-2">
+                        <div className="font-medium text-white">Proof of Availability</div>
 
-                        {renderItem(
-                            'Earned ($R1)',
-                            earnedAmount < 1000000000000000000000n
-                                ? parseFloat(Number(formatUnits(earnedAmount ?? 0n, 18)).toFixed(2))
-                                : fBI(earnedAmount, 18),
-                        )}
+                        <div className="grid grid-cols-2 gap-4 lg:flex lg:flex-row lg:justify-between">
+                            {renderItem(
+                                'Claimable ($R1)',
+                                isLoadingRewardsPoA || rewardsPoA === undefined
+                                    ? '...'
+                                    : parseFloat(Number(formatUnits(rewardsPoA ?? 0n, 18)).toFixed(2)),
+                            )}
 
-                        {renderItem('Future Claimable ($R1)', fBI(futureClaimableR1Amount, 18))}
+                            {renderItem(
+                                'Earned ($R1)',
+                                earnedAmountPoA < 1000000000000000000000n
+                                    ? parseFloat(Number(formatUnits(earnedAmountPoA ?? 0n, 18)).toFixed(2))
+                                    : fBI(earnedAmountPoA, 18),
+                            )}
 
-                        {renderItem('Current Potential Value ($)', fN(futureClaimableUsd))}
+                            {renderItem('Future Claimable ($R1)', fBI(futureClaimableR1AmountPoA, 18))}
+
+                            {renderItem('Current Potential Value ($)', fN(futureClaimableUsdPoA))}
+                        </div>
+                    </div>
+
+                    <div className="col gap-2">
+                        <div className="font-medium text-white">Proof of AI</div>
+
+                        <div className="grid grid-cols-2 gap-4 lg:flex lg:flex-row lg:justify-between">
+                            {renderItem('Claimable ($R1)', parseFloat(Number(formatUnits(rewardsPoAI ?? 0n, 18)).toFixed(2)))}
+                        </div>
                     </div>
 
                     <div className="flex flex-col-reverse justify-between gap-4 lg:flex-row lg:items-end">

@@ -22,9 +22,21 @@ const nodePerformanceItems = [
     },
 ];
 
-export const LicenseCardDetails = ({ license }: { license: License }) => {
-    const [rewardsPoA, isLoadingRewards] = useAwait(license.isLinked ? 8575000000000000000n : 0n);
-    // const [rewardsPoA, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n); TODO: Replace
+export const LicenseCardDetails = ({
+    license,
+    action,
+    isClaimingAllRewardsPoA,
+    isClaimingAllRewardsPoAI,
+}: {
+    license: License;
+    action?: (
+        type: 'link' | 'unlink' | 'claimRewardsPoA' | 'claimRewardsPoAI' | 'changeNode' | 'burn',
+        license: License,
+    ) => void;
+    isClaimingAllRewardsPoA?: boolean;
+    isClaimingAllRewardsPoAI?: boolean;
+}) => {
+    const [rewardsPoA, isLoadingRewardsPoA] = useAwait(license.isLinked ? license.rewards : 0n);
     const rewardsPoAI = license.type === 'ND' ? license.r1PoaiRewards : 0n;
 
     const nodePerformancePromise: Promise<{
@@ -142,7 +154,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                             <div className="col gap-2.5">
                                 <div className="text-sm font-medium text-slate-500">Total Rewards</div>
 
-                                {isLoadingRewards ? (
+                                {isLoadingRewardsPoA ? (
                                     <div className="text-lg font-semibold leading-none text-slate-500">...</div>
                                 ) : rewardsPoA === undefined ? (
                                     <SyncingOraclesTag />
@@ -166,7 +178,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                             <div className="col gap-2.5">
                                 <div className="text-sm font-medium text-slate-500">Proof of Availability</div>
 
-                                {isLoadingRewards ? (
+                                {isLoadingRewardsPoA ? (
                                     <div className="text-lg font-semibold leading-none text-slate-500">...</div>
                                 ) : rewardsPoA === undefined ? (
                                     <SyncingOraclesTag />
@@ -188,14 +200,12 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                                     size="sm"
                                     variant="flat"
                                     onPress={() => {
-                                        // TODO: Implement
-                                        // if (action) {
-                                        //     action('claim', license);
-                                        // }
+                                        if (action) {
+                                            action('claimRewardsPoA', license);
+                                        }
                                     }}
-                                    isLoading={license.isClaimingRewards}
-                                    // TODO: Implement
-                                    // isDisabled={isClaimingAll || isLoadingRewards || !hasRewards || isClaimDisabled}
+                                    isLoading={license.isClaimingRewardsPoA}
+                                    isDisabled={isLoadingRewardsPoA || isClaimingAllRewardsPoA}
                                 >
                                     <div className="text-sm">Claim</div>
                                 </Button>
@@ -208,7 +218,7 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                             <div className="col gap-2.5">
                                 <div className="text-sm font-medium text-slate-500">Proof of AI</div>
 
-                                {isLoadingRewards ? (
+                                {isLoadingRewardsPoA ? (
                                     <div className="text-lg font-semibold leading-none text-slate-500">...</div>
                                 ) : rewardsPoA === undefined ? (
                                     <SyncingOraclesTag />
@@ -230,14 +240,13 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                                     size="sm"
                                     variant="flat"
                                     onPress={() => {
-                                        // TODO: Implement
-                                        // if (action) {
-                                        //     action('claim', license);
-                                        // }
+                                        if (action) {
+                                            action('claimRewardsPoAI', license);
+                                        }
                                     }}
-                                    isLoading={license.isClaimingRewards}
-                                    // TODO: Implement
-                                    // isDisabled={isClaimingAll || isLoadingRewards || !hasRewards || isClaimDisabled}
+                                    isLoading={license.isClaimingRewardsPoAI}
+                                    // isLoadingRewardsPoA is also used here in order to disable the button while licenses are refreshed
+                                    isDisabled={isLoadingRewardsPoA || isClaimingAllRewardsPoAI}
                                 >
                                     <div className="text-sm">Claim</div>
                                 </Button>

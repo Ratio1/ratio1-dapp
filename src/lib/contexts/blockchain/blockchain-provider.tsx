@@ -173,6 +173,8 @@ export const BlockchainProvider = ({ children }) => {
 
         let licenses: License[] = [];
 
+        console.log('Fetching licenses...');
+
         try {
             const [mndLicenses, ndLicenses] = await Promise.all([
                 publicClient
@@ -233,7 +235,7 @@ export const BlockchainProvider = ({ children }) => {
                 ...licensesWithNodesAndRewards,
             ];
 
-            console.log('[BlockchainProvider] fetchLicenses', licenses);
+            console.log('Fetched licenses', licenses);
             setLicenses(licenses);
         } catch (error) {
             console.error(error);

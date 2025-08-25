@@ -23,14 +23,15 @@ import { LicenseSmallCard } from './LicenseSmallCard';
 
 export const LicenseCardHeader = ({
     license,
-    isClaimingAll,
     action,
     isExpanded,
     disableActions,
 }: {
     license: License;
-    isClaimingAll?: boolean;
-    action?: (type: 'link' | 'unlink' | 'claim' | 'changeNode' | 'burn', license: License) => void;
+    action?: (
+        type: 'link' | 'unlink' | 'claimRewardsPoA' | 'claimRewardsPoAI' | 'changeNode' | 'burn',
+        license: License,
+    ) => void;
     isExpanded: boolean;
     disableActions?: boolean;
 }) => {
@@ -38,7 +39,6 @@ export const LicenseCardHeader = ({
     const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
 
     const [isLoadingRewards, setLoadingRewards] = useState<boolean>(true);
-    const [isClaimDisabled, setClaimDisabled] = useState<boolean>(true);
 
     // Rewards
     const [rewardsTotal, setRewardsTotal] = useState<bigint | undefined>();
@@ -75,11 +75,8 @@ export const LicenseCardHeader = ({
         if (license.isLinked) {
             (async () => {
                 try {
-                    setClaimDisabled(true);
                     const rewardsPoA = await license.rewards;
-
-                    setLicenseRewardsPoA(8575000000000000000n); // TODO: Replace
-                    // setLicenseRewardsPoA(rewardsPoA);
+                    setLicenseRewardsPoA(rewardsPoA);
 
                     setRewardsTotal(
                         rewardsPoA !== undefined || licenseRewardsPoAI !== undefined
@@ -90,7 +87,6 @@ export const LicenseCardHeader = ({
                     console.log(`[LicenseCardHeader] Error fetching rewards for license #${Number(license.licenseId)}`, error);
                 } finally {
                     setLoadingRewards(false);
-                    setClaimDisabled(false);
                 }
             })();
         }
@@ -165,7 +161,7 @@ export const LicenseCardHeader = ({
                 <div className="row justify-between gap-4 lg:gap-8">
                     <div className="row gap-2">
                         <div className="center-all rounded-full bg-blue-100 p-2 text-primary">
-                            <TokenSvg classNames="h-6 w-6" />
+                            <TokenSvg classNames="h-5 w-5" />
                         </div>
 
                         <div className="text-sm font-medium text-slate-500">Rewards</div>
@@ -211,26 +207,17 @@ export const LicenseCardHeader = ({
         </>
     );
 
-    const getClaimRewardsButton = () => {
-        const rewardsN: number = Number(formatUnits(rewardsTotal ?? 0n, 18));
-        const hasRewards = rewardsN > 0;
+    const getRewardsAvailableLabel = () => {
+        const rewardsTotalN: number = Number(formatUnits(rewardsTotal ?? 0n, 18));
+
+        if (!rewardsTotalN) {
+            return undefined;
+        }
 
         return (
-            <Button
-                className="h-9"
-                color="primary"
-                size="sm"
-                variant="solid"
-                onPress={() => {
-                    if (action) {
-                        action('claim', license);
-                    }
-                }}
-                isLoading={license.isClaimingRewards}
-                isDisabled={isClaimingAll || isLoadingRewards || !hasRewards || isClaimDisabled}
-            >
-                <div className="text-sm">Claim all</div>
-            </Button>
+            <div className="h-9 rounded-md bg-green-100 px-3 py-2">
+                <div className="whitespace-nowrap text-sm font-medium text-green-600">Rewards Available</div>
+            </div>
         );
     };
 
@@ -380,10 +367,7 @@ export const LicenseCardHeader = ({
             )}
         >
             {/* On mobile the rewards and claim button are displayed on the bottom row, but 'flex-col-reverse' is also applied */}
-            <div className="row justify-between sm:hidden">
-                {/* {getNodeRewards()} */}
-                {getClaimRewardsButton()}
-            </div>
+            <div className="row justify-between sm:hidden">{getRewardsAvailableLabel()}</div>
 
             {/* Info */}
             <div className="row flex-1 flex-wrap gap-3">
@@ -401,12 +385,8 @@ export const LicenseCardHeader = ({
                         {!disableActions && (
                             <div className="row w-full justify-between gap-3 sm:w-auto sm:justify-start">
                                 {license.isLinked ? (
-                                    <div className="hidden items-center gap-3 sm:flex">
-                                        {/* {getNodeRewards()} */}
-                                        {getClaimRewardsButton()}
-                                    </div>
+                                    <div className="hidden items-center gap-3 sm:flex">{getRewardsAvailableLabel()}</div>
                                 ) : (
-                                    // TODO: Test layout with cooldown timer
                                     <>{getLicenseCooldownTimer()}</>
                                 )}
 
