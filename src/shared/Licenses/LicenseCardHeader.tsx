@@ -78,8 +78,8 @@ export const LicenseCardHeader = ({
                     setClaimDisabled(true);
                     const rewardsPoA = await license.rewards;
 
-                    // setLicenseRewardsPoA(8575000000000000000n);
-                    setLicenseRewardsPoA(rewardsPoA);
+                    setLicenseRewardsPoA(8575000000000000000n); // TODO: Replace
+                    // setLicenseRewardsPoA(rewardsPoA);
 
                     setRewardsTotal(
                         rewardsPoA !== undefined || licenseRewardsPoAI !== undefined
@@ -229,7 +229,7 @@ export const LicenseCardHeader = ({
                 isLoading={license.isClaimingRewards}
                 isDisabled={isClaimingAll || isLoadingRewards || !hasRewards || isClaimDisabled}
             >
-                <div className="text-sm">Claim</div>
+                <div className="text-sm">Claim all</div>
             </Button>
         );
     };
@@ -373,7 +373,7 @@ export const LicenseCardHeader = ({
     return (
         <div
             className={clsx(
-                'flex flex-col-reverse justify-between gap-4 px-4 py-3 md:gap-6 lg:gap-8 larger:flex-row larger:items-center',
+                'flex flex-col-reverse justify-between gap-4 md:gap-6 lg:gap-8 larger:flex-row larger:items-center',
                 {
                     'rounded-bl-2xl rounded-br-2xl': isExpanded,
                 },
