@@ -36,7 +36,8 @@ function Dashboard() {
 
     const [isEpochTransitioning, setEpochTransitioning] = useState<boolean>(false);
 
-    const rewardsPromise: Promise<bigint | undefined> = useMemo(
+    // Proof of Availability
+    const rewardsPoAPromise: Promise<bigint | undefined> = useMemo(
         () =>
             Promise.all(licenses.filter((license) => license.isLinked).map((license) => license.rewards)).then(
                 (rewardsArray) => {
@@ -53,7 +54,13 @@ function Dashboard() {
             ),
         [licenses],
     );
-    const [rewards, isLoadingRewards] = useAwait(rewardsPromise);
+    const [rewardsPoA, isLoadingRewardsPoA] = useAwait(rewardsPoAPromise);
+
+    // Proof of AI
+    const rewardsPoAI = useMemo(
+        () => licenses.filter((license) => license.type === 'ND').reduce((acc, license) => acc + license.r1PoaiRewards, 0n),
+        [licenses],
+    );
 
     // Init
     useEffect(() => {
@@ -69,13 +76,13 @@ function Dashboard() {
 
     // Epoch transition
     useEffect(() => {
-        if (!isLoadingRewards && isEpochTransitioning) {
+        if (!isLoadingRewardsPoA && isEpochTransitioning) {
             // Refresh licenses every minute to check if the epoch transition is over, which will also trigger a new rewards fetch
             setTimeout(() => {
                 fetchLicenses();
             }, 60000);
         }
-    }, [isLoadingRewards, isEpochTransitioning]);
+    }, [isLoadingRewardsPoA, isEpochTransitioning]);
 
     const isBuyingDisabled = (): boolean =>
         !authenticated ||
@@ -120,12 +127,12 @@ function Dashboard() {
 
                             <div className="row gap-2.5">
                                 <div className="text-xl font-semibold leading-6 text-primary">
-                                    {isLoadingRewards ? (
+                                    {isLoadingRewardsPoA ? (
                                         <div>...</div>
-                                    ) : rewards === undefined ? (
+                                    ) : rewardsPoA === undefined ? (
                                         <SyncingOraclesTag />
                                     ) : (
-                                        parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(2))
+                                        parseFloat(Number(formatUnits((rewardsPoA ?? 0n) + (rewardsPoAI ?? 0n), 18)).toFixed(2))
                                     )}
                                 </div>
                             </div>

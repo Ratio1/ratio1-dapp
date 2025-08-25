@@ -1,4 +1,5 @@
 import { ClosableToastContent } from '@shared/ClosableToastContent';
+import clsx from 'clsx';
 import { throttle } from 'lodash';
 import toast from 'react-hot-toast';
 import { RiCodeSSlashLine } from 'react-icons/ri';
@@ -160,3 +161,10 @@ export const isZeroAddress = (address: string): boolean => address === '0x000000
 export const sleep = (ms: number): Promise<void> => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
+
+export const getValueWithLabel = (label: string, value: string | number | JSX.Element, className?: string) => (
+    <div className="col gap-1 font-medium">
+        <div className="text-sm text-slate-500">{label}</div>
+        <div className={clsx('text-[15px]', className)}>{value}</div>
+    </div>
+);

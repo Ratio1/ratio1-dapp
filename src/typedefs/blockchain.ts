@@ -16,7 +16,8 @@ type BaseLicense = {
 };
 
 type LicenseWithNodeInfo = BaseLicense & {
-    isClaimingRewards?: boolean;
+    isClaimingRewardsPoA?: boolean;
+    isClaimingRewardsPoAI?: boolean;
 } & (
         | {
               isLinked: true;
