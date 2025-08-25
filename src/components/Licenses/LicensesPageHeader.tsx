@@ -1,5 +1,6 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
+import { PoAIContractAbi } from '@blockchain/PoAIContract';
 import { Button } from '@heroui/button';
 import { useDisclosure } from '@heroui/modal';
 import { config, environment, getNextEpochTimestamp } from '@lib/config';
@@ -170,7 +171,20 @@ function LicensesPageHeader({
 
         try {
             setClaimingAllRewardsPoAI(true);
-            await sleep(1000);
+
+            const licensesWithPoaiRewards = licenses.filter((license) => license.type === 'ND' && license.r1PoaiRewards > 0n);
+            if (licensesWithPoaiRewards.length === 0) {
+                toast.error('No rewards to claim at the moment.');
+                throw new Error('No rewards to claim at the moment.');
+            }
+
+            const txHash = await walletClient.writeContract({
+                address: config.poaiManagerContractAddress,
+                abi: PoAIContractAbi,
+                functionName: 'claimRewardsForNodes',
+                args: [licensesWithPoaiRewards.map((license) => license.nodeAddress)],
+            });
+            await watchTx(txHash, publicClient);
         } catch (err: any) {
             console.error(err.message);
             toast.error('An error occurred, please try again.');
