@@ -1,3 +1,4 @@
+import { BorderedCard } from '@shared/cards/BorderedCard';
 import { useState } from 'react';
 import { License } from 'typedefs/blockchain';
 import { LicenseCardDetails } from './LicenseCardDetails';
@@ -24,25 +25,27 @@ export const LicenseCard = ({
     const [isExpanded, setExpanded] = useState<boolean>(disableActions ? true : false);
 
     return (
-        <div
-            className="mx-auto flex w-full cursor-pointer flex-col gap-3 overflow-hidden rounded-2xl border-2 border-slate-100 bg-white px-3 py-3 hover:border-slate-200 sm:px-4"
-            onClick={() => {
-                if (onLicenseClick) {
-                    setExpanded(!isExpanded);
-                    onLicenseClick(license);
-                }
-            }}
-        >
-            <LicenseCardHeader license={license} action={action} isExpanded={isExpanded} disableActions={disableActions} />
+        <BorderedCard>
+            <div
+                className="mx-auto flex cursor-pointer flex-col gap-3 px-3 py-3 hover:border-slate-200 sm:px-4"
+                onClick={() => {
+                    if (onLicenseClick) {
+                        setExpanded(!isExpanded);
+                        onLicenseClick(license);
+                    }
+                }}
+            >
+                <LicenseCardHeader license={license} action={action} isExpanded={isExpanded} disableActions={disableActions} />
 
-            {isExpanded && (
-                <LicenseCardDetails
-                    license={license}
-                    action={action}
-                    isClaimingAllRewardsPoA={isClaimingAllRewardsPoA}
-                    isClaimingAllRewardsPoAI={isClaimingAllRewardsPoAI}
-                />
-            )}
-        </div>
+                {isExpanded && (
+                    <LicenseCardDetails
+                        license={license}
+                        action={action}
+                        isClaimingAllRewardsPoA={isClaimingAllRewardsPoA}
+                        isClaimingAllRewardsPoAI={isClaimingAllRewardsPoAI}
+                    />
+                )}
+            </div>
+        </BorderedCard>
     );
 };
