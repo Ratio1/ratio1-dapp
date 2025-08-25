@@ -148,7 +148,7 @@ export const LicenseCardDetails = ({
             <div className="col gap-1.5">
                 {getSectionTitle('Rewards')}
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 larger:grid-cols-3">
                     <DetailsCard>
                         <div className="grid grid-cols-2 gap-3">
                             <div className="col gap-2.5">
@@ -253,7 +253,7 @@ export const LicenseCardDetails = ({
                 {getSectionTitle('License Details')}
 
                 <DetailsCard>
-                    <div className="grid grid-cols-3 gap-6">
+                    <div className="grid grid-cols-2 gap-6 lg:grid-cols-3">
                         {getItem('License type', license.type)}
 
                         {getItem(
@@ -282,7 +282,7 @@ export const LicenseCardDetails = ({
 
             {license.isLinked && (
                 <div className="col gap-1.5">
-                    <div className="row gap-2">
+                    <div className="row gap-3">
                         {getSectionTitle('Node Performance')}
 
                         {isEpochTransitioning() && <SyncingOraclesTag />}
@@ -309,135 +309,6 @@ export const LicenseCardDetails = ({
             )}
         </div>
     );
-
-    // return (
-    //     <div className="rounded-2xl bg-slate-100 px-4 py-3">
-    //         <div className="col gap-[18px]">
-    //             <div
-    //                 className={clsx('text-sm lg:text-base xl:gap-0', {
-    //                     'border-b-2 border-slate-200 pb-[18px]': license.isLinked,
-    //                 })}
-    //             >
-    //                 <div className="flex w-full flex-col gap-6 larger:flex-row">
-    //                     <div className="col flex-1 gap-3">
-    //                         {getTitle('Details')}
-
-    //                         <div className="col flex-1 gap-1.5">
-    //                             {getLine('License type', <SmallTag variant={license.type}>{license.type}</SmallTag>)}
-    //                             {getLine(
-    //                                 'Assign timestamp',
-    //                                 license.assignTimestamp === 0n
-    //                                     ? 'N/A'
-    //                                     : new Date(Number(license.assignTimestamp) * 1000).toLocaleString(),
-    //                             )}
-    //                             {getLine(
-    //                                 'Last claimed epoch',
-    //                                 license.lastClaimEpoch === 0n ? 'N/A' : Number(license.lastClaimEpoch),
-    //                             )}
-    //                             {getLine(
-    //                                 'Claimable epochs',
-    //                                 Number(license.claimableEpochs),
-    //                                 Number(license.claimableEpochs) > 0,
-    //                             )}
-    //                         </div>
-
-    //                         <div className="mt-3">{getTitle('Proof of Availability')}</div>
-
-    //                         <div className="col flex-1 gap-1.5">
-    //                             {getLine(
-    //                                 'Initial amount',
-    //                                 parseFloat(
-    //                                     Number(formatUnits(license.totalAssignedAmount ?? 0n, 18)).toFixed(2),
-    //                                 ).toLocaleString(),
-    //                             )}
-    //                             {getLine(
-    //                                 'Remaining amount',
-    //                                 parseFloat(
-    //                                     Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2),
-    //                                 ).toLocaleString(),
-    //                             )}
-    //                         </div>
-    //                     </div>
-
-    //                     <div className="col flex-1 gap-3">
-    //                         {getTitle('Claimable Rewards')}
-
-    //                         {getLine(
-    //                             'Total amount ($R1)',
-    //                             isLoadingRewards ? (
-    //                                 '...'
-    //                             ) : rewards === undefined ? (
-    //                                 <SyncingOraclesTag />
-    //                             ) : (
-    //                                 parseFloat(
-    //                                     Number(formatUnits((rewards ?? 0n) + (poaiRewards ?? 0n), 18)).toFixed(4),
-    //                                 ).toLocaleString()
-    //                             ),
-    //                             (rewards ?? 0n) > 0,
-    //                         )}
-
-    //                         <div className="col gap-3">
-    //                             <div className="mt-3">{getTitle('Rewards Summary')}</div>
-
-    //                             <div className="col flex-1 gap-1.5">
-    //                                 {getLine(
-    //                                     'Proof of Availability',
-    //                                     isLoadingRewards ? (
-    //                                         '...'
-    //                                     ) : rewards === undefined ? (
-    //                                         <SyncingOraclesTag />
-    //                                     ) : (
-    //                                         parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString()
-    //                                     ),
-    //                                     false,
-    //                                 )}
-    //                                 {getLine(
-    //                                     'Proof of AI',
-    //                                     isLoadingRewards ? (
-    //                                         '...'
-    //                                     ) : rewards === undefined ? (
-    //                                         <SyncingOraclesTag />
-    //                                     ) : (
-    //                                         parseFloat(Number(formatUnits(poaiRewards ?? 0n, 18)).toFixed(4)).toLocaleString()
-    //                                     ),
-    //                                     false,
-    //                                 )}
-    //                             </div>
-    //                         </div>
-    //                     </div>
-    //                 </div>
-    //             </div>
-
-    //             {license.isLinked && (
-    //                 <div className="col -mt-0.5 gap-3">
-    //                     <div className="row gap-3">
-    //                         {getTitle('Node performance')}
-
-    //                         {isEpochTransitioning() && <SyncingOraclesTag />}
-    //                     </div>
-
-    //                     {!isEpochTransitioning() && (
-    //                         <div className="flex flex-wrap items-stretch gap-2 md:gap-3">
-    //                             {isLoadingNodePerformance ? (
-    //                                 <>
-    //                                     {nodePerformanceItems.map(({ label }, index) =>
-    //                                         getNodePerformanceItem(index, label, undefined),
-    //                                     )}
-    //                                 </>
-    //                             ) : (
-    //                                 <>
-    //                                     {nodePerformanceItems.map(({ label }, index) =>
-    //                                         getNodePerformanceItem(index, label, getNodePerformanceValue(index)),
-    //                                     )}
-    //                                 </>
-    //                             )}
-    //                         </div>
-    //                     )}
-    //                 </div>
-    //             )}
-    //         </div>
-    //     </div>
-    // );
 };
 
 const DetailsCard = ({ children }: { children: React.ReactNode }) => {

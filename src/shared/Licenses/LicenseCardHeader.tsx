@@ -17,7 +17,6 @@ import { Link } from 'react-router-dom';
 import { License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
-import { LicenseAndNodeRewardsCard } from './LicenseAndNodeRewardsCard';
 import { LicenseCardNode } from './LicenseCardNode';
 import { LicenseSmallCard } from './LicenseSmallCard';
 
@@ -157,8 +156,8 @@ export const LicenseCardHeader = ({
         return isLoadingRewards ? (
             <Skeleton className="h-16 min-w-[200px] rounded-xl" />
         ) : (
-            <LicenseAndNodeRewardsCard>
-                <div className="row justify-between gap-4 lg:gap-8">
+            <LicenseSmallCard>
+                <div className="row w-full justify-between gap-4 lg:gap-8">
                     <div className="row gap-2">
                         <div className="center-all rounded-full bg-blue-100 p-2 text-primary">
                             <TokenSvg classNames="h-5 w-5" />
@@ -181,7 +180,7 @@ export const LicenseCardHeader = ({
                         </div>
                     )}
                 </div>
-            </LicenseAndNodeRewardsCard>
+            </LicenseSmallCard>
         );
     };
 
@@ -366,11 +365,8 @@ export const LicenseCardHeader = ({
                 },
             )}
         >
-            {/* On mobile the rewards and claim button are displayed on the bottom row, but 'flex-col-reverse' is also applied */}
-            <div className="row justify-between sm:hidden">{getRewardsAvailableLabel()}</div>
-
             {/* Info */}
-            <div className="row flex-1 flex-wrap gap-3">
+            <div className="row flex-1 flex-wrap gap-1.5 sm:gap-3">
                 {getLicenseCard()}
                 {getLinkedNodeCard()}
                 {getRewardsCard()}
@@ -384,11 +380,7 @@ export const LicenseCardHeader = ({
                     <>
                         {!disableActions && (
                             <div className="row w-full justify-between gap-3 sm:w-auto sm:justify-start">
-                                {license.isLinked ? (
-                                    <div className="hidden items-center gap-3 sm:flex">{getRewardsAvailableLabel()}</div>
-                                ) : (
-                                    <>{getLicenseCooldownTimer()}</>
-                                )}
+                                {license.isLinked ? <>{getRewardsAvailableLabel()}</> : <>{getLicenseCooldownTimer()}</>}
 
                                 <div className="flex w-full justify-end">{getDropdown()}</div>
                             </div>
