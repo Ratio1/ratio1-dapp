@@ -269,7 +269,7 @@ function LicensesPageHeader({
                         {renderItem('Current Potential Value ($)', fN(futureClaimableUsd))}
                     </div>
 
-                    <div className="flex flex-col-reverse justify-between gap-4 lg:flex-row lg:items-end lg:gap-0">
+                    <div className="flex flex-col-reverse justify-between gap-4 lg:flex-row lg:items-end">
                         <div className="col gap-1">
                             <div className="text-base font-medium text-white lg:text-lg">Filter</div>
 

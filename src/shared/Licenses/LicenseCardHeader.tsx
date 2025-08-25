@@ -7,6 +7,7 @@ import useAwait from '@lib/useAwait';
 import { fBI, fN } from '@lib/utils';
 import SyncingOraclesTag from '@shared/SyncingOraclesTag';
 import { Timer } from '@shared/Timer';
+import { TokenSvg } from '@shared/TokenSvg';
 import clsx from 'clsx';
 import { addDays, formatDistanceToNow, isBefore } from 'date-fns';
 import { FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
@@ -16,6 +17,7 @@ import { Link } from 'react-router-dom';
 import { License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
+import { LicenseAndNodeRewardsCard } from './LicenseAndNodeRewardsCard';
 import { LicenseCardNode } from './LicenseCardNode';
 import { LicenseSmallCard } from './LicenseSmallCard';
 
@@ -75,6 +77,8 @@ export const LicenseCardHeader = ({
                 try {
                     setClaimDisabled(true);
                     const rewardsPoA = await license.rewards;
+
+                    // setLicenseRewardsPoA(8575000000000000000n);
                     setLicenseRewardsPoA(rewardsPoA);
 
                     setRewardsTotal(
@@ -138,6 +142,53 @@ export const LicenseCardHeader = ({
         </LicenseSmallCard>
     );
 
+    const getLinkedNodeCard = () => <LicenseCardNode license={license} />;
+
+    const getRewardsCard = () => {
+        if (!isLoadingRewards && rewardsTotal === undefined) {
+            return <SyncingOraclesTag variant="default" />;
+        }
+
+        const nRewardsPoA: number = Number(formatUnits(licenseRewardsPoA ?? 0n, 18));
+        const nRewardsPoAI: number = Number(formatUnits(licenseRewardsPoAI ?? 0n, 18));
+
+        const hasRewards = nRewardsPoA > 0 || nRewardsPoAI > 0;
+
+        if (!isLoadingRewards && !hasRewards) {
+            return undefined;
+        }
+
+        return isLoadingRewards ? (
+            <Skeleton className="h-16 min-w-[200px] rounded-xl" />
+        ) : (
+            <LicenseAndNodeRewardsCard>
+                <div className="row justify-between gap-4 lg:gap-8">
+                    <div className="row gap-2">
+                        <div className="center-all rounded-full bg-blue-100 p-2 text-primary">
+                            <TokenSvg classNames="h-6 w-6" />
+                        </div>
+
+                        <div className="text-sm font-medium text-slate-500">Rewards</div>
+                    </div>
+
+                    {!!nRewardsPoA && (
+                        <div className="col gap-1.5 text-sm">
+                            <div className="font-medium leading-none text-slate-500">PoA</div>
+                            <div className="font-semibold leading-none text-primary">{fN(nRewardsPoA)}</div>
+                        </div>
+                    )}
+
+                    {!!nRewardsPoAI && (
+                        <div className="col gap-1.5 text-sm">
+                            <div className="font-medium leading-none text-slate-500">PoAI</div>
+                            <div className="font-semibold leading-none text-purple-600">{fN(nRewardsPoAI)}</div>
+                        </div>
+                    )}
+                </div>
+            </LicenseAndNodeRewardsCard>
+        );
+    };
+
     const getLicenseCooldownTimer = () => (
         <>
             {!!hasCooldown && (
@@ -159,45 +210,6 @@ export const LicenseCardHeader = ({
             )}
         </>
     );
-
-    const getNodeCard = () => <LicenseCardNode license={license} />;
-
-    const getNodeRewards = () => {
-        if (!isLoadingRewards && rewardsTotal === undefined) {
-            return <SyncingOraclesTag variant="default" />;
-        }
-
-        const nRewardsPoA: number = Number(formatUnits(licenseRewardsPoA ?? 0n, 18));
-        const nRewardsPoAI: number = Number(formatUnits(licenseRewardsPoAI ?? 0n, 18));
-
-        const hasRewards = nRewardsPoA > 0 || nRewardsPoAI > 0;
-
-        if (!isLoadingRewards && !hasRewards) {
-            return undefined;
-        }
-
-        return isLoadingRewards ? (
-            <Skeleton className="h-5 min-w-28 rounded-lg" />
-        ) : (
-            <div className="row gap-1.5 font-medium text-slate-400">
-                <div className="whitespace-nowrap">~$R1</div>
-
-                {!!nRewardsPoA && (
-                    <>
-                        PoA
-                        <div className="font-semibold text-primary">{fN(nRewardsPoA)}</div>
-                    </>
-                )}
-
-                {!!nRewardsPoAI && (
-                    <>
-                        PoAI
-                        <div className="font-semibold text-primary">{fN(nRewardsPoAI)}</div>
-                    </>
-                )}
-            </div>
-        );
-    };
 
     const getClaimRewardsButton = () => {
         const rewardsN: number = Number(formatUnits(rewardsTotal ?? 0n, 18));
@@ -361,24 +373,23 @@ export const LicenseCardHeader = ({
     return (
         <div
             className={clsx(
-                'flex flex-col-reverse justify-between gap-4 bg-white px-4 py-3 md:gap-6 lg:gap-8 larger:flex-row larger:items-center',
+                'flex flex-col-reverse justify-between gap-4 px-4 py-3 md:gap-6 lg:gap-8 larger:flex-row larger:items-center',
                 {
                     'rounded-bl-2xl rounded-br-2xl': isExpanded,
                 },
             )}
         >
-            {/* On mobile, the rewards and claim button are displayed in the bottom row, but 'flex-col-reverse' is used */}
-            {!!rewardsTotal && (
-                <div className="row justify-between sm:hidden">
-                    {getNodeRewards()}
-                    {getClaimRewardsButton()}
-                </div>
-            )}
+            {/* On mobile the rewards and claim button are displayed on the bottom row, but 'flex-col-reverse' is also applied */}
+            <div className="row justify-between sm:hidden">
+                {/* {getNodeRewards()} */}
+                {getClaimRewardsButton()}
+            </div>
 
             {/* Info */}
-            <div className="row flex-1 flex-wrap gap-2 sm:gap-4">
+            <div className="row flex-1 flex-wrap gap-3">
                 {getLicenseCard()}
-                {getNodeCard()}
+                {getLinkedNodeCard()}
+                {getRewardsCard()}
             </div>
 
             {/* Controls */}
@@ -388,13 +399,14 @@ export const LicenseCardHeader = ({
                 ) : (
                     <>
                         {!disableActions && (
-                            <div className="row w-full justify-between gap-4 sm:w-auto sm:justify-start">
+                            <div className="row w-full justify-between gap-3 sm:w-auto sm:justify-start">
                                 {license.isLinked ? (
-                                    <div className="hidden items-center gap-4 sm:flex">
-                                        {getNodeRewards()}
+                                    <div className="hidden items-center gap-3 sm:flex">
+                                        {/* {getNodeRewards()} */}
                                         {getClaimRewardsButton()}
                                     </div>
                                 ) : (
+                                    // TODO: Test layout with cooldown timer
                                     <>{getLicenseCooldownTimer()}</>
                                 )}
 

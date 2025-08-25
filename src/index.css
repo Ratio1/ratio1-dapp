@@ -60,12 +60,12 @@ body {
 }
 
 *::-webkit-scrollbar-track {
-    background: #ebecf1;
+    background: white;
     background-clip: padding-box;
 }
 
 *::-webkit-scrollbar-thumb {
-    background-color: #ced3e8;
+    background-color: #f1f5f9;
     border-radius: 0px;
     border: 0;
 }
