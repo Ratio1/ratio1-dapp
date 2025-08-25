@@ -233,12 +233,12 @@ function LicensesPageHeader({
     return (
         <>
             <div className="col relative z-10 h-full w-full gap-4 rounded-2xl bg-[#436cc8] px-6 py-6">
-                <div className="flex flex-col justify-between gap-3.5 border-b-2 border-white/10 pb-5 layoutBreak:flex-row">
+                <div className="flex flex-col justify-between gap-3.5 border-b-2 border-white/10 pb-5 lg:flex-row">
                     <div className="row gap-2.5">
                         <div className="text-lg font-medium text-white">Licenses</div>
                     </div>
 
-                    <div className="row justify-between gap-2.5 layoutBreak:justify-end">
+                    <div className="row justify-between gap-2.5 lg:justify-end">
                         <Button
                             className="h-9"
                             color="primary"
