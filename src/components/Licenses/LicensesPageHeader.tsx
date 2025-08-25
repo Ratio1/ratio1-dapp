@@ -6,10 +6,11 @@ import { config, environment, getNextEpochTimestamp } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
-import { fBI, fN, sleep } from '@lib/utils';
+import { fBI, fN, getValueWithLabel, sleep } from '@lib/utils';
 import { BorderedCard } from '@shared/cards/BorderedCard';
 import CustomTabs from '@shared/CustomTabs';
 import { DualTxsModal } from '@shared/DualTxsModal';
+import { SmallTag } from '@shared/SmallTag';
 import { Timer } from '@shared/Timer';
 import { KycStatus } from '@typedefs/profile';
 import { useEffect, useMemo, useState } from 'react';
@@ -224,12 +225,7 @@ function LicensesPageHeader({
         !account ||
         (account.kycStatus !== KycStatus.Approved && environment === 'mainnet');
 
-    const renderItem = (label: string, value) => (
-        <div className="col gap-1">
-            <div className="text-sm font-medium text-white/85">{label}</div>
-            <div className="text-lg font-medium text-white">{value}</div>
-        </div>
-    );
+    const getSectionTitle = (title: string, variant: 'ND' | 'MND' = 'ND') => <SmallTag variant={variant}>{title}</SmallTag>;
 
     return (
         <>
@@ -254,8 +250,9 @@ function LicensesPageHeader({
                         </div>
                     }
                 >
-                    <div className="col gap-4 p-4">
-                        <div className="flex flex-col gap-2 md:flex-row">
+                    <div className="col gap-6 p-4 sm:gap-4">
+                        {/* Top row */}
+                        <div className="flex flex-col gap-3 md:flex-row">
                             <div className="row flex-1 justify-between">
                                 <div className="text-xl font-semibold">Rewards</div>
 
@@ -302,38 +299,49 @@ function LicensesPageHeader({
                             </div>
                         </div>
 
+                        {/* PoA and PoAI */}
                         <div className="col gap-6 xl:gap-8">
                             <div className="col gap-2">
-                                <div className="font-medium text-white">Proof of Availability</div>
+                                <div className="row w-full gap-3">
+                                    {getSectionTitle('Proof of Availability', 'ND')}
+
+                                    <div className="w-full border-b-2 border-slate-100"></div>
+                                </div>
 
                                 <div className="grid grid-cols-2 gap-4 lg:flex lg:flex-row lg:justify-between">
-                                    {renderItem(
+                                    {getValueWithLabel(
                                         'Claimable ($R1)',
                                         isLoadingRewardsPoA || rewardsPoA === undefined
                                             ? '...'
                                             : parseFloat(Number(formatUnits(rewardsPoA ?? 0n, 18)).toFixed(2)),
+                                        'text-primary',
                                     )}
 
-                                    {renderItem(
+                                    {getValueWithLabel(
                                         'Earned ($R1)',
                                         earnedAmountPoA < 1000000000000000000000n
                                             ? parseFloat(Number(formatUnits(earnedAmountPoA ?? 0n, 18)).toFixed(2))
                                             : fBI(earnedAmountPoA, 18),
                                     )}
 
-                                    {renderItem('Future Claimable ($R1)', fBI(futureClaimableR1AmountPoA, 18))}
+                                    {getValueWithLabel('Future Claimable ($R1)', fBI(futureClaimableR1AmountPoA, 18))}
 
-                                    {renderItem('Current Potential Value ($)', fN(futureClaimableUsdPoA))}
+                                    {getValueWithLabel('Current Potential Value ($)', fN(futureClaimableUsdPoA))}
                                 </div>
                             </div>
 
                             <div className="col gap-2">
-                                <div className="font-medium text-white">Proof of AI</div>
+                                <div className="row w-full gap-3">
+                                    {getSectionTitle('Proof of AI', 'MND')}
+
+                                    <div className="w-full border-b-2 border-slate-100"></div>
+                                </div>
 
                                 <div className="grid grid-cols-2 gap-4 lg:flex lg:flex-row lg:justify-between">
-                                    {renderItem(
+                                    {getValueWithLabel(
                                         'Claimable ($R1)',
                                         parseFloat(Number(formatUnits(rewardsPoAI ?? 0n, 18)).toFixed(2)),
+                                        'text-purple-600',
                                     )}
                                 </div>
                             </div>

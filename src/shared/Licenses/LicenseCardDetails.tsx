@@ -2,10 +2,9 @@ import { Button } from '@heroui/button';
 import { getNodeEpochsRange, getNodeLastEpoch } from '@lib/api/oracles';
 import { getCurrentEpoch, getLicenseAssignEpoch } from '@lib/config';
 import useAwait from '@lib/useAwait';
-import { arrayAverage, throttledToastOracleError } from '@lib/utils';
+import { arrayAverage, getValueWithLabel, throttledToastOracleError } from '@lib/utils';
 import { CardHorizontal } from '@shared/cards/CardHorizontal';
 import SyncingOraclesTag from '@shared/SyncingOraclesTag';
-import clsx from 'clsx';
 import { cloneElement, useMemo } from 'react';
 import { License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
@@ -78,25 +77,6 @@ export const LicenseCardDetails = ({
     }, [license]);
 
     const [nodePerformance, isLoadingNodePerformance] = useAwait(nodePerformancePromise);
-
-    const getItem = (
-        label: string,
-        value: string | number | JSX.Element,
-        isHighlighted: boolean = false,
-        isAproximate: boolean = false,
-    ) => (
-        <div className="col gap-1 font-medium">
-            <div className="text-sm text-slate-500">{label}</div>
-            <div
-                className={clsx('text-[15px]', {
-                    'text-primary': isHighlighted,
-                })}
-            >
-                {isAproximate ? '~' : ''}
-                {value}
-            </div>
-        </div>
-    );
 
     const getNodePerformanceItem = (key: number, label: string, value: number | undefined) =>
         cloneElement(
@@ -254,25 +234,32 @@ export const LicenseCardDetails = ({
 
                 <DetailsCard>
                     <div className="grid grid-cols-2 gap-6 lg:grid-cols-3">
-                        {getItem('License type', license.type)}
+                        {getValueWithLabel('License type', license.type)}
 
-                        {getItem(
+                        {getValueWithLabel(
                             'Assign timestamp',
                             license.assignTimestamp === 0n
                                 ? 'N/A'
                                 : new Date(Number(license.assignTimestamp) * 1000).toLocaleString(),
                         )}
 
-                        {getItem('Last claimed epoch', license.lastClaimEpoch === 0n ? 'N/A' : Number(license.lastClaimEpoch))}
+                        {getValueWithLabel(
+                            'Last claimed epoch',
+                            license.lastClaimEpoch === 0n ? 'N/A' : Number(license.lastClaimEpoch),
+                        )}
 
-                        {getItem('Claimable epochs', Number(license.claimableEpochs), Number(license.claimableEpochs) > 0)}
+                        {getValueWithLabel(
+                            'Claimable epochs',
+                            Number(license.claimableEpochs),
+                            Number(license.claimableEpochs) > 0 ? 'text-primary' : undefined,
+                        )}
 
-                        {getItem(
+                        {getValueWithLabel(
                             'Proof of Availability (Initial)',
                             parseFloat(Number(formatUnits(license.totalAssignedAmount ?? 0n, 18)).toFixed(2)).toLocaleString(),
                         )}
 
-                        {getItem(
+                        {getValueWithLabel(
                             'Proof of Availability (Remaining)',
                             parseFloat(Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2)).toLocaleString(),
                         )}

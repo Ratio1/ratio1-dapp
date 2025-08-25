@@ -8,7 +8,7 @@ export const SmallTag: FunctionComponent<
 > = ({ children, variant = 'default' }) => (
     <div className="flex">
         <div
-            className={clsx('center-all rounded-md px-1.5 py-0.5 text-xs font-medium', {
+            className={clsx('center-all whitespace-nowrap rounded-md px-1.5 py-0.5 text-xs font-medium', {
                 'bg-slate-100': variant === 'default',
                 'bg-slate-200': variant === 'slate',
                 'bg-primary-50 text-primary': variant === 'ND',
