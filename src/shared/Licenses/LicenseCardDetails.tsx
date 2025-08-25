@@ -218,19 +218,11 @@ export const LicenseCardDetails = ({
                             <div className="col gap-2.5">
                                 <div className="text-sm font-medium text-slate-500">Proof of AI</div>
 
-                                {isLoadingRewardsPoA ? (
-                                    <div className="text-lg font-semibold leading-none text-slate-500">...</div>
-                                ) : rewardsPoA === undefined ? (
-                                    <SyncingOraclesTag />
-                                ) : (
-                                    <div className="flex items-end gap-1.5">
-                                        <div className="text-lg font-semibold leading-none text-purple-600">
-                                            {parseFloat(Number(formatUnits(rewardsPoAI ?? 0n, 18)).toFixed(4)).toLocaleString()}
+                                <div className="text-lg font-semibold leading-none text-purple-600">
+                                    {parseFloat(Number(formatUnits(rewardsPoAI ?? 0n, 18)).toFixed(4)).toLocaleString()}
 
-                                            <span className="text-slate-400"> $R1</span>
-                                        </div>
-                                    </div>
-                                )}
+                                    <span className="text-slate-400"> $R1</span>
+                                </div>
                             </div>
 
                             {!!rewardsPoAI && (
