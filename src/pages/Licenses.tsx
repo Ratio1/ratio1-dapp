@@ -1,5 +1,6 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
+import { PoAIContractAbi } from '@blockchain/PoAIContract';
 import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
 import LicenseBurnModal from '@components/Licenses/modals/LicenseBurnModal';
 import LicenseLinkModal from '@components/Licenses/modals/LicenseLinkModal';
@@ -9,7 +10,6 @@ import { Skeleton } from '@heroui/skeleton';
 import { config, getCurrentEpoch, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
-import { sleep } from '@lib/utils';
 import EmptyData from '@shared/EmptyData';
 import { Label } from '@shared/Label';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
@@ -202,7 +202,13 @@ function Licenses() {
 
             setClaimingRewards(license.licenseId, license.type, 'PoAI', true);
 
-            await sleep(1000);
+            const txHash = await walletClient.writeContract({
+                address: config.poaiManagerContractAddress,
+                abi: PoAIContractAbi,
+                functionName: 'claimRewardsForNode',
+                args: [license.nodeAddress],
+            });
+            const receipt = await watchTx(txHash, publicClient);
 
             if (!skipFetchingRewards) {
                 // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
@@ -210,6 +216,8 @@ function Licenses() {
                     fetchLicenses();
                 }, 500);
             }
+
+            return receipt;
         } catch (err: any) {
             toast.error('An error occurred, please try again.');
         } finally {
