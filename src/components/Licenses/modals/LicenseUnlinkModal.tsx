@@ -92,7 +92,7 @@ const LicenseUnlinkModal = forwardRef(({ onClaim, shouldTriggerGhostClaimRewards
             setTimeout(() => {
                 fetchLicenses(true);
                 setLoading(false);
-            }, 500);
+            }, 0);
         }
     };
 
