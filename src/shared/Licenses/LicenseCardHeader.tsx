@@ -7,6 +7,7 @@ import useAwait from '@lib/useAwait';
 import { fBI, fN } from '@lib/utils';
 import SyncingOraclesTag from '@shared/SyncingOraclesTag';
 import { Timer } from '@shared/Timer';
+import { TokenSvg } from '@shared/TokenSvg';
 import clsx from 'clsx';
 import { addDays, formatDistanceToNow, isBefore } from 'date-fns';
 import { FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
@@ -21,14 +22,15 @@ import { LicenseSmallCard } from './LicenseSmallCard';
 
 export const LicenseCardHeader = ({
     license,
-    isClaimingAll,
     action,
     isExpanded,
     disableActions,
 }: {
     license: License;
-    isClaimingAll?: boolean;
-    action?: (type: 'link' | 'unlink' | 'claim' | 'changeNode' | 'burn', license: License) => void;
+    action?: (
+        type: 'link' | 'unlink' | 'claimRewardsPoA' | 'claimRewardsPoAI' | 'changeNode' | 'burn',
+        license: License,
+    ) => void;
     isExpanded: boolean;
     disableActions?: boolean;
 }) => {
@@ -36,8 +38,11 @@ export const LicenseCardHeader = ({
     const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
 
     const [isLoadingRewards, setLoadingRewards] = useState<boolean>(true);
-    const [isClaimDisabled, setClaimDisabled] = useState<boolean>(true);
-    const [rewards, setRewards] = useState<bigint | undefined>();
+
+    // Rewards
+    const [rewardsTotal, setRewardsTotal] = useState<bigint | undefined>();
+    const [licenseRewardsPoA, setLicenseRewardsPoA] = useState<bigint | undefined>();
+    const licenseRewardsPoAI: bigint | undefined = license.type === 'ND' ? license.r1PoaiRewards || undefined : undefined;
 
     // Used to restrict actions until all data is loaded
     const [_, isLoadingNodeAlias] = useAwait(license.isLinked ? license.alias : undefined);
@@ -69,20 +74,18 @@ export const LicenseCardHeader = ({
         if (license.isLinked) {
             (async () => {
                 try {
-                    setClaimDisabled(true);
-                    const licenseRewards = await license.rewards;
-                    const licensePoaiRewards = license.type === 'ND' ? license.r1PoaiRewards || undefined : undefined;
+                    const rewardsPoA = await license.rewards;
+                    setLicenseRewardsPoA(rewardsPoA);
 
-                    setRewards(
-                        licenseRewards !== undefined || licensePoaiRewards !== undefined
-                            ? (licenseRewards ?? 0n) + (licensePoaiRewards ?? 0n)
+                    setRewardsTotal(
+                        rewardsPoA !== undefined || licenseRewardsPoAI !== undefined
+                            ? (rewardsPoA ?? 0n) + (licenseRewardsPoAI ?? 0n)
                             : undefined,
                     );
                 } catch (error) {
                     console.log(`[LicenseCardHeader] Error fetching rewards for license #${Number(license.licenseId)}`, error);
                 } finally {
                     setLoadingRewards(false);
-                    setClaimDisabled(false);
                 }
             })();
         }
@@ -134,6 +137,53 @@ export const LicenseCardHeader = ({
         </LicenseSmallCard>
     );
 
+    const getLinkedNodeCard = () => <LicenseCardNode license={license} />;
+
+    const getRewardsCard = () => {
+        if (!isLoadingRewards && rewardsTotal === undefined) {
+            return <SyncingOraclesTag variant="default" />;
+        }
+
+        const nRewardsPoA: number = Number(formatUnits(licenseRewardsPoA ?? 0n, 18));
+        const nRewardsPoAI: number = Number(formatUnits(licenseRewardsPoAI ?? 0n, 18));
+
+        const hasRewards = nRewardsPoA > 0 || nRewardsPoAI > 0;
+
+        if (!isLoadingRewards && !hasRewards) {
+            return undefined;
+        }
+
+        return isLoadingRewards ? (
+            <Skeleton className="h-16 min-w-[200px] rounded-xl" />
+        ) : (
+            <LicenseSmallCard>
+                <div className="row w-full justify-between gap-4 lg:gap-8">
+                    <div className="row gap-2">
+                        <div className="center-all rounded-full bg-blue-100 p-2 text-primary">
+                            <TokenSvg classNames="h-5 w-5" />
+                        </div>
+
+                        <div className="text-sm font-medium text-slate-500">Rewards</div>
+                    </div>
+
+                    {!!nRewardsPoA && (
+                        <div className="col gap-1.5 text-sm">
+                            <div className="font-medium leading-none text-slate-500">PoA</div>
+                            <div className="font-semibold leading-none text-primary">{fN(nRewardsPoA)}</div>
+                        </div>
+                    )}
+
+                    {!!nRewardsPoAI && (
+                        <div className="col gap-1.5 text-sm">
+                            <div className="font-medium leading-none text-slate-500">PoAI</div>
+                            <div className="font-semibold leading-none text-purple-600">{fN(nRewardsPoAI)}</div>
+                        </div>
+                    )}
+                </div>
+            </LicenseSmallCard>
+        );
+    };
+
     const getLicenseCooldownTimer = () => (
         <>
             {!!hasCooldown && (
@@ -156,50 +206,17 @@ export const LicenseCardHeader = ({
         </>
     );
 
-    const getNodeCard = () => <LicenseCardNode license={license} />;
+    const getRewardsAvailableLabel = () => {
+        const rewardsTotalN: number = Number(formatUnits(rewardsTotal ?? 0n, 18));
 
-    const getNodeRewards = () => {
-        if (!isLoadingRewards && rewards === undefined) {
-            return <SyncingOraclesTag variant="default" />;
-        }
-
-        const rewardsN: number = Number(formatUnits(rewards ?? 0n, 18));
-        const hasRewards = rewardsN > 0;
-
-        if (!isLoadingRewards && !hasRewards) {
+        if (!rewardsTotalN) {
             return undefined;
         }
 
-        return isLoadingRewards ? (
-            <Skeleton className="h-5 min-w-20 rounded-lg" />
-        ) : (
-            <div className="row gap-1.5 text-lg font-semibold">
-                <div className="text-slate-400">~$R1</div>
-                <div className="text-primary">{fN(rewardsN)}</div>
-            </div>
-        );
-    };
-
-    const getClaimRewardsButton = () => {
-        const rewardsN: number = Number(formatUnits(rewards ?? 0n, 18));
-        const hasRewards = rewardsN > 0;
-
         return (
-            <Button
-                className="h-9"
-                color="primary"
-                size="sm"
-                variant="solid"
-                onPress={() => {
-                    if (action) {
-                        action('claim', license);
-                    }
-                }}
-                isLoading={license.isClaimingRewards}
-                isDisabled={isClaimingAll || isLoadingRewards || !hasRewards || isClaimDisabled}
-            >
-                <div className="text-sm">Claim</div>
-            </Button>
+            <div className="h-9 rounded-md bg-green-100 px-3 py-2">
+                <div className="whitespace-nowrap text-sm font-medium text-green-600">Rewards Available</div>
+            </div>
         );
     };
 
@@ -223,7 +240,7 @@ export const LicenseCardHeader = ({
                 disabledKeys={[
                     'title',
                     ...(hasCooldown ? ['link'] : []),
-                    ...(isLoadingRewards || isLoadingNodeAlias || rewards === undefined ? ['unlink', 'changeNode'] : []),
+                    ...(isLoadingRewards || isLoadingNodeAlias || rewardsTotal === undefined ? ['unlink', 'changeNode'] : []),
                 ]}
                 itemClasses={{
                     base: [
@@ -263,7 +280,7 @@ export const LicenseCardHeader = ({
 
                                 <div className="col">
                                     <div className="font-medium leading-4 text-body">Link</div>
-                                    <div className="text-xs text-slate-500">Assign license to a node</div>
+                                    <div className="text-[13px] text-slate-500">Assign license to a node</div>
                                 </div>
                             </div>
                         </DropdownItem>
@@ -287,7 +304,7 @@ export const LicenseCardHeader = ({
 
                                 <div className="col">
                                     <div className="font-medium leading-4 text-body">Change Node</div>
-                                    <div className="text-xs text-slate-500">Switch license to another node</div>
+                                    <div className="text-[13px] text-slate-500">Switch license to another node</div>
                                 </div>
                             </div>
                         </DropdownItem>
@@ -305,7 +322,7 @@ export const LicenseCardHeader = ({
 
                                 <div className="col">
                                     <div className="font-medium leading-4 text-body">Unlink</div>
-                                    <div className="text-xs text-slate-500">Remove license from node</div>
+                                    <div className="text-[13px] text-slate-500">Remove license from node</div>
                                 </div>
                             </div>
                         </DropdownItem>
@@ -328,7 +345,7 @@ export const LicenseCardHeader = ({
 
                             <div className="col">
                                 <div className="font-medium leading-4 text-red-500">Burn</div>
-                                <div className="text-xs text-slate-500">Permanently erase the license</div>
+                                <div className="text-[13px] text-slate-500">Permanently erase the license</div>
                             </div>
                         </div>
                     </DropdownItem>
@@ -342,42 +359,28 @@ export const LicenseCardHeader = ({
     return (
         <div
             className={clsx(
-                'flex flex-col-reverse justify-between gap-4 bg-white px-4 py-3 md:gap-6 lg:gap-8 larger:flex-row larger:items-center',
+                'flex flex-col-reverse justify-between gap-4 md:gap-6 lg:gap-8 larger:flex-row larger:items-center',
                 {
                     'rounded-bl-2xl rounded-br-2xl': isExpanded,
                 },
             )}
         >
-            {/* On mobile, the rewards and claim button are displayed in the bottom row, but 'flex-col-reverse' is used */}
-            {!!rewards && (
-                <div className="row justify-between sm:hidden">
-                    {getNodeRewards()}
-                    {getClaimRewardsButton()}
-                </div>
-            )}
-
             {/* Info */}
-            <div className="row flex-1 flex-wrap gap-2 sm:gap-4">
+            <div className="row flex-1 flex-wrap gap-1.5 sm:gap-3">
                 {getLicenseCard()}
-                {getNodeCard()}
+                {getLinkedNodeCard()}
+                {getRewardsCard()}
             </div>
 
             {/* Controls */}
-            <div className="flex justify-end">
+            <div className="flex flex-0 justify-end">
                 {license.isBanned ? (
                     <>{getBannedLicenseTag()}</>
                 ) : (
                     <>
                         {!disableActions && (
-                            <div className="row w-full justify-between gap-4 sm:w-auto sm:justify-start">
-                                {license.isLinked ? (
-                                    <div className="hidden items-center gap-4 sm:flex">
-                                        {getNodeRewards()}
-                                        {getClaimRewardsButton()}
-                                    </div>
-                                ) : (
-                                    <>{getLicenseCooldownTimer()}</>
-                                )}
+                            <div className="row w-full justify-between gap-3 sm:w-auto sm:justify-start">
+                                {license.isLinked ? <>{getRewardsAvailableLabel()}</> : <>{getLicenseCooldownTimer()}</>}
 
                                 <div className="flex w-full justify-end">{getDropdown()}</div>
                             </div>

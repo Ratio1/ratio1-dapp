@@ -1,11 +1,10 @@
+import { Button } from '@heroui/button';
 import { getNodeEpochsRange, getNodeLastEpoch } from '@lib/api/oracles';
 import { getCurrentEpoch, getLicenseAssignEpoch } from '@lib/config';
 import useAwait from '@lib/useAwait';
-import { arrayAverage, throttledToastOracleError } from '@lib/utils';
+import { arrayAverage, getValueWithLabel, throttledToastOracleError } from '@lib/utils';
 import { CardHorizontal } from '@shared/cards/CardHorizontal';
-import { SmallTag } from '@shared/SmallTag';
 import SyncingOraclesTag from '@shared/SyncingOraclesTag';
-import clsx from 'clsx';
 import { cloneElement, useMemo } from 'react';
 import { License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
@@ -22,9 +21,22 @@ const nodePerformanceItems = [
     },
 ];
 
-export const LicenseCardDetails = ({ license }: { license: License }) => {
-    const [rewards, isLoadingRewards] = useAwait(license.isLinked ? license.rewards : 0n);
-    const poaiRewards = license.type === 'ND' ? license.r1PoaiRewards : 0n;
+export const LicenseCardDetails = ({
+    license,
+    action,
+    isClaimingAllRewardsPoA,
+    isClaimingAllRewardsPoAI,
+}: {
+    license: License;
+    action?: (
+        type: 'link' | 'unlink' | 'claimRewardsPoA' | 'claimRewardsPoAI' | 'changeNode' | 'burn',
+        license: License,
+    ) => void;
+    isClaimingAllRewardsPoA?: boolean;
+    isClaimingAllRewardsPoAI?: boolean;
+}) => {
+    const [rewardsPoA, isLoadingRewardsPoA] = useAwait(license.isLinked ? license.rewards : 0n);
+    const rewardsPoAI = license.type === 'ND' ? license.r1PoaiRewards : 0n;
 
     const nodePerformancePromise: Promise<{
         epochs: number[];
@@ -66,27 +78,6 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
 
     const [nodePerformance, isLoadingNodePerformance] = useAwait(nodePerformancePromise);
 
-    const getTitle = (text: string) => <div className="text-base font-medium">{text}</div>;
-
-    const getLine = (
-        label: string,
-        value: string | number | JSX.Element,
-        isHighlighted: boolean = false,
-        isAproximate: boolean = false,
-    ) => (
-        <div className="row justify-between gap-3 text-sm min-[410px]:justify-start">
-            <div className="min-w-[50%] text-slate-500">{label}</div>
-            <div
-                className={clsx({
-                    'font-medium text-primary': isHighlighted,
-                })}
-            >
-                {isAproximate ? '~' : ''}
-                {value}
-            </div>
-        </div>
-    );
-
     const getNodePerformanceItem = (key: number, label: string, value: number | undefined) =>
         cloneElement(
             <CardHorizontal
@@ -94,7 +85,6 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
                 value={value === undefined ? '...' : `${parseFloat(((value / 255) * 100).toFixed(1))}%`}
                 isSmall
                 isFlexible
-                isDarker
             />,
             { key },
         );
@@ -130,130 +120,184 @@ export const LicenseCardDetails = ({ license }: { license: License }) => {
         return nodePerformance.epochs[nodePerformance.epochs.length - 1] !== getCurrentEpoch() - 1;
     };
 
+    const getSectionTitle = (title: string) => <div className="text-[17px] font-semibold">{title}</div>;
+
     return (
-        <div className="mx-4 mb-3 rounded-2xl bg-slate-100 px-6 py-[18px]">
-            <div className="col gap-[18px]">
-                <div
-                    className={clsx('text-sm lg:text-base xl:gap-0', {
-                        'border-b-2 border-slate-200 pb-[18px]': license.isLinked,
-                    })}
-                >
-                    <div className="flex w-full flex-col gap-6 larger:flex-row">
-                        <div className="col flex-1 gap-3">
-                            {getTitle('Details')}
+        <div className="col gap-3">
+            {/* Rewards */}
+            <div className="col gap-1.5">
+                {getSectionTitle('Rewards')}
 
-                            <div className="col flex-1 gap-1.5">
-                                {getLine('License type', <SmallTag variant={license.type}>{license.type}</SmallTag>)}
-                                {getLine(
-                                    'Assign timestamp',
-                                    license.assignTimestamp === 0n
-                                        ? 'N/A'
-                                        : new Date(Number(license.assignTimestamp) * 1000).toLocaleString(),
-                                )}
-                                {getLine(
-                                    'Last claimed epoch',
-                                    license.lastClaimEpoch === 0n ? 'N/A' : Number(license.lastClaimEpoch),
-                                )}
-                                {getLine(
-                                    'Claimable epochs',
-                                    Number(license.claimableEpochs),
-                                    Number(license.claimableEpochs) > 0,
-                                )}
-                            </div>
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 larger:grid-cols-3">
+                    <DetailsCard>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="col gap-2.5">
+                                <div className="text-sm font-medium text-slate-500">Total Rewards</div>
 
-                            <div className="mt-3">{getTitle('Proof of Availability')}</div>
-
-                            <div className="col flex-1 gap-1.5">
-                                {getLine(
-                                    'Initial amount',
-                                    parseFloat(
-                                        Number(formatUnits(license.totalAssignedAmount ?? 0n, 18)).toFixed(2),
-                                    ).toLocaleString(),
-                                )}
-                                {getLine(
-                                    'Remaining amount',
-                                    parseFloat(
-                                        Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2),
-                                    ).toLocaleString(),
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="col flex-1 gap-3">
-                            {getTitle('Claimable Rewards')}
-
-                            {getLine(
-                                'Total amount ($R1)',
-                                isLoadingRewards ? (
-                                    '...'
-                                ) : rewards === undefined ? (
+                                {isLoadingRewardsPoA ? (
+                                    <div className="text-lg font-semibold leading-none text-slate-500">...</div>
+                                ) : rewardsPoA === undefined ? (
                                     <SyncingOraclesTag />
                                 ) : (
-                                    parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString()
-                                ),
-                                (rewards ?? 0n) > 0,
-                            )}
+                                    <div className="flex items-end gap-1.5">
+                                        <div className="text-lg font-semibold leading-none text-primary">
+                                            {parseFloat(
+                                                Number(formatUnits((rewardsPoA ?? 0n) + (rewardsPoAI ?? 0n), 18)).toFixed(4),
+                                            ).toLocaleString()}
 
-                            <div className="col gap-3">
-                                <div className="mt-3">{getTitle('Summary')}</div>
-
-                                <div className="col flex-1 gap-1.5">
-                                    {getLine(
-                                        'Proof of Availability',
-                                        isLoadingRewards ? (
-                                            '...'
-                                        ) : rewards === undefined ? (
-                                            <SyncingOraclesTag />
-                                        ) : (
-                                            parseFloat(Number(formatUnits(rewards ?? 0n, 18)).toFixed(4)).toLocaleString()
-                                        ),
-                                        false,
-                                    )}
-                                    {getLine(
-                                        'Proof of AI',
-                                        isLoadingRewards ? (
-                                            '...'
-                                        ) : rewards === undefined ? (
-                                            <SyncingOraclesTag />
-                                        ) : (
-                                            parseFloat(Number(formatUnits(poaiRewards ?? 0n, 18)).toFixed(4)).toLocaleString()
-                                        ),
-                                        false,
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {license.isLinked && (
-                    <div className="col -mt-0.5 gap-3">
-                        <div className="row gap-3">
-                            {getTitle('Node performance')}
-
-                            {isEpochTransitioning() && <SyncingOraclesTag />}
-                        </div>
-
-                        {!isEpochTransitioning() && (
-                            <div className="flex flex-wrap items-stretch gap-2 md:gap-3">
-                                {isLoadingNodePerformance ? (
-                                    <>
-                                        {nodePerformanceItems.map(({ label }, index) =>
-                                            getNodePerformanceItem(index, label, undefined),
-                                        )}
-                                    </>
-                                ) : (
-                                    <>
-                                        {nodePerformanceItems.map(({ label }, index) =>
-                                            getNodePerformanceItem(index, label, getNodePerformanceValue(index)),
-                                        )}
-                                    </>
+                                            <span className="text-slate-400"> $R1</span>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
+                        </div>
+                    </DetailsCard>
+
+                    <DetailsCard>
+                        <div className="row justify-between gap-4">
+                            <div className="col gap-2.5">
+                                <div className="text-sm font-medium text-slate-500">Proof of Availability</div>
+
+                                {isLoadingRewardsPoA ? (
+                                    <div className="text-lg font-semibold leading-none text-slate-500">...</div>
+                                ) : rewardsPoA === undefined ? (
+                                    <SyncingOraclesTag />
+                                ) : (
+                                    <div className="flex items-end gap-1.5">
+                                        <div className="text-lg font-semibold leading-none text-primary">
+                                            {parseFloat(Number(formatUnits(rewardsPoA ?? 0n, 18)).toFixed(4)).toLocaleString()}
+
+                                            <span className="text-slate-400"> $R1</span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {!!rewardsPoA && (
+                                <Button
+                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:!opacity-65"
+                                    color="primary"
+                                    size="sm"
+                                    variant="flat"
+                                    onPress={() => {
+                                        if (action) {
+                                            action('claimRewardsPoA', license);
+                                        }
+                                    }}
+                                    isLoading={license.isClaimingRewardsPoA}
+                                    isDisabled={isLoadingRewardsPoA || isClaimingAllRewardsPoA}
+                                >
+                                    <div className="text-sm">Claim</div>
+                                </Button>
+                            )}
+                        </div>
+                    </DetailsCard>
+
+                    <DetailsCard>
+                        <div className="row gap-4ß justify-between">
+                            <div className="col gap-2.5">
+                                <div className="text-sm font-medium text-slate-500">Proof of AI</div>
+
+                                <div className="text-lg font-semibold leading-none text-purple-600">
+                                    {parseFloat(Number(formatUnits(rewardsPoAI ?? 0n, 18)).toFixed(4)).toLocaleString()}
+
+                                    <span className="text-slate-400"> $R1</span>
+                                </div>
+                            </div>
+
+                            {!!rewardsPoAI && (
+                                <Button
+                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:!opacity-65"
+                                    color="primary"
+                                    size="sm"
+                                    variant="flat"
+                                    onPress={() => {
+                                        if (action) {
+                                            action('claimRewardsPoAI', license);
+                                        }
+                                    }}
+                                    isLoading={license.isClaimingRewardsPoAI}
+                                    // isLoadingRewardsPoA is also used here in order to disable the button while licenses are refreshed
+                                    isDisabled={isLoadingRewardsPoA || isClaimingAllRewardsPoAI}
+                                >
+                                    <div className="text-sm">Claim</div>
+                                </Button>
+                            )}
+                        </div>
+                    </DetailsCard>
+                </div>
+            </div>
+
+            {/* License Details */}
+            <div className="col gap-1.5">
+                {getSectionTitle('License Details')}
+
+                <DetailsCard>
+                    <div className="grid grid-cols-2 gap-6 lg:grid-cols-3">
+                        {getValueWithLabel('License type', license.type)}
+
+                        {getValueWithLabel(
+                            'Assign timestamp',
+                            license.assignTimestamp === 0n
+                                ? 'N/A'
+                                : new Date(Number(license.assignTimestamp) * 1000).toLocaleString(),
+                        )}
+
+                        {getValueWithLabel(
+                            'Last claimed epoch',
+                            license.lastClaimEpoch === 0n ? 'N/A' : Number(license.lastClaimEpoch),
+                        )}
+
+                        {getValueWithLabel(
+                            'Claimable epochs',
+                            Number(license.claimableEpochs),
+                            Number(license.claimableEpochs) > 0 ? 'text-primary' : undefined,
+                        )}
+
+                        {getValueWithLabel(
+                            'Proof of Availability (Initial)',
+                            parseFloat(Number(formatUnits(license.totalAssignedAmount ?? 0n, 18)).toFixed(2)).toLocaleString(),
+                        )}
+
+                        {getValueWithLabel(
+                            'Proof of Availability (Remaining)',
+                            parseFloat(Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2)).toLocaleString(),
                         )}
                     </div>
-                )}
+                </DetailsCard>
             </div>
+
+            {license.isLinked && (
+                <div className="col gap-1.5">
+                    <div className="row gap-3">
+                        {getSectionTitle('Node Performance')}
+
+                        {isEpochTransitioning() && <SyncingOraclesTag />}
+                    </div>
+
+                    {!isEpochTransitioning() && (
+                        <div className="flex flex-wrap items-stretch gap-2 md:gap-3">
+                            {isLoadingNodePerformance ? (
+                                <>
+                                    {nodePerformanceItems.map(({ label }, index) =>
+                                        getNodePerformanceItem(index, label, undefined),
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    {nodePerformanceItems.map(({ label }, index) =>
+                                        getNodePerformanceItem(index, label, getNodePerformanceValue(index)),
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
+};
+
+const DetailsCard = ({ children }: { children: React.ReactNode }) => {
+    return <div className="rounded-xl bg-slate-100 px-4 py-4">{children}</div>;
 };

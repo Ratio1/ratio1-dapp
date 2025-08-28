@@ -98,17 +98,23 @@ export const BlockchainProvider = ({ children }) => {
 
     const watchTx = async (txHash: string, publicClient): Promise<TransactionReceipt> => {
         const waitForTx = async (): Promise<TransactionReceipt> => {
-            const receipt: TransactionReceipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+            const receipt: TransactionReceipt = await publicClient.waitForTransactionReceipt({
+                hash: txHash,
+                confirmations: 2,
+            });
 
             if (receipt.status === 'success') {
                 return receipt;
             } else {
-                throw new Error(receipt.transactionHash);
+                throw new Error('Transaction failed, please try again.');
             }
         };
 
+        // Use the promise from waitForTx for both the toast and the return value
+        const txPromise = waitForTx();
+
         toast.promise(
-            waitForTx(),
+            txPromise,
             {
                 loading: 'Transaction loading...',
                 success: (receipt) => (
@@ -132,11 +138,7 @@ export const BlockchainProvider = ({ children }) => {
                             <div className="font-medium text-red-600">Transaction failed</div>
                             <div className="row gap-1 text-sm">
                                 <div className="text-slate-500">View transaction details</div>
-                                <Link
-                                    to={`${config.explorerUrl}/tx/${receipt.transactionHash}`}
-                                    target="_blank"
-                                    className="text-primary"
-                                >
+                                <Link to={`${config.explorerUrl}/tx/${txHash}`} target="_blank" className="text-primary">
                                     <RiExternalLinkLine className="text-lg" />
                                 </Link>
                             </div>
@@ -152,13 +154,8 @@ export const BlockchainProvider = ({ children }) => {
             },
         );
 
-        const receipt: TransactionReceipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
-
-        if (receipt.status === 'success') {
-            return receipt;
-        } else {
-            throw new Error('Transaction failed, please try again.');
-        }
+        // Return the same promise that the toast is watching
+        return txPromise;
     };
 
     const fetchLicenses = async (useSilentUpdate: boolean = false): Promise<License[]> => {
@@ -172,6 +169,8 @@ export const BlockchainProvider = ({ children }) => {
         }
 
         let licenses: License[] = [];
+
+        console.log('Fetching licenses...');
 
         try {
             const [mndLicenses, ndLicenses] = await Promise.all([
@@ -233,7 +232,7 @@ export const BlockchainProvider = ({ children }) => {
                 ...licensesWithNodesAndRewards,
             ];
 
-            console.log('[BlockchainProvider] fetchLicenses', licenses);
+            console.log('Fetched licenses', licenses);
             setLicenses(licenses);
         } catch (error) {
             console.error(error);

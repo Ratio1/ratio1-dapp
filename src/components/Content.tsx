@@ -49,7 +49,7 @@ function Content() {
 
             <Outlet />
 
-            <div className="layoutBreak:hidden">
+            <div className="lg:hidden">
                 <FooterMobile />
             </div>
         </div>

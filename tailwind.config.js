@@ -42,7 +42,6 @@ export default {
             xs: '400px',
             sm: '480px',
             md: '768px',
-            layoutBreak: '836px',
             lg: '1024px',
             larger: '1232px',
             xl: '1410px',

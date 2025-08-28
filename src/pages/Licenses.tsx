@@ -1,5 +1,6 @@
 import { MNDContractAbi } from '@blockchain/MNDContract';
 import { NDContractAbi } from '@blockchain/NDContract';
+import { PoAIContractAbi } from '@blockchain/PoAIContract';
 import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
 import LicenseBurnModal from '@components/Licenses/modals/LicenseBurnModal';
 import LicenseLinkModal from '@components/Licenses/modals/LicenseLinkModal';
@@ -43,7 +44,8 @@ function Licenses() {
         }
     }, [licenses, filter]);
 
-    const [isClaimingAll, setClaimingAll] = useState<boolean>(false);
+    const [isClaimingAllRewardsPoA, setClaimingAllRewardsPoA] = useState<boolean>(false);
+    const [isClaimingAllRewardsPoAI, setClaimingAllRewardsPoAI] = useState<boolean>(false);
 
     const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
@@ -93,7 +95,10 @@ function Licenses() {
 
     const getPagesCount = (): number => Math.ceil(filteredLicenses.length / PAGE_SIZE);
 
-    const onAction = (type: 'link' | 'unlink' | 'claim' | 'changeNode' | 'burn', license: License) => {
+    const onAction = (
+        type: 'link' | 'unlink' | 'claimRewardsPoA' | 'claimRewardsPoAI' | 'changeNode' | 'burn',
+        license: License,
+    ) => {
         switch (type) {
             case 'link':
                 onLink(license);
@@ -103,8 +108,12 @@ function Licenses() {
                 onUnlink(license);
                 break;
 
-            case 'claim':
-                onClaim(license);
+            case 'claimRewardsPoA':
+                onClaimRewardsPoA(license);
+                break;
+
+            case 'claimRewardsPoAI':
+                onClaimRewardsPoAI(license);
                 break;
 
             case 'changeNode':
@@ -120,18 +129,19 @@ function Licenses() {
         }
     };
 
-    const onClaim = async (license: License, skipFetchingRewards: boolean = false) => {
+    const onClaimRewardsPoA = async (license: License, skipFetchingRewards: boolean = false) => {
         try {
             if (!publicClient || !address || !walletClient) {
                 toast.error('Unexpected error, please try again.');
                 return;
             }
+
             if (!license.isLinked) {
                 toast.error('License is not linked to a node.');
                 return;
             }
 
-            setClaimingRewards(license.licenseId, license.type, true);
+            setClaimingRewards(license.licenseId, license.type, 'PoA', true);
 
             const [epochs, availabilies, ethSignatures] = await Promise.all([
                 license.epochs,
@@ -167,14 +177,51 @@ function Licenses() {
                 // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
                 setTimeout(() => {
                     fetchLicenses();
-                }, 500);
+                }, 0);
             }
 
             return receipt;
         } catch (err: any) {
             toast.error('An error occurred, please try again.');
         } finally {
-            setClaimingRewards(license.licenseId, license.type, false);
+            setClaimingRewards(license.licenseId, license.type, 'PoA', false);
+        }
+    };
+
+    const onClaimRewardsPoAI = async (license: License, skipFetchingRewards: boolean = false) => {
+        try {
+            if (!publicClient || !address || !walletClient) {
+                toast.error('Unexpected error, please try again.');
+                return;
+            }
+
+            if (!license.isLinked) {
+                toast.error('License is not linked to a node.');
+                return;
+            }
+
+            setClaimingRewards(license.licenseId, license.type, 'PoAI', true);
+
+            const txHash = await walletClient.writeContract({
+                address: config.poaiManagerContractAddress,
+                abi: PoAIContractAbi,
+                functionName: 'claimRewardsForNode',
+                args: [license.nodeAddress],
+            });
+            const receipt = await watchTx(txHash, publicClient);
+
+            if (!skipFetchingRewards) {
+                // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
+                setTimeout(() => {
+                    fetchLicenses();
+                }, 0);
+            }
+
+            return receipt;
+        } catch (err: any) {
+            toast.error('An error occurred, please try again.');
+        } finally {
+            setClaimingRewards(license.licenseId, license.type, 'PoAI', false);
         }
     };
 
@@ -196,13 +243,13 @@ function Licenses() {
         }
     };
 
-    const setClaimingRewards = (id: bigint, type: License['type'], value: boolean) => {
+    const setClaimingRewards = (id: bigint, licenseType: License['type'], rewardsType: 'PoA' | 'PoAI', value: boolean) => {
         setLicensesToShow((prevLicenses) =>
             prevLicenses.map((license) =>
-                license.licenseId === id && license.type === type
+                license.licenseId === id && license.type === licenseType
                     ? {
                           ...license,
-                          isClaimingRewards: value,
+                          [`isClaimingRewards${rewardsType}`]: value,
                       }
                     : license,
             ),
@@ -233,7 +280,13 @@ function Licenses() {
                 }
             }}
         >
-            <LicenseCard license={license} isClaimingAll={isClaimingAll} onLicenseClick={onLicenseClick} action={onAction} />
+            <LicenseCard
+                license={license}
+                isClaimingAllRewardsPoA={isClaimingAllRewardsPoA}
+                isClaimingAllRewardsPoAI={isClaimingAllRewardsPoAI}
+                onLicenseClick={onLicenseClick}
+                action={onAction}
+            />
         </div>
     );
 
@@ -260,8 +313,10 @@ function Licenses() {
                         <LicensesPageHeader
                             onFilterChange={setFilter}
                             licenses={licenses}
-                            isLoading={isClaimingAll}
-                            setLoading={setClaimingAll}
+                            isClaimingAllRewardsPoA={isClaimingAllRewardsPoA}
+                            setClaimingAllRewardsPoA={setClaimingAllRewardsPoA}
+                            isClaimingAllRewardsPoAI={isClaimingAllRewardsPoAI}
+                            setClaimingAllRewardsPoAI={setClaimingAllRewardsPoAI}
                         />
                     </div>
 
@@ -325,13 +380,13 @@ function Licenses() {
             <LicenseLinkModal
                 ref={linkModalRef}
                 nodeAddresses={licenses.filter((license) => license.isLinked).map((license) => license.nodeAddress)}
-                onClaim={onClaim}
+                onClaim={onClaimRewardsPoA}
                 shouldTriggerGhostClaimRewards={shouldTriggerGhostClaimRewards}
             />
 
             <LicenseUnlinkModal
                 ref={unlinkModalRef}
-                onClaim={onClaim}
+                onClaim={onClaimRewardsPoA}
                 shouldTriggerGhostClaimRewards={shouldTriggerGhostClaimRewards}
             />
 

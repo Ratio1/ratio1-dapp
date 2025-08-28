@@ -54,7 +54,7 @@ const LicenseBurnModal = forwardRef((_, ref) => {
             setTimeout(() => {
                 fetchLicenses(true);
                 onClose();
-            }, 500);
+            }, 0);
         } catch (error) {
             toast.error('Unexpected error, please try again.');
         } finally {

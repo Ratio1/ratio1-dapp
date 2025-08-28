@@ -143,8 +143,8 @@ export const routes: AppRoute[] = [
         path: routePath.buy,
         page: BuyR1,
         icon: (
-            <div className="center-all h-[24px] w-[24px] layoutBreak:h-[22px] layoutBreak:w-[22px]">
-                <TokenSvg classNames="h-6 w-6 layoutBreak:h-5 layoutBreak:w-5" />
+            <div className="center-all h-[24px] w-[24px] lg:h-[22px] lg:w-[22px]">
+                <TokenSvg classNames="h-6 w-6 lg:h-5 lg:w-5" />
             </div>
         ),
     },

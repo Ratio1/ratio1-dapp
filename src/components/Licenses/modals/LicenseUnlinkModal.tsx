@@ -92,7 +92,7 @@ const LicenseUnlinkModal = forwardRef(({ onClaim, shouldTriggerGhostClaimRewards
             setTimeout(() => {
                 fetchLicenses(true);
                 setLoading(false);
-            }, 500);
+            }, 0);
         }
     };
 
@@ -124,7 +124,7 @@ const LicenseUnlinkModal = forwardRef(({ onClaim, shouldTriggerGhostClaimRewards
                     description={<div>Are you sure you want to unlink this license?</div>}
                 >
                     {!!license && shouldTriggerGhostClaimRewards(license) && (
-                        <div className="text-slate-400 layoutBreak:px-6">
+                        <div className="text-slate-400 lg:px-6">
                             You'll need to approve <span className="font-medium text-primary">two transactions</span> because
                             rewards were last claimed in a previous epoch.
                         </div>

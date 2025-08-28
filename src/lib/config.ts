@@ -11,6 +11,7 @@ type Config = {
     r1ContractAddress: EthAddress;
     ndContractAddress: EthAddress;
     mndContractAddress: EthAddress;
+    poaiManagerContractAddress: EthAddress;
     controllerContractAddress: EthAddress;
     readerContractAddress: EthAddress;
     uniswapV2RouterAddress: EthAddress;
@@ -37,6 +38,7 @@ const configs: {
         r1ContractAddress: '0x6444C6c2D527D85EA97032da9A7504d6d1448ecF',
         ndContractAddress: '0xE658DF6dA3FB5d4FBa562F1D5934bd0F9c6bd423',
         mndContractAddress: '0x0C431e546371C87354714Fcc1a13365391A549E2',
+        poaiManagerContractAddress: '0xa8d7FFCE91a888872A9f5431B4Dd6c0c135055c1',
         controllerContractAddress: '0x90dA5FdaA92edDC80FB73114fb7FE7D97f2be017',
         readerContractAddress: '0xa2fDD4c7E93790Ff68a01f01AA789D619F12c6AC',
         uniswapV2RouterAddress: '0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24',
@@ -80,6 +82,7 @@ const configs: {
         r1ContractAddress: '0xCC96f389F45Fc08b4fa8e2bC4C7DA9920292ec64',
         ndContractAddress: '0x18E86a5829CA1F02226FA123f30d90dCd7cFd0ED',
         mndContractAddress: '0xa8d7FFCE91a888872A9f5431B4Dd6c0c135055c1',
+        poaiManagerContractAddress: '0x68f825aA8fD4Af498c2998F4b165F103080574d4',
         controllerContractAddress: '0x63BEC1B3004154698830C7736107E7d3cfcbde79',
         readerContractAddress: '0xd1c7Dca934B37FAA402EB2EC64F6644d6957bE3b',
         faucetContractAddress: '0x4a1bC775410067Ad5468945EF7ca5b0C510CDD99',
@@ -124,6 +127,7 @@ const configs: {
         r1ContractAddress: '0x277CbD0Cf25F4789Bc04035eCd03d811FAf73691',
         ndContractAddress: '0x90025B92240E3070d5CdcB3f44D6411855c55a73',
         mndContractAddress: '0x17B8934dc5833CdBa1eF42D13D65D677C4727748',
+        poaiManagerContractAddress: '0xCc7C4e0f4f25b57807F34227Fb446E68c8c36ce5',
         controllerContractAddress: '0x46fB56B7499925179d81380199E238f7AE75857B',
         readerContractAddress: '0xFcF04c9A67330431Af75a546615E4881BD8bdC78',
         faucetContractAddress: '0x4a1bC775410067Ad5468945EF7ca5b0C510CDD99',
@@ -193,7 +197,7 @@ export const environment: 'mainnet' | 'testnet' | 'devnet' =
           ? ('testnet' as const)
           : domain === domainDevnet
             ? ('devnet' as const)
-            : ('devnet' as const);
+            : ('mainnet' as const);
 
 export const getR1ExplorerUrl = () => `https://${environment === 'mainnet' ? '' : `${environment}-`}${explorerBaseDomain}`;
 

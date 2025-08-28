@@ -224,7 +224,7 @@ function Buy({ onClose }: { onClose: () => void }) {
         await watchTx(txHash, publicClient);
 
         // Refresh buying/tx state
-        await sleep(1000);
+        await sleep(500);
         await fetchAllowance(publicClient, address);
         fetchR1Balance();
 

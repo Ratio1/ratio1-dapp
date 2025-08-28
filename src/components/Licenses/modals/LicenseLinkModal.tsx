@@ -133,7 +133,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
             setTimeout(() => {
                 fetchLicenses(true);
                 setLoading(false);
-            }, 500);
+            }, 0);
         }
     };
 

@@ -17,10 +17,10 @@ export const CardHorizontal = ({
 }) => {
     return (
         <CardFlexible isFlexible={isFlexible} isDarker={isDarker}>
-            <div className="row w-full justify-between gap-8 p-4 lg:p-5">
+            <div className="row w-full justify-between gap-8 p-4">
                 <div className="text-sm font-medium text-slate-500">{label}</div>
                 <div
-                    className={clsx('font-semibold', {
+                    className={clsx('font-medium', {
                         'text-xl': !isSmall,
                         'text-[15px]': isSmall,
                     })}
