@@ -10,13 +10,15 @@ import { Skeleton } from '@heroui/skeleton';
 import { config, getCurrentEpoch, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
+import { DetailedAlert } from '@shared/DetailedAlert';
 import EmptyData from '@shared/EmptyData';
 import { Label } from '@shared/Label';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { LicenseSkeleton } from '@shared/Licenses/LicenseSkeleton';
+import { ConnectKitButton } from 'connectkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiCpuLine } from 'react-icons/ri';
+import { RiCpuLine, RiWalletLine } from 'react-icons/ri';
 import { License } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
@@ -304,6 +306,24 @@ function Licenses() {
             </div>
         </div>
     );
+
+    if (!authenticated) {
+        return (
+            <div className="col w-full p-6">
+                <DetailedAlert
+                    icon={<RiWalletLine />}
+                    title="Connect Wallet"
+                    description={
+                        <div>
+                            To proceed, please connect & sign in using your wallet so we can identify and display your licenses.
+                        </div>
+                    }
+                >
+                    <ConnectKitButton />
+                </DetailedAlert>
+            </div>
+        );
+    }
 
     return (
         <div className="h-full">

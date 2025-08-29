@@ -2,7 +2,7 @@ import Buy from '@components/Buy';
 import Layout from '@components/Layout';
 import { Drawer, DrawerBody, DrawerContent } from '@heroui/drawer';
 import { addReferralCode } from '@lib/api/backend';
-import { domains, environment, getDevAddress, isUsingDevAddress } from '@lib/config';
+import { getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
@@ -19,45 +19,6 @@ function App() {
     const { setLicenses, setR1Balance, isBuyDrawerOpen, onBuyDrawerClose } = useBlockchainContext() as BlockchainContextType;
 
     const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
-
-    // Init
-    useEffect(() => {
-        if (window.innerWidth < 768) {
-            toast(
-                (_t) => (
-                    <div className="-mx-1 text-sm text-slate-500">
-                        Always confirm you're visiting
-                        <br />
-                        <span className="font-medium text-primary">{`https://${domains[environment]}`}</span> to avoid scams.
-                    </div>
-                ),
-                {
-                    position: 'top-center',
-                    duration: 5000,
-                    style: {
-                        maxWidth: '98vw',
-                    },
-                },
-            );
-        } else {
-            toast(
-                (_t) => (
-                    <div className="-mx-1 text-sm text-slate-500">
-                        Always confirm you're visiting{' '}
-                        <span className="font-medium text-primary">{`https://${domains[environment]}`}</span> to avoid scams.
-                    </div>
-                ),
-                {
-                    position: 'bottom-center',
-                    duration: 8000,
-                    style: {
-                        minWidth: '416px',
-                        maxWidth: '98vw',
-                    },
-                },
-            );
-        }
-    }, []);
 
     useEffect(() => {
         if (!address && !authenticated) {
