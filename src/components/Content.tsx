@@ -43,7 +43,7 @@ function Content() {
                         <img src={Logo} alt="Logo" className="h-10" />
                     </div>
 
-                    <ConnectKitButton showBalance />
+                    <ConnectKitButton />
                 </div>
             </div>
 
