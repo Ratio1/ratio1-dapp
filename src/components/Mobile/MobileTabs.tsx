@@ -27,7 +27,7 @@ function MobileTabs() {
                                 target={isExternalRoute(route) ? '_blank' : undefined}
                             >
                                 <div className="text-2xl">{route.icon}</div>
-                                <div className="text-sm font-semibold">
+                                <div className="text-sm font-medium">
                                     {routeInfo[route.path].mobileTitle || routeInfo[route.path].title}
                                 </div>
                             </Link>
