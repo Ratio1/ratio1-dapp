@@ -78,56 +78,18 @@ function Admin() {
 
         publicClient
             .readContract({
-                address: config.mndContractAddress,
-                abi: MNDContractAbi,
-                functionName: 'totalSupply',
+                address: config.readerContractAddress,
+                abi: ReaderAbi,
+                functionName: 'getAllMndsDetails',
             })
-            .then(async (totalSupply) => {
-                const mnds: (AdminMndView | null)[] = [];
-
-                let i = 1;
-                while (mnds.filter((mnd) => mnd !== null).length < Number(totalSupply)) {
-                    const fetchedLicense = await Promise.all([
-                        publicClient.readContract({
-                            address: config.mndContractAddress,
-                            abi: MNDContractAbi,
-                            functionName: 'ownerOf',
-                            args: [BigInt(i)],
-                        }),
-                        publicClient
-                            .readContract({
-                                address: config.mndContractAddress,
-                                abi: MNDContractAbi,
-                                functionName: 'licenses',
-                                args: [BigInt(i)],
-                            })
-                            .then((result) => ({
-                                type: 'MND' as const,
-                                licenseId: BigInt(i),
-                                nodeAddress: result[0],
-                                totalAssignedAmount: result[1],
-                                totalClaimedAmount: result[2],
-                                firstMiningEpoch: result[3],
-                                lastClaimEpoch: result[4],
-                                assignTimestamp: result[5],
-                                lastClaimOracle: result[6],
-                                remainingAmount: result[1] - result[2],
-                                isBanned: false as const,
-                            })),
-                    ])
-                        .then(([owner, license]) => ({
-                            ...license,
-                            owner,
-                        }))
-                        .catch(() => {
-                            return null;
-                        });
-
-                    mnds.push(fetchedLicense);
-                    i++;
-                }
-                console.log({ mnds });
-                setMnds(mnds);
+            .then((result) => {
+                setMnds(
+                    result.map((mnd) => ({
+                        ...mnd,
+                        type: 'MND' as const,
+                        isBanned: false as const,
+                    })),
+                );
             });
     };
 
