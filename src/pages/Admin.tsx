@@ -5,8 +5,8 @@ import { Button } from '@heroui/button';
 import { Input } from '@heroui/input';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/table';
 import { newSellerCode, sendBatchNews } from '@lib/api/backend';
-import { getNodeInfo } from '@lib/api/oracles';
-import { config, getR1ExplorerUrl } from '@lib/config';
+import { getMultiNodeEpochsRange, getNodeInfo } from '@lib/api/oracles';
+import { config, getCurrentEpoch, getR1ExplorerUrl } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { fBI, getShortAddressOrHash, isZeroAddress } from '@lib/utils';
 import { BigCard } from '@shared/BigCard';
@@ -58,17 +58,22 @@ function Admin() {
                 abi: ReaderAbi,
                 functionName: 'getOraclesDetails',
             })
-            .then((result) => {
-                Promise.all(
-                    result.map(async (oracle) => {
-                        return {
-                            ...oracle,
-                            ...(await getNodeInfo(oracle.oracleAddress)),
-                        };
-                    }),
-                ).then((oraclesInfo) => {
-                    setOracles(oraclesInfo);
-                });
+            .then(async (result) => {
+                const currentEpoch = getCurrentEpoch();
+                const nodesWithRanges = result.reduce(
+                    (acc, oracle) => {
+                        acc[oracle.oracleAddress] = [currentEpoch - 1, currentEpoch - 1];
+                        return acc;
+                    },
+                    {} as Record<EthAddress, [number, number]>,
+                );
+                const allNodesInfo = await getMultiNodeEpochsRange(nodesWithRanges);
+                setOracles(
+                    result.map((oracle) => ({
+                        ...oracle,
+                        ...allNodesInfo[oracle.oracleAddress],
+                    })),
+                );
             });
 
         publicClient
