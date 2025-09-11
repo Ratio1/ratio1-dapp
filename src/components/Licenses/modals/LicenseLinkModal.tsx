@@ -15,7 +15,7 @@ import useAwait from '@lib/useAwait';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
 import { TokenSvg } from '@shared/TokenSvg';
-import { KycStatus } from '@typedefs/profile';
+import { ApplicationStatus } from '@typedefs/profile';
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiShieldUserLine, RiWalletLine } from 'react-icons/ri';
@@ -156,7 +156,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
     };
 
     const isLinkingDisabled = (): boolean =>
-        !account || (account.kycStatus !== KycStatus.Approved && environment === 'mainnet');
+        !account || (account.kycStatus !== ApplicationStatus.Approved && environment === 'mainnet');
 
     const getLinkingContent = () => (
         <Form className="w-full" validationBehavior="native" onSubmit={onConfirmLinking}>

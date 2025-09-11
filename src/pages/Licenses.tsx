@@ -298,7 +298,7 @@ function Licenses() {
     const getLicenseSectionHeader = (type: License['type']) => (
         <div className="mx-auto">
             <div className="row gap-2 pt-4">
-                <div className="text-2xl font-semibold">{type}</div>
+                <div className="big-title">{type}</div>
                 <Label
                     variant="default"
                     text={`${filterLicensesOfType(type).length} license${filterLicensesOfType(type).length > 1 ? 's' : ''}`}

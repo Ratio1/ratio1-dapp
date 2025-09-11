@@ -40,7 +40,7 @@ export const CopyableLink = ({ value }: Props) => {
     };
 
     return copied ? (
-        <div className="text-sm">Link copied!</div>
+        <div className="compact">Link copied!</div>
     ) : (
         <div
             className="row cursor-pointer gap-1 text-sm text-primary hover:opacity-70"
@@ -51,7 +51,7 @@ export const CopyableLink = ({ value }: Props) => {
             }}
         >
             <RiLink className="text-base" />
-            <div>Copy link</div>
+            <div className="font-medium">Copy link</div>
         </div>
     );
 };

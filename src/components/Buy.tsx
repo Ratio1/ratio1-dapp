@@ -16,7 +16,7 @@ import { AddTokenToWallet } from '@shared/AddTokenToWallet';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
 import { Timer } from '@shared/Timer';
-import { KycStatus } from '@typedefs/profile';
+import { ApplicationStatus } from '@typedefs/profile';
 import { isAfter } from 'date-fns';
 import { isFinite, isNaN } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
@@ -273,7 +273,7 @@ function Buy({ onClose }: { onClose: () => void }) {
         isOverAccountUsdSpendingLimit() ||
         r1Balance < getTokenAmount() ||
         !hasSaleStarted ||
-        (account.kycStatus !== KycStatus.Approved && environment === 'mainnet');
+        (account.kycStatus !== ApplicationStatus.Approved && environment === 'mainnet');
 
     return (
         <>
@@ -370,7 +370,7 @@ function Buy({ onClose }: { onClose: () => void }) {
                                         }}
                                         size="md"
                                         classNames={{
-                                            inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                                            inputWrapper: 'rounded-lg bg-[#fcfcfd] border shadow-none',
                                             input: 'font-medium',
                                         }}
                                         variant="bordered"

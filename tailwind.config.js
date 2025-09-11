@@ -23,6 +23,8 @@ export default {
                 body: '#0b0b47',
                 light: '#fcfcfd',
                 primary: '#1b47f7',
+                'slate-75': '#f6f8fa',
+                'slate-150': '#e9edf2',
             },
             outlineWidth: {
                 3: '3px',
@@ -32,10 +34,10 @@ export default {
                 round: '0 0px 2px 0 rgb(0 0 0 / 0.05)',
             },
             width: {
-                sider: '306px',
+                sider: '276px',
             },
             margin: {
-                'sider-with-padding': 'calc(306px + 1rem)',
+                'sider-with-padding': 'calc(276px + 1rem)',
             },
         },
         screens: {

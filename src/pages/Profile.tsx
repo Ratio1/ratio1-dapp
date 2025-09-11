@@ -1,11 +1,10 @@
-import KycCard from '@components/Profile/KycCard';
-import ReferralCodeCard from '@components/Profile/ReferralCodeCard';
-import RegistrationCard from '@components/Profile/RegistrationCard';
-import SubscriptionCard from '@components/Profile/SubscriptionCard';
-import TaxInfoCard from '@components/Profile/TaxInfoCard';
-import YourReferralsCard from '@components/Profile/YourReferralsCard';
+import ProfileSection from '@components/Profile/ProfileSection';
+import ProfileSectionWrapper from '@components/Profile/ProfileSectionWrapper';
+import PersonalInformation from '@components/Profile/sections/PersonalInformation';
+import Referrals from '@components/Profile/sections/Referrals';
+import Registration from '@components/Profile/sections/Registration';
+import { Skeleton } from '@heroui/skeleton';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
-import { Spinner } from '@heroui/spinner';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { RegistrationStatus } from '@typedefs/profile';
 import { ConnectKitButton } from 'connectkit';
@@ -63,8 +62,26 @@ function Profile() {
 
     if (isFetchingAccount) {
         return (
-            <div className="center-all p-6">
-                <Spinner />
+            <div className="col items-center gap-6">
+                <ProfileSection title={<Skeleton className="h-[32px] w-[200px] rounded-lg" />}>
+                    <ProfileSectionWrapper>
+                        <Skeleton className="h-[28px] w-28 rounded-lg" />
+                        <Skeleton className="h-[120px] w-full rounded-xl" />
+
+                        <Skeleton className="h-[28px] w-28 rounded-lg" />
+                        <Skeleton className="h-[100px] w-full rounded-xl" />
+                    </ProfileSectionWrapper>
+                </ProfileSection>
+
+                <ProfileSection title={<Skeleton className="h-[32px] w-[106px] rounded-lg" />}>
+                    <ProfileSectionWrapper>
+                        <Skeleton className="h-[28px] w-28 rounded-lg" />
+                        <Skeleton className="h-[72px] w-full rounded-xl" />
+
+                        <Skeleton className="h-[28px] w-28 rounded-lg" />
+                        <Skeleton className="h-[72px] w-full rounded-xl" />
+                    </ProfileSectionWrapper>
+                </ProfileSection>
             </div>
         );
     }
@@ -83,18 +100,20 @@ function Profile() {
     }
 
     return (
-        <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
-            <RegistrationCard getRegistrationStatus={getRegistrationStatus} />
+        <div className="col items-center gap-6">
+            {getRegistrationStatus() === RegistrationStatus.REGISTERED ? (
+                <ProfileSection title="Personal Information">
+                    <PersonalInformation />
+                </ProfileSection>
+            ) : (
+                <ProfileSection title="Account">
+                    <Registration registrationStatus={getRegistrationStatus()} />
+                </ProfileSection>
+            )}
 
-            <KycCard getRegistrationStatus={getRegistrationStatus} />
-
-            <SubscriptionCard getRegistrationStatus={getRegistrationStatus} />
-
-            <TaxInfoCard />
-
-            <YourReferralsCard />
-
-            <ReferralCodeCard />
+            <ProfileSection title="Referrals">
+                <Referrals />
+            </ProfileSection>
         </div>
     );
 }

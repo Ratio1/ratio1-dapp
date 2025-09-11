@@ -249,7 +249,7 @@ function BuyR1() {
         <div className="center-all w-full flex-col">
             <div className="w-full sm:w-auto">
                 <BigCard variant="white" fullWidth>
-                    <div className="text-xl font-bold lg:text-2xl">Swap</div>
+                    <div className="text-xl font-semibold lg:text-[22px]">Swap</div>
 
                     <div className="col w-full gap-4 sm:min-w-[320px] md:w-[400px]">
                         <div className="col">
@@ -270,7 +270,7 @@ function BuyR1() {
                                                 setFromAmount(n.toString());
                                             }
                                         }}
-                                        className="w-full border-none bg-transparent text-2xl font-semibold focus:outline-none"
+                                        className="big-title w-full border-none bg-transparent focus:outline-none"
                                     />
 
                                     <div
@@ -326,7 +326,7 @@ function BuyR1() {
 
                             <SwapInput label="You receive">
                                 <div className="row justify-between">
-                                    <span className="text-2xl font-semibold">
+                                    <span className="big-title">
                                         {parseFloat(Number(formatUnits(r1Estimate, 18)).toFixed(3)).toLocaleString('en-US')}
                                     </span>
 

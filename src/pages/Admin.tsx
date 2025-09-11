@@ -8,7 +8,7 @@ import { newSellerCode, sendBatchNews } from '@lib/api/backend';
 import { getNodeInfo } from '@lib/api/oracles';
 import { config, getR1ExplorerUrl } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
-import { fBI, getShortAddress, isZeroAddress } from '@lib/utils';
+import { fBI, getShortAddressOrHash, isZeroAddress } from '@lib/utils';
 import { BigCard } from '@shared/BigCard';
 import { LargeValueWithLabel } from '@shared/LargeValueWithLabel';
 import { useEffect, useState } from 'react';
@@ -331,11 +331,11 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
                                             target="_blank"
                                             className="underline"
                                         >
-                                            {getShortAddress(license.owner)}
+                                            {getShortAddressOrHash(license.owner)}
                                         </a>
                                     </TableCell>
                                     <TableCell>
-                                        {!isZeroAddress(license.nodeAddress) ? getShortAddress(license.nodeAddress) : '-'}
+                                        {!isZeroAddress(license.nodeAddress) ? getShortAddressOrHash(license.nodeAddress) : '-'}
                                     </TableCell>
                                     <TableCell>{getLicenseUsageStats(license)}</TableCell>
                                     <TableCell>{license.lastClaimEpoch.toString()}</TableCell>
@@ -346,7 +346,7 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
                                     </TableCell>
                                     <TableCell>
                                         {!isZeroAddress(license.lastClaimOracle)
-                                            ? getShortAddress(license.lastClaimOracle)
+                                            ? getShortAddressOrHash(license.lastClaimOracle)
                                             : '-'}
                                     </TableCell>
                                 </TableRow>

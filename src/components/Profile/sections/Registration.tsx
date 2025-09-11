@@ -1,20 +1,21 @@
+import { Button } from '@heroui/button';
+import { Form } from '@heroui/form';
+import { Input } from '@heroui/input';
+import { Modal, ModalBody, ModalContent, useDisclosure } from '@heroui/modal';
+import { Switch } from '@heroui/switch';
 import { registerEmail } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
-import { Button } from "@heroui/button";
-import { Form } from "@heroui/form";
-import { Input } from "@heroui/input";
-import { Modal, ModalBody, ModalContent, useDisclosure } from "@heroui/modal";
-import { Switch } from "@heroui/switch";
-import { Card } from '@shared/Card';
+import { DetailsCard } from '@shared/cards/DetailsCard';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { Label } from '@shared/Label';
 import { ApiAccount } from '@typedefs/blockchain';
 import { RegistrationStatus } from '@typedefs/profile';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiMailLine, RiMailSendLine } from 'react-icons/ri';
+import { RiMailSendLine } from 'react-icons/ri';
+import ProfileSectionWrapper from '../ProfileSectionWrapper';
 
-function RegistrationCard({ getRegistrationStatus }: { getRegistrationStatus: () => RegistrationStatus }) {
+export default function Registration({ registrationStatus }: { registrationStatus: RegistrationStatus }) {
     const { account, setAccount } = useAuthenticationContext() as AuthenticationContextType;
 
     const [email, setEmail] = useState<string>('');
@@ -58,71 +59,64 @@ function RegistrationCard({ getRegistrationStatus }: { getRegistrationStatus: ()
     }
 
     return (
-        <>
-            <Card
-                icon={<RiMailLine />}
-                title="Registration"
-                label={
-                    getRegistrationStatus() === RegistrationStatus.REGISTERED ? (
+        <ProfileSectionWrapper>
+            <div className="col gap-2">
+                <div className="row gap-2">
+                    <div className="section-title">Registration</div>
+
+                    {registrationStatus === RegistrationStatus.REGISTERED ? (
                         <Label text="Registered" variant="green" />
-                    ) : getRegistrationStatus() === RegistrationStatus.NOT_CONFIRMED ? (
+                    ) : registrationStatus === RegistrationStatus.NOT_CONFIRMED ? (
                         <Label text="Awaiting Confirmation" variant="yellow" />
                     ) : (
                         <Label text="Not Registered" />
-                    )
-                }
-            >
-                <div className="flex h-full w-full items-center justify-between">
-                    {getRegistrationStatus() === RegistrationStatus.REGISTERED ? (
-                        <div className="col gap-1">
-                            <div className="text-sm font-medium text-slate-500">Email Address</div>
-                            <div className="font-medium">{account.email}</div>
-                        </div>
-                    ) : (
-                        <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>
-                            <div className="col w-full gap-4">
-                                <div className="flex w-full gap-2">
-                                    <Input
-                                        id="email"
-                                        name="email"
-                                        type="email"
-                                        value={email}
-                                        onValueChange={setEmail}
-                                        size="md"
-                                        classNames={{
-                                            inputWrapper: 'bg-[#fcfcfd] border rounded-lg',
-                                            input: 'font-medium rounded-lg',
-                                        }}
-                                        variant="bordered"
-                                        color="primary"
-                                        labelPlacement="outside"
-                                        placeholder="Email"
-                                        isDisabled={isLoading}
-                                    />
-
-                                    <div className="flex">
-                                        <Button color="primary" className="rounded-lg" isLoading={isLoading} type="submit">
-                                            <div className="text-sm font-medium">Register</div>
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                <div className="row gap-2">
-                                    <Switch
-                                        isSelected={isSelected}
-                                        onValueChange={setSelected}
-                                        size="sm"
-                                        isDisabled={isLoading}
-                                    />
-                                    <div className="text-sm font-medium text-slate-700">
-                                        Subscribe to receive updates on email
-                                    </div>
-                                </div>
-                            </div>
-                        </Form>
                     )}
                 </div>
-            </Card>
+
+                <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>
+                    <div className="col w-full gap-4">
+                        <div className="flex w-full gap-2">
+                            <Input
+                                id="email"
+                                name="email"
+                                type="email"
+                                value={email}
+                                onValueChange={setEmail}
+                                size="md"
+                                classNames={{
+                                    inputWrapper: 'bg-[#fcfcfd] border rounded-lg shadow-none',
+                                    input: 'font-medium rounded-lg',
+                                }}
+                                variant="bordered"
+                                color="primary"
+                                labelPlacement="outside"
+                                placeholder="Email"
+                                isDisabled={isLoading}
+                            />
+
+                            <div className="flex">
+                                <Button color="primary" className="rounded-lg" isLoading={isLoading} type="submit">
+                                    <div className="text-sm font-medium">Register</div>
+                                </Button>
+                            </div>
+                        </div>
+
+                        <div className="row gap-2">
+                            <Switch isSelected={isSelected} onValueChange={setSelected} size="sm" isDisabled={isLoading} />
+                            <div className="text-sm font-medium text-slate-700">Subscribe to receive updates on email</div>
+                        </div>
+                    </div>
+                </Form>
+
+                <div className="pt-2">
+                    <DetailsCard>
+                        <div className="compact">
+                            You need to register and confirm your email address to be able to start the{' '}
+                            <span className="text-primary">KYC/KYB</span> process
+                        </div>
+                    </DetailsCard>
+                </div>
+            </div>
 
             <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur" size="lg">
                 <ModalContent>
@@ -163,8 +157,6 @@ function RegistrationCard({ getRegistrationStatus }: { getRegistrationStatus: ()
                     )}
                 </ModalContent>
             </Modal>
-        </>
+        </ProfileSectionWrapper>
     );
 }
-
-export default RegistrationCard;

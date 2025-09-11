@@ -12,7 +12,7 @@ export const BigCard: FunctionComponent<PropsWithChildren<Props>> = ({ children,
             className={clsx('col gap-4 rounded-xl px-6 py-4', {
                 'w-full': fullWidth,
                 'bg-slate-100': variant === 'default',
-                'border-3 border-slate-100 bg-white': variant === 'white',
+                'border-2 border-slate-100 bg-white': variant === 'white',
             })}
         >
             {children}

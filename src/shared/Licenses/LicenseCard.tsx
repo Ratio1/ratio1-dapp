@@ -25,9 +25,9 @@ export const LicenseCard = ({
     const [isExpanded, setExpanded] = useState<boolean>(disableActions ? true : false);
 
     return (
-        <BorderedCard>
+        <BorderedCard isHoverable isRoundedDouble disableWrapper>
             <div
-                className="mx-auto flex cursor-pointer flex-col gap-3 px-3 py-3 hover:border-slate-200 sm:px-4"
+                className="col gap-3 px-3 py-3 sm:px-4"
                 onClick={() => {
                     if (onLicenseClick) {
                         setExpanded(!isExpanded);

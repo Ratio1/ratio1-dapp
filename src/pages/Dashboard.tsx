@@ -8,7 +8,7 @@ import useAwait from '@lib/useAwait';
 import { fBI } from '@lib/utils';
 import { BigCard } from '@shared/BigCard';
 import SyncingOraclesTag from '@shared/SyncingOraclesTag';
-import { KycStatus } from '@typedefs/profile';
+import { ApplicationStatus } from '@typedefs/profile';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import { RiArrowRightUpLine, RiErrorWarningLine, RiTimeLine } from 'react-icons/ri';
@@ -88,7 +88,7 @@ function Dashboard() {
         !authenticated ||
         isLoadingPriceTiers ||
         !account ||
-        (account.kycStatus !== KycStatus.Approved && environment === 'mainnet');
+        (account.kycStatus !== ApplicationStatus.Approved && environment === 'mainnet');
 
     const getKycNotCompletedAlert = () => (
         <>
@@ -175,7 +175,7 @@ function Dashboard() {
 
                 <BigCard fullWidth>
                     <div className="row justify-between gap-3">
-                        <div className="text-xl font-bold lg:text-[22px]">Licenses & Tiers</div>
+                        <div className="text-xl font-semibold lg:text-[22px]">Licenses & Tiers</div>
 
                         <Button color="primary" onPress={onBuyDrawerOpen} isDisabled={isBuyingDisabled()}>
                             <div className="row gap-1.5">
@@ -183,21 +183,6 @@ function Dashboard() {
                                 <RiArrowRightUpLine className="text-[18px]" />
                             </div>
                         </Button>
-
-                        {/* <div className="row gap-3">
-                            {!!account && authenticated && !isLoadingPriceTiers && isBuyingDisabled() && (
-                                <div className="hidden larger:block">{getKycNotCompletedAlert()}</div>
-                            )}
-
-                            <div className="flex">
-                                <Button color="primary" onPress={onBuyDrawerOpen} isDisabled={isBuyingDisabled()}>
-                                    <div className="row gap-1.5">
-                                        <div className="text-sm font-medium lg:text-base">Buy License</div>
-                                        <RiArrowRightUpLine className="text-[18px]" />
-                                    </div>
-                                </Button>
-                            </div>
-                        </div> */}
                     </div>
 
                     {!!account && !isLoadingPriceTiers && isBuyingDisabled() && <>{getKycNotCompletedAlert()}</>}

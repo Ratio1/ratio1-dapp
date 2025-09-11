@@ -1,7 +1,7 @@
 import { Skeleton } from '@heroui/skeleton';
 import { getNodeInfo } from '@lib/api/oracles';
 import { getR1ExplorerUrl } from '@lib/config';
-import { getShortAddress } from '@lib/utils';
+import { getShortAddressOrHash } from '@lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
@@ -27,7 +27,7 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
                 try {
                     const [alias, isOnline] = await Promise.all([license.alias, license.isOnline]);
 
-                    console.log(`[Query] (${getShortAddress(license.nodeAddress, 4, true)})`, {
+                    console.log(`[Query] (${getShortAddressOrHash(license.nodeAddress, 4, true)})`, {
                         alias,
                         isOnline,
                     });
@@ -50,11 +50,11 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
         queryKey: ['refetchedNodeInfo', license.nodeAddress],
         queryFn: async ({ queryKey }) => {
             const nodeEthAddress = queryKey[1] as EthAddress;
-            console.log(`[Query] (${getShortAddress(nodeEthAddress, 4, true)}) Calling node_last_epoch`);
+            console.log(`[Query] (${getShortAddressOrHash(nodeEthAddress, 4, true)}) Calling node_last_epoch`);
 
             const nodeInfo = await getNodeInfo(nodeEthAddress);
             console.log(
-                `[Query] (${getShortAddress(nodeEthAddress, 4, true)}) Received node info: ${JSON.stringify(nodeInfo)}`,
+                `[Query] (${getShortAddressOrHash(nodeEthAddress, 4, true)}) Received node info: ${JSON.stringify(nodeInfo)}`,
             );
 
             // Check if the alias is 'missing_id' and throw an error to trigger the retry
@@ -71,7 +71,7 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
             (node?.alias === 'missing_id' || node?.alias === undefined) &&
             failureCount < MAX_RETRIES - 1,
         retry: (count, error) => {
-            console.log(`[Query] (${getShortAddress(license.nodeAddress, 4, true)}) Retry attempt ${count + 1}`, error);
+            console.log(`[Query] (${getShortAddressOrHash(license.nodeAddress, 4, true)}) Retry attempt ${count + 1}`, error);
             setFailureCount(count + 1);
             return count < MAX_RETRIES - 1;
         },
@@ -86,7 +86,7 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
 
     useEffect(() => {
         if (refetchedNodeInfo) {
-            console.log(`[Query] (${getShortAddress(license.nodeAddress, 4, true)}) refetchedNodeInfo:`, {
+            console.log(`[Query] (${getShortAddressOrHash(license.nodeAddress, 4, true)}) refetchedNodeInfo:`, {
                 alias: refetchedNodeInfo.node_alias,
                 isOnline: refetchedNodeInfo.node_is_online,
             });
@@ -134,7 +134,7 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
                                 onClick={(e) => e.stopPropagation()}
                                 className="cursor-pointer text-sm text-slate-400 transition-all hover:opacity-60"
                             >
-                                <div className="leading-5">{getShortAddress(license.nodeAddress)}</div>
+                                <div className="leading-5">{getShortAddressOrHash(license.nodeAddress)}</div>
                             </Link>
                         </div>
                     </>

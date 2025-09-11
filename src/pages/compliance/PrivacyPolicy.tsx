@@ -28,7 +28,7 @@ export default function PrivacyPolicy() {
 
                         {/* Section 1: Data Controller and Website Owner */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 1. Data Controller and Website Owner
                             </h2>
                             <p className="mb-4 text-gray-700">
@@ -41,7 +41,7 @@ export default function PrivacyPolicy() {
 
                         {/* Section 2: Personal Data Collected by Us */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 2. Personal Data Collected by Us
                             </h2>
                             <p className="mb-4 text-gray-700">
@@ -195,7 +195,7 @@ export default function PrivacyPolicy() {
 
                         {/* Section 3: Legal Grounds and Purposes of Processing Personal Data */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 3. Legal Grounds and Purposes of Processing Personal Data
                             </h2>
                             <p className="mb-4 text-gray-700">
@@ -266,9 +266,7 @@ export default function PrivacyPolicy() {
 
                         {/* Section 4: Data Retention */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
-                                4. Data Retention
-                            </h2>
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">4. Data Retention</h2>
                             <p className="mb-4 text-gray-700">
                                 We will retain and use Your information (including personal data) as necessary to comply with
                                 our legal obligations, as well as necessary for the other purposes above-mentioned.
@@ -294,7 +292,7 @@ export default function PrivacyPolicy() {
 
                         {/* Section 5: Transfer and Disclosure of Personal Data */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 5. Transfer and Disclosure of Personal Data
                             </h2>
                             <p className="mb-4 text-gray-700">
@@ -324,7 +322,7 @@ export default function PrivacyPolicy() {
 
                         {/* Section 6: Security of Personal Data */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 6. Security of Personal Data
                             </h2>
                             <p className="mb-4 text-gray-700">
@@ -336,7 +334,7 @@ export default function PrivacyPolicy() {
 
                         {/* Section 7: Rights of Users in Connection with Processing of the Personal Data */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 7. Rights of Users in Connection with Processing of the Personal Data
                             </h2>
                             <p className="mb-4 text-gray-700">
@@ -410,9 +408,7 @@ export default function PrivacyPolicy() {
 
                         {/* Section 8: Cookies */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
-                                8. Cookies
-                            </h2>
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">8. Cookies</h2>
                             <p className="mb-4 text-gray-700">
                                 The personal data is collected by Us when you are using the Website via technology through
                                 Cookies. The Website uses Cookies in order to offer the visitors a better experience when
@@ -538,9 +534,7 @@ export default function PrivacyPolicy() {
 
                         {/* Section 9: Legal Disclosure */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
-                                9. Legal Disclosure
-                            </h2>
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">9. Legal Disclosure</h2>
                             <p className="mb-4 text-gray-700">
                                 Notwithstanding anything to the contrary in this document, We may preserve or disclose your
                                 information if we believe that it is reasonably necessary to comply with a law, regulation,
@@ -556,9 +550,7 @@ export default function PrivacyPolicy() {
 
                         {/* Section 10: Contact Us */}
                         <section>
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
-                                10. Contact Us
-                            </h2>
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">10. Contact Us</h2>
                             <p className="mb-4 text-gray-700">
                                 In the event we decide to amend this Privacy Notice, We will publish the new version on the
                                 Website, which will supersede the current version.

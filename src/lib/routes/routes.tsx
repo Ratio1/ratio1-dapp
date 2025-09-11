@@ -7,12 +7,21 @@ import TermsOfUseNDs from '@pages/compliance/TermsOfUseNDs';
 import Dashboard from '@pages/Dashboard';
 import EmailConfirmation from '@pages/EmailConfirmation';
 import Faucet from '@pages/Faucet';
+import Invoicing from '@pages/Invoicing';
 import KYC from '@pages/KYC';
 import Licenses from '@pages/Licenses';
 import Profile from '@pages/Profile';
 import Unauthorized from '@pages/Unauthorized';
 import { TokenSvg } from '@shared/TokenSvg';
-import { RiCpuLine, RiFunctionLine, RiSearchLine, RiShieldLine, RiUserLine, RiWaterFlashLine } from 'react-icons/ri';
+import {
+    RiBillLine,
+    RiCpuLine,
+    RiFunctionLine,
+    RiSearchLine,
+    RiShieldLine,
+    RiUserLine,
+    RiWaterFlashLine,
+} from 'react-icons/ri';
 import { environment, getR1ExplorerUrl } from '../config';
 import { routePath } from './route-paths';
 
@@ -65,8 +74,13 @@ export const routeInfo = {
     },
     [routePath.profile]: {
         title: 'Profile',
-        description: 'Manage your profile, referral and KYC (Know Your Customer)',
+        description: 'Manage your profile, referrals and KYC (Know Your Customer)',
         mobileTitle: 'Profile',
+    },
+    [routePath.invoicing]: {
+        title: 'Invoicing',
+        description: 'Manage & download your invoice drafts',
+        mobileTitle: 'Invoicing',
     },
     [`${getR1ExplorerUrl()}`]: {
         title: 'Explorer',
@@ -129,6 +143,11 @@ export const routes: AppRoute[] = [
         path: routePath.profile,
         page: Profile,
         icon: <RiUserLine />,
+    },
+    {
+        path: routePath.invoicing,
+        page: Invoicing,
+        icon: <RiBillLine />,
     },
     ...(environment === 'testnet' || environment === 'devnet'
         ? [
@@ -194,7 +213,7 @@ export const routes: AppRoute[] = [
 ];
 
 export const getNavigationRoutes = () => {
-    const mainnetOnly = [routePath.profile];
+    const mainnetOnly = process.env.NODE_ENV === 'production' ? [routePath.profile] : [];
 
     return routes.filter((route: AppRoute) => {
         if (environment !== 'mainnet' && mainnetOnly.includes(route.path)) {
@@ -209,7 +228,11 @@ export const getMobileNavigationRoutes = () => {
     const mainnetOnly = [routePath.profile];
 
     return routes.filter((route: AppRoute) => {
-        if ((environment !== 'mainnet' && mainnetOnly.includes(route.path)) || route.path === routePath.compliance) {
+        if (
+            (environment !== 'mainnet' && mainnetOnly.includes(route.path)) ||
+            route.path === routePath.compliance ||
+            route.path === getR1ExplorerUrl()
+        ) {
             return false;
         }
 

@@ -1,4 +1,5 @@
 import { config } from '@lib/config';
+import { KycInfo } from '@typedefs/general';
 import axios from 'axios';
 import * as types from 'typedefs/blockchain';
 
@@ -26,6 +27,8 @@ export const emailUnsubscribe = async () => _doGet<types.ApiAccount>('accounts/u
 export const confirmEmail = async (token: string) => _doGet<types.ApiAccount>(`accounts/email/confirm?token=${token}`);
 
 export const ping = async () => _doGet<any>('/auth/nodeData');
+
+export const getKycInfo = async () => _doGet<KycInfo>('/accounts/kyc-info');
 
 // *****
 // POST
