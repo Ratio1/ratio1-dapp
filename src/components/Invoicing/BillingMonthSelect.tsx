@@ -67,6 +67,7 @@ export default function BillingMonthSelect({
                     setSelectedMonths(new Set<string>([value.anchorKey]));
                 }
             }}
+            isDisabled={uniqueMonths.length === 0}
         >
             {uniqueMonths.map((monthAndYear) => (
                 <SelectItem key={monthAndYear}>

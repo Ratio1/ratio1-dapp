@@ -3,6 +3,7 @@ import DraftInvoiceCard from '@components/Invoicing/DraftInvoiceCard';
 import { Skeleton } from '@heroui/skeleton';
 import { getInvoiceDrafts } from '@lib/api/invoicing';
 import { BorderedCard } from '@shared/cards/BorderedCard';
+import EmptyData from '@shared/EmptyData';
 import ListHeader from '@shared/ListHeader';
 import { InvoiceDraft } from '@typedefs/general';
 import _ from 'lodash';
@@ -84,6 +85,14 @@ export default function Invoicing() {
                                 <Skeleton key={index} className="h-[56px] w-full rounded-lg" />
                             ))}
                         </>
+                    ) : !invoiceDrafts?.length ? (
+                        <div className="center-all w-full py-14">
+                            <EmptyData
+                                title="No invoice drafts found"
+                                description="Your drafts will be displayed here"
+                                icon={<RiFileInfoLine />}
+                            />
+                        </div>
                     ) : (
                         <>
                             {invoiceDrafts
