@@ -36,6 +36,107 @@ export const ReaderAbi = [
         type: 'function',
     },
     {
+        inputs: [
+            {
+                internalType: 'address[]',
+                name: 'addresses',
+                type: 'address[]',
+            },
+        ],
+        name: 'getAddressesBalances',
+        outputs: [
+            {
+                components: [
+                    {
+                        internalType: 'address',
+                        name: 'addr',
+                        type: 'address',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'ethBalance',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'r1Balance',
+                        type: 'uint256',
+                    },
+                ],
+                internalType: 'struct AddressBalances[]',
+                name: 'balances',
+                type: 'tuple[]',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [],
+        name: 'getAllMndsDetails',
+        outputs: [
+            {
+                components: [
+                    {
+                        internalType: 'uint256',
+                        name: 'licenseId',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'address',
+                        name: 'owner',
+                        type: 'address',
+                    },
+                    {
+                        internalType: 'address',
+                        name: 'nodeAddress',
+                        type: 'address',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'totalAssignedAmount',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'totalClaimedAmount',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'firstMiningEpoch',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'lastClaimEpoch',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'assignTimestamp',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'address',
+                        name: 'lastClaimOracle',
+                        type: 'address',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'remainingAmount',
+                        type: 'uint256',
+                    },
+                ],
+                internalType: 'struct MndDetails[]',
+                name: 'mnds',
+                type: 'tuple[]',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
         inputs: [],
         name: 'getLicensesTotalSupply',
         outputs: [
@@ -115,6 +216,16 @@ export const ReaderAbi = [
                         name: 'isBanned',
                         type: 'bool',
                     },
+                    {
+                        internalType: 'uint256',
+                        name: 'usdcPoaiRewards',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'r1PoaiRewards',
+                        type: 'uint256',
+                    },
                 ],
                 internalType: 'struct LicenseDetails',
                 name: '',
@@ -186,6 +297,16 @@ export const ReaderAbi = [
                         name: 'isBanned',
                         type: 'bool',
                     },
+                    {
+                        internalType: 'uint256',
+                        name: 'usdcPoaiRewards',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'r1PoaiRewards',
+                        type: 'uint256',
+                    },
                 ],
                 internalType: 'struct LicenseDetails',
                 name: '',
@@ -256,6 +377,16 @@ export const ReaderAbi = [
                         internalType: 'bool',
                         name: 'isBanned',
                         type: 'bool',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'usdcPoaiRewards',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'r1PoaiRewards',
+                        type: 'uint256',
                     },
                 ],
                 internalType: 'struct LicenseDetails',
@@ -387,6 +518,16 @@ export const ReaderAbi = [
                         name: 'isBanned',
                         type: 'bool',
                     },
+                    {
+                        internalType: 'uint256',
+                        name: 'usdcPoaiRewards',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'r1PoaiRewards',
+                        type: 'uint256',
+                    },
                 ],
                 internalType: 'struct LicenseDetails[]',
                 name: '',
@@ -427,6 +568,21 @@ export const ReaderAbi = [
                 name: '_mndContract',
                 type: 'address',
             },
+            {
+                internalType: 'address',
+                name: '_controller',
+                type: 'address',
+            },
+            {
+                internalType: 'address',
+                name: '_r1Contract',
+                type: 'address',
+            },
+            {
+                internalType: 'address',
+                name: '_poaiManager',
+                type: 'address',
+            },
         ],
         name: 'initialize',
         outputs: [],
@@ -460,6 +616,32 @@ export const ReaderAbi = [
         type: 'function',
     },
     {
+        inputs: [],
+        name: 'poaiManager',
+        outputs: [
+            {
+                internalType: 'contract IPoAIManager',
+                name: '',
+                type: 'address',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [],
+        name: 'r1Contract',
+        outputs: [
+            {
+                internalType: 'contract R1',
+                name: '',
+                type: 'address',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
         inputs: [
             {
                 internalType: 'address',
@@ -468,6 +650,32 @@ export const ReaderAbi = [
             },
         ],
         name: 'setController',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: '_poaiManager',
+                type: 'address',
+            },
+        ],
+        name: 'setPoAIManager',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: '_r1Contract',
+                type: 'address',
+            },
+        ],
+        name: 'setR1Contract',
         outputs: [],
         stateMutability: 'nonpayable',
         type: 'function',

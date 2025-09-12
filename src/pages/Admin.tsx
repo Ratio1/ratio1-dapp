@@ -5,8 +5,8 @@ import { Button } from '@heroui/button';
 import { Input } from '@heroui/input';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/table';
 import { newSellerCode, sendBatchNews } from '@lib/api/backend';
-import { getNodeInfo } from '@lib/api/oracles';
-import { config, getR1ExplorerUrl } from '@lib/config';
+import { getMultiNodeEpochsRange, getNodeInfo } from '@lib/api/oracles';
+import { config, getCurrentEpoch, getR1ExplorerUrl } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { fBI, getShortAddressOrHash, isZeroAddress } from '@lib/utils';
 import { BigCard } from '@shared/BigCard';
@@ -58,71 +58,38 @@ function Admin() {
                 abi: ReaderAbi,
                 functionName: 'getOraclesDetails',
             })
-            .then((result) => {
-                Promise.all(
-                    result.map(async (oracle) => {
-                        return {
-                            ...oracle,
-                            ...(await getNodeInfo(oracle.oracleAddress)),
-                        };
-                    }),
-                ).then((oraclesInfo) => {
-                    setOracles(oraclesInfo);
-                });
+            .then(async (result) => {
+                const currentEpoch = getCurrentEpoch();
+                const nodesWithRanges = result.reduce(
+                    (acc, oracle) => {
+                        acc[oracle.oracleAddress] = [currentEpoch - 1, currentEpoch - 1];
+                        return acc;
+                    },
+                    {} as Record<EthAddress, [number, number]>,
+                );
+                const allNodesInfo = await getMultiNodeEpochsRange(nodesWithRanges);
+                setOracles(
+                    result.map((oracle) => ({
+                        ...oracle,
+                        ...allNodesInfo[oracle.oracleAddress],
+                    })),
+                );
             });
 
         publicClient
             .readContract({
-                address: config.mndContractAddress,
-                abi: MNDContractAbi,
-                functionName: 'totalSupply',
+                address: config.readerContractAddress,
+                abi: ReaderAbi,
+                functionName: 'getAllMndsDetails',
             })
-            .then(async (totalSupply) => {
-                const mnds: (AdminMndView | null)[] = [];
-
-                let i = 1;
-                while (mnds.filter((mnd) => mnd !== null).length < Number(totalSupply)) {
-                    const fetchedLicense = await Promise.all([
-                        publicClient.readContract({
-                            address: config.mndContractAddress,
-                            abi: MNDContractAbi,
-                            functionName: 'ownerOf',
-                            args: [BigInt(i)],
-                        }),
-                        publicClient
-                            .readContract({
-                                address: config.mndContractAddress,
-                                abi: MNDContractAbi,
-                                functionName: 'licenses',
-                                args: [BigInt(i)],
-                            })
-                            .then((result) => ({
-                                type: 'MND' as const,
-                                licenseId: BigInt(i),
-                                nodeAddress: result[0],
-                                totalAssignedAmount: result[1],
-                                totalClaimedAmount: result[2],
-                                firstMiningEpoch: result[3],
-                                lastClaimEpoch: result[4],
-                                assignTimestamp: result[5],
-                                lastClaimOracle: result[6],
-                                remainingAmount: result[1] - result[2],
-                                isBanned: false as const,
-                            })),
-                    ])
-                        .then(([owner, license]) => ({
-                            ...license,
-                            owner,
-                        }))
-                        .catch(() => {
-                            return null;
-                        });
-
-                    mnds.push(fetchedLicense);
-                    i++;
-                }
-                console.log({ mnds });
-                setMnds(mnds);
+            .then((result) => {
+                setMnds(
+                    result.map((mnd) => ({
+                        ...mnd,
+                        type: 'MND' as const,
+                        isBanned: false as const,
+                    })),
+                );
             });
     };
 
