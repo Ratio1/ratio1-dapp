@@ -62,8 +62,6 @@ export const downloadInvoiceDraft = async (draftId: string) => {
     setTimeout(() => URL.revokeObjectURL(urlObj), 0);
 };
 
-export const getInvoicingPreferences = async () => _doGet<InvoicingPreferences>('/invoice-draft/get-preferences');
-
 // *****
 // POST
 // *****
@@ -111,11 +109,16 @@ export const sendBatchNews = async (params: { news: File; subject: string }) => 
     return data.data;
 };
 
+export const getInvoicingPreferences = async () => _doGet('/invoice-draft/get-preferences');
+
 export const createInvoicingPreferences = (preferences: InvoicingPreferences) =>
     _doPost<any>('/invoice-draft/create-preferences', preferences);
 
 export const changeInvoicingPreferences = (preferences: InvoicingPreferences) =>
-    _doPost<any>('/invoice-draft/change-preferences', preferences);
+    _doPost<any>('/invoice-draft/change-preferences', {
+        ...preferences,
+        extraTaxes: JSON.stringify(preferences.extraTaxes),
+    });
 
 // *****
 // INTERNAL HELPERS

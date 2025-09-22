@@ -23,6 +23,6 @@ export const invoicingPreferencesSchema = z.object({
     ueVat: getFloatSchema(100),
     extraUeVat: getFloatSchema(100),
     localCurrency: z.enum(INVOICING_CURRENCIES),
-    extraText: getStringWithSpacesSchema(0, 1024),
+    extraText: getStringWithSpacesSchema(0, 1024).optional(),
     extraTaxes: z.array(extraTaxSchema).max(50, 'Maximum 50 extra tax entries allowed'),
 });

@@ -3,7 +3,7 @@ import { Button } from '@heroui/button';
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@heroui/modal';
 import { Skeleton } from '@heroui/skeleton';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { getInvoicingPreferences } from '@lib/api/backend';
+import { changeInvoicingPreferences, getInvoicingPreferences } from '@lib/api/backend';
 import { invoicingPreferencesSchema } from '@schemas/invoicing';
 import { CardWithHeader } from '@shared/cards/CardWithHeader';
 import { SlateCard } from '@shared/cards/SlateCard';
@@ -15,13 +15,14 @@ import { InvoicingPreferences } from '@typedefs/invoicing';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
-import { RiCircleFill, RiEdit2Line, RiInfoCardLine } from 'react-icons/ri';
+import { RiCircleFill, RiEdit2Line, RiErrorWarningLine, RiInfoCardLine } from 'react-icons/ri';
 import { z } from 'zod';
 import ExtraTaxesSection from './ExtraTaxesSection';
 
 export default function PreferencesSection() {
     const [isLoading, setLoading] = useState(false);
     const [isFetching, setFetching] = useState(true);
+    const [error, setError] = useState<string | undefined>();
 
     const [invoicingPreferences, setInvoicingPreferences] = useState<InvoicingPreferences | undefined>();
 
@@ -34,13 +35,18 @@ export default function PreferencesSection() {
     const fetchInvoicingPreferences = async () => {
         try {
             setFetching(true);
-            const preferences = await getInvoicingPreferences();
+            const preferences: any = await getInvoicingPreferences();
             console.log('Preferences', preferences);
 
-            setInvoicingPreferences(preferences);
+            if (preferences) {
+                setInvoicingPreferences({
+                    ...preferences,
+                    extraTaxes: JSON.parse(preferences.extraTaxes),
+                } as InvoicingPreferences);
+            }
         } catch (error) {
             console.error('Error', error);
-            // TODO:
+            setError('Unable to fetch invoicing preferences at this time.');
             toast.error('Failed to fetch invoicing preferences.');
         } finally {
             setFetching(false);
@@ -63,7 +69,8 @@ export default function PreferencesSection() {
         try {
             setLoading(true);
             console.log('onSubmit', data);
-            // TODO:
+            await changeInvoicingPreferences(data);
+            fetchInvoicingPreferences();
             onClose();
         } catch (error: any) {
             console.error(error);
@@ -87,6 +94,13 @@ export default function PreferencesSection() {
                         ))}
                     </div>
                 </CardWithHeader>
+            );
+        } else if (error) {
+            return (
+                <div className="row gap-1.5 rounded-lg bg-red-100 p-4 text-red-700">
+                    <RiErrorWarningLine className="text-xl" />
+                    <div className="text-sm font-medium">{error}</div>
+                </div>
             );
         }
     }
