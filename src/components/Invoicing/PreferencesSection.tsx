@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { RiCircleFill, RiEdit2Line, RiErrorWarningLine, RiInfoCardLine } from 'react-icons/ri';
+import { useAccount } from 'wagmi';
 import { z } from 'zod';
 import ExtraTaxesSection from './ExtraTaxesSection';
 
@@ -27,6 +28,7 @@ export default function PreferencesSection() {
     const [invoicingPreferences, setInvoicingPreferences] = useState<InvoicingPreferences | undefined>();
 
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
+    const { address } = useAccount();
 
     useEffect(() => {
         fetchInvoicingPreferences();
@@ -66,10 +68,18 @@ export default function PreferencesSection() {
     };
 
     const onSubmit = async (data: z.infer<typeof invoicingPreferencesSchema>) => {
+        if (!address) {
+            toast.error('Please connect your wallet and refresh this page.');
+            return;
+        }
+
         try {
             setLoading(true);
             console.log('onSubmit', data);
-            await changeInvoicingPreferences(data);
+            await changeInvoicingPreferences({
+                ...data,
+                userAddress: address,
+            });
             fetchInvoicingPreferences();
             onClose();
         } catch (error: any) {
@@ -89,7 +99,7 @@ export default function PreferencesSection() {
             return (
                 <CardWithHeader icon={<RiInfoCardLine />} title="Billing Preferences">
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-                        {Array.from({ length: 10 }).map((_, index) => (
+                        {Array.from({ length: 8 }).map((_, index) => (
                             <BillingInfoRowSkeleton key={index} />
                         ))}
                     </div>
@@ -144,10 +154,7 @@ export default function PreferencesSection() {
                             />
                             <BillingInfoRow label="Local Currency" value={invoicingPreferences?.localCurrency ?? '—'} />
                             <BillingInfoRow label="Extra Text" value={invoicingPreferences?.extraText ?? '—'} />
-                            <BillingInfoRow label="Address" value={invoicingPreferences?.userAddress ?? '—'} />
-                        </div>
 
-                        <div className="w-full">
                             <BillingInfoRow
                                 label="Extra Taxes"
                                 value={
@@ -223,7 +230,6 @@ export default function PreferencesSection() {
                                     />
 
                                     <InputWithLabel name="extraText" label="Extra Text" placeholder="—" />
-                                    <InputWithLabel name="userAddress" label="Address" placeholder="—" />
                                 </div>
 
                                 <ExtraTaxesSection />

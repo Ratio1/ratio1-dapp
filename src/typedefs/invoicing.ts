@@ -15,7 +15,7 @@ type InvoiceDraft = {
 };
 
 type InvoicingPreferences = {
-    userAddress: string;
+    userAddress: EthAddress;
     invoiceSeries: string;
     nextNumber: number;
     countryVat: number;

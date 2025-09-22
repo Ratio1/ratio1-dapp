@@ -38,7 +38,16 @@ export const getIntegerSchema = (max: number) => {
 
 export const getFloatSchema = (max: number) => {
     return z
-        .union([z.literal(''), z.number().min(0, 'Value must be at least 0').max(max, `Value cannot exceed ${max}`)])
+        .union([
+            z.literal(''),
+            z.string().transform((val) => {
+                if (val === '') return '';
+                const num = parseFloat(val);
+                if (isNaN(num)) throw new Error('Invalid number format');
+                return num;
+            }),
+            z.number().min(0, 'Value must be at least 0').max(max, `Value cannot exceed ${max}`),
+        ])
         .refine((val) => val !== '', { message: 'Value is required' })
         .transform((val) => val as number) as z.ZodType<number>;
 };

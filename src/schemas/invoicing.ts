@@ -16,7 +16,6 @@ const extraTaxSchema = z.discriminatedUnion('taxType', [
 ]);
 
 export const invoicingPreferencesSchema = z.object({
-    userAddress: getStringWithSpacesSchema(1, 512),
     invoiceSeries: getStringSchema(1, 16),
     nextNumber: getIntegerSchema(100_000),
     countryVat: getFloatSchema(100),
