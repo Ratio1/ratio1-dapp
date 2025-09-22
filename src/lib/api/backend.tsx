@@ -62,6 +62,8 @@ export const downloadInvoiceDraft = async (draftId: string) => {
     setTimeout(() => URL.revokeObjectURL(urlObj), 0);
 };
 
+export const getInvoicingPreferences = async () => _doGet<InvoicingPreferences>('/invoice-draft/get-preferences');
+
 // *****
 // POST
 // *****

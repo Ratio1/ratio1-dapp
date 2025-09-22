@@ -1,8 +1,9 @@
-import { EXTRA_TAX_TYPES } from '@data/extraTaxTypes';
 import { INVOICING_CURRENCIES } from '@data/invoicingCurrencies';
 import { Button } from '@heroui/button';
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@heroui/modal';
+import { Skeleton } from '@heroui/skeleton';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { getInvoicingPreferences } from '@lib/api/backend';
 import { invoicingPreferencesSchema } from '@schemas/invoicing';
 import { CardWithHeader } from '@shared/cards/CardWithHeader';
 import { SlateCard } from '@shared/cards/SlateCard';
@@ -10,49 +11,51 @@ import InputWithLabel from '@shared/form/InputWithLabel';
 import NumberInputWithLabel from '@shared/form/NumberInputWithLabel';
 import SelectWithLabel from '@shared/form/SelectWithLabel';
 import SubmitButton from '@shared/SubmitButton';
-import { useState } from 'react';
+import { InvoicingPreferences } from '@typedefs/invoicing';
+import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { RiCircleFill, RiEdit2Line, RiInfoCardLine } from 'react-icons/ri';
 import { z } from 'zod';
 import ExtraTaxesSection from './ExtraTaxesSection';
 
-const preferences: any = {
-    userAddress: 'Portobello Road 29, London, W11 3DH',
-    invoiceSeries: 'AC',
-    nextNumber: 0,
-    countryVat: 21,
-    ueVat: 21,
-    extraUeVat: 0,
-    localCurrency: INVOICING_CURRENCIES[0],
-    extraText: '',
-    extraTaxes: [
-        {
-            description: 'Contribution imposed by extra taxes.',
-            taxType: EXTRA_TAX_TYPES[0],
-            value: 500,
-        },
-        {
-            description: 'A different contribution imposed by extra taxes.',
-            taxType: EXTRA_TAX_TYPES[1],
-            value: 19,
-        },
-    ],
-};
-
 export default function PreferencesSection() {
     const [isLoading, setLoading] = useState(false);
+    const [isFetching, setFetching] = useState(true);
+
+    const [invoicingPreferences, setInvoicingPreferences] = useState<InvoicingPreferences | undefined>();
+
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
+
+    useEffect(() => {
+        fetchInvoicingPreferences();
+    }, []);
+
+    const fetchInvoicingPreferences = async () => {
+        try {
+            setFetching(true);
+            const preferences = await getInvoicingPreferences();
+            console.log('Preferences', preferences);
+
+            setInvoicingPreferences(preferences);
+        } catch (error) {
+            console.error('Error', error);
+            // TODO:
+            toast.error('Failed to fetch invoicing preferences.');
+        } finally {
+            setFetching(false);
+        }
+    };
 
     const form = useForm<z.infer<typeof invoicingPreferencesSchema>>({
         resolver: zodResolver(invoicingPreferencesSchema),
         mode: 'onTouched',
-        defaultValues: preferences,
+        defaultValues: invoicingPreferences,
     });
 
     // Reset form when modal opens
     const handleOpen = () => {
-        form.reset(preferences);
+        form.reset(invoicingPreferences);
         onOpen();
     };
 
@@ -60,6 +63,7 @@ export default function PreferencesSection() {
         try {
             setLoading(true);
             console.log('onSubmit', data);
+            // TODO:
             onClose();
         } catch (error: any) {
             console.error(error);
@@ -72,6 +76,20 @@ export default function PreferencesSection() {
     const onError = (errors: any) => {
         console.log('[InvoicingPreferencesForm] Validation errors:', errors);
     };
+
+    if (!invoicingPreferences) {
+        if (isFetching) {
+            return (
+                <CardWithHeader icon={<RiInfoCardLine />} title="Billing Preferences">
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+                        {Array.from({ length: 10 }).map((_, index) => (
+                            <BillingInfoRowSkeleton key={index} />
+                        ))}
+                    </div>
+                </CardWithHeader>
+            );
+        }
+    }
 
     return (
         <FormProvider {...form}>
@@ -95,26 +113,35 @@ export default function PreferencesSection() {
                     }
                 >
                     <div className="col gap-3 sm:gap-4">
-                        <div className="grid h-full w-full grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-                            <BillingInfoRow label="Invoice Series" value={preferences.invoiceSeries} />
-                            <BillingInfoRow label="Invoice Offset" value={preferences.nextNumber} />
-                            <BillingInfoRow label="Country VAT" value={`${preferences.countryVat}%`} />
-                            <BillingInfoRow label="UE VAT" value={`${preferences.ueVat}%`} />
-                            <BillingInfoRow label="Extra UE VAT" value={preferences.extraUeVat} />
-                            <BillingInfoRow label="Local Currency" value={preferences.localCurrency} />
-                            <BillingInfoRow label="Extra Text" value={preferences.extraText || '—'} />
-                            <BillingInfoRow label="Address" value={preferences.userAddress} />
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+                            <BillingInfoRow label="Invoice Series" value={invoicingPreferences?.invoiceSeries ?? '—'} />
+                            <BillingInfoRow label="Invoice Offset" value={invoicingPreferences?.nextNumber ?? '—'} />
+                            <BillingInfoRow
+                                label="Country VAT"
+                                value={invoicingPreferences?.countryVat ? `${invoicingPreferences?.countryVat}%` : '—'}
+                            />
+                            <BillingInfoRow
+                                label="UE VAT"
+                                value={invoicingPreferences?.ueVat ? `${invoicingPreferences?.ueVat}%` : '—'}
+                            />
+                            <BillingInfoRow
+                                label="Extra UE VAT"
+                                value={invoicingPreferences?.extraUeVat ? `${invoicingPreferences?.extraUeVat}%` : '—'}
+                            />
+                            <BillingInfoRow label="Local Currency" value={invoicingPreferences?.localCurrency ?? '—'} />
+                            <BillingInfoRow label="Extra Text" value={invoicingPreferences?.extraText ?? '—'} />
+                            <BillingInfoRow label="Address" value={invoicingPreferences?.userAddress ?? '—'} />
                         </div>
 
                         <div className="w-full">
                             <BillingInfoRow
                                 label="Extra Taxes"
                                 value={
-                                    !preferences.extraTaxes?.length ? (
+                                    !invoicingPreferences?.extraTaxes?.length ? (
                                         '—'
                                     ) : (
                                         <ul>
-                                            {preferences.extraTaxes.map((tax) => (
+                                            {invoicingPreferences.extraTaxes.map((tax) => (
                                                 <div key={tax.taxType} className="row gap-1.5">
                                                     <RiCircleFill className="mt-px text-[8px] text-slate-700" />
 
@@ -148,7 +175,7 @@ export default function PreferencesSection() {
 
                         <ModalBody>
                             <SlateCard tightGap>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                                     <InputWithLabel
                                         name="invoiceSeries"
                                         label="Invoice Series"
@@ -204,6 +231,15 @@ function BillingInfoRow({ label, value }: { label: string; value: React.ReactNod
         <div className="col gap-0.5">
             <div className="text-sm font-medium text-slate-500">{label}</div>
             <div className="compact">{value}</div>
+        </div>
+    );
+}
+
+function BillingInfoRowSkeleton() {
+    return (
+        <div className="col gap-0.5">
+            <Skeleton className="h-5 w-[100px] rounded-lg" />
+            <Skeleton className="h-5 w-[60px] rounded-lg" />
         </div>
     );
 }

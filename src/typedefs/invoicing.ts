@@ -1,3 +1,5 @@
+import { EXTRA_TAX_TYPES } from '@data/extraTaxTypes';
+import { INVOICING_CURRENCIES } from '@data/invoicingCurrencies';
 import { EthAddress } from './blockchain';
 
 type InvoiceDraft = {
@@ -20,8 +22,8 @@ type InvoicingPreferences = {
     ueVat: number;
     extraUeVat: number;
     extraText?: string;
-    localCurrency: string;
-    extraTaxes?: string; // Example: "JSON Array of objects { description: string; taxType: 0 | 1; value: number }". For taxType 0 means fixed value and 1 means percentage value.
+    localCurrency: (typeof INVOICING_CURRENCIES)[number];
+    extraTaxes?: { description: string; taxType: (typeof EXTRA_TAX_TYPES)[number]; value: number }[]; // Must be converted to a string when interacting with the API
 };
 
 export type { InvoiceDraft, InvoicingPreferences };
