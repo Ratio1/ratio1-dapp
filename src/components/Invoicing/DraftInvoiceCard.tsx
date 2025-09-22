@@ -1,8 +1,12 @@
+import { Button } from '@heroui/button';
+import { downloadInvoiceDraft } from '@lib/api/backend';
 import { BorderedCard } from '@shared/cards/BorderedCard';
 import { CopyableValue } from '@shared/CopyableValue';
 import ItemWithLabel from '@shared/ItemWithLabel';
-import { InvoiceDraft } from '@typedefs/general';
-import { RiArrowDownLine, RiArrowRightLine } from 'react-icons/ri';
+import { InvoiceDraft } from '@typedefs/invoicing';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { RiArrowDownLine } from 'react-icons/ri';
 
 export default function DraftInvoiceCard({
     draft,
@@ -13,8 +17,19 @@ export default function DraftInvoiceCard({
     isExpanded: boolean;
     toggle: () => void;
 }) {
-    const onInvoiceDownload = () => {
-        console.log('Download', draft.invoiceId);
+    const [isLoading, setLoading] = useState<boolean>(false);
+
+    const downloadDraft = async (draftId: string) => {
+        try {
+            setLoading(true);
+            const draft = await downloadInvoiceDraft(draftId);
+            console.log('Draft', draft);
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to download invoice draft.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -38,26 +53,31 @@ export default function DraftInvoiceCard({
 
                     <div className="min-w-[118px] font-medium">${draft.totalUsdcAmount.toFixed(2)}</div>
 
-                    <div
-                        className="hidden min-w-[92px] larger:block"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            onInvoiceDownload();
-                        }}
-                    >
-                        <div className="row cursor-pointer gap-1 hover:opacity-50">
-                            <div className="compact">Download</div>
-                            <RiArrowRightLine className="mt-px text-lg" />
-                        </div>
+                    {/* Desktop */}
+                    <div className="hidden min-w-[124px] justify-end larger:flex">
+                        <Button
+                            className="border-2 border-slate-200 bg-white data-[hover=true]:!opacity-65"
+                            isLoading={isLoading}
+                            size="sm"
+                            color="primary"
+                            variant="flat"
+                            onPress={() => {
+                                if (!isLoading) {
+                                    downloadDraft(draft.draftId);
+                                }
+                            }}
+                        >
+                            <div className="text-sm">Download</div>
+                        </Button>
                     </div>
 
+                    {/* Mobile */}
                     <div
                         className="block min-w-[30px] larger:hidden"
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            onInvoiceDownload();
+                            downloadDraft(draft.draftId);
                         }}
                     >
                         <div className="center-all w-[30px] rounded-full bg-primary-50 p-1.5 hover:opacity-50">
@@ -68,7 +88,7 @@ export default function DraftInvoiceCard({
 
                 {/* Details */}
                 {isExpanded && (
-                    <div className="col bg-slate-75 gap-2.5 rounded-lg px-5 py-4">
+                    <div className="col gap-2.5 rounded-lg bg-slate-75 px-5 py-4">
                         <div className="text-base font-semibold">Details</div>
 
                         <div className="row justify-between gap-2">
@@ -84,7 +104,7 @@ export default function DraftInvoiceCard({
 
                             <ItemWithLabel
                                 label="Invoice ID"
-                                value={<CopyableValue value={draft.invoiceId} size={8} isLight />}
+                                value={<CopyableValue value={draft.draftId} size={8} isLight />}
                             />
                         </div>
                     </div>

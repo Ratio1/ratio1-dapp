@@ -24,6 +24,8 @@ export default defineConfig({
             '@shared': path.resolve(__dirname, './src/shared'),
             '@blockchain': path.resolve(__dirname, './src/blockchain'),
             '@typedefs': path.resolve(__dirname, './src/typedefs'),
+            '@schemas': path.resolve(__dirname, './src/schemas'),
+            '@data': path.resolve(__dirname, './src/data'),
         },
     },
 });

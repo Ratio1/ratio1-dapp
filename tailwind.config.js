@@ -39,6 +39,9 @@ export default {
             margin: {
                 'sider-with-padding': 'calc(276px + 1rem)',
             },
+            boxShadow: {
+                custom: '0 0 0 3px #e2e8f0',
+            },
         },
         screens: {
             xs: '400px',

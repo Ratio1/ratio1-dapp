@@ -30,7 +30,7 @@ export const CopyableValue = ({ value, size = 4, isLarge = false, isLight = fals
                 'text-slate-400': isLight,
             })}
         >
-            {getShortAddressOrHash(value, size)}
+            {size >= value.length ? value : getShortAddressOrHash(value, size)}
         </div>
     );
 

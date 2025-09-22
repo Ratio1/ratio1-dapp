@@ -5,20 +5,33 @@ export const BorderedCard: FunctionComponent<
     PropsWithChildren<{
         isHoverable?: boolean;
         isLight?: boolean;
+        isBorderDark?: boolean;
         onClick?: () => void;
         footer?: React.ReactNode;
         isRoundedDouble?: boolean;
         disableWrapper?: boolean;
         useFixedwidth?: boolean;
     }>
-> = ({ children, isHoverable, isLight = true, onClick, footer, isRoundedDouble, disableWrapper, useFixedwidth }) => {
+> = ({
+    children,
+    isHoverable,
+    isLight = true,
+    isBorderDark,
+    onClick,
+    footer,
+    isRoundedDouble,
+    disableWrapper,
+    useFixedwidth,
+}) => {
     return (
         <div
-            className={clsx('w-full overflow-hidden border-2 border-slate-100 bg-white', {
+            className={clsx('w-full overflow-hidden border-2 bg-white', {
                 'cursor-pointer hover:border-slate-200': isHoverable,
                 'rounded-xl': !isRoundedDouble,
                 'rounded-2xl': isRoundedDouble,
                 'min-w-[700px] md:min-w-[820px] lg:min-w-max': useFixedwidth,
+                'border-slate-100': !isBorderDark,
+                'border-slate-150': isBorderDark,
             })}
             onClick={onClick}
         >
