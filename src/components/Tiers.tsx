@@ -8,7 +8,7 @@ function Tiers({ currentStage, stages }: { currentStage: number; stages: PriceTi
         <>
             <div className="col gap-5">
                 <div className="flex justify-between">
-                    <div className="col flex w-full justify-between gap-4 md:gap-6 lg:flex-row lg:gap-8">
+                    <div className="flex w-full flex-col justify-between gap-4 md:gap-6 lg:flex-row lg:gap-8">
                         <LargeValueWithLabel
                             label={`Current Price (T${currentStage})`}
                             value={`$${stages[currentStage - 1].usdPrice}`}
@@ -30,17 +30,17 @@ function Tiers({ currentStage, stages }: { currentStage: number; stages: PriceTi
                 </div>
 
                 {/* Web */}
-                <div className="hidden justify-between larger:flex">
+                <div className="larger:flex hidden justify-between">
                     {stages.map((stage) => (
                         <div
                             key={stage.index}
                             className={clsx('center-all relative min-w-[60px] flex-col gap-4 rounded-full py-3', {
-                                'bg-gradient-to-t from-slate-200': stage.index === currentStage,
+                                'bg-linear-to-t from-slate-200': stage.index === currentStage,
                             })}
                         >
                             <div
                                 className={clsx('rounded-full px-2.5 py-0.5 text-[15px] font-medium', {
-                                    'bg-gray-300 text-body': stage.index != currentStage,
+                                    'text-body bg-gray-300': stage.index != currentStage,
                                     'bg-body text-white': stage.index === currentStage,
                                 })}
                             >
@@ -49,8 +49,8 @@ function Tiers({ currentStage, stages }: { currentStage: number; stages: PriceTi
 
                             <div className="flex h-36 w-1 flex-col flex-nowrap justify-end overflow-hidden rounded-full bg-gray-300">
                                 <div
-                                    className={clsx('overflow-hidden rounded-full bg-primary transition-all duration-500', {
-                                        '!bg-green-300': stage.totalUnits === stage.soldUnits,
+                                    className={clsx('bg-primary overflow-hidden rounded-full transition-all duration-500', {
+                                        'bg-green-300!': stage.totalUnits === stage.soldUnits,
                                     })}
                                     style={{ height: `${(100 * stage.soldUnits) / stage.totalUnits}%` }}
                                 ></div>
@@ -66,7 +66,7 @@ function Tiers({ currentStage, stages }: { currentStage: number; stages: PriceTi
 
                             <div
                                 className={clsx('center-all h-10 w-10 rounded-full text-[15px] font-medium tracking-wider', {
-                                    'bg-gray-300 text-body': stage.index != currentStage,
+                                    'text-body bg-gray-300': stage.index != currentStage,
                                     'bg-body text-white': stage.index === currentStage,
                                 })}
                             >
@@ -77,7 +77,7 @@ function Tiers({ currentStage, stages }: { currentStage: number; stages: PriceTi
                 </div>
 
                 {/* Mobile */}
-                <div className="col flex larger:hidden">
+                <div className="larger:hidden flex flex-col">
                     {stages.map((stage) => (
                         <div
                             key={stage.index}
@@ -93,7 +93,7 @@ function Tiers({ currentStage, stages }: { currentStage: number; stages: PriceTi
                                     className={clsx(
                                         'w-full rounded-full px-2.5 py-0.5 text-center text-sm font-medium lg:text-[15px]',
                                         {
-                                            'bg-gray-300 text-body': stage.index != currentStage,
+                                            'text-body bg-gray-300': stage.index != currentStage,
                                             'bg-body text-white': stage.index === currentStage,
                                         },
                                     )}
@@ -104,8 +104,8 @@ function Tiers({ currentStage, stages }: { currentStage: number; stages: PriceTi
 
                             <div className="flex h-1 w-full flex-row overflow-hidden rounded-full bg-gray-300">
                                 <div
-                                    className={clsx('overflow-hidden rounded-full bg-primary transition-all duration-500', {
-                                        '!bg-green-300': stage.totalUnits === stage.soldUnits,
+                                    className={clsx('bg-primary overflow-hidden rounded-full transition-all duration-500', {
+                                        'bg-green-300!': stage.totalUnits === stage.soldUnits,
                                     })}
                                     style={{ width: `${(100 * stage.soldUnits) / stage.totalUnits}%` }}
                                 ></div>
@@ -124,7 +124,7 @@ function Tiers({ currentStage, stages }: { currentStage: number; stages: PriceTi
                                     className={clsx(
                                         'center-all h-9 w-9 rounded-full text-sm font-medium tracking-wider lg:text-[15px]',
                                         {
-                                            'bg-gray-300 text-body': stage.index != currentStage,
+                                            'text-body bg-gray-300': stage.index != currentStage,
                                             'bg-body text-white': stage.index === currentStage,
                                         },
                                     )}

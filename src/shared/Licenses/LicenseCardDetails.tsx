@@ -175,7 +175,7 @@ export const LicenseCardDetails = ({
 
                             {!!rewardsPoA && (
                                 <Button
-                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:!opacity-65"
+                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
                                     color="primary"
                                     size="sm"
                                     variant="flat"
@@ -207,7 +207,7 @@ export const LicenseCardDetails = ({
 
                             {!!rewardsPoAI && (
                                 <Button
-                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:!opacity-65"
+                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
                                     color="primary"
                                     size="sm"
                                     variant="flat"

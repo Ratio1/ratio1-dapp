@@ -75,16 +75,13 @@ export default function PersonalInformation() {
         const apiCall: () => Promise<ApiAccount> = isSubscribed ? emailUnsubscribe : emailSubscribe;
 
         try {
-            setLoading(true);
             const accountResponse = await apiCall();
 
             setSubscribed(accountResponse.receiveUpdates);
             toast.success('Subscription preference updated.');
         } catch (error) {
             console.error('Error', error);
-            toast.error('Unexpected error, please try again.');
-        } finally {
-            setLoading(false);
+            toast.error('Error updating preference, please try again.');
         }
     };
 
@@ -283,10 +280,10 @@ function ApplicationButton({ label, isLoading, onPress }: { label: string; isLoa
 function ApplicationInfoText({ isCompany }: { isCompany: boolean }) {
     return (
         <div className="flex items-start gap-1">
-            <RiInformation2Line className="text-lg text-primary" />
+            <RiInformation2Line className="text-primary text-lg" />
             <div className="compact">
                 You'll continue the {isCompany ? 'KYB' : 'KYC'} process using{' '}
-                <span className="font-medium text-primary">Sumsub</span>
+                <span className="text-primary font-medium">Sumsub</span>
             </div>
         </div>
     );

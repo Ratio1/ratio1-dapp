@@ -125,7 +125,7 @@ const LicenseUnlinkModal = forwardRef(({ onClaim, shouldTriggerGhostClaimRewards
                 >
                     {!!license && shouldTriggerGhostClaimRewards(license) && (
                         <div className="text-slate-400 lg:px-6">
-                            You'll need to approve <span className="font-medium text-primary">two transactions</span> because
+                            You'll need to approve <span className="text-primary font-medium">two transactions</span> because
                             rewards were last claimed in a previous epoch.
                         </div>
                     )}
@@ -154,11 +154,11 @@ const LicenseUnlinkModal = forwardRef(({ onClaim, shouldTriggerGhostClaimRewards
 
     const getClaimRewardsContent = () => (
         <>
-            <div className="col w-full gap-6">
+            <div className="col w-full gap-4">
                 <DetailedAlert
                     icon={<TokenSvg classNames="h-8 w-8 " />}
                     title="Unavailable"
-                    description={<div>Rewards must be claimed before unlinking license.</div>}
+                    description={<div className="text-[15px]">Rewards must be claimed before unlinking a license.</div>}
                 >
                     <R1ValueWithLabel
                         label="Unclaimed Rewards"
@@ -168,7 +168,7 @@ const LicenseUnlinkModal = forwardRef(({ onClaim, shouldTriggerGhostClaimRewards
                 </DetailedAlert>
             </div>
 
-            <div className="row w-full justify-end gap-2 py-2">
+            <div className="row w-full justify-end gap-2 pb-4">
                 <Button color="primary" onPress={onConfirmClaiming} isLoading={isLoading}>
                     Claim
                 </Button>
@@ -178,7 +178,15 @@ const LicenseUnlinkModal = forwardRef(({ onClaim, shouldTriggerGhostClaimRewards
 
     return (
         <div>
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg" shouldBlockScroll={false}>
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                size="lg"
+                shouldBlockScroll={false}
+                classNames={{
+                    closeButton: 'cursor-pointer',
+                }}
+            >
                 <ModalContent>
                     {!license || isLoadingRewards || rewards === undefined ? (
                         <Spinner />

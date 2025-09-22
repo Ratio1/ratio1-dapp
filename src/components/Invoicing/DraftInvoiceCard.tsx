@@ -56,7 +56,7 @@ export default function DraftInvoiceCard({
                     {/* Desktop */}
                     <div className="hidden min-w-[124px] justify-end larger:flex">
                         <Button
-                            className="border-2 border-slate-200 bg-white data-[hover=true]:!opacity-65"
+                            className="border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
                             isLoading={isLoading}
                             size="sm"
                             color="primary"

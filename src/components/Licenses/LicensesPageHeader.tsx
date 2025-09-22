@@ -290,7 +290,7 @@ function LicensesPageHeader({
 
                             <div className="row justify-between gap-2.5 md:justify-end">
                                 <Button
-                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:!opacity-65"
+                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
                                     color="primary"
                                     size="sm"
                                     variant="flat"
@@ -302,7 +302,7 @@ function LicensesPageHeader({
                                 </Button>
 
                                 <Button
-                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:!opacity-65"
+                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
                                     color="primary"
                                     size="sm"
                                     variant="flat"

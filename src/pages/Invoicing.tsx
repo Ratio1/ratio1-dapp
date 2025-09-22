@@ -92,7 +92,7 @@ export default function Invoicing() {
             <BorderedCard>
                 <div className="flex gap-2">
                     <div className="flex">
-                        <RiFileInfoLine className="text-xl text-primary" />
+                        <RiFileInfoLine className="text-primary text-xl" />
                     </div>
 
                     <div className="compact">
@@ -104,7 +104,7 @@ export default function Invoicing() {
 
             <div className="col gap-3">
                 <div className="row w-full min-w-10 justify-between">
-                    <div className="text-xl font-semibold leading-6 text-body">Invoice Drafts</div>
+                    <div className="text-body text-xl leading-6 font-semibold">Invoice Drafts</div>
 
                     <BillingMonthSelect
                         uniqueMonths={uniqueMonths}
@@ -114,15 +114,15 @@ export default function Invoicing() {
                     />
                 </div>
 
-                <div className="list">
+                <div className="list group/list">
                     <ListHeader useFixedwidth>
                         <div className="min-w-[62px]">Number</div>
                         <div className="min-w-[122px]">Date</div>
                         <div className="min-w-[170px]">CSP Owner</div>
                         <div className="min-w-[118px]">Amount ($USDC)</div>
 
-                        <div className="hidden min-w-[124px] larger:block"></div>
-                        <div className="block min-w-[30px] larger:hidden"></div>
+                        <div className="larger:block hidden min-w-[124px]"></div>
+                        <div className="larger:hidden block min-w-[30px]"></div>
                     </ListHeader>
 
                     {isLoading || invoiceDrafts === undefined || selectedMonth === undefined ? (

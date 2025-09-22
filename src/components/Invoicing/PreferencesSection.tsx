@@ -13,11 +13,11 @@ import SubmitButton from '@shared/SubmitButton';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
-import { RiEdit2Line, RiInfoCardLine } from 'react-icons/ri';
+import { RiCircleFill, RiEdit2Line, RiInfoCardLine } from 'react-icons/ri';
 import { z } from 'zod';
 import ExtraTaxesSection from './ExtraTaxesSection';
 
-const preferences = {
+const preferences: any = {
     userAddress: 'Portobello Road 29, London, W11 3DH',
     invoiceSeries: 'AC',
     nextNumber: 0,
@@ -28,8 +28,13 @@ const preferences = {
     extraText: '',
     extraTaxes: [
         {
-            description: 'Extra Tax',
+            description: 'Contribution imposed by extra taxes.',
             taxType: EXTRA_TAX_TYPES[0],
+            value: 500,
+        },
+        {
+            description: 'A different contribution imposed by extra taxes.',
+            taxType: EXTRA_TAX_TYPES[1],
             value: 19,
         },
     ],
@@ -76,7 +81,7 @@ export default function PreferencesSection() {
                     title="Billing Preferences"
                     label={
                         <Button
-                            className="border-2 border-slate-200 bg-white data-[hover=true]:!opacity-65"
+                            className="border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
                             size="sm"
                             color="primary"
                             variant="flat"
@@ -104,7 +109,24 @@ export default function PreferencesSection() {
                         <div className="w-full">
                             <BillingInfoRow
                                 label="Extra Taxes"
-                                value={!preferences.extraTaxes?.length ? '—' : JSON.stringify(preferences.extraTaxes)}
+                                value={
+                                    !preferences.extraTaxes?.length ? (
+                                        '—'
+                                    ) : (
+                                        <ul>
+                                            {preferences.extraTaxes.map((tax) => (
+                                                <div key={tax.taxType} className="row gap-1.5">
+                                                    <RiCircleFill className="mt-px text-[8px] text-slate-700" />
+
+                                                    <div>
+                                                        {tax.value}
+                                                        {tax.taxType === 'Percentage' ? '%' : ''} ({tax.description})
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </ul>
+                                    )
+                                }
                             />
                         </div>
                     </div>

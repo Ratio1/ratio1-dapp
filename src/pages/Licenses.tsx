@@ -389,7 +389,7 @@ function Licenses() {
                             classNames={{
                                 wrapper: 'gap-0 overflow-visible h-8 rounded border border-divider',
                                 item: 'w-8 h-8 text-small rounded-none bg-transparent',
-                                cursor: 'bg-gradient-to-b from-primary-500 to-primary-600 rounded-md text-white font-bold',
+                                cursor: 'bg-linear-to-b from-primary-500 to-primary-600 rounded-md text-white font-bold',
                             }}
                             total={getPagesCount()}
                         />

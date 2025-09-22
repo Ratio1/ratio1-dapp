@@ -29,8 +29,8 @@ export default function CustomTabs({
             classNames={{
                 cursor: `group-data-[selected=true]:bg-[#EFF2F6] ${isCompact ? 'rounded-md' : ''}`,
                 tab: isCompact ? 'h-[30px]' : 'h-10',
-                tabList: `p-1 ${isCompact ? 'border-default-200 border rounded-lg' : 'border-[#EFF2F6] border-2'} !shadow-none bg-[#fdfdfd]`,
-                tabContent: 'text-sm group-data-[selected=true]:text-body',
+                tabList: `p-1 ${isCompact ? 'border-default-200 border rounded-lg' : 'border-[#EFF2F6] border-2'} shadow-none! bg-[#fdfdfd]`,
+                tabContent: `text-sm group-data-[selected=true]:text-body ${isCompact ? 'text-default-400' : ''}`,
             }}
             onSelectionChange={(key) => {
                 onSelectionChange(key);
@@ -47,7 +47,9 @@ export default function CustomTabs({
 
                             {tab.count !== undefined && (
                                 <div className="mx-0.5">
-                                    <SmallTag variant="slate">{tab.count ?? 0}</SmallTag>
+                                    <SmallTag variant="slate">
+                                        <div className="min-w-3">{tab.count ?? 0}</div>
+                                    </SmallTag>
                                 </div>
                             )}
                         </div>

@@ -118,12 +118,20 @@ export default function Registration({ registrationStatus }: { registrationStatu
                 </div>
             </div>
 
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur" size="lg">
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                backdrop="blur"
+                size="lg"
+                classNames={{
+                    closeButton: 'cursor-pointer',
+                }}
+            >
                 <ModalContent>
                     {() => (
                         <>
                             <ModalBody>
-                                <div className="col pb-6 pt-2">
+                                <div className="col pt-2 pb-6">
                                     <DetailedAlert
                                         icon={<RiMailSendLine />}
                                         title="Email Confirmation"

@@ -21,7 +21,7 @@ function MobileTabs() {
                                 className={clsx(
                                     'center-all col min-w-[64px] cursor-pointer gap-0.5 px-0.5 py-1 text-slate-500 hover:opacity-70',
                                     {
-                                        '!text-primary': location.pathname.includes(route.path),
+                                        'text-primary!': location.pathname.includes(route.path),
                                     },
                                 )}
                                 target={isExternalRoute(route) ? '_blank' : undefined}

@@ -13,7 +13,7 @@ export const getShortAddressOrHash = (address: string, size = 4, asString = fals
         return str;
     }
 
-    return <div className="font-robotoMono">{str}</div>;
+    return <div className="font-roboto-mono">{str}</div>;
 };
 
 export function fN(num: number): string | number {

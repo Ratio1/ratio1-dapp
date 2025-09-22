@@ -24,7 +24,7 @@ export default function ExtraTaxesSection() {
                 <Label value="Extra Taxes" />
 
                 {fields.length === 0 ? (
-                    <div className="text-sm italic text-slate-500">No extra taxes added yet.</div>
+                    <div className="text-sm text-slate-500 italic">No extra taxes added yet.</div>
                 ) : (
                     fields.map((field, index) => {
                         // Get the error for this specific extra tax entry
@@ -124,7 +124,7 @@ export default function ExtraTaxesSection() {
 
             {fields.length < 50 && (
                 <div
-                    className="row compact cursor-pointer gap-0.5 text-primary hover:opacity-50"
+                    className="row compact text-primary cursor-pointer gap-0.5 hover:opacity-50"
                     onClick={() =>
                         append({
                             description: '',

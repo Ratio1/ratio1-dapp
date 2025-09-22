@@ -52,7 +52,15 @@ export const TokenSelectorModal = forwardRef(({ isOpen, onOpenChange, onClose, o
     }));
 
     return (
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm" shouldBlockScroll={false}>
+        <Modal
+            isOpen={isOpen}
+            onOpenChange={onOpenChange}
+            size="sm"
+            shouldBlockScroll={false}
+            classNames={{
+                closeButton: 'cursor-pointer',
+            }}
+        >
             <ModalContent>
                 <ModalHeader>Select a token</ModalHeader>
 
