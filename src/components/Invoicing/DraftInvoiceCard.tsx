@@ -1,4 +1,5 @@
 import { Button } from '@heroui/button';
+import { Spinner } from '@heroui/spinner';
 import { downloadInvoiceDraft } from '@lib/api/backend';
 import { BorderedCard } from '@shared/cards/BorderedCard';
 import { CopyableValue } from '@shared/CopyableValue';
@@ -49,12 +50,12 @@ export default function DraftInvoiceCard({
                         })}
                     </div>
 
-                    <div className="min-w-[170px] max-w-[170px] truncate">{draft.cspOwnerName}</div>
+                    <div className="max-w-[170px] min-w-[170px] truncate">{draft.cspOwnerName}</div>
 
                     <div className="min-w-[118px] font-medium">${draft.totalUsdcAmount.toFixed(2)}</div>
 
                     {/* Desktop */}
-                    <div className="hidden min-w-[124px] justify-end larger:flex">
+                    <div className="larger:flex hidden min-w-[124px] justify-end">
                         <Button
                             className="border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
                             isLoading={isLoading}
@@ -73,22 +74,25 @@ export default function DraftInvoiceCard({
 
                     {/* Mobile */}
                     <div
-                        className="block min-w-[30px] larger:hidden"
+                        className="larger:hidden block min-w-[30px]"
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            downloadDraft(draft.draftId);
+
+                            if (!isLoading) {
+                                downloadDraft(draft.draftId);
+                            }
                         }}
                     >
-                        <div className="center-all w-[30px] rounded-full bg-primary-50 p-1.5 hover:opacity-50">
-                            <RiArrowDownLine className="text-lg text-primary" />
+                        <div className="center-all bg-primary-50 h-[32px] w-[32px] rounded-full p-1.5 hover:opacity-50">
+                            {isLoading ? <Spinner size="sm" /> : <RiArrowDownLine className="text-primary text-lg" />}
                         </div>
                     </div>
                 </div>
 
                 {/* Details */}
                 {isExpanded && (
-                    <div className="col gap-2.5 rounded-lg bg-slate-75 px-5 py-4">
+                    <div className="col bg-slate-75 gap-2.5 rounded-lg px-5 py-4">
                         <div className="text-base font-semibold">Details</div>
 
                         <div className="row justify-between gap-2">
