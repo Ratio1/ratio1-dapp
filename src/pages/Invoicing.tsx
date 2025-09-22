@@ -57,7 +57,7 @@ export default function Invoicing() {
             </BorderedCard>
 
             <div className="col gap-3">
-                <div className="row w-full justify-between">
+                <div className="row w-full min-w-10 justify-between">
                     <div className="text-xl font-semibold leading-6 text-body">Invoice Drafts</div>
 
                     <BillingMonthSelect

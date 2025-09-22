@@ -29,6 +29,10 @@ export default function BillingMonthSelect({
         return <Skeleton className="h-10 w-48 rounded-lg" />;
     }
 
+    if (uniqueMonths.length === 0) {
+        return null;
+    }
+
     return (
         <Select
             className="max-w-48"
