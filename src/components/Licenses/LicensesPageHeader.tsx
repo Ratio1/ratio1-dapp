@@ -308,8 +308,7 @@ function LicensesPageHeader({
                                     variant="flat"
                                     isLoading={isClaimingAllRewardsPoAI}
                                     onPress={claimAllRewardsPoAI}
-                                    // TODO: Disabled until invoicing is implemented
-                                    isDisabled={!authenticated || !rewardsPoAI || true}
+                                    isDisabled={!authenticated || !rewardsPoAI}
                                 >
                                     <div className="text-sm">Claim rewards (PoAI)</div>
                                 </Button>

@@ -218,8 +218,7 @@ export const LicenseCardDetails = ({
                                         }
                                     }}
                                     isLoading={license.isClaimingRewardsPoAI}
-                                    // TODO: Disabled until invoicing is implemented
-                                    isDisabled={isLoadingRewardsPoA || isClaimingAllRewardsPoAI || true}
+                                    isDisabled={isLoadingRewardsPoA || isClaimingAllRewardsPoAI}
                                 >
                                     <div className="text-sm">Claim</div>
                                 </Button>
