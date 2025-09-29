@@ -2,6 +2,7 @@ import { Button } from '@heroui/button';
 import { Skeleton } from '@heroui/skeleton';
 import { Switch } from '@heroui/switch';
 import { emailSubscribe, emailUnsubscribe, getKycInfo, initSumsubSession } from '@lib/api/backend';
+import { environment } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { routePath } from '@lib/routes/route-paths';
 import { getApplicationStatusInfo } from '@lib/utils';
@@ -228,34 +229,36 @@ export default function PersonalInformation() {
             </div>
 
             {/* KYC/KYB */}
-            <div className="col gap-2">
-                <div className="row gap-2">
-                    <div className="section-title">{!kycInfo ? 'KYC/KYB' : `${kycInfo.isCompany ? 'KYB' : 'KYC'}`}</div>
+            {environment === 'mainnet' && (
+                <div className="col gap-2">
+                    <div className="row gap-2">
+                        <div className="section-title">{!kycInfo ? 'KYC/KYB' : `${kycInfo.isCompany ? 'KYB' : 'KYC'}`}</div>
 
-                    {isApplicationInitiated && (
-                        <Label
-                            variant={
-                                (
-                                    getApplicationStatusInfo(account.kycStatus) as {
-                                        text: string;
-                                        color: 'yellow' | 'green' | 'red';
-                                    }
-                                ).color
-                            }
-                            text={
-                                (
-                                    getApplicationStatusInfo(account.kycStatus) as {
-                                        text: string;
-                                        color: 'yellow' | 'green' | 'red';
-                                    }
-                                ).text
-                            }
-                        />
-                    )}
+                        {isApplicationInitiated && (
+                            <Label
+                                variant={
+                                    (
+                                        getApplicationStatusInfo(account.kycStatus) as {
+                                            text: string;
+                                            color: 'yellow' | 'green' | 'red';
+                                        }
+                                    ).color
+                                }
+                                text={
+                                    (
+                                        getApplicationStatusInfo(account.kycStatus) as {
+                                            text: string;
+                                            color: 'yellow' | 'green' | 'red';
+                                        }
+                                    ).text
+                                }
+                            />
+                        )}
+                    </div>
+
+                    <DetailsCard>{getContent(account, applicationStatusInfo, isApplicationInitiated)}</DetailsCard>
                 </div>
-
-                <DetailsCard>{getContent(account, applicationStatusInfo, isApplicationInitiated)}</DetailsCard>
-            </div>
+            )}
         </ProfileSectionWrapper>
     );
 }
