@@ -6,13 +6,14 @@ import { getInvoiceDrafts } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BorderedCard } from '@shared/cards/BorderedCard';
 import { DetailedAlert } from '@shared/DetailedAlert';
+import EmptyData from '@shared/EmptyData';
 import ListHeader from '@shared/ListHeader';
 import { InvoiceDraft } from '@typedefs/invoicing';
 import { ConnectKitButton } from 'connectkit';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiErrorWarningLine, RiFileInfoLine, RiWalletLine } from 'react-icons/ri';
+import { RiDraftLine, RiErrorWarningLine, RiFileInfoLine, RiWalletLine } from 'react-icons/ri';
 
 export default function Invoicing() {
     const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
@@ -103,7 +104,7 @@ export default function Invoicing() {
             </BorderedCard>
 
             <div className="col gap-3">
-                <div className="row w-full min-w-10 justify-between">
+                <div className="row min-h-10 w-full justify-between">
                     <div className="text-body text-xl leading-6 font-semibold">Invoice Drafts</div>
 
                     <BillingMonthSelect
@@ -125,7 +126,7 @@ export default function Invoicing() {
                         <div className="larger:hidden block min-w-[30px]"></div>
                     </ListHeader>
 
-                    {isLoading || invoiceDrafts === undefined || selectedMonth === undefined ? (
+                    {isLoading || invoiceDrafts === undefined ? (
                         <>
                             {Array.from({ length: 4 }).map((_, index) => (
                                 <Skeleton key={index} className="h-[56px] w-full rounded-lg" />
@@ -135,6 +136,14 @@ export default function Invoicing() {
                         <div className="row gap-1.5 rounded-lg bg-red-100 p-4 text-red-700">
                             <RiErrorWarningLine className="text-xl" />
                             <div className="text-sm font-medium">{error}</div>
+                        </div>
+                    ) : invoiceDrafts === undefined || selectedMonth === undefined || !invoiceDrafts.length ? (
+                        <div className="center-all w-full p-14">
+                            <EmptyData
+                                title="No invoice drafts available"
+                                description="Your drafts will be displayed here"
+                                icon={<RiDraftLine />}
+                            />
                         </div>
                     ) : (
                         <>

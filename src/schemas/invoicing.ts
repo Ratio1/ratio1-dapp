@@ -6,12 +6,12 @@ const extraTaxSchema = z.discriminatedUnion('taxType', [
     z.object({
         description: getStringWithSpacesSchema(1, 512),
         taxType: z.literal('Percentage'),
-        value: z.number().min(0, 'Value must be at least 0').max(100, 'Percentage value cannot exceed 100%'),
+        value: getFloatSchema(100),
     }),
     z.object({
         description: getStringWithSpacesSchema(1, 512),
         taxType: z.literal('Fixed'),
-        value: z.number().min(0, 'Value must be at least 0').max(10_000_000, 'Fixed value cannot exceed 10,000,000'),
+        value: getFloatSchema(10_000_000),
     }),
 ]);
 

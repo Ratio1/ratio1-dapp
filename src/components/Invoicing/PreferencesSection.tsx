@@ -138,8 +138,8 @@ export default function PreferencesSection() {
                 >
                     <div className="col gap-3 sm:gap-4">
                         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+                            <BillingInfoRow label="Next Invoice Number" value={invoicingPreferences?.nextNumber ?? '—'} />
                             <BillingInfoRow label="Invoice Series" value={invoicingPreferences?.invoiceSeries ?? '—'} />
-                            <BillingInfoRow label="Invoice Offset" value={invoicingPreferences?.nextNumber ?? '—'} />
                             <BillingInfoRow
                                 label="Country VAT"
                                 value={invoicingPreferences?.countryVat ? `${invoicingPreferences?.countryVat}%` : '—'}
@@ -168,7 +168,10 @@ export default function PreferencesSection() {
 
                                                     <div>
                                                         {tax.value}
-                                                        {tax.taxType === 'Percentage' ? '%' : ''} ({tax.description})
+                                                        {tax.taxType === 'Percentage'
+                                                            ? '%'
+                                                            : ` ${invoicingPreferences?.localCurrency}`}{' '}
+                                                        ({tax.description})
                                                     </div>
                                                 </div>
                                             ))}
@@ -197,13 +200,13 @@ export default function PreferencesSection() {
                         <ModalBody>
                             <SlateCard tightGap>
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                                    <InputWithLabel
-                                        name="invoiceSeries"
-                                        label="Invoice Series"
-                                        placeholder="e.g. ABC"
+                                    <NumberInputWithLabel
+                                        name="nextNumber"
+                                        label="Next Invoice Number"
+                                        placeholder="0"
                                         autoFocus
                                     />
-                                    <NumberInputWithLabel name="nextNumber" label="Invoice Offset" placeholder="0" />
+                                    <InputWithLabel name="invoiceSeries" label="Invoice Series" placeholder="e.g. ABC" />
                                     <NumberInputWithLabel
                                         name="countryVat"
                                         label="Country VAT"

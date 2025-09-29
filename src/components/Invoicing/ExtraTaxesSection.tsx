@@ -64,6 +64,12 @@ export default function ExtraTaxesSection() {
                                                     name: `extraTaxes.${index}.taxType`,
                                                 });
 
+                                                // Watch the localCurrency value
+                                                const localCurrency = useWatch({
+                                                    control,
+                                                    name: 'localCurrency',
+                                                });
+
                                                 return (
                                                     <StyledInput
                                                         placeholder="0"
@@ -79,6 +85,10 @@ export default function ExtraTaxesSection() {
                                                         endContent={
                                                             taxType === 'Percentage' ? (
                                                                 <div className="text-sm text-slate-500">%</div>
+                                                            ) : taxType === 'Fixed' ? (
+                                                                <div className="text-sm text-slate-500">
+                                                                    {localCurrency || ''}
+                                                                </div>
                                                             ) : null
                                                         }
                                                     />
