@@ -1,4 +1,4 @@
-import { KycStatus } from './profile';
+import { ApplicationStatus } from './profile';
 
 type R1Address = `0xai${string}`;
 type EthAddress = `0x${string}`;
@@ -99,10 +99,10 @@ type ApiAccount = {
     address: string;
     applicantType: 'individual' | 'company';
     uuid: string;
-    kycStatus: KycStatus;
+    kycStatus: ApplicationStatus;
     isActive: boolean;
     isBlacklisted: boolean;
-    blacklistedReason: string;
+    blacklistedReason: string | null;
     receiveUpdates: boolean;
     referral: string | null;
     usdBuyLimit: number;

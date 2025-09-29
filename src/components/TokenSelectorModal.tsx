@@ -1,7 +1,7 @@
 import { Modal, ModalBody, ModalContent, ModalHeader } from '@heroui/modal';
 import { config, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
-import { getShortAddress } from '@lib/utils';
+import { getShortAddressOrHash } from '@lib/utils';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { RiCoinLine } from 'react-icons/ri';
 import { formatUnits } from 'viem';
@@ -52,7 +52,15 @@ export const TokenSelectorModal = forwardRef(({ isOpen, onOpenChange, onClose, o
     }));
 
     return (
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm" shouldBlockScroll={false}>
+        <Modal
+            isOpen={isOpen}
+            onOpenChange={onOpenChange}
+            size="sm"
+            shouldBlockScroll={false}
+            classNames={{
+                closeButton: 'cursor-pointer',
+            }}
+        >
             <ModalContent>
                 <ModalHeader>Select a token</ModalHeader>
 
@@ -84,7 +92,7 @@ export const TokenSelectorModal = forwardRef(({ isOpen, onOpenChange, onClose, o
                                                 <div className="text-slate-500">{key}</div>
                                                 {config.swapTokensDetails[key].address && (
                                                     <div className="text-slate-400">
-                                                        {getShortAddress(config.swapTokensDetails[key].address)}
+                                                        {getShortAddressOrHash(config.swapTokensDetails[key].address)}
                                                     </div>
                                                 )}
                                             </div>

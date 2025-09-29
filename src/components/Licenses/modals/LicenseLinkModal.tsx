@@ -15,7 +15,7 @@ import useAwait from '@lib/useAwait';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
 import { TokenSvg } from '@shared/TokenSvg';
-import { KycStatus } from '@typedefs/profile';
+import { ApplicationStatus } from '@typedefs/profile';
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiShieldUserLine, RiWalletLine } from 'react-icons/ri';
@@ -156,7 +156,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
     };
 
     const isLinkingDisabled = (): boolean =>
-        !account || (account.kycStatus !== KycStatus.Approved && environment === 'mainnet');
+        !account || (account.kycStatus !== ApplicationStatus.Approved && environment === 'mainnet');
 
     const getLinkingContent = () => (
         <Form className="w-full" validationBehavior="native" onSubmit={onConfirmLinking}>
@@ -240,11 +240,11 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
 
     const getClaimRewardsContent = () => (
         <>
-            <div className="col w-full gap-6">
+            <div className="col w-full gap-4">
                 <DetailedAlert
                     icon={<TokenSvg classNames="h-8 w-8" />}
                     title="Unavailable"
-                    description={<div>Rewards must be claimed before linking license.</div>}
+                    description={<div className="text-[15px]">Rewards must be claimed before linking a license.</div>}
                 >
                     <R1ValueWithLabel
                         label="Unclaimed Rewards"
@@ -254,7 +254,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
                 </DetailedAlert>
             </div>
 
-            <div className="center-all w-full gap-2 py-2">
+            <div className="center-all w-full gap-2 pb-4">
                 <Button color="primary" onPress={onConfirmClaiming} isLoading={isLoading}>
                     Claim
                 </Button>
@@ -283,7 +283,15 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
 
     return (
         <div>
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg" shouldBlockScroll={false}>
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                size="lg"
+                shouldBlockScroll={false}
+                classNames={{
+                    closeButton: 'cursor-pointer',
+                }}
+            >
                 <ModalContent>
                     {!license || !account || isLoadingRewards || rewards === undefined ? (
                         <Spinner />

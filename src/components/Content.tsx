@@ -38,12 +38,12 @@ function Content() {
                     )}
                 </div>
 
-                <div className="row w-full justify-between larger:w-auto">
-                    <div className="mobile-only-block">
+                <div className="row w-full justify-between lg:justify-end larger:w-auto">
+                    <div className="block lg:hidden">
                         <img src={Logo} alt="Logo" className="h-10" />
                     </div>
 
-                    <ConnectKitButton showBalance />
+                    <ConnectKitButton />
                 </div>
             </div>
 

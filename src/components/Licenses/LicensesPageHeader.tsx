@@ -13,7 +13,7 @@ import CustomTabs from '@shared/CustomTabs';
 import { DualTxsModal } from '@shared/DualTxsModal';
 import { SmallTag } from '@shared/SmallTag';
 import { Timer } from '@shared/Timer';
-import { KycStatus } from '@typedefs/profile';
+import { ApplicationStatus } from '@typedefs/profile';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiArrowRightUpLine, RiLink, RiLinkUnlink, RiTimeLine } from 'react-icons/ri';
@@ -237,7 +237,7 @@ function LicensesPageHeader({
         !authenticated ||
         isLoadingPriceTiers ||
         !account ||
-        (account.kycStatus !== KycStatus.Approved && environment === 'mainnet');
+        (account.kycStatus !== ApplicationStatus.Approved && environment === 'mainnet');
 
     const getSectionTitle = (title: string, variant: 'ND' | 'MND' = 'ND') => <SmallTag variant={variant}>{title}</SmallTag>;
 
@@ -263,6 +263,8 @@ function LicensesPageHeader({
                             </div>
                         </div>
                     }
+                    isRoundedDouble
+                    disableWrapper
                 >
                     <div className="col gap-6 p-4 sm:gap-4">
                         {/* Top row */}
@@ -288,7 +290,7 @@ function LicensesPageHeader({
 
                             <div className="row justify-between gap-2.5 md:justify-end">
                                 <Button
-                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:!opacity-65"
+                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
                                     color="primary"
                                     size="sm"
                                     variant="flat"
@@ -300,7 +302,7 @@ function LicensesPageHeader({
                                 </Button>
 
                                 <Button
-                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:!opacity-65"
+                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
                                     color="primary"
                                     size="sm"
                                     variant="flat"

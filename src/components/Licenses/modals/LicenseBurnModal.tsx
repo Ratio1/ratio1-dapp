@@ -64,7 +64,15 @@ const LicenseBurnModal = forwardRef((_, ref) => {
 
     return (
         <div>
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg" shouldBlockScroll={false}>
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                size="lg"
+                shouldBlockScroll={false}
+                classNames={{
+                    closeButton: 'cursor-pointer',
+                }}
+            >
                 <ModalContent>
                     {!license ? (
                         <Spinner />

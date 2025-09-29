@@ -8,9 +8,7 @@ function TermsAndConditions() {
                     <div className="prose prose-lg max-w-none">
                         {/* Section 1: Introduction */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
-                                1. Introduction
-                            </h2>
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">1. Introduction</h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
                                 <p>
                                     These Terms and Conditions (the "<strong>Terms</strong>") set out the general terms and
@@ -47,7 +45,7 @@ function TermsAndConditions() {
 
                         {/* Section 2: Acceptance of the Terms */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 2. Acceptance of the Terms
                             </h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
@@ -78,7 +76,7 @@ function TermsAndConditions() {
 
                         {/* Section 3: Amendments to the Terms */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 3. Amendments to the Terms
                             </h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
@@ -98,9 +96,7 @@ function TermsAndConditions() {
 
                         {/* Section 4: The Ecosystem */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
-                                4. The Ecosystem
-                            </h2>
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">4. The Ecosystem</h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
                                 <p>
                                     The Ecosystem includes: i) the Naeural Protocol- a platform specifically designed to
@@ -183,7 +179,7 @@ function TermsAndConditions() {
 
                         {/* Section 5: Access and use of the Website, Ecosystem and Services */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 5. Access and use of the Website, Ecosystem and Services
                             </h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
@@ -306,7 +302,7 @@ function TermsAndConditions() {
 
                         {/* Section 6: Your consent, acknowledgments, representations and warranties */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 6. Your consent, acknowledgments, representations and warranties
                             </h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
@@ -641,7 +637,7 @@ function TermsAndConditions() {
 
                         {/* Section 7: Transactions within the Ecosystem */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 7. Transactions within the Ecosystem
                             </h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
@@ -725,7 +721,7 @@ function TermsAndConditions() {
 
                         {/* Section 8: Intellectual Property */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 8. Intellectual Property
                             </h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
@@ -816,7 +812,7 @@ function TermsAndConditions() {
 
                         {/* Section 9: Content which You post on Our Social Media Communities */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 9. Content which You post on Our Social Media Communities
                             </h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
@@ -942,7 +938,7 @@ function TermsAndConditions() {
 
                         {/* Section 10: Third-Party Links */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 10. Third-Party Links
                             </h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
@@ -962,9 +958,7 @@ function TermsAndConditions() {
 
                         {/* Section 11: Privacy Policy */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
-                                11. Privacy Policy
-                            </h2>
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">11. Privacy Policy</h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
                                 <p>
                                     We may record and collect information about You. You can find more information about how We
@@ -982,9 +976,7 @@ function TermsAndConditions() {
 
                         {/* Section 12: Disclaimers */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
-                                12. Disclaimers
-                            </h2>
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">12. Disclaimers</h2>
                             <div className="space-y-4">
                                 <div className="rounded-lg bg-red-50 p-4">
                                     <p className="text-gray-700">
@@ -1122,7 +1114,7 @@ function TermsAndConditions() {
 
                         {/* Section 13: Limitation of liability */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 13. Limitation of liability
                             </h2>
                             <div className="space-y-4">
@@ -1198,9 +1190,7 @@ function TermsAndConditions() {
 
                         {/* Section 14: Miscellaneous */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
-                                14. Miscellaneous
-                            </h2>
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">14. Miscellaneous</h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
                                 <p>
                                     We may perform any of Our obligations, and exercise any of the rights granted to Us under
@@ -1246,9 +1236,7 @@ function TermsAndConditions() {
 
                         {/* Section 15: Contacting Us */}
                         <section>
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
-                                15. Contacting Us
-                            </h2>
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">15. Contacting Us</h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
                                 <p>
                                     Should You have any question about these Terms, or wish to contact Us for any reason

@@ -1,4 +1,4 @@
-import { getShortAddress } from '@lib/utils';
+import { getShortAddressOrHash } from '@lib/utils';
 import clsx from 'clsx';
 import { useState } from 'react';
 import { RiCheckLine, RiFileCopyLine } from 'react-icons/ri';
@@ -7,9 +7,10 @@ interface Props {
     value: string;
     size?: number;
     isLarge?: boolean;
+    isLight?: boolean;
 }
 
-export const CopyableValue = ({ value, size = 4, isLarge = false }: Props) => {
+export const CopyableValue = ({ value, size = 4, isLarge = false, isLight = false }: Props) => {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
@@ -22,12 +23,14 @@ export const CopyableValue = ({ value, size = 4, isLarge = false }: Props) => {
 
     const getAddress = () => (
         <div
-            className={clsx('text-slate-500', {
+            className={clsx({
                 'text-sm': !isLarge,
                 'text-[15px]': isLarge,
+                'text-slate-500': !isLight,
+                'text-slate-400': isLight,
             })}
         >
-            {size >= value.length ? value : getShortAddress(value, size)}
+            {size >= value.length ? value : getShortAddressOrHash(value, size)}
         </div>
     );
 

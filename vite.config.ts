@@ -1,3 +1,4 @@
+import tailwindcss from '@tailwindcss/vite';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -12,7 +13,7 @@ export default defineConfig({
             overlay: true, // Shows errors without reloading the page
         },
     },
-    plugins: [react(), basicSsl()],
+    plugins: [react(), basicSsl(), tailwindcss()],
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src'),
@@ -24,6 +25,8 @@ export default defineConfig({
             '@shared': path.resolve(__dirname, './src/shared'),
             '@blockchain': path.resolve(__dirname, './src/blockchain'),
             '@typedefs': path.resolve(__dirname, './src/typedefs'),
+            '@schemas': path.resolve(__dirname, './src/schemas'),
+            '@data': path.resolve(__dirname, './src/data'),
         },
     },
 });

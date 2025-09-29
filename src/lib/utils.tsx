@@ -1,18 +1,19 @@
 import { ClosableToastContent } from '@shared/ClosableToastContent';
+import { ApplicationStatus } from '@typedefs/profile';
 import clsx from 'clsx';
 import { throttle } from 'lodash';
 import toast from 'react-hot-toast';
 import { RiCodeSSlashLine } from 'react-icons/ri';
 import { PriceTier } from 'typedefs/blockchain';
 
-export const getShortAddress = (address: string, size = 4, asString = false): string | JSX.Element => {
-    const str = `${address.slice(0, size)}•••${address.slice(-size)}`;
+export const getShortAddressOrHash = (address: string, size = 4, asString = false): string | JSX.Element => {
+    const str = address.length <= size * 2 ? address : `${address.slice(0, size)}•••${address.slice(-size)}`;
 
     if (asString) {
         return str;
     }
 
-    return <div className="font-robotoMono">{str}</div>;
+    return <div className="font-roboto-mono">{str}</div>;
 };
 
 export function fN(num: number): string | number {
@@ -168,3 +169,31 @@ export const getValueWithLabel = (label: string, value: string | number | JSX.El
         <div className={clsx('text-[15px]', className)}>{value}</div>
     </div>
 );
+
+export const getApplicationStatusInfo = (
+    status: ApplicationStatus,
+): { text: string; color: 'yellow' | 'green' | 'red' } | undefined => {
+    switch (status) {
+        case ApplicationStatus.Init:
+            return { text: 'Started', color: 'yellow' };
+        case ApplicationStatus.Pending:
+            return { text: 'Pending', color: 'yellow' };
+        case ApplicationStatus.Prechecked:
+            return { text: 'Pre-checked', color: 'yellow' };
+        case ApplicationStatus.Queued:
+            return { text: 'In Queue', color: 'yellow' };
+        case ApplicationStatus.Completed:
+            return { text: 'Completed', color: 'yellow' };
+        case ApplicationStatus.Approved:
+            return { text: 'Approved', color: 'green' };
+        case ApplicationStatus.OnHold:
+            return { text: 'On Hold', color: 'yellow' };
+        case ApplicationStatus.Rejected:
+            return { text: 'Rejected', color: 'red' };
+        case ApplicationStatus.FinalRejected:
+            return { text: 'Rejected', color: 'red' };
+        case ApplicationStatus.Created:
+            return { text: 'Not Started', color: 'yellow' };
+        default:
+    }
+};

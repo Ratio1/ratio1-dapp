@@ -4,7 +4,7 @@ export enum RegistrationStatus {
     REGISTERED = 'REGISTERED',
 }
 
-export enum KycStatus {
+export enum ApplicationStatus {
     Created = 'accCreated',
     Init = 'init',
     Pending = 'pending',

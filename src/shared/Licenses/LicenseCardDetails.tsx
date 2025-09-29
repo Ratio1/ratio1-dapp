@@ -128,19 +128,19 @@ export const LicenseCardDetails = ({
             <div className="col gap-1.5">
                 {getSectionTitle('Rewards')}
 
-                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 larger:grid-cols-3">
+                <div className="larger:grid-cols-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
                     <DetailsCard>
                         <div className="grid grid-cols-2 gap-3">
                             <div className="col gap-2.5">
                                 <div className="text-sm font-medium text-slate-500">Total Rewards</div>
 
                                 {isLoadingRewardsPoA ? (
-                                    <div className="text-lg font-semibold leading-none text-slate-500">...</div>
+                                    <div className="text-lg leading-none font-semibold text-slate-500">...</div>
                                 ) : rewardsPoA === undefined ? (
                                     <SyncingOraclesTag />
                                 ) : (
                                     <div className="flex items-end gap-1.5">
-                                        <div className="text-lg font-semibold leading-none text-primary">
+                                        <div className="text-primary text-lg leading-none font-semibold">
                                             {parseFloat(
                                                 Number(formatUnits((rewardsPoA ?? 0n) + (rewardsPoAI ?? 0n), 18)).toFixed(4),
                                             ).toLocaleString()}
@@ -159,12 +159,12 @@ export const LicenseCardDetails = ({
                                 <div className="text-sm font-medium text-slate-500">Proof of Availability</div>
 
                                 {isLoadingRewardsPoA ? (
-                                    <div className="text-lg font-semibold leading-none text-slate-500">...</div>
+                                    <div className="text-lg leading-none font-semibold text-slate-500">...</div>
                                 ) : rewardsPoA === undefined ? (
                                     <SyncingOraclesTag />
                                 ) : (
                                     <div className="flex items-end gap-1.5">
-                                        <div className="text-lg font-semibold leading-none text-primary">
+                                        <div className="text-primary text-lg leading-none font-semibold">
                                             {parseFloat(Number(formatUnits(rewardsPoA ?? 0n, 18)).toFixed(4)).toLocaleString()}
 
                                             <span className="text-slate-400"> $R1</span>
@@ -175,7 +175,7 @@ export const LicenseCardDetails = ({
 
                             {!!rewardsPoA && (
                                 <Button
-                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:!opacity-65"
+                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
                                     color="primary"
                                     size="sm"
                                     variant="flat"
@@ -198,7 +198,7 @@ export const LicenseCardDetails = ({
                             <div className="col gap-2.5">
                                 <div className="text-sm font-medium text-slate-500">Proof of AI</div>
 
-                                <div className="text-lg font-semibold leading-none text-purple-600">
+                                <div className="text-lg leading-none font-semibold text-purple-600">
                                     {parseFloat(Number(formatUnits(rewardsPoAI ?? 0n, 18)).toFixed(4)).toLocaleString()}
 
                                     <span className="text-slate-400"> $R1</span>
@@ -206,8 +206,9 @@ export const LicenseCardDetails = ({
                             </div>
 
                             {!!rewardsPoAI && (
+                                // isLoadingRewardsPoA is also used here in order to disable the button while licenses are refreshed
                                 <Button
-                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:!opacity-65"
+                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
                                     color="primary"
                                     size="sm"
                                     variant="flat"
@@ -217,7 +218,6 @@ export const LicenseCardDetails = ({
                                         }
                                     }}
                                     isLoading={license.isClaimingRewardsPoAI}
-                                    // isLoadingRewardsPoA is also used here in order to disable the button while licenses are refreshed
                                     // TODO: Disabled until invoicing is implemented
                                     isDisabled={isLoadingRewardsPoA || isClaimingAllRewardsPoAI || true}
                                 >

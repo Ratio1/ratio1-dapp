@@ -10,7 +10,9 @@
             "@assets/*": ["assets/*"],
             "@shared/*": ["shared/*"],
             "@blockchain/*": ["blockchain/*"],
-            "@typedefs/*": ["typedefs/*"]
+            "@typedefs/*": ["typedefs/*"],
+            "@schemas/*": ["schemas/*"],
+            "@data/*": ["data/*"]
         },
 
         // "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",

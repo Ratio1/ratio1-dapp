@@ -10,13 +10,15 @@ import { Skeleton } from '@heroui/skeleton';
 import { config, getCurrentEpoch, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
+import { DetailedAlert } from '@shared/DetailedAlert';
 import EmptyData from '@shared/EmptyData';
 import { Label } from '@shared/Label';
 import { LicenseCard } from '@shared/Licenses/LicenseCard';
 import { LicenseSkeleton } from '@shared/Licenses/LicenseSkeleton';
+import { ConnectKitButton } from 'connectkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiCpuLine } from 'react-icons/ri';
+import { RiCpuLine, RiWalletLine } from 'react-icons/ri';
 import { License } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
@@ -296,7 +298,7 @@ function Licenses() {
     const getLicenseSectionHeader = (type: License['type']) => (
         <div className="mx-auto">
             <div className="row gap-2 pt-4">
-                <div className="text-2xl font-semibold">{type}</div>
+                <div className="big-title">{type}</div>
                 <Label
                     variant="default"
                     text={`${filterLicensesOfType(type).length} license${filterLicensesOfType(type).length > 1 ? 's' : ''}`}
@@ -304,6 +306,24 @@ function Licenses() {
             </div>
         </div>
     );
+
+    if (!authenticated) {
+        return (
+            <div className="col w-full p-6">
+                <DetailedAlert
+                    icon={<RiWalletLine />}
+                    title="Connect Wallet"
+                    description={
+                        <div>
+                            To proceed, please connect & sign in using your wallet so we can identify and display your licenses.
+                        </div>
+                    }
+                >
+                    <ConnectKitButton />
+                </DetailedAlert>
+            </div>
+        );
+    }
 
     return (
         <div className="h-full">
@@ -369,7 +389,7 @@ function Licenses() {
                             classNames={{
                                 wrapper: 'gap-0 overflow-visible h-8 rounded border border-divider',
                                 item: 'w-8 h-8 text-small rounded-none bg-transparent',
-                                cursor: 'bg-gradient-to-b from-primary-500 to-primary-600 rounded-md text-white font-bold',
+                                cursor: 'bg-linear-to-b from-primary-500 to-primary-600 rounded-md text-white font-bold',
                             }}
                             total={getPagesCount()}
                         />

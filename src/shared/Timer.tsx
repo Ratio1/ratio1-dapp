@@ -60,7 +60,7 @@ export const Timer: FunctionComponent<
     }, [timestamp]);
 
     return (
-        <div className="font-robotoMono">
+        <div className="font-roboto-mono">
             {variant === 'cards' ? (
                 <div className="row gap-1">
                     {[

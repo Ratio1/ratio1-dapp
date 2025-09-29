@@ -8,9 +8,7 @@ export default function TermsOfUseNDs() {
                     <div className="prose prose-lg max-w-none">
                         {/* Section 1: Introduction */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
-                                1. Introduction
-                            </h2>
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">1. Introduction</h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
                                 <p>
                                     These Terms of Use ("Terms") govern the acquisition, use and operation of the Ratio 1 Edge
@@ -69,7 +67,7 @@ export default function TermsOfUseNDs() {
 
                         {/* Section 2: Nature and Utility of Node Deeds */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 2. Nature and Utility of Node Deeds
                             </h2>
 
@@ -148,7 +146,7 @@ export default function TermsOfUseNDs() {
 
                         {/* Section 3: Acquisition of Node Deeds */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 3. Acquisition of Node Deeds
                             </h2>
 
@@ -242,7 +240,7 @@ export default function TermsOfUseNDs() {
 
                         {/* Section 4: Rights and Restrictions */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 4. Rights and Restrictions
                             </h2>
 
@@ -298,7 +296,7 @@ export default function TermsOfUseNDs() {
 
                         {/* Section 5: Declarations, acknowledgments and representations */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 5. Declarations, Acknowledgments and Representations
                             </h2>
 
@@ -526,7 +524,7 @@ export default function TermsOfUseNDs() {
 
                         {/* Section 6: Intellectual Property Rights */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 6. Intellectual Property Rights
                             </h2>
                             <p className="mb-6 text-gray-700">
@@ -813,9 +811,7 @@ export default function TermsOfUseNDs() {
 
                         {/* Section 7: Disclaimers */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
-                                7. Disclaimers
-                            </h2>
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">7. Disclaimers</h2>
                             <div className="space-y-4">
                                 <div className="rounded-lg bg-red-50 p-4">
                                     <p className="text-gray-700">
@@ -881,7 +877,7 @@ export default function TermsOfUseNDs() {
 
                         {/* Section 8: Limitation of Liability */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 8. Limitation of Liability
                             </h2>
                             <div className="space-y-4">
@@ -995,9 +991,7 @@ export default function TermsOfUseNDs() {
 
                         {/* Section 9: Indemnification */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
-                                9. Indemnification
-                            </h2>
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">9. Indemnification</h2>
                             <div className="rounded-lg bg-yellow-50 p-4">
                                 <p className="mb-4 text-gray-700">
                                     <strong>9.1.</strong> Purchasers agree to indemnify, defend, and hold harmless the Company
@@ -1015,9 +1009,7 @@ export default function TermsOfUseNDs() {
 
                         {/* Section 10: Tax Obligations */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
-                                10. Tax Obligations
-                            </h2>
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">10. Tax Obligations</h2>
                             <div className="space-y-4">
                                 <div className="rounded-lg bg-green-50 p-4">
                                     <p className="text-gray-700">
@@ -1044,7 +1036,7 @@ export default function TermsOfUseNDs() {
 
                         {/* Section 11: Dispute Resolution */}
                         <section className="mb-8">
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">
                                 11. Dispute Resolution
                             </h2>
                             <div className="space-y-4">
@@ -1068,9 +1060,7 @@ export default function TermsOfUseNDs() {
 
                         {/* Section 12: Miscellaneous */}
                         <section>
-                            <h2 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold text-gray-900">
-                                12. Miscellaneous
-                            </h2>
+                            <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">12. Miscellaneous</h2>
                             <div className="space-y-4">
                                 <div>
                                     <h3 className="mb-3 text-xl font-medium text-gray-900">12.1 Entire Agreement</h3>

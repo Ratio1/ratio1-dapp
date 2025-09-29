@@ -1,5 +1,5 @@
-import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/modal";
-import { Spinner } from "@heroui/spinner";
+import { Modal, ModalBody, ModalContent, ModalHeader } from '@heroui/modal';
+import { Spinner } from '@heroui/spinner';
 import clsx from 'clsx';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { RiArrowUpDownLine, RiCheckDoubleLine, RiCheckLine } from 'react-icons/ri';
@@ -29,18 +29,27 @@ export const DualTxsModal = forwardRef(({ isOpen, onOpenChange, text, displayTxs
     }));
 
     return (
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm" backdrop="blur" shouldBlockScroll={true}>
+        <Modal
+            isOpen={isOpen}
+            onOpenChange={onOpenChange}
+            size="sm"
+            backdrop="blur"
+            shouldBlockScroll={true}
+            classNames={{
+                closeButton: 'cursor-pointer',
+            }}
+        >
             <ModalContent>
                 <ModalHeader></ModalHeader>
 
                 <ModalBody>
-                    <div className={clsx('col -mt-4 gap-2 pb-2', displayTxsProgress && '!pb-4')}>
+                    <div className={clsx('col -mt-4 gap-2 pb-2', displayTxsProgress && 'pb-4!')}>
                         <DetailedAlert
                             icon={<RiCheckDoubleLine />}
                             title="Confirmation"
                             description={
                                 <div>
-                                    You'll need to confirm <span className="font-medium text-primary">two transactions</span> to{' '}
+                                    You'll need to confirm <span className="text-primary font-medium">two transactions</span> to{' '}
                                     {text}.
                                 </div>
                             }
@@ -69,8 +78,8 @@ export const DualTxsModal = forwardRef(({ isOpen, onOpenChange, text, displayTxs
                                 <div className="row gap-1.5">
                                     {!isFirstTxConfirmed ? (
                                         <div className="z-10 -ml-1.5 bg-white p-1.5">
-                                            <div className="center-all rounded-full bg-primary-100 p-1">
-                                                <RiArrowUpDownLine className="text-base text-primary" />
+                                            <div className="center-all bg-primary-100 rounded-full p-1">
+                                                <RiArrowUpDownLine className="text-primary text-base" />
                                             </div>
                                         </div>
                                     ) : (
@@ -85,7 +94,7 @@ export const DualTxsModal = forwardRef(({ isOpen, onOpenChange, text, displayTxs
                                 </div>
 
                                 {/* Vertical bar */}
-                                <div className="absolute bottom-3 left-[11px] top-3 w-[2px] bg-primary-100" />
+                                <div className="bg-primary-100 absolute top-3 bottom-3 left-[11px] w-[2px]" />
                             </div>
                         )}
                     </div>

@@ -1,4 +1,6 @@
 import { config } from '@lib/config';
+import { KycInfo } from '@typedefs/general';
+import { InvoiceDraft, InvoicingPreferences } from '@typedefs/invoicing';
 import axios from 'axios';
 import * as types from 'typedefs/blockchain';
 
@@ -26,6 +28,39 @@ export const emailUnsubscribe = async () => _doGet<types.ApiAccount>('accounts/u
 export const confirmEmail = async (token: string) => _doGet<types.ApiAccount>(`accounts/email/confirm?token=${token}`);
 
 export const ping = async () => _doGet<any>('/auth/nodeData');
+
+export const getKycInfo = async () => _doGet<KycInfo>('/accounts/kyc-info');
+
+export const getInvoiceDrafts = async (): Promise<InvoiceDraft[]> => _doGet<any>('/invoice-draft/get-drafts');
+
+export const downloadInvoiceDraft = async (draftId: string) => {
+    const res = await axiosBackend.get(`/invoice-draft/download-draft?draftId=${draftId}`, {
+        responseType: 'blob',
+    });
+
+    if (res.status !== 200) {
+        throw new Error(`Download failed with status ${res.status}.`);
+    }
+
+    // Check if the response is an error (blob with error content)
+    if (res.data.type === 'application/json') {
+        const text = await res.data.text();
+        const errorData = JSON.parse(text);
+
+        if (errorData.error) {
+            throw new Error(errorData.error);
+        }
+    }
+
+    const urlObj = URL.createObjectURL(res.data);
+    const a = document.createElement('a');
+    a.href = urlObj;
+    a.download = draftId;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(urlObj), 0);
+};
 
 // *****
 // POST
@@ -73,6 +108,17 @@ export const sendBatchNews = async (params: { news: File; subject: string }) => 
     }
     return data.data;
 };
+
+export const getInvoicingPreferences = async () => _doGet('/invoice-draft/get-preferences');
+
+export const createInvoicingPreferences = (preferences: InvoicingPreferences) =>
+    _doPost<any>('/invoice-draft/create-preferences', preferences);
+
+export const changeInvoicingPreferences = (preferences: InvoicingPreferences) =>
+    _doPost<any>('/invoice-draft/change-preferences', {
+        ...preferences,
+        extraTaxes: JSON.stringify(preferences.extraTaxes),
+    });
 
 // *****
 // INTERNAL HELPERS

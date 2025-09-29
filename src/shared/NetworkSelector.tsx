@@ -1,6 +1,6 @@
+import { Select, SelectItem } from '@heroui/select';
+import { SharedSelection } from '@heroui/system';
 import { domains, environment } from '@lib/config';
-import { Select, SelectItem } from "@heroui/select";
-import { SharedSelection } from "@heroui/system";
 import clsx from 'clsx';
 import { useState } from 'react';
 import { RiGlobalLine } from 'react-icons/ri';
@@ -19,9 +19,9 @@ export const NetworkSelector = () => {
             })}
             classNames={{
                 base: 'w-auto',
-                trigger: 'min-h-10 bg-slate-200 data-[hover=true]:bg-[#e0e3f0] rounded-lg',
+                trigger: 'min-h-10 bg-slate-200 data-[hover=true]:bg-[#e0e3f0] rounded-lg cursor-pointer',
                 label: 'group-data-[filled=true]:-translate-y-5',
-                value: 'font-medium !text-slate-600 lowercase',
+                value: 'font-medium text-slate-600! lowercase',
                 selectorIcon: 'mt-0.5 mr-0.5',
             }}
             items={networks.map((network) => ({ key: network }))}
