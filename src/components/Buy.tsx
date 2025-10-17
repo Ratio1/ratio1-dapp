@@ -75,8 +75,13 @@ function Buy({ onClose }: { onClose: () => void }) {
 
     useEffect(() => {
         if (publicClient && address) {
-            fetchAllowance(publicClient, address);
-            fetchUserUsdMintedAmount(publicClient, address);
+            (async () => {
+                await Promise.all([
+                    fetchR1Balance(),
+                    fetchAllowance(publicClient, address),
+                    fetchUserUsdMintedAmount(publicClient, address),
+                ]);
+            })();
         }
     }, [address, publicClient]);
 
@@ -181,7 +186,7 @@ function Buy({ onClose }: { onClose: () => void }) {
 
         await watchTx(txHash, publicClient);
 
-        await sleep(2000);
+        await sleep(500);
         await fetchAllowance(publicClient, address);
     };
 
@@ -287,7 +292,7 @@ function Buy({ onClose }: { onClose: () => void }) {
 
                     {!isLoading && (
                         <Button
-                            className="rounded-lg border border-default-200 bg-[#fcfcfd]"
+                            className="border-default-200 rounded-lg border bg-[#fcfcfd]"
                             color="default"
                             variant="bordered"
                             onPress={() => {
@@ -317,7 +322,7 @@ function Buy({ onClose }: { onClose: () => void }) {
                     <div className="col overflow-hidden rounded-md border border-slate-200 bg-slate-100">
                         <div className="row justify-between p-4">
                             <div className="row gap-2.5">
-                                <div className="rounded-md bg-primary p-1.5 text-white">
+                                <div className="bg-primary rounded-md p-1.5 text-white">
                                     <RiCpuLine className="text-xl" />
                                 </div>
 
@@ -337,7 +342,7 @@ function Buy({ onClose }: { onClose: () => void }) {
 
                                 <div className="flex gap-1">
                                     <Button
-                                        className="min-w-10 rounded-lg border border-default-200 bg-[#fcfcfd] p-0"
+                                        className="border-default-200 min-w-10 rounded-lg border bg-[#fcfcfd] p-0"
                                         color="default"
                                         variant="bordered"
                                         size="md"
@@ -380,7 +385,7 @@ function Buy({ onClose }: { onClose: () => void }) {
                                     />
 
                                     <Button
-                                        className="min-w-10 rounded-lg border border-default-200 bg-[#fcfcfd] p-0"
+                                        className="border-default-200 min-w-10 rounded-lg border bg-[#fcfcfd] p-0"
                                         color="default"
                                         variant="bordered"
                                         size="md"

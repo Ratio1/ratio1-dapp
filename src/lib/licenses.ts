@@ -119,7 +119,7 @@ const getNdOrGndRewards = async (
         return 0n;
     }
 
-    if (epochsToClaim !== epochs.length || epochsToClaim !== epochs_vals.length) {
+    if (epochsToClaim !== epochs?.length || epochsToClaim !== epochs_vals?.length) {
         // Oracles are still syncing
         return undefined;
     }
@@ -155,7 +155,7 @@ const getMndRewards = async (
         return 0n;
     }
 
-    if (epochsToClaim !== epochs.length || epochsToClaim !== epochs_vals.length) {
+    if (epochsToClaim !== epochs?.length || epochsToClaim !== epochs_vals?.length) {
         // Oracles are still syncing
         return undefined;
     }
