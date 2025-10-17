@@ -40,7 +40,7 @@ function Buy({ onClose }: { onClose: () => void }) {
         useBlockchainContext() as BlockchainContextType;
     const { authenticated, account, fetchAccount } = useAuthenticationContext() as AuthenticationContextType;
 
-    const priceTier: PriceTier = useMemo(() => priceTiers[currentPriceTier - 1], [priceTiers]);
+    const priceTier: PriceTier = useMemo(() => priceTiers[currentPriceTier - 1], [priceTiers, currentPriceTier]);
 
     // Loading component state
     const [isLoading, setLoading] = useState<boolean>(true);
@@ -76,11 +76,9 @@ function Buy({ onClose }: { onClose: () => void }) {
     useEffect(() => {
         if (publicClient && address) {
             (async () => {
-                await Promise.all([
-                    fetchR1Balance(),
-                    fetchAllowance(publicClient, address),
-                    fetchUserUsdMintedAmount(publicClient, address),
-                ]);
+                await Promise.all([fetchR1Balance(), fetchAllowance(publicClient, address)]);
+
+                fetchUserUsdMintedAmount(publicClient, address);
             })();
         }
     }, [address, publicClient]);
@@ -265,7 +263,10 @@ function Buy({ onClose }: { onClose: () => void }) {
     };
 
     const isOverAccountUsdSpendingLimit = (): boolean => {
-        if (!accountUsdSpendingLimit) return false;
+        if (accountUsdSpendingLimit === undefined) {
+            return false;
+        }
+
         return parseInt(quantity) * priceTier.usdPrice > accountUsdSpendingLimit;
     };
 
