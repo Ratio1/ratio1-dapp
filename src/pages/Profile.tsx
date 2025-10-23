@@ -1,6 +1,7 @@
 import ProfileSection from '@components/Profile/ProfileSection';
 import ProfileSectionWrapper from '@components/Profile/ProfileSectionWrapper';
 import PersonalInformation from '@components/Profile/sections/PersonalInformation';
+import PublicProfile from '@components/Profile/sections/PublicProfile';
 import Referrals from '@components/Profile/sections/Referrals';
 import Registration from '@components/Profile/sections/Registration';
 import { Skeleton } from '@heroui/skeleton';
@@ -101,6 +102,10 @@ function Profile() {
 
     return (
         <div className="col items-center gap-6">
+            <ProfileSection title="Public Profile">
+                <PublicProfile />
+            </ProfileSection>
+
             {getRegistrationStatus() === RegistrationStatus.REGISTERED ? (
                 <ProfileSection title="Personal Information">
                     <PersonalInformation />

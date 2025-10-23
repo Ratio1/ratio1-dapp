@@ -128,19 +128,21 @@ export const LicenseCardDetails = ({
             <div className="col gap-1.5">
                 {getSectionTitle('Rewards')}
 
-                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 larger:grid-cols-3">
+                <div className="larger:grid-cols-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
                     <DetailsCard>
                         <div className="grid grid-cols-2 gap-3">
                             <div className="col gap-2.5">
                                 <div className="text-sm font-medium text-slate-500">Total Rewards</div>
 
                                 {isLoadingRewardsPoA ? (
-                                    <div className="text-lg font-semibold leading-none text-slate-500">...</div>
+                                    <div className="text-lg leading-none font-semibold text-slate-500">...</div>
                                 ) : rewardsPoA === undefined ? (
-                                    <SyncingOraclesTag />
+                                    <div className="flex">
+                                        <SyncingOraclesTag />
+                                    </div>
                                 ) : (
                                     <div className="flex items-end gap-1.5">
-                                        <div className="text-lg font-semibold leading-none text-primary">
+                                        <div className="text-primary text-lg leading-none font-semibold">
                                             {parseFloat(
                                                 Number(formatUnits((rewardsPoA ?? 0n) + (rewardsPoAI ?? 0n), 18)).toFixed(4),
                                             ).toLocaleString()}
@@ -159,12 +161,12 @@ export const LicenseCardDetails = ({
                                 <div className="text-sm font-medium text-slate-500">Proof of Availability</div>
 
                                 {isLoadingRewardsPoA ? (
-                                    <div className="text-lg font-semibold leading-none text-slate-500">...</div>
+                                    <div className="text-lg leading-none font-semibold text-slate-500">...</div>
                                 ) : rewardsPoA === undefined ? (
                                     <SyncingOraclesTag />
                                 ) : (
                                     <div className="flex items-end gap-1.5">
-                                        <div className="text-lg font-semibold leading-none text-primary">
+                                        <div className="text-primary text-lg leading-none font-semibold">
                                             {parseFloat(Number(formatUnits(rewardsPoA ?? 0n, 18)).toFixed(4)).toLocaleString()}
 
                                             <span className="text-slate-400"> $R1</span>
@@ -198,7 +200,7 @@ export const LicenseCardDetails = ({
                             <div className="col gap-2.5">
                                 <div className="text-sm font-medium text-slate-500">Proof of AI</div>
 
-                                <div className="text-lg font-semibold leading-none text-purple-600">
+                                <div className="text-lg leading-none font-semibold text-purple-600">
                                     {parseFloat(Number(formatUnits(rewardsPoAI ?? 0n, 18)).toFixed(4)).toLocaleString()}
 
                                     <span className="text-slate-400"> $R1</span>

@@ -1,6 +1,5 @@
 import { Button } from '@heroui/button';
 import { Form } from '@heroui/form';
-import { Input } from '@heroui/input';
 import { Skeleton } from '@heroui/skeleton';
 import { addReferralCode, getSellerCode } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
@@ -9,6 +8,7 @@ import { DetailsCard } from '@shared/cards/DetailsCard';
 import { ClosableToastContent } from '@shared/ClosableToastContent';
 import { CopyableLink } from '@shared/CopyableLink';
 import { CopyableValue } from '@shared/CopyableValue';
+import StyledInput from '@shared/form/StyledInput';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
@@ -43,6 +43,7 @@ export default function Referrals() {
             }
         },
         retry: false,
+        refetchOnWindowFocus: false,
     });
 
     const onSubmit = async (e) => {
@@ -133,19 +134,12 @@ export default function Referrals() {
                             <Form className="w-full" validationBehavior="native" onSubmit={onSubmit}>
                                 <div className="col w-full gap-4">
                                     <div className="flex w-full gap-2">
-                                        <Input
+                                        <StyledInput
                                             id="referralCode"
                                             name="referralCode"
                                             type="text"
                                             value={value}
                                             onValueChange={setValue}
-                                            size="md"
-                                            classNames={{
-                                                inputWrapper: 'bg-[#fcfcfd] border rounded-lg shadow-none',
-                                                input: 'font-medium rounded-lg',
-                                            }}
-                                            variant="bordered"
-                                            color="primary"
                                             labelPlacement="outside"
                                             placeholder="Code"
                                             isDisabled={isApplying}

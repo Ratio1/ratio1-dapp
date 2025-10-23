@@ -23,4 +23,10 @@ type KycInfo = {
     state: string;
 };
 
-export type { InvoiceDraft, KycInfo };
+type PublicProfileInfo = {
+    name: string;
+    description: string;
+    links: Record<string, string>;
+};
+
+export type { InvoiceDraft, KycInfo, PublicProfileInfo };

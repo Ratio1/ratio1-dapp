@@ -123,7 +123,7 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
                             {node?.alias === undefined ? (
                                 <Skeleton className="mb-1 h-4 min-w-24 rounded-lg" />
                             ) : (
-                                <div className="max-w-[176px] overflow-hidden text-ellipsis whitespace-nowrap text-sm leading-5">
+                                <div className="max-w-[176px] overflow-hidden text-sm leading-5 text-ellipsis whitespace-nowrap">
                                     {node?.alias}
                                 </div>
                             )}
