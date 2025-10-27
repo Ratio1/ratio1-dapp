@@ -111,8 +111,6 @@ export default function PublicProfile() {
         return imageRefreshToken ? `${base}&t=${imageRefreshToken}` : base;
     }, [address, imageRefreshToken]);
 
-    // no-op
-
     return (
         <ProfileSectionWrapper>
             <div className="col gap-2">
@@ -139,7 +137,7 @@ export default function PublicProfile() {
                                         })}
                                         onLoad={() => setImageLoading(false)}
                                         onError={() => {
-                                            console.log('Error loading image');
+                                            console.log('Error loading image', profileImageUrl);
                                             setImageLoading(false);
                                             setImageError(true);
                                         }}

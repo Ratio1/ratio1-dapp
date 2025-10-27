@@ -14,6 +14,8 @@ export default function ImageUpload({
 
     const handleFileChange = useCallback(
         async (event: React.ChangeEvent<HTMLInputElement>) => {
+            setImageLoading(true);
+
             const file = event.target.files?.[0];
 
             if (!file) {
@@ -28,7 +30,6 @@ export default function ImageUpload({
             }
 
             try {
-                setImageLoading(true);
                 await uploadProfileImage(file);
 
                 setTimeout(() => {
