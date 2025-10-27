@@ -1,5 +1,9 @@
 import { EthAddress } from './blockchain';
 
+export const BRANDING_PLATFORM_NAMES = {
+    Linkedin: 'LinkedIn',
+};
+
 type InvoiceDraft = {
     invoiceId: string;
     creationTimestamp: string;

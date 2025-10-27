@@ -5,15 +5,11 @@ import { buildPublicProfileSchema } from '@schemas/profile';
 import InputWithLabel from '@shared/form/InputWithLabel';
 import Label from '@shared/form/Label';
 import StyledInput from '@shared/form/StyledInput';
-import { PublicProfileInfo } from '@typedefs/general';
+import { BRANDING_PLATFORM_NAMES, PublicProfileInfo } from '@typedefs/general';
 import { useMemo, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import z from 'zod';
-
-const PLATFORM_NAMES = {
-    Linkedin: 'LinkedIn',
-};
 
 export default function EditPublicProfile({
     profileInfo,
@@ -99,7 +95,7 @@ export default function EditPublicProfile({
                                     render={({ field, fieldState }) => {
                                         return (
                                             <StyledInput
-                                                placeholder={PLATFORM_NAMES[platform] ?? platform}
+                                                placeholder={BRANDING_PLATFORM_NAMES[platform] ?? platform}
                                                 value={field.value ?? ''}
                                                 onChange={(e) => {
                                                     const value = e.target.value;
