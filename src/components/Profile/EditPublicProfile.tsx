@@ -58,7 +58,6 @@ export default function EditPublicProfile({
     const { control } = form;
 
     const onSubmit = async (data: FormValues) => {
-        console.log(data);
         setLoading(true);
 
         try {

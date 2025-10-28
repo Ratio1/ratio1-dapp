@@ -88,6 +88,12 @@ export default function PublicProfile() {
         }
     }, [isPublicProfileError]);
 
+    useEffect(() => {
+        if (isImageLoading) {
+            console.log('PublicProfile image started loading');
+        }
+    }, [isImageLoading]);
+
     const isLoading: boolean =
         isLoadingBrandingPlatforms || isLoadingProfileInfo || isFetchingProfileInfo || address === undefined;
 
@@ -135,9 +141,12 @@ export default function PublicProfile() {
                                         className={clsx('z-10 h-full w-full rounded-[37.5%] object-cover object-center', {
                                             'opacity-0': isImageLoading,
                                         })}
-                                        onLoad={() => setImageLoading(false)}
-                                        onError={() => {
-                                            console.log('Error loading image', profileImageUrl);
+                                        onLoad={() => {
+                                            setImageLoading(false);
+                                            setImageError(false);
+                                        }}
+                                        onError={(error) => {
+                                            console.error('Error loading image');
                                             setImageLoading(false);
                                             setImageError(true);
                                         }}
@@ -155,6 +164,7 @@ export default function PublicProfile() {
                                     setImageRefreshToken(Date.now());
                                 }}
                                 setImageLoading={setImageLoading}
+                                setImageError={setImageError}
                             />
 
                             <div className="text-sm text-slate-500">The maximum file size allowed is 500 KB.</div>
@@ -223,24 +233,26 @@ export default function PublicProfile() {
                         ) : (
                             <DetailsCard>
                                 <div className="col gap-4 sm:gap-1.5">
-                                    {brandingPlatforms.map((platform) => {
-                                        const value = profileInfo.links[platform];
+                                    {brandingPlatforms
+                                        .sort((a, b) => a.localeCompare(b))
+                                        .map((platform) => {
+                                            const value = profileInfo.links[platform];
 
-                                        const displayValue =
-                                            typeof value === 'string' && value.length > 0 ? (
-                                                value
-                                            ) : (
-                                                <div className="text-slate-500">—</div>
+                                            const displayValue =
+                                                typeof value === 'string' && value.length > 0 ? (
+                                                    value
+                                                ) : (
+                                                    <div className="text-slate-500">—</div>
+                                                );
+
+                                            return (
+                                                <ProfileRow
+                                                    key={platform}
+                                                    label={BRANDING_PLATFORM_NAMES[platform] ?? platform}
+                                                    value={displayValue}
+                                                />
                                             );
-
-                                        return (
-                                            <ProfileRow
-                                                key={platform}
-                                                label={BRANDING_PLATFORM_NAMES[platform] ?? platform}
-                                                value={displayValue}
-                                            />
-                                        );
-                                    })}
+                                        })}
                                 </div>
                             </DetailsCard>
                         )}
