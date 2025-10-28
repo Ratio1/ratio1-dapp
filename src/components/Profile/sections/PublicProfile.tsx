@@ -67,7 +67,7 @@ export default function PublicProfile() {
             try {
                 const response = await getPublicProfileInfo(address as EthAddress);
 
-                if (!response) {
+                if (!response || !response?.brands?.[0] || response?.brands?.[0]?.links === undefined) {
                     console.log('Error fetching public profile info.');
                 }
 
@@ -205,7 +205,11 @@ export default function PublicProfile() {
                         ) : (
                             <DetailsCard>
                                 <div className="compact">
-                                    {profileInfo.name?.length > 0 ? profileInfo.name : <div className="text-slate-500">—</div>}
+                                    {profileInfo?.name?.length > 0 ? (
+                                        profileInfo?.name
+                                    ) : (
+                                        <div className="text-slate-500">—</div>
+                                    )}
                                 </div>
                             </DetailsCard>
                         )}
@@ -217,8 +221,8 @@ export default function PublicProfile() {
                         ) : (
                             <DetailsCard>
                                 <div className="compact">
-                                    {profileInfo.description?.length > 0 ? (
-                                        profileInfo.description
+                                    {profileInfo?.description?.length > 0 ? (
+                                        profileInfo?.description
                                     ) : (
                                         <div className="text-slate-500">—</div>
                                     )}
@@ -236,10 +240,10 @@ export default function PublicProfile() {
                                     {brandingPlatforms
                                         .sort((a, b) => a.localeCompare(b))
                                         .map((platform) => {
-                                            const value = profileInfo.links[platform];
+                                            const value = profileInfo?.links?.[platform];
 
                                             const displayValue =
-                                                typeof value === 'string' && value.length > 0 ? (
+                                                value && typeof value === 'string' && value.length > 0 ? (
                                                     value
                                                 ) : (
                                                     <div className="text-slate-500">—</div>
