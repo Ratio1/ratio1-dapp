@@ -1,5 +1,5 @@
 import { config } from '@lib/config';
-import { KycInfo } from '@typedefs/general';
+import { KycInfo, PublicProfileInfo } from '@typedefs/general';
 import { InvoiceDraft, InvoicingPreferences } from '@typedefs/invoicing';
 import axios from 'axios';
 import * as types from 'typedefs/blockchain';
@@ -62,6 +62,11 @@ export const downloadInvoiceDraft = async (draftId: string) => {
     setTimeout(() => URL.revokeObjectURL(urlObj), 0);
 };
 
+export const getBrandingPlatforms = async () => _doGet<string[]>('/branding/get-platforms');
+
+export const getProfilePicture = async (address: types.EthAddress) =>
+    _doGet<any>(`/branding/get-brand-logo?address=${address}`);
+
 // *****
 // POST
 // *****
@@ -120,6 +125,20 @@ export const changeInvoicingPreferences = (preferences: InvoicingPreferences) =>
         extraTaxes: JSON.stringify(preferences.extraTaxes),
     });
 
+export const getPublicProfileInfo = async (address: types.EthAddress) =>
+    _doPost<any>('/branding/get-brands', { brandAddresses: [address] });
+
+export const uploadProfileImage = async (logo: File) => {
+    const formData = new FormData();
+    formData.append('logo', logo);
+
+    return _doPost<any>('/branding/edit-logo', formData, {
+        'Content-Type': 'multipart/form-data',
+    });
+};
+
+export const updatePublicProfileInfo = async (info: PublicProfileInfo) => _doPost<any>('/branding/edit', info);
+
 // *****
 // INTERNAL HELPERS
 // *****
@@ -135,11 +154,13 @@ async function _doGet<T>(endpoint: string) {
     return data.data;
 }
 
-async function _doPost<T>(endpoint: string, body: any) {
+async function _doPost<T>(endpoint: string, body: any, headers?: Record<string, string>) {
     const { data } = await axiosBackend.post<{
         data: T;
         error: string;
-    }>(endpoint, body);
+    }>(endpoint, body, {
+        headers,
+    });
     if (data.error) {
         throw new Error(data.error);
     }

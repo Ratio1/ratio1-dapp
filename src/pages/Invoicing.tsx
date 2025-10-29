@@ -117,8 +117,8 @@ export default function Invoicing() {
 
                 <div className="list group/list">
                     <ListHeader useFixedwidth>
-                        <div className="min-w-[62px]">Number</div>
-                        <div className="min-w-[122px]">Date</div>
+                        <div className="min-w-[134px]">Number</div>
+                        <div className="min-w-[94px]">Date</div>
                         <div className="min-w-[170px]">CSP Owner</div>
                         <div className="min-w-[118px]">Amount ($USDC)</div>
 

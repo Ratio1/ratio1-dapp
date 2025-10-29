@@ -1,12 +1,13 @@
 import ProfileSection from '@components/Profile/ProfileSection';
 import ProfileSectionWrapper from '@components/Profile/ProfileSectionWrapper';
 import PersonalInformation from '@components/Profile/sections/PersonalInformation';
+import PublicProfile from '@components/Profile/sections/PublicProfile';
 import Referrals from '@components/Profile/sections/Referrals';
 import Registration from '@components/Profile/sections/Registration';
 import { Skeleton } from '@heroui/skeleton';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { DetailedAlert } from '@shared/DetailedAlert';
-import { RegistrationStatus } from '@typedefs/profile';
+import { ApplicationStatus, RegistrationStatus } from '@typedefs/profile';
 import { ConnectKitButton } from 'connectkit';
 import { useEffect } from 'react';
 import { RiCloseLargeLine, RiWalletLine } from 'react-icons/ri';
@@ -60,7 +61,7 @@ function Profile() {
         );
     }
 
-    if (isFetchingAccount) {
+    if (isFetchingAccount || !account) {
         return (
             <div className="col items-center gap-6">
                 <ProfileSection title={<Skeleton className="h-[32px] w-[200px] rounded-lg" />}>
@@ -99,17 +100,28 @@ function Profile() {
         );
     }
 
+    const getFlexDirection = () =>
+        getRegistrationStatus() === RegistrationStatus.REGISTERED && account.kycStatus === ApplicationStatus.Approved
+            ? 'flex-col'
+            : 'flex-col-reverse';
+
     return (
         <div className="col items-center gap-6">
-            {getRegistrationStatus() === RegistrationStatus.REGISTERED ? (
-                <ProfileSection title="Personal Information">
-                    <PersonalInformation />
+            <div className={`flex w-full items-center gap-6 ${getFlexDirection()}`}>
+                <ProfileSection title="Public Profile">
+                    <PublicProfile />
                 </ProfileSection>
-            ) : (
-                <ProfileSection title="Account">
-                    <Registration registrationStatus={getRegistrationStatus()} />
-                </ProfileSection>
-            )}
+
+                {getRegistrationStatus() === RegistrationStatus.REGISTERED ? (
+                    <ProfileSection title="Personal Information">
+                        <PersonalInformation />
+                    </ProfileSection>
+                ) : (
+                    <ProfileSection title="Account">
+                        <Registration registrationStatus={getRegistrationStatus()} />
+                    </ProfileSection>
+                )}
+            </div>
 
             <ProfileSection title="Referrals">
                 <Referrals />

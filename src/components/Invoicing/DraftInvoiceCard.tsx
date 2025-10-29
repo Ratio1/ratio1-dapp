@@ -38,15 +38,15 @@ export default function DraftInvoiceCard({
             <div className="col gap-4">
                 {/* Content */}
                 <div className="row justify-between gap-3 text-sm lg:gap-6">
-                    <div className="min-w-[62px] font-medium">{draft.invoiceNumber}</div>
+                    <div className="min-w-[134px] font-medium">
+                        {draft.invoiceNumber}/{draft.invoiceSeries}
+                    </div>
 
-                    <div className="min-w-[122px]">
+                    <div className="min-w-[94px]">
                         {new Date(draft.creationTimestamp).toLocaleDateString(undefined, {
                             month: 'short',
                             day: 'numeric',
                             year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
                         })}
                     </div>
 

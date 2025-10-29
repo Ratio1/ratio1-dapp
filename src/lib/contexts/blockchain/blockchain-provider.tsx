@@ -80,7 +80,8 @@ export const BlockchainProvider = ({ children }) => {
     };
 
     const fetchR1Balance = () => {
-        fetchErc20Balance(config.r1ContractAddress).then(setR1Balance);
+        console.log('fetchR1Balance');
+        return fetchErc20Balance(config.r1ContractAddress).then(setR1Balance);
     };
 
     const fetchErc20Balance = (tokenAddress: EthAddress) => {

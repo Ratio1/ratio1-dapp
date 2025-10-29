@@ -137,7 +137,9 @@ export const LicenseCardDetails = ({
                                 {isLoadingRewardsPoA ? (
                                     <div className="text-lg leading-none font-semibold text-slate-500">...</div>
                                 ) : rewardsPoA === undefined ? (
-                                    <SyncingOraclesTag />
+                                    <div className="flex">
+                                        <SyncingOraclesTag />
+                                    </div>
                                 ) : (
                                     <div className="flex items-end gap-1.5">
                                         <div className="text-primary text-lg leading-none font-semibold">

@@ -8,6 +8,7 @@ import { routePath } from '@lib/routes/route-paths';
 import { getApplicationStatusInfo } from '@lib/utils';
 import { DetailsCard } from '@shared/cards/DetailsCard';
 import { Label } from '@shared/Label';
+import ProfileRow from '@shared/ProfileRow';
 import { ApiAccount } from '@typedefs/blockchain';
 import { KycInfo } from '@typedefs/general';
 import { ApplicationStatus } from '@typedefs/profile';
@@ -25,10 +26,10 @@ export default function PersonalInformation() {
     const [isSubscribed, setSubscribed] = useState<boolean>(false);
     const [isCompany, setCompany] = useState<boolean>(false);
 
-    const [isLoading, setLoading] = useState<boolean>(false);
-
     const [isFetchingKycInfo, setFetchingKycInfo] = useState<boolean>(false);
     const [kycInfo, setKycInfo] = useState<KycInfo | undefined>();
+
+    const [isLoading, setLoading] = useState<boolean>(false);
 
     const [applicationStatusInfo, setApplicationStatusInfo] = useState<
         { text: string; color: 'yellow' | 'green' | 'red' } | undefined
@@ -108,17 +109,19 @@ export default function PersonalInformation() {
     };
 
     const getKycInfoContent = () => {
-        if (isFetchingKycInfo || !kycInfo) {
+        if (isFetchingKycInfo) {
             return <Skeleton className="h-[144px] w-full rounded-lg" />;
+        } else if (!kycInfo) {
+            return <div>No KYC information available.</div>;
         }
 
         return (
             <div className="col gap-4 sm:gap-1.5">
-                <Row label="Name" value={kycInfo.name} />
-                <Row label="Address" value={kycInfo.address} />
-                <Row label="City" value={kycInfo.city} />
-                <Row label="State" value={kycInfo.state} />
-                <Row label="Country" value={kycInfo.country} />
+                <ProfileRow label="Name" value={kycInfo.name} />
+                <ProfileRow label="Address" value={kycInfo.address} />
+                <ProfileRow label="City" value={kycInfo.city} />
+                <ProfileRow label="State" value={kycInfo.state} />
+                <ProfileRow label="Country" value={kycInfo.country} />
             </div>
         );
     };
@@ -214,11 +217,11 @@ export default function PersonalInformation() {
 
                 <DetailsCard>
                     <div className="col gap-4 sm:gap-1.5">
-                        <Row label="Email address" value={account.email} />
+                        <ProfileRow label="Email address" value={account.email} />
 
-                        <Row label="VAT percentage" value={`${account.vatPercentage / 100}%`} />
+                        <ProfileRow label="VAT percentage" value={`${account.vatPercentage / 100}%`} />
 
-                        <Row
+                        <ProfileRow
                             label="Subscribe to email updates"
                             value={
                                 <Switch isSelected={isSubscribed} onValueChange={toggleEmailSubscriptionPreference} size="sm" />
@@ -263,26 +266,17 @@ export default function PersonalInformation() {
     );
 }
 
-function Row({ label, value }: { label: string; value: React.ReactNode }) {
-    return (
-        <div className="compact flex flex-col gap-0.5 sm:h-6 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
-            <div className="text-slate-500">{label}</div>
-            <div>{value}</div>
-        </div>
-    );
-}
-
 function ApplicationButton({ label, isLoading, onPress }: { label: string; isLoading: boolean; onPress: () => void }) {
     return (
-        <Button color="primary" className="rounded-lg" variant="solid" isLoading={isLoading} onPress={onPress}>
-            {label}
+        <Button color="primary" className="h-9" size="sm" variant="solid" isLoading={isLoading} onPress={onPress}>
+            <div className="text-sm">{label}</div>
         </Button>
     );
 }
 
 function ApplicationInfoText({ isCompany }: { isCompany: boolean }) {
     return (
-        <div className="flex items-start gap-1">
+        <div className="flex items-start gap-1 sm:items-center">
             <RiInformation2Line className="text-primary text-lg" />
             <div className="compact">
                 You'll continue the {isCompany ? 'KYB' : 'KYC'} process using{' '}

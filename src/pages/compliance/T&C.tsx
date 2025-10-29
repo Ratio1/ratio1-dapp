@@ -716,6 +716,28 @@ function TermsAndConditions() {
                                     or delays You may experience when using the blockchain, however caused. We expressly
                                     disclaim any liability for these risks.
                                 </p>
+
+                                <p>
+                                    Cloud Service Providers (the "CSPs") are entities or individuals who utilize the Naeural
+                                    Edge Protocol to execute AI computational tasks on Ratio1 Edge Nodes. When CSPs make
+                                    payments for these tasks, they incur a protocol-level fee, (the "Burn Fee"). The Burn Fee is
+                                    supporting the Ecosystem's decentralized infrastructure. The Burn Fee is recorded in a burn
+                                    report as described below.
+                                </p>
+
+                                <p>
+                                    The burn report documents the Burn Fee, which consists of Tokens irrevocably destroyed
+                                    on-chain and permanently removed from circulation. This Burn Fee is not a payment to NAEURAL
+                                    SRL, its affiliates, or any Node Provider. The Burn Fee is comparable to blockchain network
+                                    (gas) fees.
+                                </p>
+
+                                <p>
+                                    CSPs may use the burn report to treat the Burn Fee as a documented network fee for internal
+                                    accounting purposes. This does not constitute tax advice. All provisions in these Terms and
+                                    Conditions regarding limitations of liability and responsibilities, including but not
+                                    limited to Sections 12 and 13, are applicable to the Burn Fee and related transactions.
+                                </p>
                             </div>
                         </section>
 
