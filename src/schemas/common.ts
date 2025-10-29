@@ -70,5 +70,5 @@ export const getURISchema = () => {
     return z
         .string({ required_error: 'Value is required' })
         .max(128, 'Value cannot exceed 128 characters')
-        .regex(/^https?:\/\/.+/, 'Must be a valid URI');
+        .regex(/^https?:\/\/.+/, 'Must be a valid http or https URL');
 };

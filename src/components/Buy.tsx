@@ -140,8 +140,6 @@ function Buy({ onClose }: { onClose: () => void }) {
     const isApprovalRequired = (): boolean => !hasEnoughAllowance();
 
     const fetchLicenseTokenPrice = async (publicClient): Promise<bigint> => {
-        console.log('fetchLicenseTokenPrice');
-
         const price = await publicClient.readContract({
             address: config.ndContractAddress,
             abi: NDContractAbi,
@@ -154,8 +152,6 @@ function Buy({ onClose }: { onClose: () => void }) {
     };
 
     const fetchAllowance = async (publicClient, address: string): Promise<bigint> => {
-        console.log('fetchAllowance');
-
         const allowance = await publicClient.readContract({
             address: config.r1ContractAddress,
             abi: ERC20Abi,
@@ -169,8 +165,6 @@ function Buy({ onClose }: { onClose: () => void }) {
     };
 
     const fetchUserUsdMintedAmount = async (publicClient, address: string): Promise<bigint> => {
-        console.log('fetchUserUsdMintedAmount');
-
         const userUsdMintedAmount = await publicClient.readContract({
             address: config.ndContractAddress,
             abi: NDContractAbi,
