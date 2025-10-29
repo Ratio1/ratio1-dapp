@@ -1,7 +1,10 @@
 import { Button } from '@heroui/button';
 import { uploadProfileImage } from '@lib/api/backend';
+import { resizeImage } from '@lib/utils';
 import { useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
+
+const ALLOWED_IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
 
 export default function ImageUpload({
     onSuccessfulUpload,
@@ -16,17 +19,27 @@ export default function ImageUpload({
         async (event: React.ChangeEvent<HTMLInputElement>) => {
             setImageLoading(true);
 
-            const file = event.target.files?.[0];
+            let file: File | undefined = event.target.files?.[0];
 
             if (!file) {
                 return;
             }
 
-            if (file.size > 500_000) {
-                const message = 'Image size must not exceed 500 KB.';
-                toast.error(message);
+            // Check if file extension is allowed
+            const fileName = file.name.toLowerCase();
+            const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
+
+            if (!ALLOWED_IMAGE_EXTENSIONS.includes(fileExtension)) {
+                toast.error('Only .jpg, .jpeg, and .png images are allowed.');
+                setImageLoading(false);
                 event.target.value = '';
                 return;
+            }
+
+            if (file.size > 50_000) {
+                const resizedBlob = await resizeImage(file);
+                console.log('Resized size (KB):', resizedBlob.size / 1024);
+                file = new File([resizedBlob], file.name, { type: 'image/jpeg' });
             }
 
             try {
@@ -59,7 +72,7 @@ export default function ImageUpload({
                 ref={inputRef}
                 id="image-input"
                 type="file"
-                accept="image/*"
+                accept=".jpg,.jpeg,.png"
                 onChange={handleFileChange}
                 className="hidden"
             />

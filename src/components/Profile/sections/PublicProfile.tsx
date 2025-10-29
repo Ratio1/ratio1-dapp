@@ -106,60 +106,43 @@ export default function PublicProfile() {
             <div className="col gap-2">
                 {/* Image */}
                 <div className="col items-center gap-3">
-                    <div className="center-all">
-                        <div className="center-all relative h-[84px] w-[84px] overflow-hidden rounded-[37.5%]">
-                            {/* Placeholder */}
-                            <div className="center-all absolute h-full w-full bg-slate-200 text-6xl text-white">
-                                <HiUser />
-                            </div>
-
-                            {/* Loading */}
-                            {isImageLoading && <Skeleton className="absolute h-full w-full" />}
-
-                            <img
-                                src={profileImageUrl}
-                                alt="Profile"
-                                className={clsx('z-10 h-full w-full object-cover object-center', {
-                                    'opacity-0': isImageLoading || imageError,
-                                })}
-                                onLoad={() => {
-                                    setImageLoading(false);
-                                }}
-                                onError={() => {
-                                    setImageLoading(false);
-                                    setImageError(true);
-                                }}
-                            />
+                    <div className="center-all relative h-[84px] w-[84px] overflow-hidden rounded-[37.5%]">
+                        {/* Placeholder */}
+                        <div className="center-all absolute h-full w-full bg-slate-200 text-6xl text-white">
+                            <HiUser />
                         </div>
+
+                        {/* Loading */}
+                        {isImageLoading && <Skeleton className="absolute h-full w-full" />}
+
+                        <img
+                            src={profileImageUrl}
+                            alt="Profile"
+                            className={clsx('z-10 h-full w-full object-cover object-center', {
+                                'opacity-0': isImageLoading || imageError,
+                            })}
+                            onLoad={() => {
+                                setImageLoading(false);
+                            }}
+                            onError={() => {
+                                setImageLoading(false);
+                                setImageError(true);
+                            }}
+                        />
                     </div>
 
-                    {isEditing ? (
-                        <div className="col items-center gap-2">
-                            <ImageUpload
-                                onSuccessfulUpload={() => {
-                                    // Bust cached image and re-attempt load
-                                    setImageError(false);
-                                    setImageRefreshToken(Date.now());
-                                }}
-                                setImageLoading={setImageLoading}
-                            />
+                    <div className="col items-center gap-2">
+                        <ImageUpload
+                            onSuccessfulUpload={() => {
+                                // Bust cached image and re-attempt load
+                                setImageError(false);
+                                setImageRefreshToken(Date.now());
+                            }}
+                            setImageLoading={setImageLoading}
+                        />
 
-                            <div className="text-sm text-slate-500">The maximum file size allowed is 500 KB.</div>
-                        </div>
-                    ) : (
-                        <div>
-                            <Button
-                                className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
-                                color="default"
-                                size="sm"
-                                variant="solid"
-                                onPress={() => setEditing(true)}
-                                isDisabled={isLoading}
-                            >
-                                <div className="text-sm">Edit profile</div>
-                            </Button>
-                        </div>
-                    )}
+                        <div className="text-sm text-slate-500">Only .jpg, .jpeg, and .png images are allowed.</div>
+                    </div>
                 </div>
 
                 {/* Details */}
@@ -237,6 +220,19 @@ export default function PublicProfile() {
                                 </div>
                             </DetailsCard>
                         )}
+
+                        <div className="center-all mt-2">
+                            <Button
+                                className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
+                                color="default"
+                                size="sm"
+                                variant="solid"
+                                onPress={() => setEditing(true)}
+                                isDisabled={isLoading}
+                            >
+                                <div className="text-sm">Edit profile</div>
+                            </Button>
+                        </div>
                     </>
                 )}
             </div>
