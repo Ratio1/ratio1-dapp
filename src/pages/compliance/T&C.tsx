@@ -729,7 +729,7 @@ function TermsAndConditions() {
                                     The burn report documents the Burn Fee, which consists of Tokens irrevocably destroyed
                                     on-chain and permanently removed from circulation. This Burn Fee is not a payment to NAEURAL
                                     SRL, its affiliates, or any Node Provider. The Burn Fee is comparable to blockchain network
-                                    (gas) fees .
+                                    (gas) fees.
                                 </p>
 
                                 <p>

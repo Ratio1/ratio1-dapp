@@ -24,7 +24,7 @@ import toast from 'react-hot-toast';
 import { BiMinus } from 'react-icons/bi';
 import { RiAddFill, RiArrowRightDoubleLine, RiCpuLine, RiErrorWarningLine, RiSettings2Line } from 'react-icons/ri';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { PriceTier } from 'typedefs/blockchain';
+import { ApiAccount, EthAddress, PriceTier } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 import { SlippageModal } from '../shared/SlippageModal';
@@ -49,7 +49,6 @@ function Buy({ onClose }: { onClose: () => void }) {
     const [licenseTokenPrice, setLicenseTokenPrice] = useState<bigint>(0n);
 
     const [accountUsdSpendingLimit, setAccountUsdSpendingLimit] = useState<number | undefined>();
-    const [userUsdMintedAmount, setUserUsdMintedAmount] = useState<bigint | undefined>();
 
     const [slippageValue, setSlippageValue] = useState<string>('');
     const [slippage, setSlippage] = useState<number>(10);
@@ -69,19 +68,33 @@ function Buy({ onClose }: { onClose: () => void }) {
         if (!publicClient) {
             return;
         }
-
-        fetchLicenseTokenPrice(publicClient);
     }, []);
 
     useEffect(() => {
-        if (publicClient && address) {
-            (async () => {
-                await Promise.all([fetchR1Balance(), fetchAllowance(publicClient, address)]);
-
-                fetchUserUsdMintedAmount(publicClient, address);
-            })();
+        if (publicClient && address && account) {
+            init(publicClient, address, account);
         }
-    }, [address, publicClient]);
+    }, [address, publicClient, account]);
+
+    const init = async (publicClient, address: EthAddress, account: ApiAccount) => {
+        try {
+            const [_price, _, _allowance, userUsdMintedAmount] = await Promise.all([
+                fetchLicenseTokenPrice(publicClient),
+                fetchR1Balance(),
+                fetchAllowance(publicClient, address),
+                fetchUserUsdMintedAmount(publicClient, address),
+            ]);
+
+            if (userUsdMintedAmount !== undefined) {
+                setAccountUsdSpendingLimit(account.usdBuyLimit - Number(userUsdMintedAmount));
+            }
+
+            setLoading(false);
+        } catch (error) {
+            console.error(error);
+            toast.error('Unexpected error, please refresh this page.');
+        }
+    };
 
     // Periodically refresh price and relevant variables
     useEffect(() => {
@@ -96,13 +109,6 @@ function Buy({ onClose }: { onClose: () => void }) {
             clearInterval(timer);
         };
     }, []);
-
-    useEffect(() => {
-        if (account && userUsdMintedAmount !== undefined) {
-            setAccountUsdSpendingLimit(account.usdBuyLimit - Number(userUsdMintedAmount));
-            setLoading(false);
-        }
-    }, [account, userUsdMintedAmount]);
 
     const refresh = async () => {
         if (publicClient && address) {
@@ -133,7 +139,9 @@ function Buy({ onClose }: { onClose: () => void }) {
      */
     const isApprovalRequired = (): boolean => !hasEnoughAllowance();
 
-    const fetchLicenseTokenPrice = async (publicClient): Promise<void> => {
+    const fetchLicenseTokenPrice = async (publicClient): Promise<bigint> => {
+        console.log('fetchLicenseTokenPrice');
+
         const price = await publicClient.readContract({
             address: config.ndContractAddress,
             abi: NDContractAbi,
@@ -141,9 +149,13 @@ function Buy({ onClose }: { onClose: () => void }) {
         });
 
         setLicenseTokenPrice(price);
+
+        return price;
     };
 
     const fetchAllowance = async (publicClient, address: string): Promise<bigint> => {
+        console.log('fetchAllowance');
+
         const allowance = await publicClient.readContract({
             address: config.r1ContractAddress,
             abi: ERC20Abi,
@@ -156,7 +168,9 @@ function Buy({ onClose }: { onClose: () => void }) {
         return allowance;
     };
 
-    const fetchUserUsdMintedAmount = async (publicClient, address: string): Promise<void> => {
+    const fetchUserUsdMintedAmount = async (publicClient, address: string): Promise<bigint> => {
+        console.log('fetchUserUsdMintedAmount');
+
         const userUsdMintedAmount = await publicClient.readContract({
             address: config.ndContractAddress,
             abi: NDContractAbi,
@@ -164,7 +178,7 @@ function Buy({ onClose }: { onClose: () => void }) {
             args: [address],
         });
 
-        setUserUsdMintedAmount(userUsdMintedAmount);
+        return userUsdMintedAmount;
     };
 
     const approve = async () => {
@@ -587,7 +601,7 @@ function Buy({ onClose }: { onClose: () => void }) {
                                         <img src={Logo} alt="Logo" className="h-6 w-6 rounded-full" />
                                     </div>
 
-                                    <div>Get $R1</div>
+                                    <div className="font-medium">Get $R1</div>
                                 </div>
                             </Button>
 
