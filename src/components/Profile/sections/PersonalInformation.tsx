@@ -25,10 +25,10 @@ export default function PersonalInformation() {
     const [isSubscribed, setSubscribed] = useState<boolean>(false);
     const [isCompany, setCompany] = useState<boolean>(false);
 
-    const [isLoading, setLoading] = useState<boolean>(false);
-
     const [isFetchingKycInfo, setFetchingKycInfo] = useState<boolean>(false);
     const [kycInfo, setKycInfo] = useState<KycInfo | undefined>();
+
+    const [isLoading, setLoading] = useState<boolean>(false);
 
     const [applicationStatusInfo, setApplicationStatusInfo] = useState<
         { text: string; color: 'yellow' | 'green' | 'red' } | undefined
@@ -273,7 +273,7 @@ function ApplicationButton({ label, isLoading, onPress }: { label: string; isLoa
 
 function ApplicationInfoText({ isCompany }: { isCompany: boolean }) {
     return (
-        <div className="flex items-start gap-1">
+        <div className="flex items-start gap-1 sm:items-center">
             <RiInformation2Line className="text-primary text-lg" />
             <div className="compact">
                 You'll continue the {isCompany ? 'KYB' : 'KYC'} process using{' '}
