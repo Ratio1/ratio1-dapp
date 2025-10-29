@@ -23,7 +23,7 @@ const EMPTY_PROFILE: PublicProfileInfo = {
 };
 
 export default function PublicProfile() {
-    const [isImageLoading, setImageLoading] = useState<boolean>(false);
+    const [isImageLoading, setImageLoading] = useState<boolean>(true);
     const [imageError, setImageError] = useState<boolean>(false);
     const [imageRefreshToken, setImageRefreshToken] = useState<number>(0);
 
@@ -88,24 +88,8 @@ export default function PublicProfile() {
         }
     }, [isPublicProfileError]);
 
-    useEffect(() => {
-        if (isImageLoading) {
-            console.log('PublicProfile image started loading');
-        }
-    }, [isImageLoading]);
-
     const isLoading: boolean =
         isLoadingBrandingPlatforms || isLoadingProfileInfo || isFetchingProfileInfo || address === undefined;
-
-    // Reset image loading state when address changes
-    useEffect(() => {
-        if (!address) {
-            return;
-        }
-
-        setImageLoading(true);
-        setImageError(false);
-    }, [address, imageRefreshToken]);
 
     // Build the image URL once (with cache-busting param when refreshed)
     const profileImageUrl = useMemo(() => {
@@ -123,48 +107,41 @@ export default function PublicProfile() {
                 {/* Image */}
                 <div className="col items-center gap-3">
                     <div className="center-all">
-                        <div className="center-all h-[84px] w-[84px]">
-                            {!address ? (
-                                <Skeleton className="h-full w-full rounded-[37.5%]" />
-                            ) : imageError ? (
-                                // Placeholder user icon when no image exists
-                                <div className="center-all h-full w-full rounded-[37.5%] bg-slate-200 text-6xl text-white">
-                                    <HiUser />
-                                </div>
-                            ) : (
-                                <div className="center-all relative h-full w-full overflow-hidden rounded-[37.5%]">
-                                    <Skeleton className="absolute h-full w-full rounded-[37.5%]" />
+                        <div className="center-all relative h-[84px] w-[84px] overflow-hidden rounded-[37.5%]">
+                            {/* Placeholder */}
+                            <div className="center-all absolute h-full w-full bg-slate-200 text-6xl text-white">
+                                <HiUser />
+                            </div>
 
-                                    <img
-                                        src={profileImageUrl}
-                                        alt="Profile"
-                                        className={clsx('z-10 h-full w-full rounded-[37.5%] object-cover object-center', {
-                                            'opacity-0': isImageLoading,
-                                        })}
-                                        onLoad={() => {
-                                            setImageLoading(false);
-                                            setImageError(false);
-                                        }}
-                                        onError={(error) => {
-                                            console.error('Error loading image');
-                                            setImageLoading(false);
-                                            setImageError(true);
-                                        }}
-                                    />
-                                </div>
-                            )}
+                            {/* Loading */}
+                            {isImageLoading && <Skeleton className="absolute h-full w-full" />}
+
+                            <img
+                                src={profileImageUrl}
+                                alt="Profile"
+                                className={clsx('z-10 h-full w-full object-cover object-center', {
+                                    'opacity-0': isImageLoading || imageError,
+                                })}
+                                onLoad={() => {
+                                    setImageLoading(false);
+                                }}
+                                onError={() => {
+                                    setImageLoading(false);
+                                    setImageError(true);
+                                }}
+                            />
                         </div>
                     </div>
 
                     {isEditing ? (
                         <div className="col items-center gap-2">
                             <ImageUpload
-                                onUpload={() => {
+                                onSuccessfulUpload={() => {
                                     // Bust cached image and re-attempt load
+                                    setImageError(false);
                                     setImageRefreshToken(Date.now());
                                 }}
                                 setImageLoading={setImageLoading}
-                                setImageError={setImageError}
                             />
 
                             <div className="text-sm text-slate-500">The maximum file size allowed is 500 KB.</div>
