@@ -49,33 +49,18 @@ jobs:
           build-args: |
             VERSION=${{ steps.version.outputs.version }}
           tags: |
-            ratio1/dapp
-
-      - name: Archive production build
-        run: zip -r ratio1-dapp-build.zip dist
+            ratio1/dapp:latest
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-            tag_name: ${{ steps.version.outputs.version_tag }}
-            name: v${{ steps.version.outputs.version }}
-            draft: false
-            prerelease: false
-            files: ratio1-dapp-build.zip
+          tag_name: ${{ steps.version.outputs.version_tag }}
+          name: v${{ steps.version.outputs.version }}
+          body: |
+            Docker image details:
+            - tag: ratio1/dapp:latest
+            - digest: ${{ steps.build_image.outputs.digest }}
+          draft: false
+          prerelease: false
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
-#      - name: Create GitHub Release
-#        uses: softprops/action-gh-release@v2
-#        with:
-#          tag_name: ${{ steps.version.outputs.version_tag }}
-#          name: v${{ steps.version.outputs.version }}
-#          body: |
-#            Docker image details:
-#            - tag: ratio1/dapp:main
-#            - digest: ${{ steps.build_image.outputs.digest }}
-#          draft: false
-#          prerelease: false
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
