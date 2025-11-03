@@ -77,8 +77,15 @@ function Buy({ onClose }: { onClose: () => void }) {
     }, [address, publicClient, account]);
 
     useEffect(() => {
-        console.log('R1 Balance', fBI(r1Balance, 18), 'Required Balance', fBI(getTokenAmount(), 18));
-    }, [r1Balance, licenseTokenPrice]);
+        console.log(
+            'R1 Balance',
+            fBI(r1Balance, 18),
+            'Required Balance',
+            fBI(getTokenAmount(), 18),
+            'maxAcceptedTokenPerLicense',
+            fBI(getTokenAmount(true, false), 18),
+        );
+    }, [r1Balance, licenseTokenPrice, slippage]);
 
     const init = async (publicClient, address: EthAddress, account: ApiAccount) => {
         try {
@@ -123,6 +130,10 @@ function Buy({ onClose }: { onClose: () => void }) {
     };
 
     const getTokenAmount = (withSlippage: boolean = true, withVat: boolean = true): bigint => {
+        if (!account) {
+            console.error('Missing account inside getTokenAmount()');
+        }
+
         const vatPercentage: number = account?.vatPercentage || 0;
         const vatMultiplier = 10000n + BigInt(withVat ? vatPercentage : 0);
         const amountWithVAT: bigint = (BigInt(quantity) * licenseTokenPrice * vatMultiplier) / 10000n;
@@ -132,7 +143,8 @@ function Buy({ onClose }: { onClose: () => void }) {
         }
 
         const slippageValue = Math.floor(slippage * 100) / 100; // Rounds down to 2 decimal places
-        const amountWithSlippage: bigint = (amountWithVAT * BigInt(Math.floor(100 + slippageValue))) / 100n;
+        const slippageMultiplier = BigInt(10000 + Math.floor(slippageValue * 100)); // Convert percent to basis points
+        const amountWithSlippage: bigint = (amountWithVAT * slippageMultiplier) / 10000n;
 
         return amountWithSlippage;
     };
