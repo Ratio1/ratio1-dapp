@@ -11,7 +11,7 @@ import { config, environment, getDevAddress, isUsingDevAddress } from '@lib/conf
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
-import { sleep } from '@lib/utils';
+import { fBI, sleep } from '@lib/utils';
 import { AddTokenToWallet } from '@shared/AddTokenToWallet';
 import { ConnectWalletWrapper } from '@shared/ConnectWalletWrapper';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
@@ -51,7 +51,7 @@ function Buy({ onClose }: { onClose: () => void }) {
     const [accountUsdSpendingLimit, setAccountUsdSpendingLimit] = useState<number | undefined>();
 
     const [slippageValue, setSlippageValue] = useState<string>('');
-    const [slippage, setSlippage] = useState<number>(10);
+    const [slippage, setSlippage] = useState<number>(1);
     const { isOpen, onOpen, onClose: onCloseSlippageModal, onOpenChange } = useDisclosure();
 
     const [quantity, setQuantity] = useState<string>('1');
@@ -73,8 +73,21 @@ function Buy({ onClose }: { onClose: () => void }) {
     useEffect(() => {
         if (publicClient && address && account) {
             init(publicClient, address, account);
+
+            console.log('VAT Percentage', account.vatPercentage);
         }
     }, [address, publicClient, account]);
+
+    useEffect(() => {
+        console.log(
+            'R1 Balance',
+            fBI(r1Balance, 18),
+            'Required Balance',
+            fBI(getTokenAmount(), 18),
+            'maxAcceptedTokenPerLicense',
+            fBI(getTokenAmount(true, false), 18),
+        );
+    }, [r1Balance, licenseTokenPrice, slippage]);
 
     const init = async (publicClient, address: EthAddress, account: ApiAccount) => {
         try {
@@ -119,16 +132,23 @@ function Buy({ onClose }: { onClose: () => void }) {
     };
 
     const getTokenAmount = (withSlippage: boolean = true, withVat: boolean = true): bigint => {
+        if (!account) {
+            console.error('Missing account inside getTokenAmount()');
+        }
+
         const vatPercentage: number = account?.vatPercentage || 0;
         const vatMultiplier = 10000n + BigInt(withVat ? vatPercentage : 0);
-        const amount: bigint = (BigInt(quantity) * licenseTokenPrice * vatMultiplier) / 10000n;
+        const amountWithVAT: bigint = (BigInt(quantity) * licenseTokenPrice * vatMultiplier) / 10000n;
 
         if (!withSlippage) {
-            return amount;
+            return amountWithVAT;
         }
 
         const slippageValue = Math.floor(slippage * 100) / 100; // Rounds down to 2 decimal places
-        return (amount * BigInt(Math.floor(100 + slippageValue))) / 100n;
+        const slippageMultiplier = BigInt(10000 + Math.floor(slippageValue * 100)); // Convert percent to basis points
+        const amountWithSlippage: bigint = (amountWithVAT * slippageMultiplier) / 10000n;
+
+        return amountWithSlippage;
     };
 
     const hasEnoughAllowance = (): boolean => tokenAllowance !== undefined && tokenAllowance > MAX_ALLOWANCE / 2n;
@@ -140,8 +160,6 @@ function Buy({ onClose }: { onClose: () => void }) {
     const isApprovalRequired = (): boolean => !hasEnoughAllowance();
 
     const fetchLicenseTokenPrice = async (publicClient): Promise<bigint> => {
-        console.log('fetchLicenseTokenPrice');
-
         const price = await publicClient.readContract({
             address: config.ndContractAddress,
             abi: NDContractAbi,
@@ -154,8 +172,6 @@ function Buy({ onClose }: { onClose: () => void }) {
     };
 
     const fetchAllowance = async (publicClient, address: string): Promise<bigint> => {
-        console.log('fetchAllowance');
-
         const allowance = await publicClient.readContract({
             address: config.r1ContractAddress,
             abi: ERC20Abi,
@@ -169,8 +185,6 @@ function Buy({ onClose }: { onClose: () => void }) {
     };
 
     const fetchUserUsdMintedAmount = async (publicClient, address: string): Promise<bigint> => {
-        console.log('fetchUserUsdMintedAmount');
-
         const userUsdMintedAmount = await publicClient.readContract({
             address: config.ndContractAddress,
             abi: NDContractAbi,
@@ -223,19 +237,25 @@ function Buy({ onClose }: { onClose: () => void }) {
 
         const { signature, uuid, usdLimitAmount, vatPercentage } = await buyLicense();
 
+        console.log('For /license/buy the API returned:', { signature, uuid, usdLimitAmount, vatPercentage });
+
+        const args: readonly [bigint, number, bigint, `0x${string}`, bigint, bigint, `0x${string}`] = [
+            BigInt(quantity),
+            currentPriceTier,
+            getTokenAmount(true, false),
+            `0x${Buffer.from(uuid).toString('hex')}`,
+            BigInt(usdLimitAmount),
+            BigInt(vatPercentage),
+            `0x${signature}`,
+        ];
+
+        console.log('buyLicense', args);
+
         const txHash = await walletClient.writeContract({
             address: config.ndContractAddress,
             abi: NDContractAbi,
             functionName: 'buyLicense',
-            args: [
-                BigInt(quantity),
-                currentPriceTier,
-                getTokenAmount(true, false),
-                `0x${Buffer.from(uuid).toString('hex')}`,
-                BigInt(usdLimitAmount),
-                BigInt(vatPercentage),
-                `0x${signature}`,
-            ],
+            args,
         });
 
         await watchTx(txHash, publicClient);

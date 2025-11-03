@@ -28,12 +28,12 @@ function BuyR1() {
 
     const [selectedTokenKey, setSelectedTokenKey] = useState<string>(Object.keys(config.swapTokensDetails)[0]);
     const selectedToken = useMemo(() => config.swapTokensDetails[selectedTokenKey], [selectedTokenKey]);
-    const [fromAmount, setFromAmount] = useState<string>(selectedToken.fromAmount);
+    const [fromAmount, setFromAmount] = useState<string>('0');
     const [r1Estimate, setR1Estimate] = useState<bigint>(0n);
     const [expectedPrice, setExpectedPrice] = useState<number>(0);
     const [userTokenBalance, setUserTokenBalance] = useState<bigint>(0n);
     const [ethPriceInUsd, setEthPriceInUsd] = useState<number>(0);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoading, setLoading] = useState<boolean>(false);
 
     const hasSufficientBalance = useMemo(() => {
         return userTokenBalance >= parseUnits(fromAmount, selectedToken.decimals);
@@ -134,15 +134,18 @@ function BuyR1() {
 
     const debouncedFetchEstimatedR1 = debouncedFetchEstimatedR1Ref.current;
 
-    const fetchUserBalance = () => {
-        setUserTokenBalance(0n);
+    const fetchUserBalance = async (address: EthAddress, publicClient): Promise<bigint> => {
+        let balance: bigint;
 
         if (selectedToken.address) {
-            fetchErc20Balance(selectedToken.address).then(setUserTokenBalance);
+            balance = await fetchErc20Balance(selectedToken.address);
         } else {
-            if (!publicClient || !address) return;
-            publicClient.getBalance({ address }).then(setUserTokenBalance);
+            // ETH balance
+            balance = await publicClient.getBalance({ address });
         }
+
+        setUserTokenBalance(balance);
+        return balance;
     };
 
     const fetchEthPrice = async () => {
@@ -160,9 +163,26 @@ function BuyR1() {
     }, [fromAmount, selectedToken]);
 
     useEffect(() => {
-        fetchUserBalance();
+        if (address && publicClient) {
+            initUserBalance(address, publicClient);
+        }
         fetchEthPrice();
-    }, [address, selectedToken]);
+    }, [address, publicClient, selectedToken]);
+
+    const initUserBalance = async (address: EthAddress, publicClient) => {
+        try {
+            const balance: bigint = await fetchUserBalance(address, publicClient);
+            setUserTokenBalance(balance);
+
+            const defaultFromAmount = parseUnits(selectedToken.fromAmount ?? '0', selectedToken.decimals);
+            const amountToUse: bigint = defaultFromAmount < balance ? defaultFromAmount : balance;
+
+            setFromAmount(formatUnits(amountToUse, selectedToken.decimals));
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to fetch user token balance.');
+        }
+    };
 
     const swapForR1 = async () => {
         if (!walletClient || !address) {
@@ -184,7 +204,7 @@ function BuyR1() {
         }
 
         try {
-            setIsLoading(true);
+            setLoading(true);
 
             if (selectedToken.address) {
                 if (dualTxsModalRef.current) {
@@ -234,13 +254,13 @@ function BuyR1() {
             }
 
             fetchR1Balance();
-            fetchUserBalance();
+            fetchUserBalance(address, publicClient);
             debouncedFetchEstimatedR1?.();
         } catch (error) {
             toast.error('Unexpected error, please try again.');
             console.error(error);
         } finally {
-            setIsLoading(false);
+            setLoading(false);
             onDualTxsModalClose();
         }
     };
@@ -274,7 +294,7 @@ function BuyR1() {
                                     />
 
                                     <div
-                                        className="row cursor-pointer gap-1.5 rounded-full border border-slate-100 bg-white px-1.5 py-1 shadow-round transition-all hover:border-primary"
+                                        className="row shadow-round hover:border-primary cursor-pointer gap-1.5 rounded-full border border-slate-100 bg-white px-1.5 py-1 transition-all"
                                         onClick={() => {
                                             if (tokenSelectorModalRef.current) {
                                                 tokenSelectorModalRef.current.getBalances();
@@ -287,7 +307,7 @@ function BuyR1() {
                                             alt={selectedTokenKey}
                                             className="h-7 w-7 min-w-7 overflow-hidden rounded-full"
                                         />
-                                        <div className="select-none text-sm font-medium">{selectedTokenKey}</div>
+                                        <div className="text-sm font-medium select-none">{selectedTokenKey}</div>
                                         <RiArrowDownSLine className="-ml-0.5 text-xl" />
                                     </div>
                                 </div>
@@ -330,10 +350,10 @@ function BuyR1() {
                                         {parseFloat(Number(formatUnits(r1Estimate, 18)).toFixed(3)).toLocaleString('en-US')}
                                     </span>
 
-                                    <div className="row gap-1.5 rounded-full border border-slate-100 bg-white px-1.5 py-1 shadow-round">
+                                    <div className="row shadow-round gap-1.5 rounded-full border border-slate-100 bg-white px-1.5 py-1">
                                         <img src={R1Logo} alt="R1" className="h-7 w-7 rounded-full" />
 
-                                        <div className="mr-1 select-none text-sm font-medium">$R1</div>
+                                        <div className="mr-1 text-sm font-medium select-none">$R1</div>
                                     </div>
                                 </div>
 
