@@ -2,7 +2,7 @@ name: Build and Push Devnet Image
 
 on:
   push:
-    branches: [develop]
+    branches: [develop, gh-image-build]
   # also allow manual runs
   workflow_dispatch:
 
