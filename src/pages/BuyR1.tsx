@@ -174,7 +174,7 @@ function BuyR1() {
             const balance: bigint = await fetchUserBalance(address, publicClient);
             setUserTokenBalance(balance);
 
-            const defaultFromAmount: bigint = BigInt(selectedToken.fromAmount) * BigInt(10 ** selectedToken.decimals);
+            const defaultFromAmount = parseUnits(selectedToken.fromAmount ?? '0', selectedToken.decimals);
             const amountToUse: bigint = defaultFromAmount < balance ? defaultFromAmount : balance;
 
             setFromAmount(formatUnits(amountToUse, selectedToken.decimals));
