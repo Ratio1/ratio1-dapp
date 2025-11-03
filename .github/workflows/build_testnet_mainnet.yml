@@ -48,7 +48,7 @@ jobs:
           build-args: |
             VERSION=${{ steps.version.outputs.version }}
           tags: |
-            ratio1/deeploy_ui:testnet
+            ratio1/dapp:testnet
 
       - name: Build & Push Mainnet Image
         id: build_image
