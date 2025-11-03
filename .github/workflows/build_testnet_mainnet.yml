@@ -1,4 +1,4 @@
-name: Build and Push Testnet and Mainnet Images
+name: Build and Push latest Image
 
 on:
   push:
@@ -36,11 +36,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build & Push Testnet Image
+      - name: Build & Push Mainnet Image
+        id: build_image
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile_testnet
+          file: ./Dockerfile_mainnet
           push: true
           platforms: linux/amd64
           cache-from: type=gha
@@ -49,23 +50,6 @@ jobs:
             VERSION=${{ steps.version.outputs.version }}
           tags: |
             ratio1/dapp
-#            ratio1/dapp:testnet # FIXME: uncomment when switching to distinct images
-
-        # FIXME: Uncomment section below when switching to distinct images
-#      - name: Build & Push Mainnet Image
-#        id: build_image
-#        uses: docker/build-push-action@v5
-#        with:
-#          context: .
-#          file: ./Dockerfile_mainnet
-#          push: true
-#          platforms: linux/amd64
-#          cache-from: type=gha
-#          cache-to: type=gha,mode=max
-#          build-args: |
-#            VERSION=${{ steps.version.outputs.version }}
-#          tags: |
-#            ratio1/dapp:mainnet
 
       - name: Archive production build
         run: zip -r ratio1-dapp-build.zip dist
