@@ -1,8 +1,9 @@
+# FIXME: disabled for now, when re-enabling, check all FIXME comments in the file
 name: Build and Push Devnet Image
 
 on:
   push:
-    branches: [develop, gh-image-build]
+#    branches: [develop] #FIXME: re-enable develop when needed
   # also allow manual runs
   workflow_dispatch:
 
