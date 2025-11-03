@@ -3,6 +3,8 @@ name: Build and Push Devnet Image
 
 on:
   push:
+    branches:
+      - some-inexistent-branch # to disable automatic runs temporarily
 #    branches: [develop] #FIXME: re-enable develop when needed
   # also allow manual runs
   workflow_dispatch:
