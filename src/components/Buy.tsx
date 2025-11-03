@@ -73,6 +73,8 @@ function Buy({ onClose }: { onClose: () => void }) {
     useEffect(() => {
         if (publicClient && address && account) {
             init(publicClient, address, account);
+
+            console.log('VAT Percentage', account.vatPercentage);
         }
     }, [address, publicClient, account]);
 
@@ -234,6 +236,8 @@ function Buy({ onClose }: { onClose: () => void }) {
         }
 
         const { signature, uuid, usdLimitAmount, vatPercentage } = await buyLicense();
+
+        console.log('For /license/buy the API returned:', { signature, uuid, usdLimitAmount, vatPercentage });
 
         const args: readonly [bigint, number, bigint, `0x${string}`, bigint, bigint, `0x${string}`] = [
             BigInt(quantity),
