@@ -1,11 +1,8 @@
-# FIXME: disabled for now, when re-enabling, check all FIXME comments in the file
 name: Build and Push Devnet Image
 
 on:
   push:
-    branches:
-      - some-inexistent-branch # to disable automatic runs temporarily
-#    branches: [develop] #FIXME: re-enable develop when needed
+    branches: [develop]
   # also allow manual runs
   workflow_dispatch:
 
@@ -43,5 +40,6 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             VERSION=${{ steps.vars.outputs.sha_short }}
+            ENVIRONMENT=devnet
           tags: |
             ratio1/dapp:devnet

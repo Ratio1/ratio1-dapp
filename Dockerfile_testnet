@@ -1,6 +1,7 @@
 # ---- Build stage ---------
 FROM node:20-slim AS builder
 ARG VERSION
+ARG ENVIRONMENT=testnet
 WORKDIR /app
 
 COPY package*.json ./
@@ -8,6 +9,7 @@ RUN npm ci
 
 COPY . .
 ENV VITE_APP_VERSION=${VERSION}
+ENV VITE_ENVIRONMENT=${ENVIRONMENT}
 RUN npm run build          # produces static files in /app/dist
 
 # ---- Runtime stage ---------

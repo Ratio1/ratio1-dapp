@@ -36,6 +36,21 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Build & Push Testnet Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile_testnet
+          push: true
+          platforms: linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ steps.version.outputs.version }}
+            ENVIRONMENT=testnet
+          tags: |
+            ratio1/dapp:testnet
+
       - name: Build & Push Mainnet Image
         id: build_image
         uses: docker/build-push-action@v5
@@ -48,6 +63,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             VERSION=${{ steps.version.outputs.version }}
+            ENVIRONMENT=mainnet
           tags: |
             ratio1/dapp:latest
 
