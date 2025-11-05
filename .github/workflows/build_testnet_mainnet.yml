@@ -65,7 +65,7 @@ jobs:
             VERSION=${{ steps.version.outputs.version }}
             ENVIRONMENT=mainnet
           tags: |
-            ratio1/dapp:latest
+            ratio1/dapp:mainnet
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -74,7 +74,7 @@ jobs:
           name: v${{ steps.version.outputs.version }}
           body: |
             Docker image details:
-            - tag: ratio1/dapp:latest
+            - tag: ratio1/dapp:mainnet
             - digest: ${{ steps.build_image.outputs.digest }}
           draft: false
           prerelease: false
