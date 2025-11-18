@@ -27,11 +27,6 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
                 try {
                     const [alias, isOnline] = await Promise.all([license.alias, license.isOnline]);
 
-                    console.log(`[Query] (${getShortAddressOrHash(license.nodeAddress, 4, true)})`, {
-                        alias,
-                        isOnline,
-                    });
-
                     setNode({
                         alias,
                         isOnline,

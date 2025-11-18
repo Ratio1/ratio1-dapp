@@ -37,7 +37,7 @@ export const LicenseCardHeader = ({
     const publicClient = usePublicClient();
     const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
 
-    const [isLoadingRewards, setLoadingRewards] = useState<boolean>(true);
+    const [isLoadingRewards, setLoadingRewards] = useState<boolean>(license.isLinked);
 
     // Rewards
     const [rewardsTotal, setRewardsTotal] = useState<bigint | undefined>();
@@ -104,20 +104,20 @@ export const LicenseCardHeader = ({
         >
             <div className="row gap-1">
                 <RiCpuLine className="text-lg" />
-                <div className="text-sm font-medium leading-none">License #{Number(license.licenseId)}</div>
+                <div className="text-sm leading-none font-medium">License #{Number(license.licenseId)}</div>
             </div>
         </Link>
     );
 
     const getLicenseUsageStats = () => (
-        <div className="row gap-2.5 text-sm font-medium leading-none">
+        <div className="row gap-2.5 text-sm leading-none font-medium">
             <div>
                 {fBI(license.totalClaimedAmount, 18)}/{fBI(license.totalAssignedAmount, 18)}
             </div>
 
             <div className="flex h-1 w-full overflow-hidden rounded-full bg-gray-300">
                 <div
-                    className="rounded-full bg-primary transition-all"
+                    className="bg-primary rounded-full transition-all"
                     style={{ width: `${Number((license.totalClaimedAmount * 100n) / license.totalAssignedAmount)}%` }}
                 ></div>
             </div>
@@ -140,7 +140,7 @@ export const LicenseCardHeader = ({
     const getLinkedNodeCard = () => <LicenseCardNode license={license} />;
 
     const getRewardsCard = () => {
-        if (!isLoadingRewards && rewardsTotal === undefined) {
+        if (license.isLinked && !isLoadingRewards && rewardsTotal === undefined) {
             return <SyncingOraclesTag variant="default" />;
         }
 
@@ -159,7 +159,7 @@ export const LicenseCardHeader = ({
             <LicenseSmallCard>
                 <div className="row w-full justify-between gap-4 lg:gap-8">
                     <div className="row gap-2">
-                        <div className="center-all rounded-full bg-blue-100 p-2 text-primary">
+                        <div className="center-all text-primary rounded-full bg-blue-100 p-2">
                             <TokenSvg classNames="h-5 w-5" />
                         </div>
 
@@ -168,15 +168,15 @@ export const LicenseCardHeader = ({
 
                     {!!nRewardsPoA && (
                         <div className="col gap-1.5 text-sm">
-                            <div className="font-medium leading-none text-slate-500">PoA</div>
-                            <div className="font-semibold leading-none text-primary">{fN(nRewardsPoA)}</div>
+                            <div className="leading-none font-medium text-slate-500">PoA</div>
+                            <div className="text-primary leading-none font-semibold">{fN(nRewardsPoA)}</div>
                         </div>
                     )}
 
                     {!!nRewardsPoAI && (
                         <div className="col gap-1.5 text-sm">
-                            <div className="font-medium leading-none text-slate-500">PoAI</div>
-                            <div className="font-semibold leading-none text-purple-600">{fN(nRewardsPoAI)}</div>
+                            <div className="leading-none font-medium text-slate-500">PoAI</div>
+                            <div className="leading-none font-semibold text-purple-600">{fN(nRewardsPoAI)}</div>
                         </div>
                     )}
                 </div>
@@ -215,7 +215,7 @@ export const LicenseCardHeader = ({
 
         return (
             <div className="h-9 rounded-md bg-green-100 px-3 py-2">
-                <div className="whitespace-nowrap text-sm font-medium text-green-600">Rewards Available</div>
+                <div className="text-sm font-medium whitespace-nowrap text-green-600">Rewards Available</div>
             </div>
         );
     };
@@ -224,7 +224,7 @@ export const LicenseCardHeader = ({
         <Dropdown placement="bottom-end" shouldBlockScroll={false} radius="sm">
             <DropdownTrigger>
                 <Button
-                    className="h-9 min-w-9 rounded-lg border border-default-200 bg-[#fcfcfd] p-0"
+                    className="border-default-200 h-9 min-w-9 rounded-lg border bg-[#fcfcfd] p-0"
                     color="default"
                     variant="bordered"
                     size="md"
@@ -279,7 +279,7 @@ export const LicenseCardHeader = ({
                                 <RiLink className="pr-0.5 text-[22px] text-slate-500" />
 
                                 <div className="col">
-                                    <div className="font-medium leading-4 text-body">Link</div>
+                                    <div className="text-body leading-4 font-medium">Link</div>
                                     <div className="text-[13px] text-slate-500">Assign license to a node</div>
                                 </div>
                             </div>
@@ -303,7 +303,7 @@ export const LicenseCardHeader = ({
                                 <RiExchange2Line className="pr-0.5 text-[22px] text-slate-500" />
 
                                 <div className="col">
-                                    <div className="font-medium leading-4 text-body">Change Node</div>
+                                    <div className="text-body leading-4 font-medium">Change Node</div>
                                     <div className="text-[13px] text-slate-500">Switch license to another node</div>
                                 </div>
                             </div>
@@ -321,7 +321,7 @@ export const LicenseCardHeader = ({
                                 <RiLinkUnlink className="pr-0.5 text-[22px] text-slate-500" />
 
                                 <div className="col">
-                                    <div className="font-medium leading-4 text-body">Unlink</div>
+                                    <div className="text-body leading-4 font-medium">Unlink</div>
                                     <div className="text-[13px] text-slate-500">Remove license from node</div>
                                 </div>
                             </div>
@@ -344,7 +344,7 @@ export const LicenseCardHeader = ({
                             <RiFireLine className="pr-0.5 text-[22px] text-red-500" />
 
                             <div className="col">
-                                <div className="font-medium leading-4 text-red-500">Burn</div>
+                                <div className="leading-4 font-medium text-red-500">Burn</div>
                                 <div className="text-[13px] text-slate-500">Permanently erase the license</div>
                             </div>
                         </div>
@@ -359,9 +359,9 @@ export const LicenseCardHeader = ({
     return (
         <div
             className={clsx(
-                'flex flex-col-reverse justify-between gap-4 md:gap-6 lg:gap-8 larger:flex-row larger:items-center',
+                'larger:flex-row larger:items-center flex flex-col-reverse justify-between gap-4 md:gap-6 lg:gap-8',
                 {
-                    'rounded-bl-2xl rounded-br-2xl': isExpanded,
+                    'rounded-br-2xl rounded-bl-2xl': isExpanded,
                 },
             )}
         >
