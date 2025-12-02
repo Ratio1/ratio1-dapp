@@ -55,15 +55,33 @@ export default function PreferencesSection() {
         }
     };
 
+    const getDefaultValues = () => {
+        const defaultValues = invoicingPreferences ?? {
+            nextNumber: '',
+            invoiceSeries: '',
+            countryVat: '',
+            ueVat: '',
+            extraUeVat: '',
+            localCurrency: 'USD',
+            extraText: '',
+            extraTaxes: [],
+        };
+
+        return defaultValues;
+    };
+
     const form = useForm<z.infer<typeof invoicingPreferencesSchema>>({
         resolver: zodResolver(invoicingPreferencesSchema),
         mode: 'onTouched',
-        defaultValues: invoicingPreferences,
+        defaultValues: getDefaultValues() as any,
     });
 
     // Reset form when modal opens
     const handleOpen = () => {
-        form.reset(invoicingPreferences);
+        if (invoicingPreferences) {
+            form.reset(invoicingPreferences);
+        }
+
         onOpen();
     };
 
@@ -153,7 +171,7 @@ export default function PreferencesSection() {
                                 value={invoicingPreferences?.extraUeVat ? `${invoicingPreferences?.extraUeVat}%` : '—'}
                             />
                             <BillingInfoRow label="Local Currency" value={invoicingPreferences?.localCurrency ?? '—'} />
-                            <BillingInfoRow label="Extra Text" value={invoicingPreferences?.extraText ?? '—'} />
+                            <BillingInfoRow label="Extra Text" value={invoicingPreferences?.extraText || '—'} />
 
                             <BillingInfoRow
                                 label="Extra Taxes"

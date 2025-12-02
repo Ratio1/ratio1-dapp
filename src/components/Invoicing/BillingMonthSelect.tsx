@@ -72,6 +72,7 @@ export default function BillingMonthSelect({
                 }
             }}
             isDisabled={uniqueMonths.length === 0}
+            aria-label="Select billing month"
         >
             {uniqueMonths.map((monthAndYear) => (
                 <SelectItem key={monthAndYear}>
