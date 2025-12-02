@@ -208,6 +208,7 @@ export const LicenseCardDetails = ({
                             </div>
 
                             {!!rewardsPoAI && (
+                                // isLoadingRewardsPoA is also used here in order to disable the button while licenses are refreshed
                                 <Button
                                     className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
                                     color="primary"
@@ -219,7 +220,6 @@ export const LicenseCardDetails = ({
                                         }
                                     }}
                                     isLoading={license.isClaimingRewardsPoAI}
-                                    // isLoadingRewardsPoA is also used here in order to disable the button while licenses are refreshed
                                     isDisabled={isLoadingRewardsPoA || isClaimingAllRewardsPoAI}
                                 >
                                     <div className="text-sm">Claim</div>
