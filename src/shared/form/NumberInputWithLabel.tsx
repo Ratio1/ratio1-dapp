@@ -33,7 +33,7 @@ export default function NumberInputWithLabel({ name, label, placeholder, tag, ha
                             value={field.value ?? ''}
                             onChange={(e) => {
                                 const value = e.target.value;
-                                field.onChange(value === '' ? '' : Number(value));
+                                field.onChange(value === '' ? undefined : Number(value));
                             }}
                             onBlur={field.onBlur}
                             isInvalid={!!fieldState.error}

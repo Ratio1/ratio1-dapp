@@ -3,7 +3,7 @@ import { Button } from '@heroui/button';
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@heroui/modal';
 import { Skeleton } from '@heroui/skeleton';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { changeInvoicingPreferences, getInvoicingPreferences } from '@lib/api/backend';
+import { changeInvoicingPreferences } from '@lib/api/backend';
 import { invoicingPreferencesSchema } from '@schemas/invoicing';
 import { CardWithHeader } from '@shared/cards/CardWithHeader';
 import { SlateCard } from '@shared/cards/SlateCard';
@@ -37,7 +37,19 @@ export default function PreferencesSection() {
     const fetchInvoicingPreferences = async () => {
         try {
             setFetching(true);
-            const preferences: any = await getInvoicingPreferences();
+            const preferences: any = {
+                userAddress: '0xE558740FFc65bc73f6EfB07C26C8D587EE22d297',
+                countryVat: 0,
+                extraTaxes: '{}',
+                extraText: null,
+                extraUeVat: 0,
+                invoiceSeries: 'NODE',
+                localCurrency: 'USD',
+                nextNumber: 2,
+                ueVat: 0,
+            };
+
+            // const preferences: any = await getInvoicingPreferences(); TODO:
             console.log('Preferences', preferences);
 
             if (preferences) {
