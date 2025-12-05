@@ -158,8 +158,8 @@ export default function PreferencesSection() {
                 >
                     <div className="col gap-3 sm:gap-4">
                         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-                            <BillingInfoRow label="Next Invoice Number" value={invoicingPreferences?.nextNumber ?? '—'} />
-                            <BillingInfoRow label="Invoice Series" value={invoicingPreferences?.invoiceSeries ?? '—'} />
+                            <BillingInfoRow label="Next Invoice Number" value={invoicingPreferences?.nextNumber || '—'} />
+                            <BillingInfoRow label="Invoice Series" value={invoicingPreferences?.invoiceSeries || '—'} />
                             <BillingInfoRow
                                 label="Country VAT"
                                 value={invoicingPreferences?.countryVat ? `${invoicingPreferences?.countryVat}%` : '—'}
@@ -172,7 +172,7 @@ export default function PreferencesSection() {
                                 label="Extra UE VAT"
                                 value={invoicingPreferences?.extraUeVat ? `${invoicingPreferences?.extraUeVat}%` : '—'}
                             />
-                            <BillingInfoRow label="Local Currency" value={invoicingPreferences?.localCurrency ?? '—'} />
+                            <BillingInfoRow label="Local Currency" value={invoicingPreferences?.localCurrency || '—'} />
                             <BillingInfoRow label="Extra Text" value={invoicingPreferences?.extraText || '—'} />
 
                             <BillingInfoRow
