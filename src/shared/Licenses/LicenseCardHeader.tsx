@@ -140,7 +140,11 @@ export const LicenseCardHeader = ({
     const getLinkedNodeCard = () => <LicenseCardNode license={license} />;
 
     const getRewardsCard = () => {
-        if (license.isLinked && !isLoadingRewards && rewardsTotal === undefined) {
+        if (!license.isLinked) {
+            return undefined;
+        }
+
+        if (!isLoadingRewards && rewardsTotal === undefined) {
             return <SyncingOraclesTag variant="default" />;
         }
 
