@@ -73,5 +73,10 @@
         "typescript-eslint": "^8.18.1",
         "vite": "^6.4.1"
     },
+    "overrides": {
+        "@babel/helpers": "7.28.4",
+        "on-headers": "1.1.0",
+        "@metamask/sdk-communication-layer": "0.33.1"
+    },
     "version": "1.0.0"
 }
