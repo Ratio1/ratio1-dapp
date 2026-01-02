@@ -176,6 +176,8 @@ export const adminAddresses = [
     '0x464579c1Dc584361e63548d2024c2db4463EdE48',
 ];
 
+const domain = window.location.hostname;
+
 const domainMainnet = 'app.ratio1.ai';
 const domainDevnet = 'devnet-app.ratio1.ai';
 const domainTestnet = 'testnet-app.ratio1.ai';
@@ -188,11 +190,23 @@ export const domains = {
     testnet: domainTestnet,
 };
 
+export const environment: 'mainnet' | 'testnet' | 'devnet' =
+    domain === domainMainnet
+        ? ('mainnet' as const)
+        : domain === domainTestnet
+          ? ('testnet' as const)
+          : domain === domainDevnet
+            ? ('devnet' as const)
+            : ('devnet' as const);
+
+/*
+TODO re-enable when docker build is enabled
 // Environment is now determined at build time via VITE_ENVIRONMENT variable
 // Default to devnet for local development if not specified
 const envFromBuild = import.meta.env.VITE_ENVIRONMENT as 'mainnet' | 'testnet' | 'devnet' | undefined;
 
 export const environment: 'mainnet' | 'testnet' | 'devnet' = envFromBuild || 'devnet';
+*/
 
 export const getR1ExplorerUrl = () => `https://${environment === 'mainnet' ? '' : `${environment}-`}${explorerBaseDomain}`;
 
