@@ -34,7 +34,7 @@
         "@tailwindcss/vite": "^4.1.13",
         "@tanstack/react-query": "^5.66.8",
         "@wagmi/connectors": "^5.7.7",
-        "axios": "^1.7.9",
+        "axios": "^1.12.0",
         "clsx": "^2.1.1",
         "connectkit": "^1.9.1",
         "date-fns": "^4.1.0",
@@ -69,9 +69,14 @@
         "prettier-plugin-tailwindcss": "^0.6.14",
         "serve": "^14.2.4",
         "tailwindcss": "^4.1.13",
-        "typescript": "~5.6.2",
+        "typescript": "^5.7.3",
         "typescript-eslint": "^8.18.1",
         "vite": "^6.4.1"
+    },
+    "overrides": {
+        "@babel/helpers": "7.28.4",
+        "on-headers": "1.1.0",
+        "@metamask/sdk-communication-layer": "0.33.1"
     },
     "version": "1.0.0"
 }

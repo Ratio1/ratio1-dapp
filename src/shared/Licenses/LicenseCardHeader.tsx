@@ -37,7 +37,7 @@ export const LicenseCardHeader = ({
     const publicClient = usePublicClient();
     const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
 
-    const [isLoadingRewards, setLoadingRewards] = useState<boolean>(true);
+    const [isLoadingRewards, setLoadingRewards] = useState<boolean>(license.isLinked);
 
     // Rewards
     const [rewardsTotal, setRewardsTotal] = useState<bigint | undefined>();

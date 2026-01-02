@@ -161,7 +161,7 @@ const getMndRewards = async (
     }
 
     let rewards_amount = 0n;
-    const logisticPlateau = 392_778135785707100000n; // 392.77
+    const logisticPlateau = 300_505239501691000000n; // 300.50
     const licensePlateau = (license.totalAssignedAmount * BigInt(1e18)) / logisticPlateau;
 
     for (let i = 0; i < epochsToClaim; i++) {
@@ -191,8 +191,8 @@ const calculateMndMaxEpochRelease = (firstMiningEpoch: bigint, licensePlateau: b
 
 const logisticFraction = (x: number): number => {
     const length = config.mndVestingEpochs;
-    const k = 3.0;
-    const midPrc = 0.6;
+    const k = 5.0;
+    const midPrc = 0.7;
     const midpoint = length * midPrc;
     return 1.0 / (1.0 + Math.exp((-k * (x - midpoint)) / length));
 };

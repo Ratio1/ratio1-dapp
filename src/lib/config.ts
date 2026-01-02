@@ -199,6 +199,15 @@ export const environment: 'mainnet' | 'testnet' | 'devnet' =
             ? ('devnet' as const)
             : ('devnet' as const);
 
+/*
+TODO re-enable when docker build is enabled
+// Environment is now determined at build time via VITE_ENVIRONMENT variable
+// Default to devnet for local development if not specified
+const envFromBuild = import.meta.env.VITE_ENVIRONMENT as 'mainnet' | 'testnet' | 'devnet' | undefined;
+
+export const environment: 'mainnet' | 'testnet' | 'devnet' = envFromBuild || 'devnet';
+*/
+
 export const getR1ExplorerUrl = () => `https://${environment === 'mainnet' ? '' : `${environment}-`}${explorerBaseDomain}`;
 
 export const config = configs[environment];
@@ -217,7 +226,7 @@ export const getLicenseAssignEpoch = (assignTimestamp: bigint) =>
 export const getDevAddress = (): {
     address: EthAddress;
 } => ({
-    address: import.meta.env.VITE_DEV_ADDRESS,
+    address: (import.meta.env.VITE_DEV_ADDRESS as EthAddress) || '0x0000000000000000000000000000000000000000',
 });
 
 export const isUsingDevAddress = process.env.NODE_ENV === 'development' && false;

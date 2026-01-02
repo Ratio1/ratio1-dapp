@@ -19,7 +19,7 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: 18
-                  cache: 'npm'
+                  cache: "npm"
 
             - name: Install dependencies
               run: npm install
@@ -28,10 +28,10 @@ jobs:
               id: version
               uses: PaulHatch/semantic-version@v5.4.0
               with:
-                  tag_prefix: 'v'
-                  major_pattern: '(MAJOR)'
-                  minor_pattern: '(feat|feature)'
-                  version_format: '${major}.${minor}.${patch}'
+                  tag_prefix: "v"
+                  major_pattern: "(MAJOR)"
+                  minor_pattern: "(feat|feature)"
+                  version_format: "${major}.${minor}.${patch}"
 
             - name: Build React app with Vite
               run: npm run build

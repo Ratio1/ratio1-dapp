@@ -159,7 +159,7 @@ function LicensesPageHeader({
             // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
             setTimeout(() => {
                 fetchLicenses();
-            }, 0);
+            }, 250);
         }
     };
 
@@ -194,7 +194,7 @@ function LicensesPageHeader({
             // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
             setTimeout(() => {
                 fetchLicenses();
-            }, 0);
+            }, 250);
         }
     };
 

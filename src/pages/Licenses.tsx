@@ -179,7 +179,7 @@ function Licenses() {
                 // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
                 setTimeout(() => {
                     fetchLicenses();
-                }, 0);
+                }, 250);
             }
 
             return receipt;
@@ -216,7 +216,7 @@ function Licenses() {
                 // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
                 setTimeout(() => {
                     fetchLicenses();
-                }, 0);
+                }, 250);
             }
 
             return receipt;
@@ -275,7 +275,7 @@ function Licenses() {
 
     const getLicenseElement = (license: License): JSX.Element => (
         <div
-            key={license.licenseId}
+            key={`${license.licenseId}-${license.nodeAddress}`}
             ref={(element) => {
                 if (element) {
                     cardRefs.current.set(`${license.type}${license.licenseId}`, element);
