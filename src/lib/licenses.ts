@@ -165,7 +165,7 @@ const getMndRewards = async (
     const licensePlateau = (license.totalAssignedAmount * BigInt(1e18)) / logisticPlateau;
 
     for (let i = 0; i < epochsToClaim; i++) {
-        const maxRewardsPerEpoch = calculateMndMaxEpochRelease(license.firstMiningEpoch, licensePlateau);
+        const maxRewardsPerEpoch = calculateMndMaxEpochRelease(epochs[i], license.firstMiningEpoch, licensePlateau);
         rewards_amount += (maxRewardsPerEpoch * BigInt(epochs_vals[i])) / 255n;
     }
 
@@ -178,10 +178,8 @@ const getMndRewards = async (
     return rewards_amount;
 };
 
-const calculateMndMaxEpochRelease = (firstMiningEpoch: bigint, licensePlateau: bigint): bigint => {
-    const currentEpoch = getCurrentEpoch();
-
-    let x = currentEpoch - Number(firstMiningEpoch);
+const calculateMndMaxEpochRelease = (epoch: number, firstMiningEpoch: bigint, licensePlateau: bigint): bigint => {
+    let x = epoch - Number(firstMiningEpoch);
     if (x > config.mndVestingEpochs) {
         x = config.mndVestingEpochs;
     }

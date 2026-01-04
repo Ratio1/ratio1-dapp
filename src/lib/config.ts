@@ -190,23 +190,9 @@ export const domains = {
     testnet: domainTestnet,
 };
 
-export const environment: 'mainnet' | 'testnet' | 'devnet' =
-    domain === domainMainnet
-        ? ('mainnet' as const)
-        : domain === domainTestnet
-          ? ('testnet' as const)
-          : domain === domainDevnet
-            ? ('devnet' as const)
-            : ('devnet' as const);
-
-/*
-TODO re-enable when docker build is enabled
-// Environment is now determined at build time via VITE_ENVIRONMENT variable
 // Default to devnet for local development if not specified
 const envFromBuild = import.meta.env.VITE_ENVIRONMENT as 'mainnet' | 'testnet' | 'devnet' | undefined;
-
 export const environment: 'mainnet' | 'testnet' | 'devnet' = envFromBuild || 'devnet';
-*/
 
 export const getR1ExplorerUrl = () => `https://${environment === 'mainnet' ? '' : `${environment}-`}${explorerBaseDomain}`;
 
