@@ -21,7 +21,7 @@ import toast from 'react-hot-toast';
 import { RiShieldUserLine, RiWalletLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
 import { EthAddress, License } from 'typedefs/blockchain';
-import { TransactionReceipt, formatUnits } from 'viem';
+import { TransactionReceipt, formatUnits, isAddress } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
 interface Props {
@@ -184,7 +184,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
                     type="text"
                     variant="bordered"
                     validate={(value) => {
-                        if (!(value.startsWith('0x') && value.length === 42)) {
+                        if (!(value.startsWith('0x') && value.length === 42 && isAddress(value))) {
                             return 'Value must be a valid Ethereum address';
                         }
 

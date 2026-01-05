@@ -14,6 +14,7 @@ import { LargeValueWithLabel } from '@shared/LargeValueWithLabel';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { EthAddress, MNDLicense } from 'typedefs/blockchain';
+import { isAddress } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
 const columnsMndsTable = [
@@ -145,9 +146,9 @@ function CreateMnd({ mnds, fetchData }: { mnds: (AdminMndView | null)[]; fetchDa
 
     return (
         <BigCard>
-            <div className="text-base font-semibold leading-6 lg:text-xl">Create new MND</div>
+            <div className="text-base leading-6 font-semibold lg:text-xl">Create new MND</div>
 
-            <div className="flex flex-col gap-4 larger:flex-row">
+            <div className="larger:flex-row flex flex-col gap-4">
                 <Input
                     value={address}
                     onValueChange={setAddress}
@@ -163,7 +164,7 @@ function CreateMnd({ mnds, fetchData }: { mnds: (AdminMndView | null)[]; fetchDa
                     labelPlacement="outside"
                     placeholder="0x..."
                     validate={(value) => {
-                        if (!(value.startsWith('0x') && value.length === 42)) {
+                        if (!(value.startsWith('0x') && value.length === 42 && isAddress(value))) {
                             return 'Value must be a valid Ethereum address';
                         }
 
@@ -232,7 +233,7 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
 
     const getLicenseUsageStats = (license: AdminMndView) => (
         <div className="col gap-2">
-            <div className="row justify-between text-sm font-medium leading-none">
+            <div className="row justify-between text-sm leading-none font-medium">
                 <div>
                     {fBI(license.totalClaimedAmount, 18)}/{fBI(license.totalAssignedAmount, 18)}
                 </div>
@@ -244,7 +245,7 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
 
             <div className="flex h-1 overflow-hidden rounded-full bg-gray-300">
                 <div
-                    className="rounded-full bg-primary transition-all"
+                    className="bg-primary rounded-full transition-all"
                     style={{ width: `${Number((license.totalClaimedAmount * 100n) / license.totalAssignedAmount)}%` }}
                 ></div>
             </div>
@@ -253,7 +254,7 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
 
     return (
         <BigCard>
-            <div className="text-base font-semibold leading-6 lg:text-xl">Minted MND</div>
+            <div className="text-base leading-6 font-semibold lg:text-xl">Minted MND</div>
 
             <div className="col flex w-full justify-between gap-8 lg:flex-row">
                 <LargeValueWithLabel
@@ -276,7 +277,7 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
                 />
             </div>
 
-            <div className="rounded-xl border border-[#e3e4e</div>8] bg-light p-3">
+            <div className="bg-light rounded-xl border border-[#e3e4e</div>8] p-3">
                 <Table
                     aria-label="MNDs Table"
                     classNames={{
@@ -362,9 +363,9 @@ function AddOracle({ oracles, fetchData }: { oracles: OracleDetails[]; fetchData
 
     return (
         <BigCard>
-            <div className="text-base font-semibold leading-6 lg:text-xl">Add new oracle</div>
+            <div className="text-base leading-6 font-semibold lg:text-xl">Add new oracle</div>
 
-            <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
+            <div className="larger:flex-row larger:items-end larger:gap-4 flex flex-col gap-6">
                 <Input
                     value={address}
                     onValueChange={setAddress}
@@ -435,9 +436,9 @@ function RemoveOracle({ oracles, fetchData }: { oracles: OracleDetails[]; fetchD
 
     return (
         <BigCard>
-            <div className="text-base font-semibold leading-6 lg:text-xl">Remove existing oracle</div>
+            <div className="text-base leading-6 font-semibold lg:text-xl">Remove existing oracle</div>
 
-            <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
+            <div className="larger:flex-row larger:items-end larger:gap-4 flex flex-col gap-6">
                 <Input
                     value={address}
                     onValueChange={setAddress}
@@ -481,9 +482,9 @@ function RemoveOracle({ oracles, fetchData }: { oracles: OracleDetails[]; fetchD
 function OraclesTable({ oracles }: { oracles: OracleDetails[] }) {
     return (
         <BigCard>
-            <div className="text-base font-semibold leading-6 lg:text-xl">Oracles</div>
+            <div className="text-base leading-6 font-semibold lg:text-xl">Oracles</div>
 
-            <div className="rounded-xl border border-[#e3e4e</div>8] bg-light p-3">
+            <div className="bg-light rounded-xl border border-[#e3e4e</div>8] p-3">
                 <Table
                     aria-label="MNDs Table"
                     classNames={{
@@ -557,9 +558,9 @@ function AllowMndTransfer() {
 
     return (
         <BigCard>
-            <div className="text-base font-semibold leading-6 lg:text-xl">Allow MND Transfer</div>
+            <div className="text-base leading-6 font-semibold lg:text-xl">Allow MND Transfer</div>
 
-            <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
+            <div className="larger:flex-row larger:items-end larger:gap-4 flex flex-col gap-6">
                 <Input
                     value={sender}
                     onValueChange={setSender}
@@ -638,9 +639,9 @@ function AllowMndBurn() {
 
     return (
         <BigCard>
-            <div className="text-base font-semibold leading-6 lg:text-xl">Allow MND Burn</div>
+            <div className="text-base leading-6 font-semibold lg:text-xl">Allow MND Burn</div>
 
-            <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
+            <div className="larger:flex-row larger:items-end larger:gap-4 flex flex-col gap-6">
                 <Input
                     value={sender}
                     onValueChange={setSender}
@@ -688,9 +689,9 @@ function AddSellerCode() {
 
     return (
         <BigCard>
-            <div className="text-base font-semibold leading-6 lg:text-xl">Create new referral code</div>
+            <div className="text-base leading-6 font-semibold lg:text-xl">Create new referral code</div>
 
-            <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
+            <div className="larger:flex-row larger:items-end larger:gap-4 flex flex-col gap-6">
                 <Input
                     value={address}
                     onValueChange={setAddress}
@@ -785,9 +786,9 @@ function SendBatchNews() {
 
     return (
         <BigCard>
-            <div className="text-base font-semibold leading-6 lg:text-xl">Send Batch News</div>
+            <div className="text-base leading-6 font-semibold lg:text-xl">Send Batch News</div>
 
-            <div className="flex flex-col gap-6 larger:flex-row larger:items-end larger:gap-4">
+            <div className="larger:flex-row larger:items-end larger:gap-4 flex flex-col gap-6">
                 <Input
                     value={subject}
                     onValueChange={setSubject}
@@ -805,12 +806,12 @@ function SendBatchNews() {
                 />
 
                 <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-foreground">HTML File</label>
+                    <label className="text-foreground text-sm font-medium">HTML File</label>
                     <input
                         type="file"
                         accept=".html,.htm"
                         onChange={handleFileChange}
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-primary/90"
+                        className="file:bg-primary hover:file:bg-primary/90 block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
                     />
                     {newsFile && <p className="text-xs text-gray-600">Selected: {newsFile.name}</p>}
                 </div>
