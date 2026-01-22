@@ -27,3 +27,6 @@ dist-ssr
 tsconfig.app.tsbuildinfo
 
 .env
+
+# Other
+dependencies.txt
