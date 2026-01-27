@@ -21,6 +21,11 @@ export const linkLicense = (nodeAddress: types.EthAddress) =>
         signature: `0x${string}`;
     }>(`/license/link?nodeAddress=${nodeAddress}`);
 
+export const multiLinkLicense = (nodeAddresses: types.EthAddress[]) =>
+    _doPost<{
+        signature: `0x${string}`;
+    }>(`/license/multiLink`, { nodeAddresses });
+
 export const emailSubscribe = async () => _doGet<types.ApiAccount>('accounts/subscribe');
 
 export const emailUnsubscribe = async () => _doGet<types.ApiAccount>('accounts/unsubscribe');

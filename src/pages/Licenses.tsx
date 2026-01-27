@@ -9,7 +9,7 @@ import LicenseLinkModal from '@components/Licenses/modals/LicenseLinkModal';
 import LicenseUnlinkModal from '@components/Licenses/modals/LicenseUnlinkModal';
 import { Pagination } from '@heroui/pagination';
 import { Skeleton } from '@heroui/skeleton';
-import { linkLicense } from '@lib/api/backend';
+import { multiLinkLicense } from '@lib/api/backend';
 import { config, getCurrentEpoch, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
@@ -270,9 +270,7 @@ function Licenses() {
             const licenseIds = bulkAssignments.map(({ license }) => license.licenseId);
             const newNodeAddresses = bulkAssignments.map(({ nodeAddress }) => nodeAddress);
 
-            const addressToLink = newNodeAddresses[0] as EthAddress;
-            // TODO: replace this with the proper batch signature source once available.
-            const { signature } = await linkLicense(addressToLink);
+            const { signature } = await multiLinkLicense(newNodeAddresses);
 
             const txHash = await walletClient.writeContract({
                 address: config.ndContractAddress,
