@@ -848,6 +848,25 @@ export const ReaderAbi = [
         type: 'function',
     },
     {
+        inputs: [
+            {
+                internalType: 'address[]',
+                name: 'nodeAddresses',
+                type: 'address[]',
+            },
+        ],
+        name: 'isMultiNodeAlreadyLinked',
+        outputs: [
+            {
+                internalType: 'bool[]',
+                name: 'linked',
+                type: 'bool[]',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
         inputs: [],
         name: 'mndContract',
         outputs: [
