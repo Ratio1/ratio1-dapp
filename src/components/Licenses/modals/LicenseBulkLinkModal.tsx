@@ -10,6 +10,7 @@ import { routePath } from '@lib/routes/route-paths';
 import { fBI } from '@lib/utils';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { ApplicationStatus } from '@typedefs/profile';
+import { addDays } from 'date-fns';
 import { ChangeEvent, DragEvent, forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiFileUploadLine, RiShieldUserLine } from 'react-icons/ri';
@@ -77,10 +78,15 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
     const [parsedAddresses, setParsedAddresses] = useState<EthAddress[]>([]);
     const [remainingAddresses, setRemainingAddresses] = useState<EthAddress[]>([]);
 
-    const unlinkedLicenses = useMemo(
+    const eligibleLicenses = useMemo(
         () =>
             licenses
-                .filter((license) => license.type === 'ND' && !license.isLinked)
+                .filter(
+                    (license) =>
+                        license.type === 'ND' &&
+                        !license.isLinked &&
+                        addDays(new Date(Number(license.assignTimestamp) * 1000), 1) <= new Date(),
+                )
                 .sort((a, b) => {
                     if (a.licenseId === b.licenseId) {
                         return 0;
@@ -99,7 +105,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
     const canLink =
         !!account &&
         (account.kycStatus === ApplicationStatus.Approved || environment !== 'mainnet') &&
-        unlinkedLicenses.length > 0;
+        eligibleLicenses.length > 0;
 
     const resetState = () => {
         setStep('upload');
@@ -289,7 +295,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
             );
         }
 
-        if (unlinkedLicenses.length === 0) {
+        if (eligibleLicenses.length === 0) {
             validationErrors.push('You do not have any unlinked ND licenses available.');
         }
 
@@ -304,19 +310,19 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
             validationErrors.push('No usable addresses were found after validation.');
         }
 
-        const countToAssign = Math.min(usableRows.length, unlinkedLicenses.length);
+        const countToAssign = Math.min(usableRows.length, eligibleLicenses.length);
 
         const computedAssignments: BulkLinkAssignment[] = Array.from({ length: countToAssign }).map((_, index) => ({
-            license: unlinkedLicenses[index],
+            license: eligibleLicenses[index],
             nodeAddress: usableRows[index].address,
             nodeName: usableRows[index].nodeName,
         }));
 
         const unassignedAddresses = usableRows.slice(countToAssign).map((row) => row.address);
 
-        if (usableRows.length > unlinkedLicenses.length) {
+        if (usableRows.length > eligibleLicenses.length) {
             validationWarnings.push(
-                `There are more valid node addresses (${usableRows.length}) than unlinked licenses (${unlinkedLicenses.length}). Extra addresses will not be linked.`,
+                `There are more valid node addresses (${usableRows.length}) than unlinked licenses (${eligibleLicenses.length}). Extra addresses will not be linked.`,
             );
         }
 
@@ -369,8 +375,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
                 setStep('review');
             }
         } catch (error) {
-            console.error('Failed to parse CSV', error);
-            setErrors(['Failed to parse the CSV file. Please check the format and try again.']);
+            toast.error('An error occurred while processing the file. Please try again.');
         } finally {
             setIsParsing(false);
         }
@@ -426,22 +431,8 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
         }
 
         setIsSubmitting(true);
-
-        try {
-            await onBulkLink(assignments);
-
-            // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
-            setTimeout(() => {
-                fetchLicenses(true);
-            }, 250);
-
-            onModalClose();
-        } catch (error) {
-            console.error('Bulk linking failed', error);
-            toast.error('Bulk linking failed. Please try again.');
-        } finally {
-            setIsSubmitting(false);
-        }
+        await onBulkLink(assignments);
+        setIsSubmitting(false);
     };
 
     const renderIssues = (issues: string[], color: 'danger' | 'warning') => {
@@ -676,7 +667,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
                         <Spinner />
                     ) : account.kycStatus !== ApplicationStatus.Approved && environment === 'mainnet' ? (
                         renderLinkingDisabledContent()
-                    ) : unlinkedLicenses.length === 0 ? (
+                    ) : eligibleLicenses.length === 0 ? (
                         renderNoUnlinkedLicenses()
                     ) : step === 'upload' ? (
                         renderUploadStep()

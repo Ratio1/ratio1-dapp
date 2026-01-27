@@ -22,7 +22,7 @@ import { ConnectKitButton } from 'connectkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiCpuLine, RiWalletLine } from 'react-icons/ri';
-import { EthAddress, License } from 'typedefs/blockchain';
+import { License } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 const PAGE_SIZE = 12;
