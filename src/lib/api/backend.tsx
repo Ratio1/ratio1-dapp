@@ -21,11 +21,6 @@ export const linkLicense = (nodeAddress: types.EthAddress) =>
         signature: `0x${string}`;
     }>(`/license/link?nodeAddress=${nodeAddress}`);
 
-export const multiLinkLicense = (nodeAddresses: types.EthAddress[]) =>
-    _doPost<{
-        signature: `0x${string}`;
-    }>(`/license/multiLink`, { nodeAddresses });
-
 export const emailSubscribe = async () => _doGet<types.ApiAccount>('accounts/subscribe');
 
 export const emailUnsubscribe = async () => _doGet<types.ApiAccount>('accounts/unsubscribe');
@@ -90,6 +85,11 @@ export const buyLicense = () =>
         usdLimitAmount: number;
         vatPercentage: number;
     }>('/license/buy', {});
+
+export const multiLinkLicense = (nodeAddresses: types.EthAddress[]) =>
+    _doPost<{
+        signature: `0x${string}`;
+    }>(`/license/multiLink`, { nodeAddresses });
 
 export const initSumsubSession = (type: 'individual' | 'company') => _doPost<string>('/sumsub/init/Kyc', { type });
 

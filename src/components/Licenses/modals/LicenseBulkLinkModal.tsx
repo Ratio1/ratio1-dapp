@@ -5,7 +5,6 @@ import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure
 import { Spinner } from '@heroui/spinner';
 import { config, environment } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
-import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
 import { fBI } from '@lib/utils';
 import { DetailedAlert } from '@shared/DetailedAlert';
@@ -61,7 +60,6 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const publicClient = usePublicClient();
 
-    const { fetchLicenses } = useBlockchainContext() as BlockchainContextType;
     const { account } = useAuthenticationContext() as AuthenticationContextType;
 
     const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -432,6 +430,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
 
         setIsSubmitting(true);
         await onBulkLink(assignments);
+        onModalClose();
         setIsSubmitting(false);
     };
 
@@ -644,8 +643,13 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
         <DetailedAlert
             variant="red"
             icon={<RiShieldUserLine />}
-            title="No unlinked ND licenses"
-            description={<div>You currently do not have any ND licenses available for bulk linking.</div>}
+            title="No eligible ND licenses for bulk linking"
+            description={
+                <div>
+                    You don’t currently have any ND licenses eligible for bulk linking. A license becomes eligible after it has
+                    been unlinked and has not been linked to another address for at least 24 hours.
+                </div>
+            }
         />
     );
 
