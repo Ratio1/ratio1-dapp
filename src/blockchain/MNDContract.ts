@@ -472,11 +472,17 @@ export const MNDContractAbi = [
             {
                 indexed: false,
                 internalType: 'uint256',
+                name: 'carryoverAmount',
+                type: 'uint256',
+            },
+            {
+                indexed: false,
+                internalType: 'uint256',
                 name: 'totalEpochs',
                 type: 'uint256',
             },
         ],
-        name: 'RewardsClaimed',
+        name: 'RewardsClaimedV2',
         type: 'event',
     },
     {
@@ -600,6 +606,19 @@ export const MNDContractAbi = [
         type: 'function',
     },
     {
+        inputs: [],
+        name: 'adoptionOracle',
+        outputs: [
+            {
+                internalType: 'contract IAdoptionOracle',
+                name: '',
+                type: 'address',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
         inputs: [
             {
                 internalType: 'address',
@@ -615,6 +634,25 @@ export const MNDContractAbi = [
         name: 'approve',
         outputs: [],
         stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        name: 'awbBalances',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
         type: 'function',
     },
     {
@@ -691,6 +729,16 @@ export const MNDContractAbi = [
                     {
                         internalType: 'uint256',
                         name: 'rewardsAmount',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'carryoverAmount',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'withheldAmount',
                         type: 'uint256',
                     },
                 ],
@@ -1070,6 +1118,29 @@ export const MNDContractAbi = [
     {
         inputs: [
             {
+                internalType: 'uint256[]',
+                name: 'licenseIds',
+                type: 'uint256[]',
+            },
+            {
+                internalType: 'address[]',
+                name: 'newNodeAddresses',
+                type: 'address[]',
+            },
+            {
+                internalType: 'bytes',
+                name: 'signature',
+                type: 'bytes',
+            },
+        ],
+        name: 'linkMultiNode',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
                 internalType: 'uint256',
                 name: 'licenseId',
                 type: 'uint256',
@@ -1088,6 +1159,19 @@ export const MNDContractAbi = [
         name: 'linkNode',
         outputs: [],
         stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [],
+        name: 'maxCarryoverReleaseFactor',
+        outputs: [
+            {
+                internalType: 'uint8',
+                name: '',
+                type: 'uint8',
+            },
+        ],
+        stateMutability: 'view',
         type: 'function',
     },
     {
@@ -1255,6 +1339,19 @@ export const MNDContractAbi = [
         inputs: [
             {
                 internalType: 'address',
+                name: 'adoptionOracle_',
+                type: 'address',
+            },
+        ],
+        name: 'setAdoptionOracle',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
                 name: 'operator',
                 type: 'address',
             },
@@ -1334,6 +1431,19 @@ export const MNDContractAbi = [
             },
         ],
         name: 'setMNDReleaseParams',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint8',
+                name: 'newFactor',
+                type: 'uint8',
+            },
+        ],
+        name: 'setMaxCarryoverReleaseFactor',
         outputs: [],
         stateMutability: 'nonpayable',
         type: 'function',

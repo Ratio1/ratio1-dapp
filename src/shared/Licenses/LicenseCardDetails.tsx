@@ -195,38 +195,56 @@ export const LicenseCardDetails = ({
                         </div>
                     </DetailsCard>
 
-                    <DetailsCard>
-                        <div className="row gap-4ß justify-between">
-                            <div className="col gap-2.5">
-                                <div className="text-sm font-medium text-slate-500">Proof of AI</div>
+                    {license.type === 'ND' ? (
+                        <DetailsCard>
+                            <div className="row gap-4ß justify-between">
+                                <div className="col gap-2.5">
+                                    <div className="text-sm font-medium text-slate-500">Proof of AI</div>
 
-                                <div className="text-lg leading-none font-semibold text-purple-600">
-                                    {parseFloat(Number(formatUnits(rewardsPoAI ?? 0n, 18)).toFixed(4)).toLocaleString()}
+                                    <div className="text-lg leading-none font-semibold text-purple-600">
+                                        {parseFloat(Number(formatUnits(rewardsPoAI ?? 0n, 18)).toFixed(4)).toLocaleString()}
 
-                                    <span className="text-slate-400"> $R1</span>
+                                        <span className="text-slate-400"> $R1</span>
+                                    </div>
+                                </div>
+
+                                {!!rewardsPoAI && (
+                                    // isLoadingRewardsPoA is also used here in order to disable the button while licenses are refreshed
+                                    <Button
+                                        className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
+                                        color="primary"
+                                        size="sm"
+                                        variant="flat"
+                                        onPress={() => {
+                                            if (action) {
+                                                action('claimRewardsPoAI', license);
+                                            }
+                                        }}
+                                        isLoading={license.isClaimingRewardsPoAI}
+                                        isDisabled={isLoadingRewardsPoA || isClaimingAllRewardsPoAI}
+                                    >
+                                        <div className="text-sm">Claim</div>
+                                    </Button>
+                                )}
+                            </div>
+                        </DetailsCard>
+                    ) : (
+                        <DetailsCard>
+                            <div className="row gap-4ß justify-between">
+                                <div className="col gap-2.5">
+                                    <div className="text-sm font-medium text-slate-500">Adoption Withheld Buffer</div>
+
+                                    <div className="text-lg leading-none font-semibold text-orange-500">
+                                        {parseFloat(
+                                            Number(formatUnits(license.awbBalance ?? 0n, 18)).toFixed(4),
+                                        ).toLocaleString()}
+
+                                        <span className="text-slate-400"> $R1</span>
+                                    </div>
                                 </div>
                             </div>
-
-                            {!!rewardsPoAI && (
-                                // isLoadingRewardsPoA is also used here in order to disable the button while licenses are refreshed
-                                <Button
-                                    className="h-9 border-2 border-slate-200 bg-white data-[hover=true]:opacity-65!"
-                                    color="primary"
-                                    size="sm"
-                                    variant="flat"
-                                    onPress={() => {
-                                        if (action) {
-                                            action('claimRewardsPoAI', license);
-                                        }
-                                    }}
-                                    isLoading={license.isClaimingRewardsPoAI}
-                                    isDisabled={isLoadingRewardsPoA || isClaimingAllRewardsPoAI}
-                                >
-                                    <div className="text-sm">Claim</div>
-                                </Button>
-                            )}
-                        </div>
-                    </DetailsCard>
+                        </DetailsCard>
+                    )}
                 </div>
             </div>
 

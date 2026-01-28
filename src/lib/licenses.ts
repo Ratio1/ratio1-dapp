@@ -2,6 +2,8 @@ import { isEmpty } from 'lodash';
 import * as types from 'typedefs/blockchain';
 import { getMultiNodeEpochsRange } from './api/oracles';
 import { config, getCurrentEpoch } from './config';
+import { PublicClient } from 'viem';
+import { MNDContractAbi } from '@blockchain/MNDContract';
 
 type BaseNDLicense = types.BaseLicense & {
     type: 'ND';
@@ -14,17 +16,22 @@ type BaseMNDLicense = types.BaseLicense & {
     type: 'MND';
     isBanned: false;
     firstMiningEpoch: bigint;
+    awbBalance: bigint;
 };
 
 type BaseGNDLicense = types.BaseLicense & {
     type: 'GND';
     isBanned: false;
     firstMiningEpoch: bigint;
+    awbBalance: bigint;
 };
 
 export type { BaseGNDLicense, BaseMNDLicense, BaseNDLicense };
 
-export const getLicensesWithNodesAndRewards = (licenses: (BaseGNDLicense | BaseMNDLicense | BaseNDLicense)[]) => {
+export const getLicensesWithNodesAndRewards = (
+    licenses: (BaseGNDLicense | BaseMNDLicense | BaseNDLicense)[],
+    publicClient: PublicClient,
+) => {
     const nodesWithRanges = licenses.reduce(
         (acc, license) => {
             acc[license.nodeAddress] = getRewardsEpochsRange(license);
@@ -50,15 +57,12 @@ export const getLicensesWithNodesAndRewards = (licenses: (BaseGNDLicense | BaseM
 
         switch (license.type) {
             case 'ND':
-                rewards = getNdOrGndRewards(license, availability, config.ndVestingEpochs);
+                rewards = getNdRewards(license, availability, config.ndVestingEpochs);
                 break;
 
             case 'GND':
-                rewards = getNdOrGndRewards(license, availability, config.gndVestingEpochs);
-                break;
-
             case 'MND':
-                rewards = getMndRewards(license, availability);
+                rewards = getMndOrGndRewards(license, availability, publicClient);
                 break;
 
             default:
@@ -105,8 +109,8 @@ const getMndRewardsEpochsRange = (license: BaseMNDLicense, currentEpoch: number)
     return [currentEpoch >= config.mndCliffEpochs ? firstEpochToClaim : currentEpoch - 1, currentEpoch - 1];
 };
 
-const getNdOrGndRewards = async (
-    license: BaseNDLicense | BaseGNDLicense,
+const getNdRewards = async (
+    license: BaseNDLicense,
     availability: Promise<types.OraclesAvailabilityResult>,
     vestingEpochs: number,
 ): Promise<bigint | undefined> => {
@@ -140,9 +144,10 @@ const getNdOrGndRewards = async (
     return rewards_amount;
 };
 
-const getMndRewards = async (
-    license: BaseMNDLicense,
+const getMndOrGndRewards = async (
+    license: BaseMNDLicense | BaseGNDLicense,
     availability: Promise<types.OraclesAvailabilityResult>,
+    publicClient: PublicClient,
 ): Promise<bigint | undefined> => {
     const currentEpoch = getCurrentEpoch();
     const firstEpochToClaim =
@@ -160,37 +165,23 @@ const getMndRewards = async (
         return undefined;
     }
 
-    let rewards_amount = 0n;
-    const logisticPlateau = 300_505239501691000000n; // 300.50
-    const licensePlateau = (license.totalAssignedAmount * BigInt(1e18)) / logisticPlateau;
-
-    for (let i = 0; i < epochsToClaim; i++) {
-        const maxRewardsPerEpoch = calculateMndMaxEpochRelease(epochs[i], license.firstMiningEpoch, licensePlateau);
-        rewards_amount += (maxRewardsPerEpoch * BigInt(epochs_vals[i])) / 255n;
+    const result = await publicClient.readContract({
+        address: config.mndContractAddress,
+        abi: MNDContractAbi,
+        functionName: 'calculateRewards',
+        args: [
+            [
+                {
+                    licenseId: license.licenseId,
+                    nodeAddress: license.nodeAddress,
+                    epochs: epochs.map((epoch) => BigInt(epoch)),
+                    availabilies: epochs_vals,
+                },
+            ],
+        ],
+    });
+    if (result.length !== 1) {
+        throw new Error('Invalid rewards calculation result');
     }
-
-    const maxRemainingClaimAmount = license.totalAssignedAmount - license.totalClaimedAmount;
-
-    if (rewards_amount > maxRemainingClaimAmount) {
-        return maxRemainingClaimAmount;
-    }
-
-    return rewards_amount;
-};
-
-const calculateMndMaxEpochRelease = (epoch: number, firstMiningEpoch: bigint, licensePlateau: bigint): bigint => {
-    let x = epoch - Number(firstMiningEpoch);
-    if (x > config.mndVestingEpochs) {
-        x = config.mndVestingEpochs;
-    }
-    const frac = logisticFraction(x);
-    return (licensePlateau * BigInt(frac * 1e18)) / BigInt(1e18);
-};
-
-const logisticFraction = (x: number): number => {
-    const length = config.mndVestingEpochs;
-    const k = 5.0;
-    const midPrc = 0.7;
-    const midpoint = length * midPrc;
-    return 1.0 / (1.0 + Math.exp((-k * (x - midpoint)) / length));
+    return result[0].rewardsAmount + result[0].carryoverAmount;
 };
