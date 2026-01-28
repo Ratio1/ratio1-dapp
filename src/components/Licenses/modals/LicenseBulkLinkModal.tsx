@@ -6,7 +6,7 @@ import { Spinner } from '@heroui/spinner';
 import { config, environment } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { routePath } from '@lib/routes/route-paths';
-import { fBI } from '@lib/utils';
+import { fBI, getShortAddressOrHash } from '@lib/utils';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { ApplicationStatus } from '@typedefs/profile';
 import { addDays } from 'date-fns';
@@ -30,6 +30,7 @@ type BulkLinkValidationResult = {
     warnings: string[];
     parsedAddresses: EthAddress[];
     remainingAddresses: EthAddress[];
+    errorAddresses: string[];
 };
 
 type BulkLinkModalRef = {
@@ -65,9 +66,9 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const [step, setStep] = useState<Step>('upload');
-    const [isParsing, setIsParsing] = useState<boolean>(false);
-    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-    const [isDragging, setIsDragging] = useState<boolean>(false);
+    const [isParsing, setParsing] = useState<boolean>(false);
+    const [isSubmitting, setSubmitting] = useState<boolean>(false);
+    const [isDragging, setDragging] = useState<boolean>(false);
 
     const [fileName, setFileName] = useState<string>('');
     const [assignments, setAssignments] = useState<BulkLinkAssignment[]>([]);
@@ -75,6 +76,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
     const [warnings, setWarnings] = useState<string[]>([]);
     const [parsedAddresses, setParsedAddresses] = useState<EthAddress[]>([]);
     const [remainingAddresses, setRemainingAddresses] = useState<EthAddress[]>([]);
+    const [errorAddresses, setErrorAddresses] = useState<string[]>([]);
 
     const eligibleLicenses = useMemo(
         () =>
@@ -107,15 +109,16 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
 
     const resetState = () => {
         setStep('upload');
-        setIsParsing(false);
-        setIsSubmitting(false);
-        setIsDragging(false);
+        setParsing(false);
+        setSubmitting(false);
+        setDragging(false);
         setFileName('');
         setAssignments([]);
         setErrors([]);
         setWarnings([]);
         setParsedAddresses([]);
         setRemainingAddresses([]);
+        setErrorAddresses([]);
 
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
@@ -217,6 +220,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
     const validateAndAssign = async (rows: CsvNodeRow[]): Promise<BulkLinkValidationResult> => {
         const validationErrors: string[] = [];
         const validationWarnings: string[] = [];
+        const validationErrorAddresses: string[] = [];
 
         if (!publicClient) {
             validationErrors.push('Wallet not ready. Please try again.');
@@ -226,6 +230,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
                 warnings: validationWarnings,
                 parsedAddresses: [],
                 remainingAddresses: [],
+                errorAddresses: validationErrorAddresses,
             };
         }
 
@@ -254,6 +259,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
             validationErrors.push(
                 `Found ${invalidAddresses.length} invalid address${invalidAddresses.length > 1 ? 'es' : ''} in the CSV file.`,
             );
+            validationErrorAddresses.push(...invalidAddresses);
         }
 
         const duplicates = normalizedAddresses.filter((address, index, list) => list.indexOf(address) !== index);
@@ -263,6 +269,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
             validationErrors.push(
                 `Found ${uniqueDuplicates.length} duplicate address${uniqueDuplicates.length > 1 ? 'es' : ''} in the CSV file.`,
             );
+            validationErrorAddresses.push(...uniqueDuplicates);
         }
 
         const alreadyLinkedLocally = normalizedAddresses.filter((address) => linkedNodeAddressSet.has(address.toLowerCase()));
@@ -330,6 +337,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
             warnings: validationWarnings,
             parsedAddresses: normalizedAddresses,
             remainingAddresses: unassignedAddresses,
+            errorAddresses: Array.from(new Set(validationErrorAddresses)),
         };
     };
 
@@ -344,13 +352,14 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
             return;
         }
 
-        setIsParsing(true);
+        setParsing(true);
         setFileName(file.name);
         setErrors([]);
         setWarnings([]);
         setAssignments([]);
         setParsedAddresses([]);
         setRemainingAddresses([]);
+        setErrorAddresses([]);
 
         try {
             const text = await file.text();
@@ -368,6 +377,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
             setWarnings(result.warnings);
             setParsedAddresses(result.parsedAddresses);
             setRemainingAddresses(result.remainingAddresses);
+            setErrorAddresses(result.errorAddresses);
 
             if (result.assignments.length > 0 && result.errors.length === 0) {
                 setStep('review');
@@ -375,7 +385,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
         } catch (error) {
             toast.error('An error occurred while processing the file. Please try again.');
         } finally {
-            setIsParsing(false);
+            setParsing(false);
         }
     };
 
@@ -392,7 +402,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
         if (!canLink || isParsing) {
             return;
         }
-        setIsDragging(true);
+        setDragging(true);
     };
 
     const onDragOver = (event: DragEvent<HTMLDivElement>) => {
@@ -401,18 +411,18 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
             return;
         }
         if (!isDragging) {
-            setIsDragging(true);
+            setDragging(true);
         }
     };
 
     const onDragLeave = (event: DragEvent<HTMLDivElement>) => {
         event.preventDefault();
-        setIsDragging(false);
+        setDragging(false);
     };
 
     const onDrop = async (event: DragEvent<HTMLDivElement>) => {
         event.preventDefault();
-        setIsDragging(false);
+        setDragging(false);
 
         if (!canLink || isParsing) {
             return;
@@ -428,10 +438,10 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
             return;
         }
 
-        setIsSubmitting(true);
+        setSubmitting(true);
         await onBulkLink(assignments);
         onModalClose();
-        setIsSubmitting(false);
+        setSubmitting(false);
     };
 
     const renderIssues = (issues: string[], color: 'danger' | 'warning') => {
@@ -441,6 +451,8 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
 
         const issuesToShow = issues.slice(0, MAX_ISSUES_TO_SHOW);
         const hiddenCount = issues.length - issuesToShow.length;
+        const addressesToShow = errorAddresses.slice(0, 3);
+        const hiddenAddressCount = errorAddresses.length - addressesToShow.length;
 
         return (
             <Alert
@@ -458,6 +470,24 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
                 {hiddenCount > 0 && (
                     <div className="pt-1 text-xs text-slate-500">
                         +{hiddenCount} more issue{hiddenCount > 1 ? 's' : ''}
+                    </div>
+                )}
+                {color === 'danger' && errorAddresses.length > 0 && (
+                    <div className="pt-3">
+                        <div className="text-sm font-medium">Invalid addresses</div>
+                        <ul className="list-disc pl-5 font-mono text-sm">
+                            {addressesToShow.map((address) => (
+                                <li key={address} className="text-sm">
+                                    <span className="text-[13px]">{getShortAddressOrHash(address, 6, true)}</span>
+                                </li>
+                            ))}
+                        </ul>
+
+                        {hiddenAddressCount > 0 && (
+                            <div className="pt-1 text-[13px]">
+                                ...and {hiddenAddressCount === 1 ? 'one' : hiddenAddressCount} more
+                            </div>
+                        )}
                     </div>
                 )}
             </Alert>
@@ -540,11 +570,11 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
                         classNames={{
                             base: 'items-start',
                         }}
-                        title={<div className="font-medium">CSV ready</div>}
+                        title={<div className="font-medium">CSV parsed successfully</div>}
                     >
                         <div className="text-sm">
-                            Parsed {parsedAddresses.length} address{parsedAddresses.length > 1 ? 'es' : ''}.{' '}
-                            {assignments.length} will be linked.
+                            Parsed {parsedAddresses.length} address{parsedAddresses.length > 1 ? 'es' : ''}, out of which{' '}
+                            {assignments.length} will be linked to unlinked licenses.
                         </div>
                     </Alert>
                 )}
@@ -553,7 +583,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
     };
 
     const getLicenseUsageStats = (license: License) => (
-        <div className="text-sm leading-none font-medium">
+        <div className="text-sm font-medium">
             {fBI(license.totalClaimedAmount, 18)}/{fBI(license.totalAssignedAmount, 18)}
             &nbsp; ({parseFloat(((Number(license.totalClaimedAmount) / Number(license.totalAssignedAmount)) * 100).toFixed(2))}
             %)
@@ -564,12 +594,12 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
         <div className="col gap-2">
             <div className="text-sm font-medium text-slate-700">Planned links ({assignments.length})</div>
             <div className="max-h-72 overflow-auto rounded-xl border border-slate-200">
-                <table className="w-full min-w-[520px] divide-y divide-slate-200 text-sm">
+                <table className="w-full divide-y divide-slate-200 text-sm md:min-w-[520px]">
                     <thead className="bg-slate-50 text-slate-600">
                         <tr>
-                            <th className="px-3 py-2.5 text-left font-medium">License</th>
+                            <th className="px-3 py-2.5 text-left font-medium whitespace-nowrap">License ID</th>
                             <th className="px-3 py-2.5 text-left font-medium">Usage</th>
-                            <th className="px-3 py-2.5 text-left font-medium">Node</th>
+                            <th className="px-3 py-2.5 text-left font-medium">Node Address</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 bg-white">
@@ -579,9 +609,12 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
                                 <td className="px-3 py-2.5">{getLicenseUsageStats(license)}</td>
                                 <td className="px-3 py-2.5">
                                     {nodeName && <span className="font-medium">{nodeName}</span>}
-                                    <span className="font-mono text-xs text-slate-700">
-                                        {nodeName ? ' - ' : ''}
-                                        {nodeAddress}
+
+                                    <span className="font-mono text-[13px] text-slate-700">{nodeName ? ' - ' : ''}</span>
+
+                                    <span className="hidden font-mono text-[13px] text-slate-700 md:block">{nodeAddress}</span>
+                                    <span className="block font-mono text-[13px] text-slate-700 md:hidden">
+                                        {getShortAddressOrHash(nodeAddress, 6, true)}
                                     </span>
                                 </td>
                             </tr>
@@ -604,8 +637,8 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
                 title={<div className="font-medium">Review assignments before signing</div>}
             >
                 <div className="text-sm">
-                    We will link node addresses to unlinked <span className="font-medium">ND</span> licenses by lower license
-                    usage order.
+                    We will link node addresses to unlinked <span className="font-medium">ND</span> licenses by prioritizing
+                    licenses with lower license usage, in order.
                 </div>
             </Alert>
 
