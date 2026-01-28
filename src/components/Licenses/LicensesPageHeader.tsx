@@ -16,7 +16,7 @@ import { Timer } from '@shared/Timer';
 import { ApplicationStatus } from '@typedefs/profile';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiArrowRightUpLine, RiFileUploadLine, RiLink, RiLinkUnlink, RiTimeLine } from 'react-icons/ri';
+import { RiArrowRightUpLine, RiLink, RiLinkUnlink, RiTimeLine } from 'react-icons/ri';
 import { ComputeParam, License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
@@ -375,7 +375,7 @@ function LicensesPageHeader({
                     </div>
                 </BorderedCard>
 
-                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div className="center-all md:justify-start">
                         <CustomTabs
                             tabs={[
@@ -413,8 +413,8 @@ function LicensesPageHeader({
                             onPress={onBulkLink}
                             isDisabled={isBulkLinkDisabled()}
                         >
-                            <div className="row gap-1">
-                                <RiFileUploadLine className="text-base" />
+                            <div className="row gap-1.5">
+                                <RiLink className="text-base" />
                                 <div className="text-sm">Bulk Link Nodes</div>
                             </div>
                         </Button>

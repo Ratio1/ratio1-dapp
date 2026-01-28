@@ -12,7 +12,7 @@ import { ApplicationStatus } from '@typedefs/profile';
 import { addDays } from 'date-fns';
 import { ChangeEvent, DragEvent, forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { RiFileUploadLine, RiShieldUserLine } from 'react-icons/ri';
+import { RiLink, RiShieldUserLine, RiUploadLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
 import { EthAddress, License } from 'typedefs/blockchain';
 import { getAddress, isAddress } from 'viem';
@@ -252,7 +252,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
 
         if (invalidAddresses.length > 0) {
             validationErrors.push(
-                `Found ${invalidAddresses.length} invalid address${invalidAddresses.length > 1 ? 'es' : ''} in the CSV.`,
+                `Found ${invalidAddresses.length} invalid address${invalidAddresses.length > 1 ? 'es' : ''} in the CSV file.`,
             );
         }
 
@@ -261,7 +261,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
 
         if (uniqueDuplicates.length > 0) {
             validationErrors.push(
-                `Found ${uniqueDuplicates.length} duplicate address${uniqueDuplicates.length > 1 ? 'es' : ''} in the CSV.`,
+                `Found ${uniqueDuplicates.length} duplicate address${uniqueDuplicates.length > 1 ? 'es' : ''} in the CSV file.`,
             );
         }
 
@@ -448,7 +448,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
                 classNames={{
                     base: 'items-start',
                 }}
-                title={<div className="font-medium">{color === 'danger' ? 'Validation issues found' : 'Please review'}</div>}
+                title={<div className="font-medium">{color === 'danger' ? 'Validation issues' : 'Please review'}</div>}
             >
                 <ul className="list-disc space-y-1 pl-5 text-sm">
                     {issuesToShow.map((issue) => (
@@ -466,20 +466,21 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
 
     const renderUploadStep = () => {
         const dropzoneClassName = [
-            'rounded-xl border border-dashed p-6 transition-colors',
+            'rounded-xl border-2 border-dashed border-slate-300 p-6 transition-colors hover:border-slate-400',
             canLink && !isParsing ? 'cursor-pointer' : 'cursor-not-allowed opacity-70',
-            isDragging ? 'border-primary-500 bg-primary-50' : 'border-slate-300 bg-slate-50',
+            isDragging ? 'border-primary-500 bg-primary-50' : 'bg-slate-50',
         ].join(' ');
 
         return (
             <div className="col gap-4">
                 <DetailedAlert
-                    icon={<RiFileUploadLine />}
-                    title="Upload node addresses CSV"
+                    icon={<RiLink />}
+                    title="Upload  CSV"
                     description={
-                        <div>
+                        <div className="max-w-2xl">
                             Upload a CSV that contains an ETH address column (for example:{' '}
-                            <span className="font-medium">ETH_Address</span>). You can use the exported CSV from r1setup.
+                            <span className="font-medium">ETH_Address</span>) and your node addresses. You can use the exported
+                            CSV from r1setup.
                         </div>
                     }
                 />
@@ -508,12 +509,17 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
                     }}
                 >
                     <div className="col items-center gap-3 text-center">
-                        <RiFileUploadLine className="text-3xl text-slate-500" />
-                        <div className="text-base font-medium text-slate-700">Drag and drop your CSV here</div>
-                        <div className="text-sm text-slate-600">or click to choose a file</div>
-                        <div className="text-xs text-slate-500">Accepted format: .csv</div>
+                        <RiUploadLine className="text-4xl text-slate-400" />
 
-                        {fileName && <div className="pt-1 text-sm font-medium text-slate-700">{fileName}</div>}
+                        <div className="col items-center gap-1.5 text-center">
+                            <div className="font-medium text-slate-700">
+                                <span className="text-primary text-[15px]">Click to upload</span> or drag & drop
+                            </div>
+
+                            <div className="text-sm font-medium text-slate-400 uppercase">csv file</div>
+
+                            {fileName && <div className="pt-1 text-sm font-medium text-slate-600 italic">{fileName}</div>}
+                        </div>
                     </div>
 
                     <input ref={fileInputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={onFileChange} />
@@ -646,7 +652,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
             title="No eligible ND licenses for bulk linking"
             description={
                 <div>
-                    You don’t currently have any ND licenses eligible for bulk linking. A license becomes eligible after it has
+                    You don't currently have any ND licenses eligible for bulk linking. A license becomes eligible after it has
                     been unlinked and has not been linked to another address for at least 24 hours.
                 </div>
             }
@@ -658,7 +664,7 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
             isOpen={isOpen}
             onOpenChange={onOpenChange}
             onClose={onModalClose}
-            size="4xl"
+            size="3xl"
             shouldBlockScroll={false}
             classNames={{
                 closeButton: 'cursor-pointer',
