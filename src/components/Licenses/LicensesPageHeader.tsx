@@ -23,14 +23,18 @@ import { usePublicClient, useWalletClient } from 'wagmi';
 
 function LicensesPageHeader({
     onFilterChange,
+    onBulkLink,
     licenses,
+    unlinkedNdCount,
     isClaimingAllRewardsPoA,
     setClaimingAllRewardsPoA,
     isClaimingAllRewardsPoAI,
     setClaimingAllRewardsPoAI,
 }: {
     onFilterChange: (key: 'all' | 'linked' | 'unlinked') => void;
+    onBulkLink: () => void;
     licenses: Array<License>;
+    unlinkedNdCount: number;
     isClaimingAllRewardsPoA: boolean;
     setClaimingAllRewardsPoA: React.Dispatch<React.SetStateAction<boolean>>;
     isClaimingAllRewardsPoAI: boolean;
@@ -239,6 +243,12 @@ function LicensesPageHeader({
         !account ||
         (account.kycStatus !== ApplicationStatus.Approved && environment === 'mainnet');
 
+    const isBulkLinkDisabled = (): boolean =>
+        !authenticated ||
+        !account ||
+        unlinkedNdCount === 0 ||
+        (account.kycStatus !== ApplicationStatus.Approved && environment === 'mainnet');
+
     const getSectionTitle = (title: string, variant: 'ND' | 'MND' = 'ND') => <SmallTag variant={variant}>{title}</SmallTag>;
 
     return (
@@ -365,32 +375,50 @@ function LicensesPageHeader({
                     </div>
                 </BorderedCard>
 
-                <div className="center-all">
-                    <CustomTabs
-                        tabs={[
-                            {
-                                key: 'all',
-                                title: 'All',
-                                icon: <></>,
-                                count: licenses.length,
-                            },
-                            {
-                                key: 'linked',
-                                title: 'Linked',
-                                icon: <RiLink />,
-                                count: licenses.filter((license) => license.isLinked).length,
-                            },
-                            {
-                                key: 'unlinked',
-                                title: 'Unlinked',
-                                icon: <RiLinkUnlink />,
-                                count: licenses.filter((license) => !license.isLinked).length,
-                            },
-                        ]}
-                        onSelectionChange={(key) => {
-                            onFilterChange(key as 'all' | 'linked' | 'unlinked');
-                        }}
-                    />
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div className="center-all md:justify-start">
+                        <CustomTabs
+                            tabs={[
+                                {
+                                    key: 'all',
+                                    title: 'All',
+                                    icon: <></>,
+                                    count: licenses.length,
+                                },
+                                {
+                                    key: 'linked',
+                                    title: 'Linked',
+                                    icon: <RiLink />,
+                                    count: licenses.filter((license) => license.isLinked).length,
+                                },
+                                {
+                                    key: 'unlinked',
+                                    title: 'Unlinked',
+                                    icon: <RiLinkUnlink />,
+                                    count: licenses.filter((license) => !license.isLinked).length,
+                                },
+                            ]}
+                            onSelectionChange={(key) => {
+                                onFilterChange(key as 'all' | 'linked' | 'unlinked');
+                            }}
+                        />
+                    </div>
+
+                    <div className="flex justify-center md:justify-end">
+                        <Button
+                            className="h-9 border-2 border-slate-200 bg-white"
+                            color="primary"
+                            size="sm"
+                            variant="flat"
+                            onPress={onBulkLink}
+                            isDisabled={isBulkLinkDisabled()}
+                        >
+                            <div className="row gap-1.5">
+                                <RiLink className="text-base" />
+                                <div className="text-sm">Bulk Link Nodes</div>
+                            </div>
+                        </Button>
+                    </div>
                 </div>
             </div>
 

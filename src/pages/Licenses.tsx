@@ -3,10 +3,13 @@ import { NDContractAbi } from '@blockchain/NDContract';
 import { PoAIContractAbi } from '@blockchain/PoAIContract';
 import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
 import LicenseBurnModal from '@components/Licenses/modals/LicenseBurnModal';
+import LicenseBulkLinkModal from '@components/Licenses/modals/LicenseBulkLinkModal';
+import type { BulkLinkAssignment } from '@components/Licenses/modals/LicenseBulkLinkModal';
 import LicenseLinkModal from '@components/Licenses/modals/LicenseLinkModal';
 import LicenseUnlinkModal from '@components/Licenses/modals/LicenseUnlinkModal';
 import { Pagination } from '@heroui/pagination';
 import { Skeleton } from '@heroui/skeleton';
+import { multiLinkLicense } from '@lib/api/backend';
 import { config, getCurrentEpoch, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
@@ -54,6 +57,7 @@ function Licenses() {
     const linkModalRef = useRef<{ trigger: (_license) => void }>(null);
     const unlinkModalRef = useRef<{ trigger: (_license) => void }>(null);
     const burnModalRef = useRef<{ trigger: (_license) => void }>(null);
+    const bulkLinkModalRef = useRef<{ trigger: () => void }>(null);
 
     const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
     const { data: walletClient } = useWalletClient();
@@ -245,6 +249,48 @@ function Licenses() {
         }
     };
 
+    const onBulkLinkTrigger = () => {
+        if (bulkLinkModalRef.current) {
+            bulkLinkModalRef.current.trigger();
+        }
+    };
+
+    const onBulkLink = async (bulkAssignments: BulkLinkAssignment[]) => {
+        if (!publicClient || !walletClient) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        if (bulkAssignments.length === 0) {
+            toast.error('No assignments available.');
+            return;
+        }
+
+        try {
+            const licenseIds = bulkAssignments.map(({ license }) => license.licenseId);
+            const newNodeAddresses = bulkAssignments.map(({ nodeAddress }) => nodeAddress);
+
+            const { signature } = await multiLinkLicense(newNodeAddresses);
+
+            const txHash = await walletClient.writeContract({
+                address: config.ndContractAddress,
+                abi: NDContractAbi,
+                functionName: 'linkMultiNode',
+                args: [licenseIds, newNodeAddresses, `0x${signature}`],
+            });
+
+            await watchTx(txHash, publicClient);
+
+            // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
+            setTimeout(() => {
+                fetchLicenses(true);
+            }, 250);
+        } catch (error) {
+            console.error('Bulk linking failed', error);
+            toast.error('Bulk linking failed. Please try again.');
+        }
+    };
+
     const setClaimingRewards = (id: bigint, licenseType: License['type'], rewardsType: 'PoA' | 'PoAI', value: boolean) => {
         setLicensesToShow((prevLicenses) =>
             prevLicenses.map((license) =>
@@ -260,6 +306,15 @@ function Licenses() {
 
     const shouldTriggerGhostClaimRewards = (license: License) =>
         license.isLinked && Number(license.lastClaimEpoch) < getCurrentEpoch();
+
+    const unlinkedNdLicensesCount = useMemo(
+        () => licenses.filter((license) => license.type === 'ND' && !license.isLinked).length,
+        [licenses],
+    );
+    const linkedNodeAddresses = useMemo(
+        () => licenses.filter((license) => license.isLinked).map((license) => license.nodeAddress),
+        [licenses],
+    );
 
     const onLicenseClick = (license: License) => {
         setTimeout(() => {
@@ -332,7 +387,9 @@ function Licenses() {
                     <div>
                         <LicensesPageHeader
                             onFilterChange={setFilter}
+                            onBulkLink={onBulkLinkTrigger}
                             licenses={licenses}
+                            unlinkedNdCount={unlinkedNdLicensesCount}
                             isClaimingAllRewardsPoA={isClaimingAllRewardsPoA}
                             setClaimingAllRewardsPoA={setClaimingAllRewardsPoA}
                             isClaimingAllRewardsPoAI={isClaimingAllRewardsPoAI}
@@ -399,9 +456,16 @@ function Licenses() {
 
             <LicenseLinkModal
                 ref={linkModalRef}
-                nodeAddresses={licenses.filter((license) => license.isLinked).map((license) => license.nodeAddress)}
+                nodeAddresses={linkedNodeAddresses}
                 onClaim={onClaimRewardsPoA}
                 shouldTriggerGhostClaimRewards={shouldTriggerGhostClaimRewards}
+            />
+
+            <LicenseBulkLinkModal
+                ref={bulkLinkModalRef}
+                licenses={licenses}
+                linkedNodeAddresses={linkedNodeAddresses}
+                onBulkLink={onBulkLink}
             />
 
             <LicenseUnlinkModal
