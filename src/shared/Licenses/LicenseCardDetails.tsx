@@ -197,7 +197,7 @@ export const LicenseCardDetails = ({
 
                     {license.type === 'ND' ? (
                         <DetailsCard>
-                            <div className="row gap-4ß justify-between">
+                            <div className="row justify-between gap-4">
                                 <div className="col gap-2.5">
                                     <div className="text-sm font-medium text-slate-500">Proof of AI</div>
 
@@ -230,7 +230,7 @@ export const LicenseCardDetails = ({
                         </DetailsCard>
                     ) : (
                         <DetailsCard>
-                            <div className="row gap-4ß justify-between">
+                            <div className="row justify-between gap-4">
                                 <div className="col gap-2.5">
                                     <div className="text-sm font-medium text-slate-500">Adoption Withheld Buffer</div>
 

@@ -186,6 +186,7 @@ export const BlockchainProvider = ({ children }) => {
                             licenses.map(async (license) => {
                                 const type: 'GND' | 'MND' = license.licenseId === 1n ? ('GND' as const) : ('MND' as const);
                                 const isBanned = false as const;
+                                //TODO should be improved to fetch in a single call
                                 const awbBalance = await publicClient.readContract({
                                     address: config.mndContractAddress,
                                     abi: MNDContractAbi,
