@@ -165,6 +165,7 @@ const getMndOrGndRewards = async (
         return undefined;
     }
 
+    //TODO rewards calculation and claiming will fail if there are more than ~1000 epochs to claim
     const result = await publicClient.readContract({
         address: config.mndContractAddress,
         abi: MNDContractAbi,

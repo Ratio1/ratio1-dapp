@@ -1,6 +1,21 @@
 export const MNDContractAbi = [
     {
         inputs: [],
+        name: 'AssignedAmountExceedsLimit',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'CannotReassignWithin24Hours',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'CannotUnlinkBeforeClaimingRewards',
+        type: 'error',
+    },
+    {
+        inputs: [],
         name: 'ERC721EnumerableForbiddenBatchMint',
         type: 'error',
     },
@@ -135,12 +150,67 @@ export const MNDContractAbi = [
     },
     {
         inputs: [],
+        name: 'IncorrectNumberOfParams',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'InvalidEpochs',
+        type: 'error',
+    },
+    {
+        inputs: [],
         name: 'InvalidInitialization',
         type: 'error',
     },
     {
         inputs: [],
+        name: 'InvalidLicensePower',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'InvalidNodeAddress',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'InvalidNodeAddressForRewards',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'MaxTokenSupplyReached',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'MaxTotalAssignedTokensReached',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'MismatchedInputArraysLength',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'NodeAddressAlreadyRegistered',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'NonexistentTokenURI',
+        type: 'error',
+    },
+    {
+        inputs: [],
         name: 'NotInitializing',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'NotLicenseOwner',
         type: 'error',
     },
     {
@@ -269,6 +339,16 @@ export const MNDContractAbi = [
     {
         inputs: [],
         name: 'ReentrancyGuardReentrantCall',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'SoulboundNonTransferableToken',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'TimestampBeforeStartEpoch',
         type: 'error',
     },
     {
@@ -473,6 +553,12 @@ export const MNDContractAbi = [
                 indexed: false,
                 internalType: 'uint256',
                 name: 'carryoverAmount',
+                type: 'uint256',
+            },
+            {
+                indexed: false,
+                internalType: 'uint256',
+                name: 'withheldAmount',
                 type: 'uint256',
             },
             {
