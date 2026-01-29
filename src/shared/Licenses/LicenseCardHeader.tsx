@@ -118,8 +118,21 @@ export const LicenseCardHeader = ({
             <div className="flex h-1 w-full overflow-hidden rounded-full bg-gray-300">
                 <div
                     className="bg-primary rounded-full transition-all"
-                    style={{ width: `${Number((license.totalClaimedAmount * 100n) / license.totalAssignedAmount)}%` }}
+                    style={{
+                        width: `${Number(
+                            ((license.totalClaimedAmount - (license.type !== 'ND' ? license.awbBalance : 0n)) * 100n) /
+                                license.totalAssignedAmount,
+                        )}%`,
+                    }}
                 ></div>
+                {license.type !== 'ND' && (
+                    <div
+                        className="rounded-end bg-orange-500 transition-all"
+                        style={{
+                            width: `${Number((license.awbBalance * 100n) / license.totalAssignedAmount)}%`,
+                        }}
+                    ></div>
+                )}
             </div>
 
             <div>
