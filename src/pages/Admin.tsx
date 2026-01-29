@@ -89,6 +89,7 @@ function Admin() {
                         ...mnd,
                         type: 'MND' as const,
                         isBanned: false as const,
+                        awbBalance: 0n, // Not correct, but not needed in admin view, at least for now
                     })),
                 );
             });
