@@ -11,8 +11,8 @@ export default function TermsOfUseNDs() {
                             <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">1. Introduction</h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
                                 <p>
-                                    These Terms of Use ("Terms") govern the acquisition, use and operation of the Ratio 1 Edge
-                                    Node licenses ("Node Deeds", "Master Node Deeds").
+                                    These Terms of Use ('ToU' or 'EULA') constitute a binding agreement regarding your licensing and 
+                                    operation of the Ratio1 Node licenses ("Node Deeds", "Master Node Deeds").
                                 </p>
                                 <p>
                                     These Terms apply to the Node Deeds (NDs, MNDs), which are licenses that grant the right to run
@@ -876,6 +876,19 @@ export default function TermsOfUseNDs() {
                                         arising from your use of the Services, dApp, Tools, Node Deeds or breach of these Terms.
                                     </p>
                                 </div>
+
+
+                                <div className="rounded-lg bg-red-50 p-4">
+                                    <p className="text-gray-700">
+                                        <strong>7.8</strong> The User acknowledges that the Ratio1 Protocol operates on a utilitarian 
+                                        'Work-for-Reward' basis. Possession of R1 tokens, Node Deeds (NDs, MNDs), or other ecosystem assets 
+                                        does not guarantee future returns. Specifically, the mining process is dynamic and adoption-aware; 
+                                        token emissions are algorithmically linked to the operational state of the network. Consequently, 'vested' 
+                                        allocations are not guaranteed debts owed to the User but are contingent opportunities that must be actively 
+                                        mined in alignment with the ecosystem's function and adoption milestones.
+                                    </p>
+                                </div>
+
                             </div>
                         </section>
 
