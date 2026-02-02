@@ -12,10 +12,10 @@ export default function TermsOfUseNDs() {
                             <div className="space-y-4 leading-relaxed text-gray-700">
                                 <p>
                                     These Terms of Use ("Terms") govern the acquisition, use and operation of the Ratio 1 Edge
-                                    Node licenses ("Node Deeds").
+                                    Node licenses ("Node Deeds", "Master Node Deeds").
                                 </p>
                                 <p>
-                                    These Terms apply to the Node Deeds, which are licenses that grant the right to run
+                                    These Terms apply to the Node Deeds (NDs, MNDs), which are licenses that grant the right to run
                                     processing nodes within the Ratio 1 Protocol ("Protocol"). The Node Deeds enable their
                                     holders to operate individual edge nodes, contribute compute power to the Ratio 1 Protocol,
                                     and mine utility tokens ("Tokens") through their activity in the Ratio 1 Ecosystem
@@ -854,7 +854,11 @@ export default function TermsOfUseNDs() {
                                     <p className="text-gray-700">
                                         <strong>7.5</strong> The Company does not guarantee that operating a node will result in
                                         Tokens or that Tokens will have monetary value. Rewards depend on network activity, the
-                                        Purchaser's compliance with operational requirements, and market conditions.
+                                        Purchaser's compliance with operational requirements, and market conditions. 
+                                        Even a Master Node Deed containing a substantial R1 stake with a 60-month vesting schedule 
+                                        provides no guaranteed Token yield - rewards will only accrue if the node remains continuously 
+                                        online (available) and the wider Ratio1 Ecosystem demonstrates sufficient adoption and activity 
+                                        to support token issuance.
                                     </p>
                                 </div>
 

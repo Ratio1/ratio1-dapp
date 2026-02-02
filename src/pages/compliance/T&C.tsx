@@ -18,10 +18,10 @@ function TermsAndConditions() {
                                         https://ratio1.ai
                                     </a>{' '}
                                     (the "<strong>Website</strong>"), as well as the related Ecosystem (the "
-                                    <strong>Ecosystem</strong>") including the Naeural Edge Protocol (the "
-                                    <strong>Naeural Protocol</strong>" or the "<strong>Operating System for AI</strong>") and
+                                    <strong>Ecosystem</strong>") including the Ratio1 Protocol (the "
+                                    <strong>Naeural Edge Protocol</strong>" or the "<strong>Operating System for AI</strong>") and
                                     the linked application (referred to as the "<strong>dApp</strong>"), the utility tokens from
-                                    the Ecosystem (the "<strong>Tokens</strong>"), the Naeural Edge Node licenses that grant the
+                                    the Ecosystem (the "<strong>Tokens</strong>"), the Ratio1 Edge Node licenses that grant the
                                     rights to run processing nodes (the "<strong>Node Deeds</strong>") as well as any related
                                     tools from the Ecosystem (the "<strong>Tools</strong>"); (b) Your use of the services (the "
                                     <strong>Services</strong>") which we may provide to you ("<strong>You</strong>"); (c) Your
@@ -99,7 +99,7 @@ function TermsAndConditions() {
                             <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">4. The Ecosystem</h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
                                 <p>
-                                    The Ecosystem includes: i) the Naeural Protocol- a platform specifically designed to
+                                    The Ecosystem includes: i) the Ratio1 Protocol- a platform specifically designed to
                                     facilitate the rapid development and deployment of AI applications, as well as the Tools
                                     from the platform.; ii) the Node Deeds- the licenses that grant the rights to run processing
                                     nodes ; iii) the Tokens; iv) the Website and iv) the dApp.
@@ -128,19 +128,24 @@ function TermsAndConditions() {
                                         <p className="mb-4">
                                             There are three types of Node Deeds: Genesis Node Deed (GND), Master Node Deed (MND)
                                             and Node Deed (ND). The Node Deeds grant the right to generate the Tokens through
-                                            mining, based on the activity of the Node Provider in the Ecosystem.
+                                            mining, based on the activity of the Node Provider in the Ecosystem. 
+                                            For clarity, even holding a Master Node Deed with a large R1 token allocation and an 
+                                            extended vesting period (e.g., 1,000,000 R1 over 60 months) does not guarantee that 
+                                            those Tokens will be mined; any mining rewards are contingent on the Node Provider's 
+                                            node remaining actively available and on broader protocol conditions (such as overall 
+                                            network adoption and proper functioning of the Ecosystem)
                                         </p>
                                         <p className="mb-4">
                                             The Node Deed represents the license available for public purchase which enables the
-                                            operation of individual edge nodes within the Naeural Protocol, respectively the
-                                            Ecosystem and granting to its holder the right to use the Naeural Protocol, the
-                                            right and ability to contribute with compute power within the Naeural Protocol and
+                                            operation of individual edge nodes within the Ratio1 Protocol, respectively the
+                                            Ecosystem and granting to its holder the right to use the Ratio1 Protocol, the
+                                            right and ability to contribute with compute power within the Ratio1 Protocol and
                                             receive rewards, and the right to mine Tokens.
                                         </p>
                                         <p>
                                             The Node Deed grant the right to generate the Tokens through mining, based on the
                                             activity of its holder in the Ecosystem. The Tokens are distributed and mined
-                                            through the Naeural Edge Nodes paired with the Node Deeds licenses and can be
+                                            through the Ratio1 Edge Nodes paired with the Node Deeds licenses and can be
                                             claimed through the dApp.
                                         </p>
                                     </div>
@@ -148,13 +153,13 @@ function TermsAndConditions() {
                                     <div>
                                         <h3 className="mb-3 text-xl font-medium text-gray-900">(iii) Tokens</h3>
                                         <p className="mb-4">
-                                            The Tokens are the Naeural Protocol utility tokens that are mined by the holders of
+                                            The Tokens are the Ratio1 Protocol utility tokens that are mined by the holders of
                                             the licenses defined above as Node Deeds, and distributed through the Node Deeds and
-                                            the Naeural Edge Node via the management features of the dApp. The Node Deed must be
+                                            the Ratio1 Edge Node via the management features of the dApp. The Node Deed must be
                                             installed by each participant in the Ecosystem on their computer or computers,
                                             on-premises or on cloud infrastructures. Based on the license type (Node Deed) held
                                             by each participant in the Ecosystem, each participant is entitled to use the
-                                            Naeural Protocol and can mine Tokens through providing AI compute power.
+                                            Ratio1 Protocol and can mine Tokens through providing AI compute power.
                                         </p>
                                         <p className="mb-4">
                                             For the avoidance of any doubt, there is no Token Generation Event (TGE), each
@@ -718,8 +723,8 @@ function TermsAndConditions() {
                                 </p>
 
                                 <p>
-                                    Cloud Service Providers (the "CSPs") are entities or individuals who utilize the Naeural
-                                    Edge Protocol to execute AI computational tasks on Ratio1 Edge Nodes. When CSPs make
+                                    Cloud Service Providers (the "CSPs") are entities or individuals who utilize the Ratio1
+                                    Protocol to execute AI computational tasks on Ratio1 Edge Nodes. When CSPs make
                                     payments for these tasks, they incur a protocol-level fee, (the "Burn Fee"). The Burn Fee is
                                     supporting the Ecosystem's decentralized infrastructure. The Burn Fee is recorded in a burn
                                     report as described below.
