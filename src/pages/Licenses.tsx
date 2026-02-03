@@ -26,6 +26,9 @@ import { License } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 const PAGE_SIZE = 12;
+const log = (...args: unknown[]) => {
+    console.log('[Licenses]', ...args);
+};
 
 function Licenses() {
     const { watchTx, licenses, isLoadingLicenses, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
@@ -68,10 +71,12 @@ function Licenses() {
             return;
         } else {
             if (authenticated && !!address && publicClient) {
+                log('Initial fetchLicenses', { address });
                 fetchLicenses();
 
                 // Refresh licenses every minute
                 const interval = setInterval(() => {
+                    log('Refreshing licenses');
                     fetchLicenses(true);
                 }, 60000);
 
@@ -149,11 +154,24 @@ function Licenses() {
 
             setClaimingRewards(license.licenseId, license.type, 'PoA', true);
 
+            log('Claim PoA rewards started', {
+                licenseId: Number(license.licenseId),
+                type: license.type,
+                nodeAddress: license.nodeAddress,
+            });
+
             const [epochs, availabilies, ethSignatures] = await Promise.all([
                 license.epochs,
                 license.epochsAvailabilities,
                 license.ethSignatures,
             ]);
+
+            log('Oracle data loaded', {
+                licenseId: Number(license.licenseId),
+                epochs: epochs.length,
+                availabilities: availabilies.length,
+                signatures: ethSignatures.length,
+            });
 
             const computeParam = {
                 licenseId: license.licenseId,
@@ -161,6 +179,12 @@ function Licenses() {
                 epochs: epochs.map((epoch) => BigInt(epoch)),
                 availabilies,
             };
+
+            log('Submitting claimRewards', {
+                licenseId: Number(license.licenseId),
+                contract: license.type === 'ND' ? 'ND' : 'MND',
+                epochCount: epochs.length,
+            });
 
             const txHash =
                 license.type === 'ND'
@@ -177,7 +201,11 @@ function Licenses() {
                           args: [[computeParam], [ethSignatures]],
                       });
 
+            log('claimRewards submitted', { licenseId: Number(license.licenseId), txHash });
+
             const receipt = await watchTx(txHash, publicClient);
+
+            log('claimRewards confirmed', { licenseId: Number(license.licenseId), txHash: receipt?.transactionHash });
 
             if (!skipFetchingRewards) {
                 // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
@@ -188,6 +216,7 @@ function Licenses() {
 
             return receipt;
         } catch (err: any) {
+            log('Claim PoA rewards failed', { licenseId: Number(license.licenseId), error: err?.message ?? err });
             toast.error('An error occurred, please try again.');
         } finally {
             setClaimingRewards(license.licenseId, license.type, 'PoA', false);
@@ -208,13 +237,20 @@ function Licenses() {
 
             setClaimingRewards(license.licenseId, license.type, 'PoAI', true);
 
+            log('Claim PoAI rewards started', {
+                licenseId: Number(license.licenseId),
+                nodeAddress: license.nodeAddress,
+            });
+
             const txHash = await walletClient.writeContract({
                 address: config.poaiManagerContractAddress,
                 abi: PoAIContractAbi,
                 functionName: 'claimRewardsForNode',
                 args: [license.nodeAddress],
             });
+            log('claimRewardsForNode submitted', { licenseId: Number(license.licenseId), txHash });
             const receipt = await watchTx(txHash, publicClient);
+            log('claimRewardsForNode confirmed', { licenseId: Number(license.licenseId), txHash: receipt?.transactionHash });
 
             if (!skipFetchingRewards) {
                 // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
@@ -225,6 +261,7 @@ function Licenses() {
 
             return receipt;
         } catch (err: any) {
+            log('Claim PoAI rewards failed', { licenseId: Number(license.licenseId), error: err?.message ?? err });
             toast.error('An error occurred, please try again.');
         } finally {
             setClaimingRewards(license.licenseId, license.type, 'PoAI', false);
@@ -270,7 +307,9 @@ function Licenses() {
             const licenseIds = bulkAssignments.map(({ license }) => license.licenseId);
             const newNodeAddresses = bulkAssignments.map(({ nodeAddress }) => nodeAddress);
 
+            log('Bulk link started', { assignments: bulkAssignments.length });
             const { signature } = await multiLinkLicense(newNodeAddresses);
+            log('Bulk link signature received', { assignments: bulkAssignments.length, signatureLength: signature.length });
 
             const txHash = await walletClient.writeContract({
                 address: config.ndContractAddress,
@@ -278,14 +317,17 @@ function Licenses() {
                 functionName: 'linkMultiNode',
                 args: [licenseIds, newNodeAddresses, `0x${signature}`],
             });
+            log('linkMultiNode submitted', { assignments: bulkAssignments.length, txHash });
 
             await watchTx(txHash, publicClient);
+            log('linkMultiNode confirmed', { assignments: bulkAssignments.length, txHash });
 
             // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
             setTimeout(() => {
                 fetchLicenses(true);
             }, 250);
         } catch (error) {
+            log('Bulk link failed', { error: (error as Error)?.message ?? error });
             console.error('Bulk linking failed', error);
             toast.error('Bulk linking failed. Please try again.');
         }

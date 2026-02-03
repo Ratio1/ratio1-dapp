@@ -32,6 +32,7 @@ export const getLicensesWithNodesAndRewards = (
     licenses: (BaseGNDLicense | BaseMNDLicense | BaseNDLicense)[],
     publicClient: PublicClient,
 ) => {
+    console.log('[Licenses] getLicensesWithNodesAndRewards start', { licenses: licenses.length });
     const nodesWithRanges = licenses.reduce(
         (acc, license) => {
             acc[license.nodeAddress] = getRewardsEpochsRange(license);
@@ -49,7 +50,16 @@ export const getLicensesWithNodesAndRewards = (
         }));
     }
 
-    const result = getMultiNodeEpochsRange(nodesWithRanges);
+    console.log('[Licenses] getMultiNodeEpochsRange request', { nodes: Object.keys(nodesWithRanges).length });
+    const result = getMultiNodeEpochsRange(nodesWithRanges)
+        .then((response) => {
+            console.log('[Licenses] getMultiNodeEpochsRange success', { nodes: Object.keys(nodesWithRanges).length });
+            return response;
+        })
+        .catch((error) => {
+            console.error('[Licenses] getMultiNodeEpochsRange failed', { nodes: Object.keys(nodesWithRanges).length, error });
+            throw error;
+        });
 
     const licensesWithNodesWithRewards: types.License[] = licenses.map((license) => {
         const availability: Promise<types.OraclesAvailabilityResult> = result.then((result) => result[license.nodeAddress]);
@@ -81,6 +91,7 @@ export const getLicensesWithNodesAndRewards = (
         };
     });
 
+    console.log('[Licenses] getLicensesWithNodesAndRewards ready', { linked: licensesWithNodesWithRewards.length });
     return licensesWithNodesWithRewards;
 };
 
