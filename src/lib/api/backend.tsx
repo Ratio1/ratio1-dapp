@@ -86,6 +86,11 @@ export const buyLicense = () =>
         vatPercentage: number;
     }>('/license/buy', {});
 
+export const multiLinkLicense = (nodeAddresses: types.EthAddress[]) =>
+    _doPost<{
+        signature: `0x${string}`;
+    }>(`/license/multiLink`, { nodeAddresses });
+
 export const initSumsubSession = (type: 'individual' | 'company') => _doPost<string>('/sumsub/init/Kyc', { type });
 
 export const registerEmail = (params: { email: string; receiveUpdates: boolean }) =>

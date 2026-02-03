@@ -3,10 +3,13 @@ import { NDContractAbi } from '@blockchain/NDContract';
 import { PoAIContractAbi } from '@blockchain/PoAIContract';
 import LicensesPageHeader from '@components/Licenses/LicensesPageHeader';
 import LicenseBurnModal from '@components/Licenses/modals/LicenseBurnModal';
+import LicenseBulkLinkModal from '@components/Licenses/modals/LicenseBulkLinkModal';
+import type { BulkLinkAssignment } from '@components/Licenses/modals/LicenseBulkLinkModal';
 import LicenseLinkModal from '@components/Licenses/modals/LicenseLinkModal';
 import LicenseUnlinkModal from '@components/Licenses/modals/LicenseUnlinkModal';
 import { Pagination } from '@heroui/pagination';
 import { Skeleton } from '@heroui/skeleton';
+import { multiLinkLicense } from '@lib/api/backend';
 import { config, getCurrentEpoch, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
@@ -23,6 +26,9 @@ import { License } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 const PAGE_SIZE = 12;
+const log = (...args: unknown[]) => {
+    console.log('[Licenses]', ...args);
+};
 
 function Licenses() {
     const { watchTx, licenses, isLoadingLicenses, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
@@ -54,6 +60,7 @@ function Licenses() {
     const linkModalRef = useRef<{ trigger: (_license) => void }>(null);
     const unlinkModalRef = useRef<{ trigger: (_license) => void }>(null);
     const burnModalRef = useRef<{ trigger: (_license) => void }>(null);
+    const bulkLinkModalRef = useRef<{ trigger: () => void }>(null);
 
     const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
     const { data: walletClient } = useWalletClient();
@@ -64,10 +71,12 @@ function Licenses() {
             return;
         } else {
             if (authenticated && !!address && publicClient) {
+                log('Initial fetchLicenses', { address });
                 fetchLicenses();
 
                 // Refresh licenses every minute
                 const interval = setInterval(() => {
+                    log('Refreshing licenses');
                     fetchLicenses(true);
                 }, 60000);
 
@@ -145,11 +154,24 @@ function Licenses() {
 
             setClaimingRewards(license.licenseId, license.type, 'PoA', true);
 
+            log('Claim PoA rewards started', {
+                licenseId: Number(license.licenseId),
+                type: license.type,
+                nodeAddress: license.nodeAddress,
+            });
+
             const [epochs, availabilies, ethSignatures] = await Promise.all([
                 license.epochs,
                 license.epochsAvailabilities,
                 license.ethSignatures,
             ]);
+
+            log('Oracle data loaded', {
+                licenseId: Number(license.licenseId),
+                epochs: epochs.length,
+                availabilities: availabilies.length,
+                signatures: ethSignatures.length,
+            });
 
             const computeParam = {
                 licenseId: license.licenseId,
@@ -157,6 +179,12 @@ function Licenses() {
                 epochs: epochs.map((epoch) => BigInt(epoch)),
                 availabilies,
             };
+
+            log('Submitting claimRewards', {
+                licenseId: Number(license.licenseId),
+                contract: license.type === 'ND' ? 'ND' : 'MND',
+                epochCount: epochs.length,
+            });
 
             const txHash =
                 license.type === 'ND'
@@ -173,7 +201,11 @@ function Licenses() {
                           args: [[computeParam], [ethSignatures]],
                       });
 
+            log('claimRewards submitted', { licenseId: Number(license.licenseId), txHash });
+
             const receipt = await watchTx(txHash, publicClient);
+
+            log('claimRewards confirmed', { licenseId: Number(license.licenseId), txHash: receipt?.transactionHash });
 
             if (!skipFetchingRewards) {
                 // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
@@ -184,6 +216,7 @@ function Licenses() {
 
             return receipt;
         } catch (err: any) {
+            log('Claim PoA rewards failed', { licenseId: Number(license.licenseId), error: err?.message ?? err });
             toast.error('An error occurred, please try again.');
         } finally {
             setClaimingRewards(license.licenseId, license.type, 'PoA', false);
@@ -204,13 +237,20 @@ function Licenses() {
 
             setClaimingRewards(license.licenseId, license.type, 'PoAI', true);
 
+            log('Claim PoAI rewards started', {
+                licenseId: Number(license.licenseId),
+                nodeAddress: license.nodeAddress,
+            });
+
             const txHash = await walletClient.writeContract({
                 address: config.poaiManagerContractAddress,
                 abi: PoAIContractAbi,
                 functionName: 'claimRewardsForNode',
                 args: [license.nodeAddress],
             });
+            log('claimRewardsForNode submitted', { licenseId: Number(license.licenseId), txHash });
             const receipt = await watchTx(txHash, publicClient);
+            log('claimRewardsForNode confirmed', { licenseId: Number(license.licenseId), txHash: receipt?.transactionHash });
 
             if (!skipFetchingRewards) {
                 // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
@@ -221,6 +261,7 @@ function Licenses() {
 
             return receipt;
         } catch (err: any) {
+            log('Claim PoAI rewards failed', { licenseId: Number(license.licenseId), error: err?.message ?? err });
             toast.error('An error occurred, please try again.');
         } finally {
             setClaimingRewards(license.licenseId, license.type, 'PoAI', false);
@@ -245,6 +286,53 @@ function Licenses() {
         }
     };
 
+    const onBulkLinkTrigger = () => {
+        if (bulkLinkModalRef.current) {
+            bulkLinkModalRef.current.trigger();
+        }
+    };
+
+    const onBulkLink = async (bulkAssignments: BulkLinkAssignment[]) => {
+        if (!publicClient || !walletClient) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        if (bulkAssignments.length === 0) {
+            toast.error('No assignments available.');
+            return;
+        }
+
+        try {
+            const licenseIds = bulkAssignments.map(({ license }) => license.licenseId);
+            const newNodeAddresses = bulkAssignments.map(({ nodeAddress }) => nodeAddress);
+
+            log('Bulk link started', { assignments: bulkAssignments.length });
+            const { signature } = await multiLinkLicense(newNodeAddresses);
+            log('Bulk link signature received', { assignments: bulkAssignments.length, signatureLength: signature.length });
+
+            const txHash = await walletClient.writeContract({
+                address: config.ndContractAddress,
+                abi: NDContractAbi,
+                functionName: 'linkMultiNode',
+                args: [licenseIds, newNodeAddresses, `0x${signature}`],
+            });
+            log('linkMultiNode submitted', { assignments: bulkAssignments.length, txHash });
+
+            await watchTx(txHash, publicClient);
+            log('linkMultiNode confirmed', { assignments: bulkAssignments.length, txHash });
+
+            // Using a timeout here to make sure fetchLicenses returns the updated smart contract data
+            setTimeout(() => {
+                fetchLicenses(true);
+            }, 250);
+        } catch (error) {
+            log('Bulk link failed', { error: (error as Error)?.message ?? error });
+            console.error('Bulk linking failed', error);
+            toast.error('Bulk linking failed. Please try again.');
+        }
+    };
+
     const setClaimingRewards = (id: bigint, licenseType: License['type'], rewardsType: 'PoA' | 'PoAI', value: boolean) => {
         setLicensesToShow((prevLicenses) =>
             prevLicenses.map((license) =>
@@ -260,6 +348,15 @@ function Licenses() {
 
     const shouldTriggerGhostClaimRewards = (license: License) =>
         license.isLinked && Number(license.lastClaimEpoch) < getCurrentEpoch();
+
+    const unlinkedNdLicensesCount = useMemo(
+        () => licenses.filter((license) => license.type === 'ND' && !license.isLinked).length,
+        [licenses],
+    );
+    const linkedNodeAddresses = useMemo(
+        () => licenses.filter((license) => license.isLinked).map((license) => license.nodeAddress),
+        [licenses],
+    );
 
     const onLicenseClick = (license: License) => {
         setTimeout(() => {
@@ -332,7 +429,9 @@ function Licenses() {
                     <div>
                         <LicensesPageHeader
                             onFilterChange={setFilter}
+                            onBulkLink={onBulkLinkTrigger}
                             licenses={licenses}
+                            unlinkedNdCount={unlinkedNdLicensesCount}
                             isClaimingAllRewardsPoA={isClaimingAllRewardsPoA}
                             setClaimingAllRewardsPoA={setClaimingAllRewardsPoA}
                             isClaimingAllRewardsPoAI={isClaimingAllRewardsPoAI}
@@ -399,9 +498,16 @@ function Licenses() {
 
             <LicenseLinkModal
                 ref={linkModalRef}
-                nodeAddresses={licenses.filter((license) => license.isLinked).map((license) => license.nodeAddress)}
+                nodeAddresses={linkedNodeAddresses}
                 onClaim={onClaimRewardsPoA}
                 shouldTriggerGhostClaimRewards={shouldTriggerGhostClaimRewards}
+            />
+
+            <LicenseBulkLinkModal
+                ref={bulkLinkModalRef}
+                licenses={licenses}
+                linkedNodeAddresses={linkedNodeAddresses}
+                onBulkLink={onBulkLink}
             />
 
             <LicenseUnlinkModal

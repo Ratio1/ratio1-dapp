@@ -44,12 +44,14 @@ type MNDLicense = LicenseWithNodeInfo & {
     type: 'MND';
     isBanned: false;
     firstMiningEpoch: bigint;
+    awbBalance: bigint;
 };
 
 type GNDLicense = LicenseWithNodeInfo & {
     type: 'GND';
     isBanned: false;
     firstMiningEpoch: bigint;
+    awbBalance: bigint;
 };
 
 type License = NDLicense | MNDLicense | GNDLicense;

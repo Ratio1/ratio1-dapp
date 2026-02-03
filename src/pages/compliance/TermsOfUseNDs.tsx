@@ -11,11 +11,11 @@ export default function TermsOfUseNDs() {
                             <h2 className="big-title mb-4 border-b border-gray-200 pb-2 text-gray-900">1. Introduction</h2>
                             <div className="space-y-4 leading-relaxed text-gray-700">
                                 <p>
-                                    These Terms of Use ("Terms") govern the acquisition, use and operation of the Ratio 1 Edge
-                                    Node licenses ("Node Deeds").
+                                    These Terms of Use ('ToU' or 'EULA') constitute a binding agreement regarding your licensing and 
+                                    operation of the Ratio1 Node licenses ("Node Deeds", "Master Node Deeds").
                                 </p>
                                 <p>
-                                    These Terms apply to the Node Deeds, which are licenses that grant the right to run
+                                    These Terms apply to the Node Deeds (NDs, MNDs), which are licenses that grant the right to run
                                     processing nodes within the Ratio 1 Protocol ("Protocol"). The Node Deeds enable their
                                     holders to operate individual edge nodes, contribute compute power to the Ratio 1 Protocol,
                                     and mine utility tokens ("Tokens") through their activity in the Ratio 1 Ecosystem
@@ -854,7 +854,11 @@ export default function TermsOfUseNDs() {
                                     <p className="text-gray-700">
                                         <strong>7.5</strong> The Company does not guarantee that operating a node will result in
                                         Tokens or that Tokens will have monetary value. Rewards depend on network activity, the
-                                        Purchaser's compliance with operational requirements, and market conditions.
+                                        Purchaser's compliance with operational requirements, and market conditions. 
+                                        Even a Master Node Deed containing a substantial R1 stake with a 60-month vesting schedule 
+                                        provides no guaranteed Token yield - rewards will only accrue if the node remains continuously 
+                                        online (available) and the wider Ratio1 Ecosystem demonstrates sufficient adoption and activity 
+                                        to support token issuance.
                                     </p>
                                 </div>
 
@@ -872,6 +876,19 @@ export default function TermsOfUseNDs() {
                                         arising from your use of the Services, dApp, Tools, Node Deeds or breach of these Terms.
                                     </p>
                                 </div>
+
+
+                                <div className="rounded-lg bg-red-50 p-4">
+                                    <p className="text-gray-700">
+                                        <strong>7.8</strong> The User acknowledges that the Ratio1 Protocol operates on a utilitarian 
+                                        'Work-for-Reward' basis. Possession of R1 tokens, Node Deeds (NDs, MNDs), or other ecosystem assets 
+                                        does not guarantee future returns. Specifically, the mining process is dynamic and adoption-aware; 
+                                        token emissions are algorithmically linked to the operational state of the network. Consequently, 'vested' 
+                                        allocations are not guaranteed debts owed to the User but are contingent opportunities that must be actively 
+                                        mined in alignment with the ecosystem's function and adoption milestones.
+                                    </p>
+                                </div>
+
                             </div>
                         </section>
 

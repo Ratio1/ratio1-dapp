@@ -1151,6 +1151,29 @@ export const NDContractAbi = [
     {
         inputs: [
             {
+                internalType: 'uint256[]',
+                name: 'licenseIds',
+                type: 'uint256[]',
+            },
+            {
+                internalType: 'address[]',
+                name: 'newNodeAddresses',
+                type: 'address[]',
+            },
+            {
+                internalType: 'bytes',
+                name: 'signature',
+                type: 'bytes',
+            },
+        ],
+        name: 'linkMultiNode',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
                 internalType: 'uint256',
                 name: 'licenseId',
                 type: 'uint256',
