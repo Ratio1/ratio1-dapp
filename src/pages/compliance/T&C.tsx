@@ -130,7 +130,7 @@ function TermsAndConditions() {
                                             and Node Deed (ND). The Node Deeds grant the right to generate the Tokens through
                                             mining, based on the activity of the Node Provider in the Ecosystem. 
                                             For clarity, even holding a Master Node Deed with a large R1 token allocation and an 
-                                            extended vesting period (e.g., 1,000,000 R1 over 60 months) does not guarantee that 
+                                            extended mining period (e.g., 1,000,000 R1 over 60 months) does not guarantee that 
                                             those Tokens will be mined; any mining rewards are contingent on the Node Provider's 
                                             node remaining actively available and on broader protocol conditions (such as overall 
                                             network adoption and proper functioning of the Ecosystem)

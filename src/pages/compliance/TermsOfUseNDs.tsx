@@ -855,7 +855,7 @@ export default function TermsOfUseNDs() {
                                         <strong>7.5</strong> The Company does not guarantee that operating a node will result in
                                         Tokens or that Tokens will have monetary value. Rewards depend on network activity, the
                                         Purchaser's compliance with operational requirements, and market conditions. 
-                                        Even a Master Node Deed containing a substantial R1 stake with a 60-month vesting schedule 
+                                        Even a Master Node Deed containing a substantial R1 stake with a 60-month mining schedule 
                                         provides no guaranteed Token yield - rewards will only accrue if the node remains continuously 
                                         online (available) and the wider Ratio1 Ecosystem demonstrates sufficient adoption and activity 
                                         to support token issuance.
@@ -881,9 +881,9 @@ export default function TermsOfUseNDs() {
                                 <div className="rounded-lg bg-red-50 p-4">
                                     <p className="text-gray-700">
                                         <strong>7.8</strong> The User acknowledges that the Ratio1 Protocol operates on a utilitarian 
-                                        'Work-for-Reward' basis. Possession of R1 tokens, Node Deeds (NDs, MNDs), or other ecosystem assets 
+                                        'work-for-reward' basis. Possession of R1 tokens, Node Deeds (NDs, MNDs), or other ecosystem assets 
                                         does not guarantee future returns. Specifically, the mining process is dynamic and adoption-aware; 
-                                        token emissions are algorithmically linked to the operational state of the network. Consequently, 'vested' 
+                                        token emissions are algorithmically linked to the operational state of the network. Consequently, 'to be mined' 
                                         allocations are not guaranteed debts owed to the User but are contingent opportunities that must be actively 
                                         mined in alignment with the ecosystem's function and adoption milestones.
                                     </p>
