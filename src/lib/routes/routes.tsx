@@ -101,7 +101,7 @@ export const routeInfo = {
         description: 'Terms governing your use of our services',
     },
     [`${routePath.compliance}/${routePath.termsOfUseNDs}`]: {
-        title: 'Terms of Use NDs',
+        title: 'Terms of Use Licenses',
         description: 'Terms governing the use and operation of Edge Node licenses',
     },
     [`${routePath.compliance}/${routePath.privacyPolicy}`]: {
