@@ -350,9 +350,9 @@ function LicensesPageHeader({
                                             : fBI(earnedAmountPoA, 18),
                                     )}
 
-                                    {getValueWithLabel('Future Claimable ($R1)', fBI(futureClaimableR1AmountPoA, 18))}
+                                    {getValueWithLabel('Future Max Claimable ($R1)', fBI(futureClaimableR1AmountPoA, 18))}
 
-                                    {getValueWithLabel('Current Potential Value ($)', fN(futureClaimableUsdPoA))}
+                                    {getValueWithLabel('Max Potential Value ($)', fN(futureClaimableUsdPoA))}
                                 </div>
                             </div>
 
