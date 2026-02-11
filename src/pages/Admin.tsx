@@ -83,13 +83,23 @@ function Admin() {
                 abi: ReaderAbi,
                 functionName: 'getAllMndsDetails',
             })
-            .then((result) => {
+            .then(async (result) => {
+                const awbBalances = await Promise.all(
+                    result.map((mnd) =>
+                        publicClient.readContract({
+                            address: config.mndContractAddress,
+                            abi: MNDContractAbi,
+                            functionName: 'awbBalances',
+                            args: [mnd.licenseId],
+                        }),
+                    ),
+                );
                 setMnds(
-                    result.map((mnd) => ({
+                    result.map((mnd, index) => ({
                         ...mnd,
                         type: 'MND' as const,
                         isBanned: false as const,
-                        awbBalance: 0n, // Not correct, but not needed in admin view, at least for now
+                        awbBalance: awbBalances[index] ?? 0n,
                     })),
                 );
             });
@@ -232,26 +242,36 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
             .then(setTotalAssignedAmount);
     }, []);
 
-    const getLicenseUsageStats = (license: AdminMndView) => (
-        <div className="col gap-2">
-            <div className="row justify-between text-sm leading-none font-medium">
-                <div>
-                    {fBI(license.totalClaimedAmount, 18)}/{fBI(license.totalAssignedAmount, 18)}
+    const getLicenseUsageStats = (license: AdminMndView) => {
+        const walletClaimedAmount = license.totalClaimedAmount > license.awbBalance ? license.totalClaimedAmount - license.awbBalance : 0n;
+
+        return (
+            <div className="col gap-2">
+                <div className="row justify-between text-sm leading-none font-medium">
+                    <div>
+                        {fBI(walletClaimedAmount, 18)}/{fBI(license.totalAssignedAmount, 18)}
+                    </div>
+
+                    <div>
+                        {parseFloat(((Number(walletClaimedAmount) / Number(license.totalAssignedAmount)) * 100).toFixed(2))}%
+                    </div>
                 </div>
 
-                <div>
-                    {parseFloat(((Number(license.totalClaimedAmount) / Number(license.totalAssignedAmount)) * 100).toFixed(2))}%
+                <div className="flex h-1 overflow-hidden rounded-full bg-gray-300">
+                    <div
+                        className="bg-primary rounded-full transition-all"
+                        style={{
+                            width: `${Number((walletClaimedAmount * 100n) / license.totalAssignedAmount)}%`,
+                        }}
+                    ></div>
+                    <div
+                        className="rounded-end bg-orange-500 transition-all"
+                        style={{ width: `${Number((license.awbBalance * 100n) / license.totalAssignedAmount)}%` }}
+                    ></div>
                 </div>
             </div>
-
-            <div className="flex h-1 overflow-hidden rounded-full bg-gray-300">
-                <div
-                    className="bg-primary rounded-full transition-all"
-                    style={{ width: `${Number((license.totalClaimedAmount * 100n) / license.totalAssignedAmount)}%` }}
-                ></div>
-            </div>
-        </div>
-    );
+        );
+    };
 
     return (
         <BigCard>
@@ -267,11 +287,16 @@ function MndsTable({ mnds }: { mnds: (AdminMndView | null)[] }) {
                 <LargeValueWithLabel label="$R1 assigned supply" value={fBI(totalAssignedAmount, 18)} isCompact />
 
                 <LargeValueWithLabel
-                    label="$R1 minted"
+                    label="$R1 minted (wallet)"
                     value={fBI(
                         mnds
                             .filter((mnd) => mnd?.licenseId !== 1n)
-                            .reduce((acc, mnd) => acc + (mnd?.totalClaimedAmount ?? 0n), 0n),
+                            .reduce(
+                                (acc, mnd) =>
+                                    acc +
+                                    (mnd ? (mnd.totalClaimedAmount > mnd.awbBalance ? mnd.totalClaimedAmount - mnd.awbBalance : 0n) : 0n),
+                                0n,
+                            ),
                         18,
                     )}
                     isCompact

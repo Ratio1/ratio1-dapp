@@ -6,7 +6,7 @@ import { arrayAverage, getValueWithLabel, throttledToastOracleError } from '@lib
 import { CardHorizontal } from '@shared/cards/CardHorizontal';
 import SyncingOraclesTag from '@shared/SyncingOraclesTag';
 import { cloneElement, useMemo } from 'react';
-import { License } from 'typedefs/blockchain';
+import { License, MndGndRewardsBreakdown } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 
 const nodePerformanceItems = [
@@ -37,6 +37,19 @@ export const LicenseCardDetails = ({
 }) => {
     const [rewardsPoA, isLoadingRewardsPoA] = useAwait(license.isLinked ? license.rewards : 0n);
     const rewardsPoAI = license.type === 'ND' ? license.r1PoaiRewards : 0n;
+    const [rewardsBreakdown] = useAwait<MndGndRewardsBreakdown | undefined>(
+        license.isLinked && license.type !== 'ND' ? license.rewardsBreakdown : undefined,
+    );
+
+    const walletClaimedAmount =
+        license.type !== 'ND'
+            ? license.totalClaimedAmount > license.awbBalance
+                ? license.totalClaimedAmount - license.awbBalance
+                : 0n
+            : license.totalClaimedAmount;
+    const hasMndBreakdown =
+        !!rewardsBreakdown && (rewardsBreakdown.carryoverAmount > 0n || rewardsBreakdown.withheldAmount > 0n);
+    const formatR1 = (value: bigint) => parseFloat(Number(formatUnits(value, 18)).toFixed(4)).toLocaleString();
 
     const nodePerformancePromise: Promise<{
         epochs: number[];
@@ -165,12 +178,16 @@ export const LicenseCardDetails = ({
                                 ) : rewardsPoA === undefined ? (
                                     <SyncingOraclesTag />
                                 ) : (
-                                    <div className="flex items-end gap-1.5">
+                                    <div className="col items-end gap-1.5">
                                         <div className="text-primary text-lg leading-none font-semibold">
-                                            {parseFloat(Number(formatUnits(rewardsPoA ?? 0n, 18)).toFixed(4)).toLocaleString()}
-
-                                            <span className="text-slate-400"> $R1</span>
+                                            {formatR1(rewardsPoA ?? 0n)} <span className="text-slate-400"> $R1</span>
                                         </div>
+                                        {license.type !== 'ND' && hasMndBreakdown && (
+                                            <div className="text-right text-[11px] leading-none text-slate-500">
+                                                +{formatR1(rewardsBreakdown.carryoverAmount)} carryover,{' '}
+                                                {formatR1(rewardsBreakdown.withheldAmount)} withheld
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -229,21 +246,47 @@ export const LicenseCardDetails = ({
                             </div>
                         </DetailsCard>
                     ) : (
-                        <DetailsCard>
-                            <div className="row justify-between gap-4">
-                                <div className="col gap-2.5">
-                                    <div className="text-sm font-medium text-slate-500">Adoption Withheld Buffer</div>
+                        <>
+                            <DetailsCard>
+                                <div className="row justify-between gap-4">
+                                    <div className="col gap-2.5">
+                                        <div className="text-sm font-medium text-slate-500">Actually Claimed (Wallet)</div>
 
-                                    <div className="text-lg leading-none font-semibold text-orange-500">
-                                        {parseFloat(
-                                            Number(formatUnits(license.awbBalance ?? 0n, 18)).toFixed(4),
-                                        ).toLocaleString()}
-
-                                        <span className="text-slate-400"> $R1</span>
+                                        <div className="text-lg leading-none font-semibold text-primary">
+                                            {formatR1(walletClaimedAmount)} <span className="text-slate-400"> $R1</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </DetailsCard>
+                            </DetailsCard>
+
+                            <DetailsCard>
+                                <div className="row justify-between gap-4">
+                                    <div className="col gap-2.5">
+                                        <div className="text-sm font-medium text-slate-500">Adoption Withheld Buffer</div>
+
+                                        <div className="text-lg leading-none font-semibold text-orange-500">
+                                            {formatR1(license.awbBalance ?? 0n)} <span className="text-slate-400"> $R1</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </DetailsCard>
+
+                            {rewardsBreakdown && (
+                                <DetailsCard>
+                                    <div className="col gap-2.5">
+                                        <div className="text-sm font-medium text-slate-500">Claim Preview Breakdown</div>
+                                        <div className="row justify-between gap-4 text-sm font-medium">
+                                            <div className="text-slate-500">Carryover release</div>
+                                            <div className="text-primary">{formatR1(rewardsBreakdown.carryoverAmount)} $R1</div>
+                                        </div>
+                                        <div className="row justify-between gap-4 text-sm font-medium">
+                                            <div className="text-slate-500">Newly withheld</div>
+                                            <div className="text-orange-500">{formatR1(rewardsBreakdown.withheldAmount)} $R1</div>
+                                        </div>
+                                    </div>
+                                </DetailsCard>
+                            )}
+                        </>
                     )}
                 </div>
             </div>
@@ -283,6 +326,19 @@ export const LicenseCardDetails = ({
                             'Proof of Availability (Remaining)',
                             parseFloat(Number(formatUnits(license.remainingAmount ?? 0n, 18)).toFixed(2)).toLocaleString(),
                         )}
+
+                        {license.type !== 'ND' &&
+                            getValueWithLabel(
+                                'Actually claimed (wallet)',
+                                parseFloat(Number(formatUnits(walletClaimedAmount, 18)).toFixed(2)).toLocaleString(),
+                            )}
+
+                        {license.type !== 'ND' &&
+                            getValueWithLabel(
+                                'Adoption withheld buffer',
+                                parseFloat(Number(formatUnits(license.awbBalance, 18)).toFixed(2)).toLocaleString(),
+                                license.awbBalance > 0n ? 'text-orange-500' : undefined,
+                            )}
                     </div>
                 </DetailsCard>
             </div>
