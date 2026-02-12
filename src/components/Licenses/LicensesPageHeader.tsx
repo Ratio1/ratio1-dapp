@@ -70,17 +70,25 @@ function LicensesPageHeader({
     );
     const [rewardsPoA, isLoadingRewardsPoA] = useAwait(rewardsPoAPromise);
 
-    const curveReleasedAmountPoA = useMemo(() => licenses.reduce((acc, license) => acc + license.totalClaimedAmount, 0n), [licenses]);
+    const releasedAmountPoA = useMemo(
+        () => licenses.reduce((acc, license) => acc + license.totalClaimedAmount, 0n),
+        [licenses],
+    );
     const awbAmountPoA = useMemo(
         () => licenses.reduce((acc, license) => acc + (license.type === 'ND' ? 0n : license.awbBalance), 0n),
         [licenses],
     );
     const earnedAmountPoA = useMemo(
-        () => (curveReleasedAmountPoA > awbAmountPoA ? curveReleasedAmountPoA - awbAmountPoA : 0n),
-        [curveReleasedAmountPoA, awbAmountPoA],
+        // Actual amount claimed in wallet
+        () => (releasedAmountPoA > awbAmountPoA ? releasedAmountPoA - awbAmountPoA : 0n),
+        [releasedAmountPoA, awbAmountPoA],
     );
     const futureClaimableR1AmountPoA: bigint = useMemo(
         () => licenses.reduce((acc, license) => acc + license.remainingAmount, 0n),
+        [licenses],
+    );
+    const hasMndOrGndLicense = useMemo(
+        () => licenses.some((license) => license.type === 'MND' || license.type === 'GND'),
         [licenses],
     );
 
@@ -352,26 +360,20 @@ function LicensesPageHeader({
                                     )}
 
                                     {getValueWithLabel(
-                                        'Earned ($R1, wallet)',
+                                        'Earned ($R1)',
                                         earnedAmountPoA < 1000000000000000000000n
                                             ? parseFloat(Number(formatUnits(earnedAmountPoA ?? 0n, 18)).toFixed(2))
                                             : fBI(earnedAmountPoA, 18),
                                     )}
 
-                                    {getValueWithLabel(
-                                        'In AWB ($R1)',
-                                        awbAmountPoA < 1000000000000000000000n
-                                            ? parseFloat(Number(formatUnits(awbAmountPoA ?? 0n, 18)).toFixed(2))
-                                            : fBI(awbAmountPoA, 18),
-                                        awbAmountPoA > 0n ? 'text-orange-500' : undefined,
-                                    )}
-
-                                    {getValueWithLabel(
-                                        'Curve Released ($R1)',
-                                        curveReleasedAmountPoA < 1000000000000000000000n
-                                            ? parseFloat(Number(formatUnits(curveReleasedAmountPoA ?? 0n, 18)).toFixed(2))
-                                            : fBI(curveReleasedAmountPoA, 18),
-                                    )}
+                                    {hasMndOrGndLicense &&
+                                        getValueWithLabel(
+                                            'In AWB ($R1)',
+                                            awbAmountPoA < 1000000000000000000000n
+                                                ? parseFloat(Number(formatUnits(awbAmountPoA ?? 0n, 18)).toFixed(2))
+                                                : fBI(awbAmountPoA, 18),
+                                            awbAmountPoA > 0n ? 'text-orange-500' : undefined,
+                                        )}
 
                                     {getValueWithLabel('Future Max Claimable ($R1)', fBI(futureClaimableR1AmountPoA, 18))}
 

@@ -4,7 +4,7 @@ import { getMultiNodeEpochsRange } from './api/oracles';
 import { config, getCurrentEpoch } from './config';
 import { PublicClient } from 'viem';
 import { MNDContractAbi } from '@blockchain/MNDContract';
-import { MndGndRewardsBreakdown } from 'typedefs/blockchain';
+import { MndRewardsBreakdown } from 'typedefs/blockchain';
 
 type BaseNDLicense = types.BaseLicense & {
     type: 'ND';
@@ -65,7 +65,7 @@ export const getLicensesWithNodesAndRewards = (
     const licensesWithNodesWithRewards: types.License[] = licenses.map((license) => {
         const availability: Promise<types.OraclesAvailabilityResult> = result.then((result) => result[license.nodeAddress]);
         let rewards: Promise<bigint | undefined>;
-        let rewardsBreakdown: Promise<MndGndRewardsBreakdown | undefined> | undefined;
+        let rewardsBreakdown: Promise<MndRewardsBreakdown | undefined> | undefined;
 
         switch (license.type) {
             case 'ND':
@@ -164,7 +164,7 @@ const getMndOrGndRewardsBreakdown = async (
     license: BaseMNDLicense | BaseGNDLicense,
     availability: Promise<types.OraclesAvailabilityResult>,
     publicClient: PublicClient,
-): Promise<MndGndRewardsBreakdown | undefined> => {
+): Promise<MndRewardsBreakdown | undefined> => {
     const currentEpoch = getCurrentEpoch();
     const firstEpochToClaim =
         license.lastClaimEpoch >= license.firstMiningEpoch ? Number(license.lastClaimEpoch) : Number(license.firstMiningEpoch);

@@ -14,7 +14,7 @@ import { FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } fr
 import toast from 'react-hot-toast';
 import { RiCpuLine, RiExchange2Line, RiFireLine, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
-import { License, MndGndRewardsBreakdown } from 'typedefs/blockchain';
+import { License, MndRewardsBreakdown } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 import { LicenseCardNode } from './LicenseCardNode';
@@ -42,7 +42,7 @@ export const LicenseCardHeader = ({
     // Rewards
     const [rewardsTotal, setRewardsTotal] = useState<bigint | undefined>();
     const [licenseRewardsPoA, setLicenseRewardsPoA] = useState<bigint | undefined>();
-    const [licenseRewardsBreakdown, setLicenseRewardsBreakdown] = useState<MndGndRewardsBreakdown | undefined>();
+    const [licenseRewardsBreakdown, setLicenseRewardsBreakdown] = useState<MndRewardsBreakdown | undefined>();
     const licenseRewardsPoAI: bigint | undefined = license.type === 'ND' ? license.r1PoaiRewards || undefined : undefined;
 
     // Used to restrict actions until all data is loaded
@@ -116,11 +116,11 @@ export const LicenseCardHeader = ({
 
     const getLicenseUsageStats = () => {
         const walletClaimedAmount =
-            license.type !== 'ND'
-                ? license.totalClaimedAmount > license.awbBalance
-                    ? license.totalClaimedAmount - license.awbBalance
-                    : 0n
-                : license.totalClaimedAmount;
+            license.type === 'ND'
+                ? license.totalClaimedAmount
+                : license.totalClaimedAmount > license.awbBalance
+                  ? license.totalClaimedAmount - license.awbBalance
+                  : 0n;
 
         return (
             <div className="row gap-2.5 text-sm leading-none font-medium">
@@ -145,9 +145,7 @@ export const LicenseCardHeader = ({
                     )}
                 </div>
 
-                <div>
-                    {parseFloat(((Number(walletClaimedAmount) / Number(license.totalAssignedAmount)) * 100).toFixed(2))}%
-                </div>
+                <div>{parseFloat(((Number(walletClaimedAmount) / Number(license.totalAssignedAmount)) * 100).toFixed(2))}%</div>
             </div>
         );
     };
@@ -175,10 +173,9 @@ export const LicenseCardHeader = ({
         const nRewardsPoA: number = Number(formatUnits(licenseRewardsPoA ?? 0n, 18));
         const nRewardsPoAI: number = Number(formatUnits(licenseRewardsPoAI ?? 0n, 18));
         const nCarryover: number = Number(formatUnits(licenseRewardsBreakdown?.carryoverAmount ?? 0n, 18));
-        const nWithheld: number = Number(formatUnits(licenseRewardsBreakdown?.withheldAmount ?? 0n, 18));
 
         const hasRewards = nRewardsPoA > 0 || nRewardsPoAI > 0;
-        const showMndBreakdown = license.type !== 'ND' && (nCarryover > 0 || nWithheld > 0);
+        const showMndBreakdown = license.type !== 'ND' && nCarryover > 0;
 
         if (!isLoadingRewards && !hasRewards) {
             return undefined;
@@ -203,7 +200,7 @@ export const LicenseCardHeader = ({
                             <div className="text-primary leading-none font-semibold">{fN(nRewardsPoA)}</div>
                             {showMndBreakdown && (
                                 <div className="text-[11px] leading-none text-slate-500">
-                                    +{fN(nCarryover)} carryover, {fN(nWithheld)} withheld
+                                    includes {fN(nCarryover)} carryover
                                 </div>
                             )}
                         </div>
