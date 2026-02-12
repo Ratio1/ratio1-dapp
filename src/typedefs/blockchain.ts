@@ -3,6 +3,12 @@ import { ApplicationStatus } from './profile';
 type R1Address = `0xai${string}`;
 type EthAddress = `0x${string}`;
 
+type MndRewardsBreakdown = {
+    rewardsAmount: bigint;
+    carryoverAmount: bigint;
+    withheldAmount: bigint;
+};
+
 type BaseLicense = {
     readonly licenseId: bigint;
     nodeAddress: EthAddress;
@@ -23,6 +29,7 @@ type LicenseWithNodeInfo = BaseLicense & {
               isLinked: true;
               alias: Promise<string | undefined>;
               rewards: Promise<bigint | undefined>;
+              rewardsBreakdown?: Promise<MndRewardsBreakdown | undefined>;
               isOnline: Promise<boolean>;
               epochs: Promise<number[]>;
               epochsAvailabilities: Promise<number[]>;
@@ -137,6 +144,7 @@ export type {
     GNDLicense,
     License,
     MNDLicense,
+    MndRewardsBreakdown,
     NDLicense,
     OraclesAvailabilityResult,
     OraclesDefaultResult,

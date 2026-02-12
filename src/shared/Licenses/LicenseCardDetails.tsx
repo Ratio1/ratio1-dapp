@@ -6,7 +6,7 @@ import { arrayAverage, getValueWithLabel, throttledToastOracleError } from '@lib
 import { CardHorizontal } from '@shared/cards/CardHorizontal';
 import SyncingOraclesTag from '@shared/SyncingOraclesTag';
 import { cloneElement, useMemo } from 'react';
-import { License } from 'typedefs/blockchain';
+import { License, MndRewardsBreakdown } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 
 const nodePerformanceItems = [
@@ -37,6 +37,12 @@ export const LicenseCardDetails = ({
 }) => {
     const [rewardsPoA, isLoadingRewardsPoA] = useAwait(license.isLinked ? license.rewards : 0n);
     const rewardsPoAI = license.type === 'ND' ? license.r1PoaiRewards : 0n;
+    const [rewardsBreakdown] = useAwait<MndRewardsBreakdown | undefined>(
+        license.isLinked && license.type !== 'ND' ? license.rewardsBreakdown : undefined,
+    );
+
+    const hasMndBreakdown = !!rewardsBreakdown && rewardsBreakdown.carryoverAmount > 0n;
+    const formatR1 = (value: bigint) => parseFloat(Number(formatUnits(value, 18)).toFixed(4)).toLocaleString();
 
     const nodePerformancePromise: Promise<{
         epochs: number[];
@@ -166,10 +172,15 @@ export const LicenseCardDetails = ({
                                     <SyncingOraclesTag />
                                 ) : (
                                     <div className="flex items-end gap-1.5">
-                                        <div className="text-primary text-lg leading-none font-semibold">
-                                            {parseFloat(Number(formatUnits(rewardsPoA ?? 0n, 18)).toFixed(4)).toLocaleString()}
-
-                                            <span className="text-slate-400"> $R1</span>
+                                        <div className="col gap-1.5">
+                                            <div className="text-primary text-lg leading-none font-semibold">
+                                                {formatR1(rewardsPoA ?? 0n)} <span className="text-slate-400"> $R1</span>
+                                            </div>
+                                            {license.type !== 'ND' && hasMndBreakdown && (
+                                                <div className="text-right text-[11px] leading-none text-slate-500">
+                                                    includes {formatR1(rewardsBreakdown.carryoverAmount)} carryover
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 )}
@@ -234,12 +245,15 @@ export const LicenseCardDetails = ({
                                 <div className="col gap-2.5">
                                     <div className="text-sm font-medium text-slate-500">Adoption Withheld Buffer</div>
 
-                                    <div className="text-lg leading-none font-semibold text-orange-500">
-                                        {parseFloat(
-                                            Number(formatUnits(license.awbBalance ?? 0n, 18)).toFixed(4),
-                                        ).toLocaleString()}
-
-                                        <span className="text-slate-400"> $R1</span>
+                                    <div className="col gap-1.5">
+                                        <div className="text-lg leading-none font-semibold text-orange-500">
+                                            {formatR1(license.awbBalance ?? 0n)} <span className="text-slate-400"> $R1</span>
+                                        </div>
+                                        {rewardsBreakdown && (
+                                            <div className="text-[11px] leading-none text-slate-500">
+                                                + {formatR1(rewardsBreakdown.withheldAmount)} with current claim
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
