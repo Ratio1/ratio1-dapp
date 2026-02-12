@@ -4,7 +4,6 @@ type R1Address = `0xai${string}`;
 type EthAddress = `0x${string}`;
 
 type MndRewardsBreakdown = {
-    claimableAmount: bigint | undefined;
     rewardsAmount: bigint;
     carryoverAmount: bigint;
     withheldAmount: bigint;

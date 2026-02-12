@@ -41,17 +41,6 @@ export const LicenseCardDetails = ({
         license.isLinked && license.type !== 'ND' ? license.rewardsBreakdown : undefined,
     );
 
-    const walletClaimedAmount =
-        license.type === 'ND'
-            ? license.totalClaimedAmount
-            : license.totalClaimedAmount > license.awbBalance
-              ? license.totalClaimedAmount - license.awbBalance
-              : 0n;
-    const awbBalance = license.type === 'ND' ? 0n : license.awbBalance;
-    const awbPctOfAssigned =
-        license.totalAssignedAmount > 0n ? Number((awbBalance * 10000n) / license.totalAssignedAmount) / 100 : 0;
-    const awbPctOfReleased =
-        license.totalClaimedAmount > 0n ? Number((awbBalance * 10000n) / license.totalClaimedAmount) / 100 : 0;
     const hasMndBreakdown = !!rewardsBreakdown && rewardsBreakdown.carryoverAmount > 0n;
     const formatR1 = (value: bigint) => parseFloat(Number(formatUnits(value, 18)).toFixed(4)).toLocaleString();
 

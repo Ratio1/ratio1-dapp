@@ -4,7 +4,6 @@ import { getMultiNodeEpochsRange } from './api/oracles';
 import { config, getCurrentEpoch } from './config';
 import { PublicClient } from 'viem';
 import { MNDContractAbi } from '@blockchain/MNDContract';
-import { MndRewardsBreakdown } from 'typedefs/blockchain';
 
 type BaseNDLicense = types.BaseLicense & {
     type: 'ND';
@@ -65,7 +64,7 @@ export const getLicensesWithNodesAndRewards = (
     const licensesWithNodesWithRewards: types.License[] = licenses.map((license) => {
         const availability: Promise<types.OraclesAvailabilityResult> = result.then((result) => result[license.nodeAddress]);
         let rewards: Promise<bigint | undefined>;
-        let rewardsBreakdown: Promise<MndRewardsBreakdown | undefined> | undefined;
+        let rewardsBreakdown: Promise<types.MndRewardsBreakdown | undefined> | undefined;
 
         switch (license.type) {
             case 'ND':
@@ -75,7 +74,9 @@ export const getLicensesWithNodesAndRewards = (
             case 'GND':
             case 'MND': {
                 rewardsBreakdown = getMndOrGndRewardsBreakdown(license, availability, publicClient);
-                rewards = rewardsBreakdown.then((breakdown) => breakdown?.claimableAmount);
+                rewards = rewardsBreakdown.then((breakdown) =>
+                    breakdown ? breakdown.rewardsAmount + breakdown.carryoverAmount : undefined,
+                );
                 break;
             }
 
@@ -164,7 +165,7 @@ const getMndOrGndRewardsBreakdown = async (
     license: BaseMNDLicense | BaseGNDLicense,
     availability: Promise<types.OraclesAvailabilityResult>,
     publicClient: PublicClient,
-): Promise<MndRewardsBreakdown | undefined> => {
+): Promise<types.MndRewardsBreakdown | undefined> => {
     const currentEpoch = getCurrentEpoch();
     const firstEpochToClaim =
         license.lastClaimEpoch >= license.firstMiningEpoch ? Number(license.lastClaimEpoch) : Number(license.firstMiningEpoch);
@@ -174,7 +175,6 @@ const getMndOrGndRewardsBreakdown = async (
 
     if (currentEpoch < license.firstMiningEpoch || !epochsToClaim) {
         return {
-            claimableAmount: 0n,
             rewardsAmount: 0n,
             carryoverAmount: 0n,
             withheldAmount: 0n,
@@ -206,7 +206,6 @@ const getMndOrGndRewardsBreakdown = async (
         throw new Error('Invalid rewards calculation result');
     }
     return {
-        claimableAmount: result[0].rewardsAmount + result[0].carryoverAmount,
         rewardsAmount: result[0].rewardsAmount,
         carryoverAmount: result[0].carryoverAmount,
         withheldAmount: result[0].withheldAmount,
