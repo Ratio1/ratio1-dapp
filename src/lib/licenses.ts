@@ -64,6 +64,7 @@ export const getLicensesWithNodesAndRewards = (
     const licensesWithNodesWithRewards: types.License[] = licenses.map((license) => {
         const availability: Promise<types.OraclesAvailabilityResult> = result.then((result) => result[license.nodeAddress]);
         let rewards: Promise<bigint | undefined>;
+        let rewardsBreakdown: Promise<types.MndRewardsBreakdown | undefined> | undefined;
 
         switch (license.type) {
             case 'ND':
@@ -71,9 +72,13 @@ export const getLicensesWithNodesAndRewards = (
                 break;
 
             case 'GND':
-            case 'MND':
-                rewards = getMndOrGndRewards(license, availability, publicClient);
+            case 'MND': {
+                rewardsBreakdown = getMndOrGndRewardsBreakdown(license, availability, publicClient);
+                rewards = rewardsBreakdown.then((breakdown) =>
+                    breakdown ? breakdown.rewardsAmount + breakdown.carryoverAmount : undefined,
+                );
                 break;
+            }
 
             default:
                 rewards = Promise.resolve(undefined);
@@ -83,6 +88,7 @@ export const getLicensesWithNodesAndRewards = (
             ...license,
             isLinked: true as const,
             rewards,
+            rewardsBreakdown,
             alias: availability.then(({ node_alias }) => node_alias),
             isOnline: availability.then(({ node_is_online }) => node_is_online),
             epochs: availability.then(({ epochs }) => epochs),
@@ -155,11 +161,11 @@ const getNdRewards = async (
     return rewards_amount;
 };
 
-const getMndOrGndRewards = async (
+const getMndOrGndRewardsBreakdown = async (
     license: BaseMNDLicense | BaseGNDLicense,
     availability: Promise<types.OraclesAvailabilityResult>,
     publicClient: PublicClient,
-): Promise<bigint | undefined> => {
+): Promise<types.MndRewardsBreakdown | undefined> => {
     const currentEpoch = getCurrentEpoch();
     const firstEpochToClaim =
         license.lastClaimEpoch >= license.firstMiningEpoch ? Number(license.lastClaimEpoch) : Number(license.firstMiningEpoch);
@@ -168,7 +174,11 @@ const getMndOrGndRewards = async (
     const { epochs, epochs_vals } = await availability;
 
     if (currentEpoch < license.firstMiningEpoch || !epochsToClaim) {
-        return 0n;
+        return {
+            rewardsAmount: 0n,
+            carryoverAmount: 0n,
+            withheldAmount: 0n,
+        };
     }
 
     if (epochsToClaim !== epochs?.length || epochsToClaim !== epochs_vals?.length) {
@@ -195,5 +205,9 @@ const getMndOrGndRewards = async (
     if (result.length !== 1) {
         throw new Error('Invalid rewards calculation result');
     }
-    return result[0].rewardsAmount + result[0].carryoverAmount;
+    return {
+        rewardsAmount: result[0].rewardsAmount,
+        carryoverAmount: result[0].carryoverAmount,
+        withheldAmount: result[0].withheldAmount,
+    };
 };
