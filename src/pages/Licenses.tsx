@@ -389,20 +389,23 @@ function Licenses() {
         </div>
     );
 
-    // Used in order to split 'licensesToShow' into sections
-    const filterLicensesOfType = (type: License['type']) => licensesToShow.filter((license) => license.type === type);
+    // Used in order to split paginated cards into sections while keeping header totals based on all filtered licenses.
+    const getPageLicensesOfType = (type: License['type']) => licensesToShow.filter((license) => license.type === type);
+    const getFilteredLicensesCountOfType = (type: License['type']) =>
+        filteredLicenses.filter((license) => license.type === type).length;
 
-    const getLicenseSectionHeader = (type: License['type']) => (
-        <div className="mx-auto">
-            <div className="row gap-2 pt-4">
-                <div className="big-title">{type}</div>
-                <Label
-                    variant="default"
-                    text={`${filterLicensesOfType(type).length} license${filterLicensesOfType(type).length > 1 ? 's' : ''}`}
-                />
+    const getLicenseSectionHeader = (type: License['type']) => {
+        const licensesCount = getFilteredLicensesCountOfType(type);
+
+        return (
+            <div className="mx-auto">
+                <div className="row gap-2 pt-4">
+                    <div className="big-title">{type}</div>
+                    <Label variant="default" text={`${licensesCount} license${licensesCount > 1 ? 's' : ''}`} />
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     if (!authenticated) {
         return (
@@ -466,12 +469,12 @@ function Licenses() {
                     ) : (
                         <div className="col mt-2 gap-3">
                             {['GND', 'MND', 'ND']
-                                .filter((type) => filterLicensesOfType(type as License['type']).length > 0)
+                                .filter((type) => getPageLicensesOfType(type as License['type']).length > 0)
                                 .map((type) => (
                                     <div key={type} className="col gap-3">
                                         {getLicenseSectionHeader(type as License['type'])}
 
-                                        {filterLicensesOfType(type as License['type']).map((license) =>
+                                        {getPageLicensesOfType(type as License['type']).map((license) =>
                                             getLicenseElement(license),
                                         )}
                                     </div>
