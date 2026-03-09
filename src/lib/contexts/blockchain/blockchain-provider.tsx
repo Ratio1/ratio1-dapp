@@ -117,6 +117,7 @@ export const BlockchainProvider = ({ children }) => {
         const waitForTx = async (): Promise<TransactionReceipt> => {
             let hashForReceipt = txHash;
             if (address && (await isContractAccount(publicClient, address))) {
+                //NOTE: this is intentionally broad, it should check if it is a Safe or not.
                 console.log('Using Safe transaction hash resolution for', txHash);
                 hashForReceipt = await resolveSafeTxHashToChainTxHash(txHash);
                 console.log('Resolved Safe transaction hash to chain transaction hash', hashForReceipt);
