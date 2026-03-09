@@ -6,7 +6,7 @@ import { config, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { BaseGNDLicense, BaseMNDLicense, BaseNDLicense, getLicensesWithNodesAndRewards } from '@lib/licenses';
 import { INITIAL_TIERS_STATE, isZeroAddress } from '@lib/utils';
 import { partition } from 'lodash';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiExternalLinkLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
@@ -14,6 +14,7 @@ import { EthAddress, License, PriceTier } from 'typedefs/blockchain';
 import { TransactionReceipt } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 import { BlockchainContext } from './context';
+import { resolveSafeTxHashToChainTxHash } from '@lib/safe';
 
 export const BlockchainProvider = ({ children }) => {
     // Licenses
@@ -35,6 +36,7 @@ export const BlockchainProvider = ({ children }) => {
 
     const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
     const publicClient = usePublicClient();
+    const isContractAccountCacheRef = useRef<Map<string, boolean | undefined>>(new Map());
 
     useEffect(() => {
         if (publicClient && address) {
@@ -96,10 +98,32 @@ export const BlockchainProvider = ({ children }) => {
         }
     };
 
+    const isContractAccount = async (publicClient, walletAddress: EthAddress): Promise<boolean> => {
+        const cacheKey = walletAddress.toLowerCase();
+        const cachedIsContract = isContractAccountCacheRef.current.get(cacheKey);
+
+        if (typeof cachedIsContract === 'boolean') {
+            return cachedIsContract;
+        }
+
+        const bytecode = await publicClient.getBytecode({ address: walletAddress });
+        const isContract = !!bytecode && bytecode !== '0x';
+
+        isContractAccountCacheRef.current.set(cacheKey, isContract);
+        return isContract;
+    };
+
     const watchTx = async (txHash: string, publicClient): Promise<TransactionReceipt> => {
         const waitForTx = async (): Promise<TransactionReceipt> => {
+            let hashForReceipt = txHash;
+            if (address && (await isContractAccount(publicClient, address))) {
+                console.log('Using Safe transaction hash resolution for', txHash);
+                hashForReceipt = await resolveSafeTxHashToChainTxHash(txHash);
+                console.log('Resolved Safe transaction hash to chain transaction hash', hashForReceipt);
+            }
+
             const receipt: TransactionReceipt = await publicClient.waitForTransactionReceipt({
-                hash: txHash,
+                hash: hashForReceipt,
                 confirmations: 2,
             });
 
