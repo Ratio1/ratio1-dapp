@@ -16,6 +16,14 @@ Prettier enforces four-space indentation, 128-character lines, semicolons, singl
 ## Testing Guidelines
 Automated tests are not yet configured; adopt Vitest + React Testing Library for new suites and co-locate specs (`components/TokenSelectorModal.test.tsx`). Until coverage exists, run `npm run build` and manually walk wallet connect, invoicing, and faucet flows before opening a PR. For changes in `src/schemas` or `src/blockchain`, include manual test notes in the PR and add unit tests when you add deterministic logic.
 
+### UI Screenshot Validation
+When a change affects UI, validate it with a browser screenshot before concluding work:
+
+- Use the dev-only public route `/playwright-preview` to render the component under test without login.
+- Keep preview data deterministic (mock/static props) and avoid live blockchain/API dependencies in that route.
+- Run the app locally and capture screenshot artifacts with Playwright after relevant UI changes.
+- Save artifacts under `output/playwright/` and visually verify layout, spacing, states, and responsive behavior.
+
 ## Commit & Pull Request Guidelines
 History follows Conventional Commits (`feat`, `fix`, `chore`, `refactor`); keep messages imperative and scoped so semantic releases choose the right version. Squash incidental WIP commits. PRs should include a concise summary, linked issue or ticket, screenshots/GIFs for UI updates, notes on new environment variables, and contract deployment details (addresses, tx hashes) when Web3 code changes.
 
