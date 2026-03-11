@@ -6,6 +6,7 @@ export const routePath = {
     invoicing: '/invoicing',
     faucet: '/faucet',
     buy: '/buy-r1',
+    playwrightPreview: '/playwright-preview',
     compliance: '/compliance',
     // Children of /compliance
     termsAndConditions: 'terms-and-conditions',
