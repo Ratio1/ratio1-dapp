@@ -7,6 +7,7 @@ import { AuthenticationContextType, useAuthenticationContext } from '@lib/contex
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
 import { isParentRoute, isSimpleRoute, routes } from '@lib/routes/routes';
+import PlaywrightPreview from '@pages/PlaywrightPreview';
 import { ClosableToastContent } from '@shared/ClosableToastContent';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
@@ -90,6 +91,7 @@ function App() {
     return (
         <>
             <Routes>
+                <Route path={routePath.playwrightPreview} element={<PlaywrightPreview />} />
                 <Route path={routePath.root} element={<Layout />}>
                     <Route path="/" element={<Navigate to={routePath.dashboard} replace />} />
 

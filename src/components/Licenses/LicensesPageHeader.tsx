@@ -21,6 +21,21 @@ import { ComputeParam, License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
+const ND_CLAIM_MAX_NODES_PER_TX = 25;
+
+const chunkArray = <T,>(items: T[], chunkSize: number): T[][] => {
+    if (chunkSize <= 0) {
+        return [items];
+    }
+
+    const chunks: T[][] = [];
+    for (let i = 0; i < items.length; i += chunkSize) {
+        chunks.push(items.slice(i, i + chunkSize));
+    }
+
+    return chunks;
+};
+
 function LicensesPageHeader({
     onFilterChange,
     onBulkLink,
@@ -139,17 +154,22 @@ function LicensesPageHeader({
 
             const claimND = async () => {
                 if (txParamsND.length) {
-                    const txHashND = await walletClient.writeContract({
-                        address: config.ndContractAddress,
-                        abi: NDContractAbi,
-                        functionName: 'claimRewards',
-                        args: [
-                            [...txParamsND.map(({ computeParam }) => computeParam)],
-                            [...txParamsND.map(({ eth_signatures }) => eth_signatures)],
-                        ],
-                    });
+                    const txParamsChunks = chunkArray(txParamsND, ND_CLAIM_MAX_NODES_PER_TX);
+                    const txHashesND = await Promise.all(
+                        txParamsChunks.map((chunk) =>
+                            walletClient.writeContract({
+                                address: config.ndContractAddress,
+                                abi: NDContractAbi,
+                                functionName: 'claimRewards',
+                                args: [
+                                    [...chunk.map(({ computeParam }) => computeParam)],
+                                    [...chunk.map(({ eth_signatures }) => eth_signatures)],
+                                ],
+                            }),
+                        ),
+                    );
 
-                    await watchTx(txHashND, publicClient);
+                    await Promise.all(txHashesND.map((txHashND) => watchTx(txHashND, publicClient)));
                 }
             };
 
@@ -198,13 +218,21 @@ function LicensesPageHeader({
                 throw new Error('No rewards to claim at the moment.');
             }
 
-            const txHash = await walletClient.writeContract({
-                address: config.poaiManagerContractAddress,
-                abi: PoAIContractAbi,
-                functionName: 'claimRewardsForNodes',
-                args: [licensesWithPoaiRewards.map((license) => license.nodeAddress)],
-            });
-            await watchTx(txHash, publicClient);
+            const nodeAddressChunks = chunkArray(
+                licensesWithPoaiRewards.map((license) => license.nodeAddress),
+                ND_CLAIM_MAX_NODES_PER_TX,
+            );
+            const txHashes = await Promise.all(
+                nodeAddressChunks.map((nodeAddresses) =>
+                    walletClient.writeContract({
+                        address: config.poaiManagerContractAddress,
+                        abi: PoAIContractAbi,
+                        functionName: 'claimRewardsForNodes',
+                        args: [nodeAddresses],
+                    }),
+                ),
+            );
+            await Promise.all(txHashes.map((txHash) => watchTx(txHash, publicClient)));
         } catch (err: any) {
             console.error(err.message);
             toast.error('An error occurred, please try again.');
