@@ -1,6 +1,4 @@
-import Tiers from '@components/Tiers';
 import { routePath } from '@lib/routes/route-paths';
-import { PriceTier } from '@typedefs/blockchain';
 import { Navigate } from 'react-router-dom';
 
 /*
