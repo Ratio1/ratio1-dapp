@@ -140,15 +140,19 @@ function LicensesPageHeader({
         try {
             setClaimingAllRewardsPoA(true);
 
-            const txParamsND = await getClaimTxParams('ND');
-            const txParamsMND = await getClaimTxParams('MND');
+            const [txParamsND, txParamsMND, txParamsGND] = await Promise.all([
+                getClaimTxParams('ND'),
+                getClaimTxParams('MND'),
+                getClaimTxParams('GND'),
+            ]);
+            const txParamsMndAndGnd = [...txParamsMND, ...txParamsGND];
 
-            if (!txParamsND.length && !txParamsMND.length) {
+            if (!txParamsND.length && !txParamsMndAndGnd.length) {
                 toast.error('No rewards to claim at the moment.');
                 throw new Error('No rewards to claim at the moment.');
             }
 
-            if (txParamsND.length && txParamsMND.length) {
+            if (txParamsND.length && txParamsMndAndGnd.length) {
                 onOpen();
             }
 
@@ -174,14 +178,14 @@ function LicensesPageHeader({
             };
 
             const claimMND = async () => {
-                if (txParamsMND.length) {
+                if (txParamsMndAndGnd.length) {
                     const txHashMND = await walletClient.writeContract({
                         address: config.mndContractAddress,
                         abi: MNDContractAbi,
                         functionName: 'claimRewards',
                         args: [
-                            [...txParamsMND.map(({ computeParam }) => computeParam)],
-                            [...txParamsMND.map(({ eth_signatures }) => eth_signatures)],
+                            [...txParamsMndAndGnd.map(({ computeParam }) => computeParam)],
+                            [...txParamsMndAndGnd.map(({ eth_signatures }) => eth_signatures)],
                         ],
                     });
 
@@ -475,7 +479,7 @@ function LicensesPageHeader({
                 </div>
             </div>
 
-            <DualTxsModal isOpen={isOpen} onOpenChange={onOpenChange} text="claim both ND and MND rewards" />
+            <DualTxsModal isOpen={isOpen} onOpenChange={onOpenChange} text="claim both ND and MND/GND rewards" />
         </>
     );
 }
