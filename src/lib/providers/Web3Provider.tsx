@@ -84,6 +84,7 @@ const wagmiConfig = createConfig(
             'Experience the power of Ratio1 AI OS, built on Ratio1 Protocol and powered by blockchain, democratizing AI to empower limitless innovation.',
         appUrl: 'https://app.ratio1.ai',
         appIcon: Favicon,
+        enableFamily: false,
     }),
 );
 
