@@ -270,16 +270,18 @@ function LicensesPageHeader({
                     if (!license.isLinked || !(await license.rewards)) {
                         return;
                     }
-                    const [epochs, availabilies, eth_signatures] = await Promise.all([
-                        license.epochs,
-                        license.epochsAvailabilities,
+                    const [fromEpoch, toEpoch, packedAvailabilities, eth_signatures] = await Promise.all([
+                        license.fromEpoch,
+                        license.toEpoch,
+                        license.packedAvailabilities,
                         license.ethSignatures,
                     ]);
                     const computeParam = {
                         licenseId: license.licenseId,
                         nodeAddress: license.nodeAddress,
-                        epochs: epochs.map((epoch) => BigInt(epoch)),
-                        availabilies,
+                        fromEpoch: BigInt(fromEpoch),
+                        toEpoch: BigInt(toEpoch),
+                        packedAvailabilities,
                     };
                     return { computeParam, eth_signatures };
                 }),

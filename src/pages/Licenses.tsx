@@ -160,24 +160,27 @@ function Licenses() {
                 nodeAddress: license.nodeAddress,
             });
 
-            const [epochs, availabilies, ethSignatures] = await Promise.all([
+            const [epochs, fromEpoch, toEpoch, packedAvailabilities, ethSignatures] = await Promise.all([
                 license.epochs,
-                license.epochsAvailabilities,
+                license.fromEpoch,
+                license.toEpoch,
+                license.packedAvailabilities,
                 license.ethSignatures,
             ]);
 
             log('Oracle data loaded', {
                 licenseId: Number(license.licenseId),
                 epochs: epochs.length,
-                availabilities: availabilies.length,
+                availabilities: (packedAvailabilities.length - 2) / 2,
                 signatures: ethSignatures.length,
             });
 
             const computeParam = {
                 licenseId: license.licenseId,
                 nodeAddress: license.nodeAddress,
-                epochs: epochs.map((epoch) => BigInt(epoch)),
-                availabilies,
+                fromEpoch: BigInt(fromEpoch),
+                toEpoch: BigInt(toEpoch),
+                packedAvailabilities,
             };
 
             log('Submitting claimRewards', {

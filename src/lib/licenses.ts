@@ -93,6 +93,9 @@ export const getLicensesWithNodesAndRewards = (
             isOnline: availability.then(({ node_is_online }) => node_is_online),
             epochs: availability.then(({ epochs }) => epochs),
             epochsAvailabilities: availability.then(({ epochs_vals }) => epochs_vals),
+            fromEpoch: availability.then(({ from_epoch }) => from_epoch),
+            toEpoch: availability.then(({ to_epoch }) => to_epoch),
+            packedAvailabilities: availability.then(({ packed_availabilities }) => packed_availabilities),
             ethSignatures: availability.then(({ eth_signatures }) => eth_signatures),
         };
     });
@@ -196,8 +199,9 @@ const getMndOrGndRewardsBreakdown = async (
                 {
                     licenseId: license.licenseId,
                     nodeAddress: license.nodeAddress,
-                    epochs: epochs.map((epoch) => BigInt(epoch)),
-                    availabilies: epochs_vals,
+                    fromEpoch: BigInt(epochs[0]),
+                    toEpoch: BigInt(epochs[epochs.length - 1]),
+                    packedAvailabilities: packedAvailabilitiesFromValues(epochs_vals),
                 },
             ],
         ],
@@ -210,4 +214,14 @@ const getMndOrGndRewardsBreakdown = async (
         carryoverAmount: result[0].carryoverAmount,
         withheldAmount: result[0].withheldAmount,
     };
+};
+
+const packedAvailabilitiesFromValues = (availabilities: number[]): `0x${string}` => {
+    const bytes = availabilities.map((availability) => {
+        if (!Number.isInteger(availability) || availability < 0 || availability > 255) {
+            throw new Error(`Invalid availability value ${availability}`);
+        }
+        return availability.toString(16).padStart(2, '0');
+    });
+    return `0x${bytes.join('')}`;
 };
