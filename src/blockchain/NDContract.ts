@@ -1,6 +1,26 @@
 export const NDContractAbi = [
     {
         inputs: [],
+        name: 'AllLicensesSold',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'CannotReassignWithin24Hours',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'CannotUnlinkBeforeClaimingRewards',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'CompanyAmountOutOfRange',
+        type: 'error',
+    },
+    {
+        inputs: [],
         name: 'ERC721EnumerableForbiddenBatchMint',
         type: 'error',
     },
@@ -130,7 +150,22 @@ export const NDContractAbi = [
     },
     {
         inputs: [],
+        name: 'ExceedsMintLimit',
+        type: 'error',
+    },
+    {
+        inputs: [],
         name: 'ExpectedPause',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'IncorrectNumberOfParams',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'InvalidEpochs',
         type: 'error',
     },
     {
@@ -140,7 +175,72 @@ export const NDContractAbi = [
     },
     {
         inputs: [],
+        name: 'InvalidLicenseCount',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'InvalidLicenseSupply',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'InvalidNodeAddress',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'InvalidNodeAddressForRewards',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'InvoiceUuidUsed',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'LicenseAlreadyBanned',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'LicenseBanned',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'LicenseNotBanned',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'MaxTokenSupplyReached',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'MismatchedInputArraysLength',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'NodeAddressAlreadyRegistered',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'NonexistentTokenURI',
+        type: 'error',
+    },
+    {
+        inputs: [],
         name: 'NotInitializing',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'NotLicenseOwner',
         type: 'error',
     },
     {
@@ -167,7 +267,85 @@ export const NDContractAbi = [
     },
     {
         inputs: [],
+        name: 'PercentageExceedsMax',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint256',
+                name: 'licenseTokenPrice',
+                type: 'uint256',
+            },
+            {
+                internalType: 'uint256',
+                name: 'minPrice',
+                type: 'uint256',
+            },
+            {
+                internalType: 'uint256',
+                name: 'maxPrice',
+                type: 'uint256',
+            },
+        ],
+        name: 'PriceExceedsAllowedDifference',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint256',
+                name: 'licenseTokenPrice',
+                type: 'uint256',
+            },
+            {
+                internalType: 'uint256',
+                name: 'maxAcceptedTokenPerLicense',
+                type: 'uint256',
+            },
+        ],
+        name: 'PriceExceedsMaxAccepted',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'PriceTierOversold',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'R1TransferFailed',
+        type: 'error',
+    },
+    {
+        inputs: [],
         name: 'ReentrancyGuardReentrantCall',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'SwapFailed',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'TimestampBeforeStartEpoch',
+        type: 'error',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint8',
+                name: 'currentPriceTier',
+                type: 'uint8',
+            },
+            {
+                internalType: 'uint8',
+                name: 'requestedPriceTier',
+                type: 'uint8',
+            },
+        ],
+        name: 'WrongPriceTier',
         type: 'error',
     },
     {
@@ -554,6 +732,19 @@ export const NDContractAbi = [
         type: 'function',
     },
     {
+        inputs: [],
+        name: 'adoptionOracle',
+        outputs: [
+            {
+                internalType: 'contract IAdoptionOracle',
+                name: '',
+                type: 'address',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
         inputs: [
             {
                 internalType: 'address',
@@ -680,14 +871,19 @@ export const NDContractAbi = [
                         type: 'address',
                     },
                     {
-                        internalType: 'uint256[]',
-                        name: 'epochs',
-                        type: 'uint256[]',
+                        internalType: 'uint256',
+                        name: 'fromEpoch',
+                        type: 'uint256',
                     },
                     {
-                        internalType: 'uint8[]',
-                        name: 'availabilies',
-                        type: 'uint8[]',
+                        internalType: 'uint256',
+                        name: 'toEpoch',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'bytes',
+                        name: 'packedAvailabilities',
+                        type: 'bytes',
                     },
                 ],
                 internalType: 'struct ComputeRewardsParams[]',
@@ -733,14 +929,19 @@ export const NDContractAbi = [
                         type: 'address',
                     },
                     {
-                        internalType: 'uint256[]',
-                        name: 'epochs',
-                        type: 'uint256[]',
+                        internalType: 'uint256',
+                        name: 'fromEpoch',
+                        type: 'uint256',
                     },
                     {
-                        internalType: 'uint8[]',
-                        name: 'availabilies',
-                        type: 'uint8[]',
+                        internalType: 'uint256',
+                        name: 'toEpoch',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'bytes',
+                        name: 'packedAvailabilities',
+                        type: 'bytes',
                     },
                 ],
                 internalType: 'struct ComputeRewardsParams[]',
@@ -1377,6 +1578,19 @@ export const NDContractAbi = [
             },
         ],
         name: 'safeTransferFrom',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'adoptionOracle_',
+                type: 'address',
+            },
+        ],
+        name: 'setAdoptionOracle',
         outputs: [],
         stateMutability: 'nonpayable',
         type: 'function',
