@@ -43,7 +43,7 @@ type ClaimTxParam = {
     eth_signatures: `0x${string}`[];
 };
 
-const getClaimEpochs = ({ computeParam }: ClaimTxParam): number => Number(computeParam.toEpoch - computeParam.fromEpoch + 1);
+const getClaimEpochs = ({ computeParam }: ClaimTxParam): number => Number(computeParam.toEpoch - computeParam.fromEpoch + 1n);
 
 const chunkNdClaimTxParams = (items: ClaimTxParam[]): ClaimTxParam[][] => {
     const chunks: ClaimTxParam[][] = [];
