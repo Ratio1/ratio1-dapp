@@ -574,7 +574,7 @@ export function CspsTable({ csps, fetchData }: { csps: AdminCspView[]; fetchData
         <BigCard>
             <div className="text-base leading-6 font-semibold lg:text-xl">CSP Escrows</div>
 
-            <div className="bg-light overflow-x-auto rounded-xl border border-[#e3e4e</div>8] p-3">
+            <div className="bg-light overflow-x-auto rounded-xl border border-[#e3e4e8] p-3">
                 <Table
                     aria-label="CSP Escrows Table"
                     classNames={{
