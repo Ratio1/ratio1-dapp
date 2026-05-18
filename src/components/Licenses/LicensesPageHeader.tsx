@@ -21,7 +21,9 @@ import { ComputeParam, License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
 
-const ND_CLAIM_MAX_NODES_PER_TX = 25;
+const ND_POA_CLAIM_MAX_NODES_PER_TX = 100;
+const ND_POA_CLAIM_MAX_EPOCH_NODE_UNITS = 5_000;
+const POAI_CLAIM_MAX_NODES_PER_TX = 25;
 
 const chunkArray = <T,>(items: T[], chunkSize: number): T[][] => {
     if (chunkSize <= 0) {
@@ -31,6 +33,42 @@ const chunkArray = <T,>(items: T[], chunkSize: number): T[][] => {
     const chunks: T[][] = [];
     for (let i = 0; i < items.length; i += chunkSize) {
         chunks.push(items.slice(i, i + chunkSize));
+    }
+
+    return chunks;
+};
+
+type ClaimTxParam = {
+    computeParam: ComputeParam;
+    eth_signatures: `0x${string}`[];
+};
+
+const getClaimEpochs = ({ computeParam }: ClaimTxParam): number => Number(computeParam.toEpoch - computeParam.fromEpoch + 1n);
+
+const chunkNdClaimTxParams = (items: ClaimTxParam[]): ClaimTxParam[][] => {
+    const chunks: ClaimTxParam[][] = [];
+    let current: ClaimTxParam[] = [];
+    let currentEpochNodeUnits = 0;
+
+    for (const item of items) {
+        const itemEpochs = getClaimEpochs(item);
+        const shouldStartNewChunk =
+            current.length > 0 &&
+            (current.length >= ND_POA_CLAIM_MAX_NODES_PER_TX ||
+                currentEpochNodeUnits + itemEpochs > ND_POA_CLAIM_MAX_EPOCH_NODE_UNITS);
+
+        if (shouldStartNewChunk) {
+            chunks.push(current);
+            current = [];
+            currentEpochNodeUnits = 0;
+        }
+
+        current.push(item);
+        currentEpochNodeUnits += itemEpochs;
+    }
+
+    if (current.length) {
+        chunks.push(current);
     }
 
     return chunks;
@@ -158,7 +196,7 @@ function LicensesPageHeader({
 
             const claimND = async () => {
                 if (txParamsND.length) {
-                    const txParamsChunks = chunkArray(txParamsND, ND_CLAIM_MAX_NODES_PER_TX);
+                    const txParamsChunks = chunkNdClaimTxParams(txParamsND);
                     const txHashesND = await Promise.all(
                         txParamsChunks.map((chunk) =>
                             walletClient.writeContract({
@@ -224,7 +262,7 @@ function LicensesPageHeader({
 
             const nodeAddressChunks = chunkArray(
                 licensesWithPoaiRewards.map((license) => license.nodeAddress),
-                ND_CLAIM_MAX_NODES_PER_TX,
+                POAI_CLAIM_MAX_NODES_PER_TX,
             );
             const txHashes = await Promise.all(
                 nodeAddressChunks.map((nodeAddresses) =>
@@ -270,16 +308,18 @@ function LicensesPageHeader({
                     if (!license.isLinked || !(await license.rewards)) {
                         return;
                     }
-                    const [epochs, availabilies, eth_signatures] = await Promise.all([
-                        license.epochs,
-                        license.epochsAvailabilities,
+                    const [fromEpoch, toEpoch, packedAvailabilities, eth_signatures] = await Promise.all([
+                        license.fromEpoch,
+                        license.toEpoch,
+                        license.packedAvailabilities,
                         license.ethSignatures,
                     ]);
                     const computeParam = {
                         licenseId: license.licenseId,
                         nodeAddress: license.nodeAddress,
-                        epochs: epochs.map((epoch) => BigInt(epoch)),
-                        availabilies,
+                        fromEpoch: BigInt(fromEpoch),
+                        toEpoch: BigInt(toEpoch),
+                        packedAvailabilities,
                     };
                     return { computeParam, eth_signatures };
                 }),

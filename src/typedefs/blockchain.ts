@@ -33,7 +33,10 @@ type LicenseWithNodeInfo = BaseLicense & {
               isOnline: Promise<boolean>;
               epochs: Promise<number[]>;
               epochsAvailabilities: Promise<number[]>;
-              ethSignatures: Promise<EthAddress[]>;
+              fromEpoch: Promise<number>;
+              toEpoch: Promise<number>;
+              packedAvailabilities: Promise<`0x${string}`>;
+              ethSignatures: Promise<`0x${string}`[]>;
           }
         | {
               isLinked: false;
@@ -66,8 +69,9 @@ type License = NDLicense | MNDLicense | GNDLicense;
 type ComputeParam = {
     licenseId: bigint;
     nodeAddress: `0x${string}`;
-    epochs: bigint[];
-    availabilies: number[];
+    fromEpoch: bigint;
+    toEpoch: bigint;
+    packedAvailabilities: `0x${string}`;
 };
 
 type OraclesAvailabilityResult = {
@@ -76,8 +80,11 @@ type OraclesAvailabilityResult = {
     node_eth_address: EthAddress;
     epochs: number[];
     epochs_vals: number[];
+    from_epoch: number;
+    to_epoch: number;
+    packed_availabilities: `0x${string}`;
     eth_signed_data: EthSignedData;
-    eth_signatures: EthAddress[];
+    eth_signatures: `0x${string}`[];
     eth_addresses: EthAddress[];
     node_is_online: boolean;
 };
