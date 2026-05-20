@@ -1,18 +1,21 @@
 import { ControllerAbi } from '@blockchain/Controller';
 import { MNDContractAbi } from '@blockchain/MNDContract';
+import { PoAIContractAbi } from '@blockchain/PoAIContract';
 import { ReaderAbi } from '@blockchain/Reader';
 import { Button } from '@heroui/button';
 import { Input } from '@heroui/input';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/table';
-import { newSellerCode, sendBatchNews } from '@lib/api/backend';
+import { getPublicProfiles, newSellerCode, sendBatchNews } from '@lib/api/backend';
 import { getMultiNodeEpochsRange, getNodeInfo } from '@lib/api/oracles';
 import { config, getCurrentEpoch, getR1ExplorerUrl } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { fBI, getShortAddressOrHash, isZeroAddress } from '@lib/utils';
 import { BigCard } from '@shared/BigCard';
+import { CopyableValue } from '@shared/CopyableValue';
 import { LargeValueWithLabel } from '@shared/LargeValueWithLabel';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { HiUser } from 'react-icons/hi';
 import { EthAddress, MNDLicense } from 'typedefs/blockchain';
 import { isAddress } from 'viem';
 import { usePublicClient, useWalletClient } from 'wagmi';
@@ -35,6 +38,15 @@ const columnsOraclesTable = [
     { key: 5, label: 'Signatures per Day' },
 ];
 
+const columnsCspsTable = [
+    { key: 1, label: 'Identity' },
+    { key: 2, label: 'Owner Address' },
+    { key: 3, label: 'Escrow Address' },
+    { key: 4, label: 'USDC TVL' },
+    { key: 5, label: 'Active Jobs' },
+    { key: 6, label: 'CSP Tier' },
+];
+
 type AdminMndView = Omit<MNDLicense, 'claimableEpochs' | 'isLinked'> & { owner: EthAddress };
 type OracleDetails = {
     oracleAddress: EthAddress;
@@ -43,12 +55,21 @@ type OracleDetails = {
     node_alias: string;
     node_is_online: boolean;
 };
+type AdminCspView = {
+    escrowAddress: EthAddress;
+    owner: EthAddress;
+    tvl: bigint;
+    activeJobsCount: bigint;
+    tier: number;
+    name?: string;
+};
 
 function Admin() {
     const publicClient = usePublicClient();
 
     const [oracles, setOracles] = useState<OracleDetails[]>([]);
     const [mnds, setMnds] = useState<(AdminMndView | null)[]>([]);
+    const [csps, setCsps] = useState<AdminCspView[]>([]);
 
     const fetchData = () => {
         if (!publicClient) return;
@@ -93,6 +114,26 @@ function Admin() {
                     })),
                 );
             });
+
+        publicClient
+            .readContract({
+                address: config.readerContractAddress,
+                abi: ReaderAbi,
+                functionName: 'getAllEscrowsDetails',
+            })
+            .then(async (result) => {
+                const publicProfiles = await getPublicProfiles(result.map((csp) => csp.owner)).catch(() => ({ brands: [] }));
+
+                setCsps(
+                    result.map((csp) => ({
+                        ...csp,
+                        tier: Number(csp.cspTier),
+                        name: publicProfiles.brands.find(
+                            (profile) => profile.brandAddress.toLowerCase() === csp.owner.toLowerCase(),
+                        )?.name,
+                    })),
+                );
+            });
     };
 
     useEffect(() => {
@@ -106,6 +147,7 @@ function Admin() {
             <AddOracle oracles={oracles} fetchData={fetchData} />
             <RemoveOracle oracles={oracles} fetchData={fetchData} />
             <OraclesTable oracles={oracles} />
+            <CspsTable csps={csps} fetchData={fetchData} />
             <AllowMndTransfer />
             <AllowMndBurn />
             <AddSellerCode />
@@ -524,6 +566,154 @@ function OraclesTable({ oracles }: { oracles: OracleDetails[] }) {
                 </Table>
             </div>
         </BigCard>
+    );
+}
+
+export function CspsTable({ csps, fetchData }: { csps: AdminCspView[]; fetchData: () => void }) {
+    return (
+        <BigCard>
+            <div className="text-base leading-6 font-semibold lg:text-xl">CSP Escrows</div>
+
+            <div className="bg-light overflow-x-auto rounded-xl border border-[#e3e4e8] p-3">
+                <Table
+                    aria-label="CSP Escrows Table"
+                    classNames={{
+                        table: 'min-w-[980px]',
+                        th: 'bg-slate-100 text-body text-[13px]',
+                    }}
+                    removeWrapper
+                >
+                    <TableHeader columns={columnsCspsTable}>
+                        {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+                    </TableHeader>
+                    <TableBody items={csps}>
+                        {(csp) => (
+                            <TableRow key={csp.escrowAddress}>
+                                <TableCell>
+                                    <CspIdentity csp={csp} />
+                                </TableCell>
+                                <TableCell>
+                                    <a
+                                        href={`${getR1ExplorerUrl()}/account/${csp.owner}`}
+                                        target="_blank"
+                                        className="underline"
+                                    >
+                                        <CopyableValue value={csp.owner} />
+                                    </a>
+                                </TableCell>
+                                <TableCell>
+                                    <CopyableValue value={csp.escrowAddress} />
+                                </TableCell>
+                                <TableCell>{fBI(csp.tvl, 6)} USDC</TableCell>
+                                <TableCell>{csp.activeJobsCount.toString()}</TableCell>
+                                <TableCell>
+                                    <CspTierEditor csp={csp} fetchData={fetchData} />
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+        </BigCard>
+    );
+}
+
+function CspIdentity({ csp }: { csp: AdminCspView }) {
+    const [imageError, setImageError] = useState<boolean>(false);
+    const label = csp.name || getShortAddressOrHash(csp.owner, 4, true);
+
+    return (
+        <a href={`${getR1ExplorerUrl()}/account/${csp.owner}`} target="_blank" className="row w-max gap-2 hover:opacity-75">
+            <div className="center-all relative h-8 w-8 min-w-8 overflow-hidden rounded-[37.5%] bg-slate-200 text-xl text-white">
+                {!imageError ? (
+                    <img
+                        src={`${config.backendUrl}/branding/get-brand-logo?address=${csp.owner}`}
+                        alt=""
+                        className="h-full w-full object-cover object-center"
+                        onError={() => setImageError(true)}
+                    />
+                ) : (
+                    <HiUser />
+                )}
+            </div>
+
+            <div className="max-w-[180px] overflow-hidden font-medium text-ellipsis whitespace-nowrap">{label}</div>
+        </a>
+    );
+}
+
+function CspTierEditor({ csp, fetchData }: { csp: AdminCspView; fetchData: () => void }) {
+    const { watchTx } = useBlockchainContext() as BlockchainContextType;
+
+    const [tier, setTier] = useState<string>(csp.tier.toString());
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const { data: walletClient } = useWalletClient();
+    const publicClient = usePublicClient();
+
+    const parsedTier = Number.parseInt(tier);
+    const isValidTier = tier !== '' && isFinite(parsedTier) && !isNaN(parsedTier) && parsedTier >= 0 && parsedTier <= 255;
+
+    useEffect(() => {
+        setTier(csp.tier.toString());
+    }, [csp.tier]);
+
+    const onSave = async () => {
+        if (!walletClient || !isValidTier) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            const txHash = await walletClient.writeContract({
+                address: config.poaiManagerContractAddress,
+                abi: PoAIContractAbi,
+                functionName: 'setCspTier',
+                args: [csp.owner, parsedTier],
+            });
+
+            await watchTx(txHash, publicClient);
+            fetchData();
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="row min-w-[172px] gap-2">
+            <Input
+                value={tier}
+                onValueChange={(value) => {
+                    const n = Number.parseInt(value);
+
+                    if (value === '') {
+                        setTier('');
+                    } else if (isFinite(n) && !isNaN(n) && n >= 0 && n <= 255) {
+                        setTier(n.toString());
+                    }
+                }}
+                size="sm"
+                classNames={{
+                    inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                    input: 'font-medium',
+                }}
+                variant="bordered"
+                color="primary"
+                placeholder="0"
+            />
+
+            <Button
+                size="sm"
+                color="secondary"
+                onPress={onSave}
+                isLoading={isLoading}
+                isDisabled={isLoading || !isValidTier || parsedTier === csp.tier}
+            >
+                Save
+            </Button>
+        </div>
     );
 }
 

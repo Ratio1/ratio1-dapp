@@ -87,6 +87,31 @@ export const PoAIContractAbi = [
             {
                 indexed: true,
                 internalType: 'address',
+                name: 'cspOwner',
+                type: 'address',
+            },
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'escrow',
+                type: 'address',
+            },
+            {
+                indexed: false,
+                internalType: 'uint8',
+                name: 'newTier',
+                type: 'uint8',
+            },
+        ],
+        name: 'CspTierUpdated',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: 'address',
                 name: 'owner',
                 type: 'address',
             },
@@ -867,6 +892,24 @@ export const PoAIContractAbi = [
     {
         inputs: [],
         name: 'renounceOwnership',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'cspOwner',
+                type: 'address',
+            },
+            {
+                internalType: 'uint8',
+                name: 'newTier',
+                type: 'uint8',
+            },
+        ],
+        name: 'setCspTier',
         outputs: [],
         stateMutability: 'nonpayable',
         type: 'function',

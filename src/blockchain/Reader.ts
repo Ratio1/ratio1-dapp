@@ -97,6 +97,11 @@ export const ReaderAbi = [
                         name: 'activeJobsCount',
                         type: 'uint256',
                     },
+                    {
+                        internalType: 'uint8',
+                        name: 'cspTier',
+                        type: 'uint8',
+                    },
                 ],
                 internalType: 'struct EscrowDetails[]',
                 name: '',
@@ -202,6 +207,11 @@ export const ReaderAbi = [
                         internalType: 'uint256',
                         name: 'activeJobsCount',
                         type: 'uint256',
+                    },
+                    {
+                        internalType: 'uint8',
+                        name: 'cspTier',
+                        type: 'uint8',
                     },
                 ],
                 internalType: 'struct EscrowDetails',

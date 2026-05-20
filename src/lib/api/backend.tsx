@@ -67,6 +67,11 @@ export const getBrandingPlatforms = async () => _doGet<string[]>('/branding/get-
 export const getProfilePicture = async (address: types.EthAddress) =>
     _doGet<any>(`/branding/get-brand-logo?address=${address}`);
 
+export const getPublicProfiles = async (addresses: types.EthAddress[]) =>
+    _doPost<{
+        brands: Array<PublicProfileInfo & { brandAddress: string }>;
+    }>('/branding/get-brands', { brandAddresses: addresses });
+
 // *****
 // POST
 // *****
