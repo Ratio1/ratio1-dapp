@@ -4,6 +4,7 @@ import { Alert } from '@heroui/alert';
 import { Button } from '@heroui/button';
 import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@heroui/modal';
 import { Spinner } from '@heroui/spinner';
+import { getContractErrorMessage, simulateAndWriteContract } from '@lib/blockchain/contract-write';
 import { config } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
@@ -52,7 +53,7 @@ const LicenseUnlinkModal = forwardRef(({ onClaim, shouldTriggerGhostClaimRewards
     }));
 
     const onConfirmUnlinking = async () => {
-        if (!walletClient || !license) {
+        if (!walletClient || !publicClient || !license) {
             toast.error('Unexpected error, please try again.');
             return;
         }
@@ -60,11 +61,15 @@ const LicenseUnlinkModal = forwardRef(({ onClaim, shouldTriggerGhostClaimRewards
         setLoading(true);
 
         const unlink = async () => {
-            const unlinkTxHash = await walletClient.writeContract({
-                address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
-                abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
-                functionName: 'unlinkNode',
-                args: [license.licenseId],
+            const unlinkTxHash = await simulateAndWriteContract({
+                publicClient,
+                walletClient,
+                parameters: {
+                    address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
+                    abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
+                    functionName: 'unlinkNode',
+                    args: [license.licenseId],
+                },
             });
 
             await watchTx(unlinkTxHash, publicClient);
@@ -84,7 +89,7 @@ const LicenseUnlinkModal = forwardRef(({ onClaim, shouldTriggerGhostClaimRewards
             onClose();
         } catch (error) {
             console.error(error);
-            toast.error('Unexpected error, please try again.');
+            toast.error(getContractErrorMessage(error, 'Could not unlink this license. Please try again.'));
         } finally {
             console.log('Node unlinked, fetching licenses');
 

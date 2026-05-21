@@ -10,6 +10,7 @@ import LicenseUnlinkModal from '@components/Licenses/modals/LicenseUnlinkModal';
 import { Pagination } from '@heroui/pagination';
 import { Skeleton } from '@heroui/skeleton';
 import { multiLinkLicense } from '@lib/api/backend';
+import { FriendlyContractError, getContractErrorMessage, simulateAndWriteContract } from '@lib/blockchain/contract-write';
 import { config, getCurrentEpoch, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
@@ -191,17 +192,25 @@ function Licenses() {
 
             const txHash =
                 license.type === 'ND'
-                    ? await walletClient.writeContract({
-                          address: config.ndContractAddress,
-                          abi: NDContractAbi,
-                          functionName: 'claimRewards',
-                          args: [[computeParam], [ethSignatures]],
+                    ? await simulateAndWriteContract({
+                          publicClient,
+                          walletClient,
+                          parameters: {
+                              address: config.ndContractAddress,
+                              abi: NDContractAbi,
+                              functionName: 'claimRewards',
+                              args: [[computeParam], [ethSignatures]],
+                          },
                       })
-                    : await walletClient.writeContract({
-                          address: config.mndContractAddress,
-                          abi: MNDContractAbi,
-                          functionName: 'claimRewards',
-                          args: [[computeParam], [ethSignatures]],
+                    : await simulateAndWriteContract({
+                          publicClient,
+                          walletClient,
+                          parameters: {
+                              address: config.mndContractAddress,
+                              abi: MNDContractAbi,
+                              functionName: 'claimRewards',
+                              args: [[computeParam], [ethSignatures]],
+                          },
                       });
 
             log('claimRewards submitted', { licenseId: Number(license.licenseId), txHash });
@@ -220,7 +229,11 @@ function Licenses() {
             return receipt;
         } catch (err: any) {
             log('Claim PoA rewards failed', { licenseId: Number(license.licenseId), error: err?.message ?? err });
-            toast.error('An error occurred, please try again.');
+            const message = getContractErrorMessage(err, 'Could not claim these PoA rewards. Please try again.');
+            if (skipFetchingRewards) {
+                throw new FriendlyContractError(message);
+            }
+            toast.error(message);
         } finally {
             setClaimingRewards(license.licenseId, license.type, 'PoA', false);
         }
@@ -245,11 +258,15 @@ function Licenses() {
                 nodeAddress: license.nodeAddress,
             });
 
-            const txHash = await walletClient.writeContract({
-                address: config.poaiManagerContractAddress,
-                abi: PoAIContractAbi,
-                functionName: 'claimRewardsForNode',
-                args: [license.nodeAddress],
+            const txHash = await simulateAndWriteContract({
+                publicClient,
+                walletClient,
+                parameters: {
+                    address: config.poaiManagerContractAddress,
+                    abi: PoAIContractAbi,
+                    functionName: 'claimRewardsForNode',
+                    args: [license.nodeAddress],
+                },
             });
             log('claimRewardsForNode submitted', { licenseId: Number(license.licenseId), txHash });
             const receipt = await watchTx(txHash, publicClient);
@@ -265,7 +282,11 @@ function Licenses() {
             return receipt;
         } catch (err: any) {
             log('Claim PoAI rewards failed', { licenseId: Number(license.licenseId), error: err?.message ?? err });
-            toast.error('An error occurred, please try again.');
+            const message = getContractErrorMessage(err, 'Could not claim these PoAI rewards. Please try again.');
+            if (skipFetchingRewards) {
+                throw new FriendlyContractError(message);
+            }
+            toast.error(message);
         } finally {
             setClaimingRewards(license.licenseId, license.type, 'PoAI', false);
         }
@@ -314,11 +335,15 @@ function Licenses() {
             const { signature } = await multiLinkLicense(newNodeAddresses);
             log('Bulk link signature received', { assignments: bulkAssignments.length, signatureLength: signature.length });
 
-            const txHash = await walletClient.writeContract({
-                address: config.ndContractAddress,
-                abi: NDContractAbi,
-                functionName: 'linkMultiNode',
-                args: [licenseIds, newNodeAddresses, `0x${signature}`],
+            const txHash = await simulateAndWriteContract({
+                publicClient,
+                walletClient,
+                parameters: {
+                    address: config.ndContractAddress,
+                    abi: NDContractAbi,
+                    functionName: 'linkMultiNode',
+                    args: [licenseIds, newNodeAddresses, `0x${signature}`],
+                },
             });
             log('linkMultiNode submitted', { assignments: bulkAssignments.length, txHash });
 
@@ -332,7 +357,7 @@ function Licenses() {
         } catch (error) {
             log('Bulk link failed', { error: (error as Error)?.message ?? error });
             console.error('Bulk linking failed', error);
-            toast.error('Bulk linking failed. Please try again.');
+            toast.error(getContractErrorMessage(error, 'Bulk linking failed. Please try again.'));
         }
     };
 

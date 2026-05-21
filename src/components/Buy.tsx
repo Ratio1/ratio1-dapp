@@ -7,6 +7,7 @@ import { Input } from '@heroui/input';
 import { useDisclosure } from '@heroui/modal';
 import { Spinner } from '@heroui/spinner';
 import { buyLicense } from '@lib/api/backend';
+import { getContractErrorMessage, simulateAndWriteContract } from '@lib/blockchain/contract-write';
 import { config, environment, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
@@ -203,11 +204,15 @@ function Buy({ onClose }: { onClose: () => void }) {
             return;
         }
 
-        const txHash = await walletClient.writeContract({
-            address: config.r1ContractAddress,
-            abi: ERC20Abi,
-            functionName: 'approve',
-            args: [config.ndContractAddress, MAX_ALLOWANCE],
+        const txHash = await simulateAndWriteContract({
+            publicClient,
+            walletClient,
+            parameters: {
+                address: config.r1ContractAddress,
+                abi: ERC20Abi,
+                functionName: 'approve',
+                args: [config.ndContractAddress, MAX_ALLOWANCE],
+            },
         });
 
         await watchTx(txHash, publicClient);
@@ -251,11 +256,15 @@ function Buy({ onClose }: { onClose: () => void }) {
 
         console.log('buyLicense', args);
 
-        const txHash = await walletClient.writeContract({
-            address: config.ndContractAddress,
-            abi: NDContractAbi,
-            functionName: 'buyLicense',
-            args,
+        const txHash = await simulateAndWriteContract({
+            publicClient,
+            walletClient,
+            parameters: {
+                address: config.ndContractAddress,
+                abi: [...NDContractAbi, ...ERC20Abi],
+                functionName: 'buyLicense',
+                args,
+            },
         });
 
         await watchTx(txHash, publicClient);
@@ -290,7 +299,7 @@ function Buy({ onClose }: { onClose: () => void }) {
             }
         } catch (err: any) {
             console.error(err.message);
-            toast.error('Transaction failed, please try again.');
+            toast.error(getContractErrorMessage(err, 'Transaction failed, please try again.'));
         } finally {
             setLoadingTx(false);
         }

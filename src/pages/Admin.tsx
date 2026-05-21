@@ -6,6 +6,7 @@ import { Button } from '@heroui/button';
 import { Input } from '@heroui/input';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/table';
 import { getPublicProfiles, newSellerCode, sendBatchNews } from '@lib/api/backend';
+import { getContractErrorMessage, simulateAndWriteContract } from '@lib/blockchain/contract-write';
 import { getMultiNodeEpochsRange, getNodeInfo } from '@lib/api/oracles';
 import { config, getCurrentEpoch, getR1ExplorerUrl } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
@@ -167,24 +168,32 @@ function CreateMnd({ mnds, fetchData }: { mnds: (AdminMndView | null)[]; fetchDa
     const publicClient = usePublicClient();
 
     const onCreate = async () => {
-        if (!walletClient) {
+        if (!walletClient || !publicClient) {
             toast.error('Unexpected error, please try again.');
             return;
         }
 
         setIsLoading(true);
 
-        const txHash = await walletClient.writeContract({
-            address: config.mndContractAddress,
-            abi: MNDContractAbi,
-            functionName: 'addLicense',
-            args: [address as EthAddress, BigInt(tokens) * 10n ** 18n],
-        });
+        try {
+            const txHash = await simulateAndWriteContract({
+                publicClient,
+                walletClient,
+                parameters: {
+                    address: config.mndContractAddress,
+                    abi: MNDContractAbi,
+                    functionName: 'addLicense',
+                    args: [address as EthAddress, BigInt(tokens) * 10n ** 18n],
+                },
+            });
 
-        await watchTx(txHash, publicClient);
-        fetchData();
-
-        setIsLoading(false);
+            await watchTx(txHash, publicClient);
+            fetchData();
+        } catch (error) {
+            toast.error(getContractErrorMessage(error, 'Could not create the MND license. Please try again.'));
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -384,24 +393,32 @@ function AddOracle({ oracles, fetchData }: { oracles: OracleDetails[]; fetchData
     const publicClient = usePublicClient();
 
     const onAdd = async () => {
-        if (!walletClient) {
+        if (!walletClient || !publicClient) {
             toast.error('Unexpected error, please try again.');
             return;
         }
 
         setIsLoading(true);
 
-        const txHash = await walletClient.writeContract({
-            address: config.controllerContractAddress,
-            abi: ControllerAbi,
-            functionName: 'addOracle',
-            args: [address as EthAddress],
-        });
+        try {
+            const txHash = await simulateAndWriteContract({
+                publicClient,
+                walletClient,
+                parameters: {
+                    address: config.controllerContractAddress,
+                    abi: ControllerAbi,
+                    functionName: 'addOracle',
+                    args: [address as EthAddress],
+                },
+            });
 
-        await watchTx(txHash, publicClient);
-        fetchData();
-
-        setIsLoading(false);
+            await watchTx(txHash, publicClient);
+            fetchData();
+        } catch (error) {
+            toast.error(getContractErrorMessage(error, 'Could not add this oracle. Please try again.'));
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -457,24 +474,32 @@ function RemoveOracle({ oracles, fetchData }: { oracles: OracleDetails[]; fetchD
     const publicClient = usePublicClient();
 
     const onRemove = async () => {
-        if (!walletClient) {
+        if (!walletClient || !publicClient) {
             toast.error('Unexpected error, please try again.');
             return;
         }
 
         setIsLoading(true);
 
-        const txHash = await walletClient.writeContract({
-            address: config.controllerContractAddress,
-            abi: ControllerAbi,
-            functionName: 'removeOracle',
-            args: [address as EthAddress],
-        });
+        try {
+            const txHash = await simulateAndWriteContract({
+                publicClient,
+                walletClient,
+                parameters: {
+                    address: config.controllerContractAddress,
+                    abi: ControllerAbi,
+                    functionName: 'removeOracle',
+                    args: [address as EthAddress],
+                },
+            });
 
-        await watchTx(txHash, publicClient);
-        fetchData();
-
-        setIsLoading(false);
+            await watchTx(txHash, publicClient);
+            fetchData();
+        } catch (error) {
+            toast.error(getContractErrorMessage(error, 'Could not remove this oracle. Please try again.'));
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -659,7 +684,7 @@ function CspTierEditor({ csp, fetchData }: { csp: AdminCspView; fetchData: () =>
     }, [csp.tier]);
 
     const onSave = async () => {
-        if (!walletClient || !isValidTier) {
+        if (!walletClient || !publicClient || !isValidTier) {
             toast.error('Unexpected error, please try again.');
             return;
         }
@@ -667,15 +692,21 @@ function CspTierEditor({ csp, fetchData }: { csp: AdminCspView; fetchData: () =>
         setIsLoading(true);
 
         try {
-            const txHash = await walletClient.writeContract({
-                address: config.poaiManagerContractAddress,
-                abi: PoAIContractAbi,
-                functionName: 'setCspTier',
-                args: [csp.owner, parsedTier],
+            const txHash = await simulateAndWriteContract({
+                publicClient,
+                walletClient,
+                parameters: {
+                    address: config.poaiManagerContractAddress,
+                    abi: PoAIContractAbi,
+                    functionName: 'setCspTier',
+                    args: [csp.owner, parsedTier],
+                },
             });
 
             await watchTx(txHash, publicClient);
             fetchData();
+        } catch (error) {
+            toast.error(getContractErrorMessage(error, 'Could not update this CSP tier. Please try again.'));
         } finally {
             setIsLoading(false);
         }
@@ -728,23 +759,31 @@ function AllowMndTransfer() {
     const publicClient = usePublicClient();
 
     const onAllow = async () => {
-        if (!walletClient) {
+        if (!walletClient || !publicClient) {
             toast.error('Unexpected error, please try again.');
             return;
         }
 
         setIsLoading(true);
 
-        const txHash = await walletClient.writeContract({
-            address: config.mndContractAddress,
-            abi: MNDContractAbi,
-            functionName: 'initiateTransfer',
-            args: [sender as EthAddress, receiver as EthAddress],
-        });
+        try {
+            const txHash = await simulateAndWriteContract({
+                publicClient,
+                walletClient,
+                parameters: {
+                    address: config.mndContractAddress,
+                    abi: MNDContractAbi,
+                    functionName: 'initiateTransfer',
+                    args: [sender as EthAddress, receiver as EthAddress],
+                },
+            });
 
-        await watchTx(txHash, publicClient);
-
-        setIsLoading(false);
+            await watchTx(txHash, publicClient);
+        } catch (error) {
+            toast.error(getContractErrorMessage(error, 'Could not allow this MND transfer. Please try again.'));
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -809,23 +848,31 @@ function AllowMndBurn() {
     const publicClient = usePublicClient();
 
     const onAllow = async () => {
-        if (!walletClient) {
+        if (!walletClient || !publicClient) {
             toast.error('Unexpected error, please try again.');
             return;
         }
 
         setIsLoading(true);
 
-        const txHash = await walletClient.writeContract({
-            address: config.mndContractAddress,
-            abi: MNDContractAbi,
-            functionName: 'initiateBurn',
-            args: [sender as EthAddress],
-        });
+        try {
+            const txHash = await simulateAndWriteContract({
+                publicClient,
+                walletClient,
+                parameters: {
+                    address: config.mndContractAddress,
+                    abi: MNDContractAbi,
+                    functionName: 'initiateBurn',
+                    args: [sender as EthAddress],
+                },
+            });
 
-        await watchTx(txHash, publicClient);
-
-        setIsLoading(false);
+            await watchTx(txHash, publicClient);
+        } catch (error) {
+            toast.error(getContractErrorMessage(error, 'Could not allow this MND burn. Please try again.'));
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

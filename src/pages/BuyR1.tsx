@@ -4,6 +4,7 @@ import { UniswapV2RouterAbi } from '@blockchain/UniswapV2Router';
 import { TokenSelectorModal } from '@components/TokenSelectorModal';
 import { Button } from '@heroui/button';
 import { useDisclosure } from '@heroui/modal';
+import { getContractErrorMessage, simulateAndWriteContract } from '@lib/blockchain/contract-write';
 import { config, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
@@ -185,7 +186,7 @@ function BuyR1() {
     };
 
     const swapForR1 = async () => {
-        if (!walletClient || !address) {
+        if (!walletClient || !publicClient || !address) {
             toast.error('Unexpected error, please try again.');
             return;
         }
@@ -214,22 +215,30 @@ function BuyR1() {
                 onDualTxsModalOpen();
 
                 const approve = async () => {
-                    const approveTxHash = await walletClient.writeContract({
-                        address: selectedToken.address as EthAddress,
-                        abi: ERC20Abi,
-                        functionName: 'approve',
-                        args: [config.uniswapV2RouterAddress, amountIn],
+                    const approveTxHash = await simulateAndWriteContract({
+                        publicClient,
+                        walletClient,
+                        parameters: {
+                            address: selectedToken.address as EthAddress,
+                            abi: ERC20Abi,
+                            functionName: 'approve',
+                            args: [config.uniswapV2RouterAddress, amountIn],
+                        },
                     });
 
                     await watchTx(approveTxHash, publicClient);
                 };
 
                 const swap = async () => {
-                    const swapTxHash = await walletClient.writeContract({
-                        address: config.uniswapV2RouterAddress,
-                        abi: UniswapV2RouterAbi,
-                        functionName: 'swapExactTokensForTokens',
-                        args: [amountIn, minAmountOut, selectedToken.swapPath, address, BigInt(deadline)],
+                    const swapTxHash = await simulateAndWriteContract({
+                        publicClient,
+                        walletClient,
+                        parameters: {
+                            address: config.uniswapV2RouterAddress,
+                            abi: [...UniswapV2RouterAbi, ...ERC20Abi],
+                            functionName: 'swapExactTokensForTokens',
+                            args: [amountIn, minAmountOut, selectedToken.swapPath, address, BigInt(deadline)],
+                        },
                     });
 
                     await watchTx(swapTxHash, publicClient);
@@ -243,12 +252,16 @@ function BuyR1() {
 
                 await swap();
             } else {
-                const txHash = await walletClient.writeContract({
-                    address: config.uniswapV2RouterAddress,
-                    abi: UniswapV2RouterAbi,
-                    functionName: 'swapExactETHForTokens',
-                    args: [minAmountOut, selectedToken.swapPath, address, BigInt(deadline)],
-                    value: amountIn,
+                const txHash = await simulateAndWriteContract({
+                    publicClient,
+                    walletClient,
+                    parameters: {
+                        address: config.uniswapV2RouterAddress,
+                        abi: [...UniswapV2RouterAbi, ...ERC20Abi],
+                        functionName: 'swapExactETHForTokens',
+                        args: [minAmountOut, selectedToken.swapPath, address, BigInt(deadline)],
+                        value: amountIn,
+                    },
                 });
                 await watchTx(txHash, publicClient);
             }
@@ -257,7 +270,7 @@ function BuyR1() {
             fetchUserBalance(address, publicClient);
             debouncedFetchEstimatedR1?.();
         } catch (error) {
-            toast.error('Unexpected error, please try again.');
+            toast.error(getContractErrorMessage(error, 'Swap failed, please try again.'));
             console.error(error);
         } finally {
             setLoading(false);
