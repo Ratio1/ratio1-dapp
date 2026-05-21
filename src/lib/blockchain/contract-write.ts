@@ -181,6 +181,9 @@ export const simulateAndWriteContract = async <
     walletClient: WalletClient;
     parameters: SimulateContractParameters<abi, functionName, args, Chain | undefined, Chain | undefined, accountOverride>;
 }): Promise<WriteContractReturnType> => {
-    const { request } = await publicClient.simulateContract(parameters);
+    const account = parameters.account ?? walletClient.account ?? (await walletClient.getAddresses())[0];
+    const simulationParameters = { ...parameters, account } as typeof parameters;
+    const { request } = await publicClient.simulateContract(simulationParameters);
+
     return walletClient.writeContract(request as Parameters<WalletClient['writeContract']>[0]);
 };
