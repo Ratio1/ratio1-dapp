@@ -3,6 +3,7 @@ import { NDContractAbi } from '@blockchain/NDContract';
 import { Button } from '@heroui/button';
 import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@heroui/modal';
 import { Spinner } from '@heroui/spinner';
+import { getContractErrorMessage, simulateAndWriteContract } from '@lib/blockchain/contract-write';
 import { config } from '@lib/config';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { DetailedAlert } from '@shared/DetailedAlert';
@@ -33,7 +34,7 @@ const LicenseBurnModal = forwardRef((_, ref) => {
     }));
 
     const onConfirm = async () => {
-        if (!walletClient || !license) {
+        if (!walletClient || !publicClient || !license) {
             toast.error('Unexpected error, please try again.');
             return;
         }
@@ -41,11 +42,15 @@ const LicenseBurnModal = forwardRef((_, ref) => {
         setLoading(true);
 
         try {
-            const txHash = await walletClient.writeContract({
-                address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
-                abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
-                functionName: 'burn',
-                args: [license.licenseId],
+            const txHash = await simulateAndWriteContract({
+                publicClient,
+                walletClient,
+                parameters: {
+                    address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
+                    abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
+                    functionName: 'burn',
+                    args: [license.licenseId],
+                },
             });
 
             await watchTx(txHash, publicClient);
@@ -56,7 +61,7 @@ const LicenseBurnModal = forwardRef((_, ref) => {
                 onClose();
             }, 250);
         } catch (error) {
-            toast.error('Unexpected error, please try again.');
+            toast.error(getContractErrorMessage(error, 'Could not burn this license. Please try again.'));
         } finally {
             setLoading(false);
         }

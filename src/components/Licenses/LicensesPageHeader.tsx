@@ -3,6 +3,7 @@ import { NDContractAbi } from '@blockchain/NDContract';
 import { PoAIContractAbi } from '@blockchain/PoAIContract';
 import { Button } from '@heroui/button';
 import { useDisclosure } from '@heroui/modal';
+import { getContractErrorMessage, simulateAndWriteContract } from '@lib/blockchain/contract-write';
 import { config, environment, getNextEpochTimestamp } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
@@ -187,7 +188,7 @@ function LicensesPageHeader({
 
             if (!txParamsND.length && !txParamsMndAndGnd.length) {
                 toast.error('No rewards to claim at the moment.');
-                throw new Error('No rewards to claim at the moment.');
+                return;
             }
 
             if (txParamsND.length && txParamsMndAndGnd.length) {
@@ -199,14 +200,18 @@ function LicensesPageHeader({
                     const txParamsChunks = chunkNdClaimTxParams(txParamsND);
                     const txHashesND = await Promise.all(
                         txParamsChunks.map((chunk) =>
-                            walletClient.writeContract({
-                                address: config.ndContractAddress,
-                                abi: NDContractAbi,
-                                functionName: 'claimRewards',
-                                args: [
-                                    [...chunk.map(({ computeParam }) => computeParam)],
-                                    [...chunk.map(({ eth_signatures }) => eth_signatures)],
-                                ],
+                            simulateAndWriteContract({
+                                publicClient,
+                                walletClient,
+                                parameters: {
+                                    address: config.ndContractAddress,
+                                    abi: NDContractAbi,
+                                    functionName: 'claimRewards',
+                                    args: [
+                                        [...chunk.map(({ computeParam }) => computeParam)],
+                                        [...chunk.map(({ eth_signatures }) => eth_signatures)],
+                                    ],
+                                },
                             }),
                         ),
                     );
@@ -217,14 +222,18 @@ function LicensesPageHeader({
 
             const claimMND = async () => {
                 if (txParamsMndAndGnd.length) {
-                    const txHashMND = await walletClient.writeContract({
-                        address: config.mndContractAddress,
-                        abi: MNDContractAbi,
-                        functionName: 'claimRewards',
-                        args: [
-                            [...txParamsMndAndGnd.map(({ computeParam }) => computeParam)],
-                            [...txParamsMndAndGnd.map(({ eth_signatures }) => eth_signatures)],
-                        ],
+                    const txHashMND = await simulateAndWriteContract({
+                        publicClient,
+                        walletClient,
+                        parameters: {
+                            address: config.mndContractAddress,
+                            abi: MNDContractAbi,
+                            functionName: 'claimRewards',
+                            args: [
+                                [...txParamsMndAndGnd.map(({ computeParam }) => computeParam)],
+                                [...txParamsMndAndGnd.map(({ eth_signatures }) => eth_signatures)],
+                            ],
+                        },
                     });
 
                     await watchTx(txHashMND, publicClient);
@@ -234,7 +243,7 @@ function LicensesPageHeader({
             await Promise.all([claimND(), claimMND()]);
         } catch (err: any) {
             console.error(err.message);
-            toast.error('An error occurred, please try again.');
+            toast.error(getContractErrorMessage(err, 'Could not claim all PoA rewards. Please try again.'));
         } finally {
             onClose();
             setClaimingAllRewardsPoA(false);
@@ -257,7 +266,7 @@ function LicensesPageHeader({
             const licensesWithPoaiRewards = licenses.filter((license) => license.type === 'ND' && license.r1PoaiRewards > 0n);
             if (licensesWithPoaiRewards.length === 0) {
                 toast.error('No rewards to claim at the moment.');
-                throw new Error('No rewards to claim at the moment.');
+                return;
             }
 
             const nodeAddressChunks = chunkArray(
@@ -266,18 +275,22 @@ function LicensesPageHeader({
             );
             const txHashes = await Promise.all(
                 nodeAddressChunks.map((nodeAddresses) =>
-                    walletClient.writeContract({
-                        address: config.poaiManagerContractAddress,
-                        abi: PoAIContractAbi,
-                        functionName: 'claimRewardsForNodes',
-                        args: [nodeAddresses],
+                    simulateAndWriteContract({
+                        publicClient,
+                        walletClient,
+                        parameters: {
+                            address: config.poaiManagerContractAddress,
+                            abi: PoAIContractAbi,
+                            functionName: 'claimRewardsForNodes',
+                            args: [nodeAddresses],
+                        },
                     }),
                 ),
             );
             await Promise.all(txHashes.map((txHash) => watchTx(txHash, publicClient)));
         } catch (err: any) {
             console.error(err.message);
-            toast.error('An error occurred, please try again.');
+            toast.error(getContractErrorMessage(err, 'Could not claim all PoAI rewards. Please try again.'));
         } finally {
             onClose();
             setClaimingAllRewardsPoAI(false);

@@ -7,6 +7,7 @@ import { Input } from '@heroui/input';
 import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@heroui/modal';
 import { Spinner } from '@heroui/spinner';
 import { linkLicense } from '@lib/api/backend';
+import { getContractErrorMessage, simulateAndWriteContract } from '@lib/blockchain/contract-write';
 import { config, environment } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
@@ -100,11 +101,15 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
             const addressToLink = address as EthAddress;
             const { signature } = await linkLicense(addressToLink);
 
-            const linkTxHash = await walletClient.writeContract({
-                address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
-                abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
-                functionName: 'linkNode',
-                args: [license.licenseId, addressToLink, `0x${signature}`],
+            const linkTxHash = await simulateAndWriteContract({
+                publicClient,
+                walletClient,
+                parameters: {
+                    address: license.type === 'ND' ? config.ndContractAddress : config.mndContractAddress,
+                    abi: license.type === 'ND' ? NDContractAbi : MNDContractAbi,
+                    functionName: 'linkNode',
+                    args: [license.licenseId, addressToLink, `0x${signature}`],
+                },
             });
 
             await watchTx(linkTxHash, publicClient);
@@ -125,7 +130,7 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
             onClose();
         } catch (error) {
             console.error('Error linking license:', error);
-            toast.error('An error occurred, please try again.');
+            toast.error(getContractErrorMessage(error, 'Could not link this license. Please try again.'));
         } finally {
             console.log('Node linked, fetching licenses');
 

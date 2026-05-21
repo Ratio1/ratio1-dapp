@@ -4,6 +4,7 @@ import Optimism from '@assets/faucets/optimism.jpeg';
 import Thirdweb from '@assets/faucets/thirdweb.png';
 import { TestnetFaucetContractAbi } from '@blockchain/TestnetFaucet';
 import { Button } from '@heroui/button';
+import { getContractErrorMessage, simulateAndWriteContract } from '@lib/blockchain/contract-write';
 import { config, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
@@ -37,23 +38,31 @@ function Faucet() {
     const publicClient = usePublicClient();
 
     const onClaim = async () => {
-        if (!walletClient || !config.faucetContractAddress) {
+        if (!walletClient || !publicClient || !config.faucetContractAddress) {
             toast.error('Unexpected error, please try again.');
             return;
         }
 
         setIsLoading(true);
 
-        const txHash = await walletClient.writeContract({
-            address: config.faucetContractAddress,
-            abi: TestnetFaucetContractAbi,
-            functionName: 'claim',
-        });
+        try {
+            const txHash = await simulateAndWriteContract({
+                publicClient,
+                walletClient,
+                parameters: {
+                    address: config.faucetContractAddress,
+                    abi: TestnetFaucetContractAbi,
+                    functionName: 'claim',
+                },
+            });
 
-        await watchTx(txHash, publicClient);
-        fetchNextClaimTimestamp();
-
-        setIsLoading(false);
+            await watchTx(txHash, publicClient);
+            fetchNextClaimTimestamp();
+        } catch (error) {
+            toast.error(getContractErrorMessage(error, 'Could not claim from the faucet. Please try again.'));
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const fetchNextClaimTimestamp = async () => {
