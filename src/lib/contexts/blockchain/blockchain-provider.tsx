@@ -14,7 +14,7 @@ import { EthAddress, License, PriceTier } from 'typedefs/blockchain';
 import { TransactionReceipt } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 import { BlockchainContext } from './context';
-import { resolveSafeTxHashToChainTxHash } from '@lib/safe';
+import { waitForSafeOrChainTransactionReceipt } from '@lib/safe';
 
 export const BlockchainProvider = ({ children }) => {
     // Licenses
@@ -115,18 +115,21 @@ export const BlockchainProvider = ({ children }) => {
 
     const watchTx = async (txHash: string, publicClient): Promise<TransactionReceipt> => {
         const waitForTx = async (): Promise<TransactionReceipt> => {
-            let hashForReceipt = txHash;
+            let receipt: TransactionReceipt;
             if (address && (await isContractAccount(publicClient, address))) {
                 //NOTE: this is intentionally broad, it should check if it is a Safe or not.
-                console.log('Using Safe transaction hash resolution for', txHash);
-                hashForReceipt = await resolveSafeTxHashToChainTxHash(txHash);
-                console.log('Resolved Safe transaction hash to chain transaction hash', hashForReceipt);
+                console.log('Using Safe and chain transaction tracking for', txHash);
+                receipt = await waitForSafeOrChainTransactionReceipt({
+                    txHash,
+                    publicClient,
+                    confirmations: 2,
+                });
+            } else {
+                receipt = await publicClient.waitForTransactionReceipt({
+                    hash: txHash,
+                    confirmations: 2,
+                });
             }
-
-            const receipt: TransactionReceipt = await publicClient.waitForTransactionReceipt({
-                hash: hashForReceipt,
-                confirmations: 2,
-            });
 
             if (receipt.status === 'success') {
                 return receipt;
