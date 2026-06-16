@@ -1,4 +1,5 @@
 import { routePath } from '@lib/routes/route-paths';
+import { InitiateCspEscrowOwnerTransfer } from '@pages/Admin';
 import { Navigate } from 'react-router-dom';
 
 /*
@@ -12,7 +13,9 @@ export default function PlaywrightPreview() {
 
     return (
         <main className="mx-auto min-h-dvh w-full max-w-6xl p-6 md:p-10">
-            <section id="playwright-preview"></section>
+            <section id="playwright-preview">
+                <InitiateCspEscrowOwnerTransfer />
+            </section>
         </main>
     );
 }

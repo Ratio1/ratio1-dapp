@@ -48,6 +48,33 @@ const columnsCspsTable = [
     { key: 6, label: 'CSP Tier' },
 ];
 
+const cspEscrowOwnerTransferErrorMessages = [
+    {
+        pattern: /InvalidCspOwner/i,
+        message: 'Both CSP owner addresses must be valid non-zero addresses.',
+    },
+    {
+        pattern: /SameCspOwner/i,
+        message: 'The current and new CSP owners must be different addresses.',
+    },
+    {
+        pattern: /CspEscrowDoesNotExist/i,
+        message: 'The current owner does not have a CSP escrow.',
+    },
+    {
+        pattern: /AddressAlreadyOwnsEscrow/i,
+        message: 'The new owner already owns a CSP escrow.',
+    },
+    {
+        pattern: /AddressDelegatedToAnotherEscrow/i,
+        message: 'The new owner is already delegated to another CSP escrow.',
+    },
+    {
+        pattern: /EscrowOwnerMismatch/i,
+        message: 'The escrow owner on-chain does not match the selected current owner.',
+    },
+];
+
 type AdminMndView = Omit<MNDLicense, 'claimableEpochs' | 'isLinked'> & { owner: EthAddress };
 type OracleDetails = {
     oracleAddress: EthAddress;
@@ -149,6 +176,7 @@ function Admin() {
             <RemoveOracle oracles={oracles} fetchData={fetchData} />
             <OraclesTable oracles={oracles} />
             <CspsTable csps={csps} fetchData={fetchData} />
+            <InitiateCspEscrowOwnerTransfer />
             <AllowMndTransfer />
             <AllowMndBurn />
             <AddSellerCode />
@@ -745,6 +773,248 @@ function CspTierEditor({ csp, fetchData }: { csp: AdminCspView; fetchData: () =>
                 Save
             </Button>
         </div>
+    );
+}
+
+export function InitiateCspEscrowOwnerTransfer() {
+    const { watchTx } = useBlockchainContext() as BlockchainContextType;
+
+    const [oldOwner, setOldOwner] = useState<string>('');
+    const [newOwner, setNewOwner] = useState<string>('');
+    const [oldOwnerEscrow, setOldOwnerEscrow] = useState<EthAddress | null>(null);
+    const [newOwnerEscrow, setNewOwnerEscrow] = useState<EthAddress | null>(null);
+    const [pendingReceiver, setPendingReceiver] = useState<EthAddress | null>(null);
+    const [isLoadingOldOwnerDetails, setIsLoadingOldOwnerDetails] = useState<boolean>(false);
+    const [isLoadingNewOwnerEscrow, setIsLoadingNewOwnerEscrow] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const { data: walletClient } = useWalletClient();
+    const publicClient = usePublicClient();
+
+    const isValidOldOwner = isAddress(oldOwner);
+    const isValidNewOwner = isAddress(newOwner);
+    const oldOwnerHasEscrow = !!oldOwnerEscrow && !isZeroAddress(oldOwnerEscrow);
+    const newOwnerAlreadyOwnsEscrow = !!newOwnerEscrow && !isZeroAddress(newOwnerEscrow);
+    const isSameOwner = isValidOldOwner && isValidNewOwner && oldOwner.toLowerCase() === newOwner.toLowerCase();
+    const hasPendingReceiver = !!pendingReceiver && !isZeroAddress(pendingReceiver);
+    const canInitiate =
+        isValidOldOwner &&
+        isValidNewOwner &&
+        oldOwnerHasEscrow &&
+        !newOwnerAlreadyOwnsEscrow &&
+        !isSameOwner &&
+        !isLoadingOldOwnerDetails &&
+        !isLoadingNewOwnerEscrow &&
+        !isLoading;
+
+    useEffect(() => {
+        if (!publicClient || !isAddress(oldOwner)) {
+            setOldOwnerEscrow(null);
+            setPendingReceiver(null);
+            return;
+        }
+
+        let ignore = false;
+
+        setIsLoadingOldOwnerDetails(true);
+        Promise.all([
+            publicClient.readContract({
+                address: config.poaiManagerContractAddress,
+                abi: PoAIContractAbi,
+                functionName: 'ownerToEscrow',
+                args: [oldOwner as EthAddress],
+            }),
+            publicClient.readContract({
+                address: config.poaiManagerContractAddress,
+                abi: PoAIContractAbi,
+                functionName: 'initiatedCspOwnerTransferReceiver',
+                args: [oldOwner as EthAddress],
+            }),
+        ])
+            .then(([escrow, receiver]) => {
+                if (!ignore) {
+                    setOldOwnerEscrow(escrow);
+                    setPendingReceiver(receiver);
+                }
+            })
+            .catch(() => {
+                if (!ignore) {
+                    setOldOwnerEscrow(null);
+                    setPendingReceiver(null);
+                }
+            })
+            .finally(() => {
+                if (!ignore) {
+                    setIsLoadingOldOwnerDetails(false);
+                }
+            });
+
+        return () => {
+            ignore = true;
+        };
+    }, [oldOwner, publicClient]);
+
+    useEffect(() => {
+        if (!publicClient || !isAddress(newOwner)) {
+            setNewOwnerEscrow(null);
+            return;
+        }
+
+        let ignore = false;
+
+        setIsLoadingNewOwnerEscrow(true);
+        publicClient
+            .readContract({
+                address: config.poaiManagerContractAddress,
+                abi: PoAIContractAbi,
+                functionName: 'ownerToEscrow',
+                args: [newOwner as EthAddress],
+            })
+            .then((escrow) => {
+                if (!ignore) {
+                    setNewOwnerEscrow(escrow);
+                }
+            })
+            .catch(() => {
+                if (!ignore) {
+                    setNewOwnerEscrow(null);
+                }
+            })
+            .finally(() => {
+                if (!ignore) {
+                    setIsLoadingNewOwnerEscrow(false);
+                }
+            });
+
+        return () => {
+            ignore = true;
+        };
+    }, [newOwner, publicClient]);
+
+    const onInitiate = async () => {
+        if (!walletClient || !publicClient || !canInitiate) {
+            toast.error('Unexpected error, please try again.');
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            const txHash = await simulateAndWriteContract({
+                publicClient,
+                walletClient,
+                parameters: {
+                    address: config.poaiManagerContractAddress,
+                    abi: PoAIContractAbi,
+                    functionName: 'initiateCspEscrowOwnerTransfer',
+                    args: [oldOwner as EthAddress, newOwner as EthAddress],
+                },
+            });
+
+            await watchTx(txHash, publicClient);
+            setPendingReceiver(newOwner as EthAddress);
+        } catch (error) {
+            toast.error(
+                getContractErrorMessage(
+                    error,
+                    'Could not initiate this CSP escrow owner transfer. Please try again.',
+                    cspEscrowOwnerTransferErrorMessages,
+                ),
+            );
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const validateOldOwner = (value: string) => {
+        if (!value) return null;
+        if (!isAddress(value)) return 'Value must be a valid Ethereum address';
+        if (!isLoadingOldOwnerDetails && oldOwnerEscrow && isZeroAddress(oldOwnerEscrow)) {
+            return 'This address does not own a CSP escrow';
+        }
+
+        return null;
+    };
+
+    const validateNewOwner = (value: string) => {
+        if (!value) return null;
+        if (!isAddress(value)) return 'Value must be a valid Ethereum address';
+        if (isValidOldOwner && value.toLowerCase() === oldOwner.toLowerCase()) {
+            return 'Value must be different from the current owner';
+        }
+        if (!isLoadingNewOwnerEscrow && newOwnerAlreadyOwnsEscrow) {
+            return 'This address already owns a CSP escrow';
+        }
+
+        return null;
+    };
+
+    return (
+        <BigCard>
+            <div className="text-base leading-6 font-semibold lg:text-xl">Initiate CSP Escrow Owner Transfer</div>
+
+            <div className="larger:flex-row larger:items-end larger:gap-4 flex flex-col gap-6">
+                <Input
+                    value={oldOwner}
+                    onValueChange={setOldOwner}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="Current owner"
+                    labelPlacement="outside"
+                    placeholder="0x..."
+                    validate={validateOldOwner}
+                />
+                <Input
+                    value={newOwner}
+                    onValueChange={setNewOwner}
+                    size="md"
+                    classNames={{
+                        inputWrapper: 'rounded-lg bg-[#fcfcfd] border',
+                        input: 'font-medium',
+                        label: 'font-medium',
+                    }}
+                    variant="bordered"
+                    color="primary"
+                    label="New owner"
+                    labelPlacement="outside"
+                    placeholder="0x..."
+                    validate={validateNewOwner}
+                />
+
+                <div className="flex">
+                    <Button fullWidth color="secondary" onPress={onInitiate} isLoading={isLoading} isDisabled={!canInitiate}>
+                        {hasPendingReceiver ? 'Update Transfer' : 'Initiate Transfer'}
+                    </Button>
+                </div>
+            </div>
+
+            {(oldOwnerHasEscrow || isLoadingOldOwnerDetails || hasPendingReceiver) && (
+                <div className="col gap-2 text-sm">
+                    {isLoadingOldOwnerDetails ? (
+                        <div className="text-slate-500">Checking current owner...</div>
+                    ) : (
+                        oldOwnerHasEscrow && (
+                            <div className="row justify-start gap-2">
+                                <span className="text-slate-500">Escrow</span>
+                                <CopyableValue value={oldOwnerEscrow} />
+                            </div>
+                        )
+                    )}
+                    {hasPendingReceiver && (
+                        <div className="row justify-start gap-2">
+                            <span className="text-slate-500">Pending receiver</span>
+                            <CopyableValue value={pendingReceiver} />
+                        </div>
+                    )}
+                </div>
+            )}
+        </BigCard>
     );
 }
 
