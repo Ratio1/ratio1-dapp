@@ -1,12 +1,47 @@
 export const PoAIContractAbi = [
     {
         inputs: [],
+        name: 'AddressAlreadyOwnsEscrow',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'AddressDelegatedToAnotherEscrow',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'CspEscrowDoesNotExist',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'CspEscrowOwnerTransferNotInitiated',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'EscrowOwnerMismatch',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'InvalidCspOwner',
+        type: 'error',
+    },
+    {
+        inputs: [],
         name: 'InvalidInitialization',
         type: 'error',
     },
     {
         inputs: [],
         name: 'NotInitializing',
+        type: 'error',
+    },
+    {
+        inputs: [],
+        name: 'SameCspOwner',
         type: 'error',
     },
     {
@@ -79,6 +114,56 @@ export const PoAIContractAbi = [
             },
         ],
         name: 'ConsensusReachedV2',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'escrow',
+                type: 'address',
+            },
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'oldOwner',
+                type: 'address',
+            },
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'newOwner',
+                type: 'address',
+            },
+        ],
+        name: 'CspEscrowOwnerTransferInitiated',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'escrow',
+                type: 'address',
+            },
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'oldOwner',
+                type: 'address',
+            },
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'newOwner',
+                type: 'address',
+            },
+        ],
+        name: 'CspEscrowOwnerTransferred',
         type: 'event',
     },
     {
@@ -328,6 +413,43 @@ export const PoAIContractAbi = [
         name: 'deployCspEscrow',
         outputs: [],
         stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'oldOwner',
+                type: 'address',
+            },
+            {
+                internalType: 'address',
+                name: 'newOwner',
+                type: 'address',
+            },
+        ],
+        name: 'initiateCspEscrowOwnerTransfer',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: '',
+                type: 'address',
+            },
+        ],
+        name: 'initiatedCspOwnerTransferReceiver',
+        outputs: [
+            {
+                internalType: 'address',
+                name: '',
+                type: 'address',
+            },
+        ],
+        stateMutability: 'view',
         type: 'function',
     },
     {
