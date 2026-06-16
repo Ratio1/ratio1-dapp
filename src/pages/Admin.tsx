@@ -48,33 +48,6 @@ const columnsCspsTable = [
     { key: 6, label: 'CSP Tier' },
 ];
 
-const cspEscrowOwnerTransferErrorMessages = [
-    {
-        pattern: /InvalidCspOwner/i,
-        message: 'Both CSP owner addresses must be valid non-zero addresses.',
-    },
-    {
-        pattern: /SameCspOwner/i,
-        message: 'The current and new CSP owners must be different addresses.',
-    },
-    {
-        pattern: /CspEscrowDoesNotExist/i,
-        message: 'The current owner does not have a CSP escrow.',
-    },
-    {
-        pattern: /AddressAlreadyOwnsEscrow/i,
-        message: 'The new owner already owns a CSP escrow.',
-    },
-    {
-        pattern: /AddressDelegatedToAnotherEscrow/i,
-        message: 'The new owner is already delegated to another CSP escrow.',
-    },
-    {
-        pattern: /EscrowOwnerMismatch/i,
-        message: 'The escrow owner on-chain does not match the selected current owner.',
-    },
-];
-
 type AdminMndView = Omit<MNDLicense, 'claimableEpochs' | 'isLinked'> & { owner: EthAddress };
 type OracleDetails = {
     oracleAddress: EthAddress;
@@ -822,13 +795,13 @@ export function InitiateCspEscrowOwnerTransfer() {
                 address: config.poaiManagerContractAddress,
                 abi: PoAIContractAbi,
                 functionName: 'ownerToEscrow',
-                args: [oldOwner as EthAddress],
+                args: [oldOwner],
             }),
             publicClient.readContract({
                 address: config.poaiManagerContractAddress,
                 abi: PoAIContractAbi,
                 functionName: 'initiatedCspOwnerTransferReceiver',
-                args: [oldOwner as EthAddress],
+                args: [oldOwner],
             }),
         ])
             .then(([escrow, receiver]) => {
@@ -868,7 +841,7 @@ export function InitiateCspEscrowOwnerTransfer() {
                 address: config.poaiManagerContractAddress,
                 abi: PoAIContractAbi,
                 functionName: 'ownerToEscrow',
-                args: [newOwner as EthAddress],
+                args: [newOwner],
             })
             .then((escrow) => {
                 if (!ignore) {
@@ -907,20 +880,14 @@ export function InitiateCspEscrowOwnerTransfer() {
                     address: config.poaiManagerContractAddress,
                     abi: PoAIContractAbi,
                     functionName: 'initiateCspEscrowOwnerTransfer',
-                    args: [oldOwner as EthAddress, newOwner as EthAddress],
+                    args: [oldOwner, newOwner],
                 },
             });
 
             await watchTx(txHash, publicClient);
-            setPendingReceiver(newOwner as EthAddress);
+            setPendingReceiver(newOwner);
         } catch (error) {
-            toast.error(
-                getContractErrorMessage(
-                    error,
-                    'Could not initiate this CSP escrow owner transfer. Please try again.',
-                    cspEscrowOwnerTransferErrorMessages,
-                ),
-            );
+            toast.error(getContractErrorMessage(error, 'Could not initiate this CSP escrow owner transfer. Please try again.'));
         } finally {
             setIsLoading(false);
         }
