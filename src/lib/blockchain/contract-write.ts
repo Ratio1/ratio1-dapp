@@ -111,6 +111,30 @@ const commonContractErrorMessages: ContractErrorMessage[] = [
         message: 'Your wallet is not authorized to perform this admin action.',
     },
     {
+        pattern: /InvalidCspOwner/i,
+        message: 'Both CSP owner addresses must be valid non-zero addresses.',
+    },
+    {
+        pattern: /SameCspOwner/i,
+        message: 'The current and new CSP owners must be different addresses.',
+    },
+    {
+        pattern: /CspEscrowDoesNotExist/i,
+        message: 'The current owner does not have a CSP escrow.',
+    },
+    {
+        pattern: /AddressAlreadyOwnsEscrow/i,
+        message: 'The new owner already owns a CSP escrow.',
+    },
+    {
+        pattern: /AddressDelegatedToAnotherEscrow/i,
+        message: 'The new owner is already delegated to another CSP escrow.',
+    },
+    {
+        pattern: /EscrowOwnerMismatch/i,
+        message: 'The escrow owner on-chain does not match the selected current owner.',
+    },
+    {
         pattern: /Cooldown|cooldown|next claim|24 hours/i,
         message: 'This action is still on cooldown. Please wait and try again later.',
     },
