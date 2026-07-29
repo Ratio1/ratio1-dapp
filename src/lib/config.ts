@@ -196,7 +196,10 @@ export const environment: 'mainnet' | 'testnet' | 'devnet' = envFromBuild || 'de
 
 export const getR1ExplorerUrl = () => `https://${environment === 'mainnet' ? '' : `${environment}-`}${explorerBaseDomain}`;
 
-export const config = configs[environment];
+export const config = {
+    ...configs[environment],
+    backendUrl: import.meta.env.VITE_BACKEND_URL || configs[environment].backendUrl,
+};
 
 export const projectId = '6fb791d3d18d57d28ae7677e4cff8c6e';
 
