@@ -13,6 +13,7 @@ import { AuthenticationContextType, useAuthenticationContext } from '@lib/contex
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
 import useAwait from '@lib/useAwait';
+import { getVerificationTypeLabel, getVerificationTypeLongLabel } from '@lib/utils';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { R1ValueWithLabel } from '@shared/R1ValueWithLabel';
 import { TokenSvg } from '@shared/TokenSvg';
@@ -274,13 +275,17 @@ const LicenseLinkModal = forwardRef(({ nodeAddresses, onClaim, shouldTriggerGhos
                     variant="red"
                     icon={<RiShieldUserLine />}
                     title="Unavailable"
-                    description={<div>KYC (Know Your Customer) must be completed before linking license.</div>}
+                    description={
+                        <div>
+                            {getVerificationTypeLongLabel(account?.applicantType)} must be completed before linking a license.
+                        </div>
+                    }
                 />
             </div>
 
             <div className="center-all w-full pb-4">
                 <Button color="primary" as={Link} to={routePath.profile}>
-                    Go to KYC
+                    Go to {getVerificationTypeLabel(account?.applicantType)}
                 </Button>
             </div>
         </>

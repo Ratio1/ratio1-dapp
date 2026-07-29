@@ -74,7 +74,7 @@ export const routeInfo = {
     },
     [routePath.profile]: {
         title: 'Profile',
-        description: 'Manage your profile, referrals and KYC (Know Your Customer)',
+        description: 'Manage your profile, referrals, and KYC/KYB verification',
         mobileTitle: 'Profile',
     },
     [routePath.invoicing]: {
@@ -112,8 +112,8 @@ export const routeInfo = {
         title: 'Email Confirmation',
     },
     [routePath.kyc]: {
-        title: 'KYC (Know Your Customer)',
-        description: 'Ensure compliance and security with identity verification',
+        title: 'KYC / KYB Verification',
+        description: 'Complete secure identity or business verification',
     },
     [routePath.admin]: {
         title: 'Admin',
@@ -213,26 +213,12 @@ export const routes: AppRoute[] = [
 ];
 
 export const getNavigationRoutes = () => {
-    const mainnetOnly = process.env.NODE_ENV === 'production' ? [routePath.profile] : [];
-
-    return routes.filter((route: AppRoute) => {
-        if (environment !== 'mainnet' && mainnetOnly.includes(route.path)) {
-            return false;
-        }
-
-        return !!route.icon;
-    });
+    return routes.filter((route: AppRoute) => !!route.icon);
 };
 
 export const getMobileNavigationRoutes = () => {
-    const mainnetOnly = [routePath.profile];
-
     return routes.filter((route: AppRoute) => {
-        if (
-            (environment !== 'mainnet' && mainnetOnly.includes(route.path)) ||
-            route.path === routePath.compliance ||
-            route.path === getR1ExplorerUrl()
-        ) {
+        if (route.path === routePath.compliance || route.path === getR1ExplorerUrl()) {
             return false;
         }
 

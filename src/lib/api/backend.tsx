@@ -1,6 +1,7 @@
 import { config } from '@lib/config';
 import { KycInfo, PublicProfileInfo } from '@typedefs/general';
 import { InvoiceDraft, InvoicingPreferences } from '@typedefs/invoicing';
+import { parseVerificationSession, VerificationApplicantType, VerificationSession } from '@typedefs/verification';
 import axios from 'axios';
 import * as types from 'typedefs/blockchain';
 
@@ -96,7 +97,8 @@ export const multiLinkLicense = (nodeAddresses: types.EthAddress[]) =>
         signature: `0x${string}`;
     }>(`/license/multiLink`, { nodeAddresses });
 
-export const initSumsubSession = (type: 'individual' | 'company') => _doPost<string>('/sumsub/init/Kyc', { type });
+export const createVerificationSession = async (type: VerificationApplicantType): Promise<VerificationSession> =>
+    parseVerificationSession(await _doPost<unknown>('/verification/session', { type }));
 
 export const registerEmail = (params: { email: string; receiveUpdates: boolean }) =>
     _doPost<types.ApiAccount>('/accounts/email/register', params);

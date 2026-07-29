@@ -73,7 +73,7 @@ function EmailConfirmation() {
 
                         <div className="text-slate-400">
                             <div>Your account has been successfully activated.</div>
-                            <div>You may now proceed with completing your KYC (Know Your Customer) verification.</div>
+                            <div>You may now proceed with completing your KYC or KYB verification.</div>
                         </div>
                     </div>
 
@@ -96,7 +96,7 @@ function EmailConfirmation() {
                                     </div>
                                 </div>
 
-                                <div className="font-medium text-primary-800">Complete KYC</div>
+                                <div className="font-medium text-primary-800">Complete KYC/KYB</div>
                             </div>
 
                             <div className="col center-all z-10 w-[150px] gap-4">
@@ -135,7 +135,7 @@ function EmailConfirmation() {
                                 </div>
 
                                 <div className="max-w-[74px] text-center text-sm font-medium text-primary-800">
-                                    Complete KYC
+                                    Complete KYC/KYB
                                 </div>
                             </div>
 
@@ -155,7 +155,7 @@ function EmailConfirmation() {
 
                     <div className="mt-4">
                         <Button color="primary" size="md" variant="solid" as={Link} to={routePath.profile}>
-                            <div className="text-base font-medium">Go to KYC</div>
+                            <div className="text-base font-medium">Go to KYC/KYB</div>
                         </Button>
                     </div>
                 </div>
