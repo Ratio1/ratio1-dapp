@@ -66,8 +66,16 @@ export const parseVerificationSession = (value: unknown): VerificationSession =>
             throw new Error('Invalid Didit verification URL.');
         }
 
-        if (hostedUrl.protocol !== 'https:') {
-            throw new Error('Didit verification URL must use HTTPS.');
+        if (
+            hostedUrl.protocol !== 'https:' ||
+            hostedUrl.hostname !== 'verify.didit.me' ||
+            hostedUrl.port ||
+            hostedUrl.username ||
+            hostedUrl.password ||
+            !hostedUrl.pathname.startsWith('/session/') ||
+            hostedUrl.pathname === '/session/'
+        ) {
+            throw new Error('Didit verification URL must use the official hosted session endpoint.');
         }
 
         return {

@@ -69,15 +69,24 @@ describe('parseVerificationSession', () => {
         ).toThrow('Invalid Didit');
     });
 
-    it('rejects non-HTTPS Didit hosted URLs', () => {
+    it.each([
+        'http://verify.didit.me/session/secret',
+        'https://evil.verify.didit.me/session/secret',
+        'https://verify.didit.me.evil.example/session/secret',
+        'https://verify.didit.me:8443/session/secret',
+        'https://attacker@verify.didit.me/session/secret',
+        'https://verify.didit.me/sessions/secret',
+        'https://verify.didit.me/session/',
+        'https://verify.didit.me@evil.example/session/secret',
+    ])('rejects a Didit URL outside the official hosted session endpoint: %s', (url) => {
         expect(() =>
             parseVerificationSession({
                 ...commonSession,
                 provider: 'didit',
                 sessionId: '11111111-2222-3333-4444-555555555555',
-                url: 'http://verify.didit.me/session/secret',
+                url,
             }),
-        ).toThrow('must use HTTPS');
+        ).toThrow('official hosted session endpoint');
     });
 
     it('rejects unknown providers and applicant types', () => {

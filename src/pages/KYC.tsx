@@ -3,14 +3,13 @@ import { Button } from '@heroui/button';
 import { createVerificationSession, getAccount } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { routePath } from '@lib/routes/route-paths';
+import { startVerificationStatusPolling } from '@lib/verification-status-polling';
 import { ApplicationStatus } from '@typedefs/profile';
 import { SumsubVerificationSession, VerificationApplicantType, VerificationSession } from '@typedefs/verification';
 import SumsubWebSdk from '@sumsub/websdk-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { RiArrowLeftLine, RiExternalLinkLine } from 'react-icons/ri';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
-
-const statusRefreshIntervalMs = 5000;
 
 const isApplicantType = (value: string | null): value is VerificationApplicantType =>
     value === 'individual' || value === 'company';
@@ -89,26 +88,26 @@ function KYC() {
         const refreshStatus = async () => {
             try {
                 const latestAccount = await getAccount();
-                if (isDisposed) return;
+                if (isDisposed) return false;
 
                 setAccount(latestAccount);
 
                 if (isStatusOutcome(latestAccount.kycStatus) && latestAccount.kycStatus !== statusAtLaunch.current) {
                     setConfirmedStatus(latestAccount.kycStatus);
+                    return true;
                 }
             } catch (error) {
                 console.error('Unable to refresh verification status:', error);
             }
+
+            return false;
         };
 
-        const interval = window.setInterval(refreshStatus, statusRefreshIntervalMs);
-        const onFocus = () => refreshStatus();
-        window.addEventListener('focus', onFocus);
+        const stopPolling = startVerificationStatusPolling(refreshStatus);
 
         return () => {
             isDisposed = true;
-            window.clearInterval(interval);
-            window.removeEventListener('focus', onFocus);
+            stopPolling();
         };
     }, [isLaunched, setAccount, typeParam]);
 
