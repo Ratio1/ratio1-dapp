@@ -161,7 +161,8 @@ export function VerificationExperience({
                             className="text-primary font-medium underline"
                             to={localPrivacyPolicyPath}
                             target="_blank"
-                            rel="noreferrer"
+                            rel="noopener noreferrer"
+                            onClick={(event) => event.stopPropagation()}
                         >
                             Privacy Policy
                         </Link>{' '}
@@ -170,7 +171,8 @@ export function VerificationExperience({
                             className="text-primary font-medium underline"
                             to={localTermsPath}
                             target="_blank"
-                            rel="noreferrer"
+                            rel="noopener noreferrer"
+                            onClick={(event) => event.stopPropagation()}
                         >
                             Terms &amp; Conditions
                         </Link>
