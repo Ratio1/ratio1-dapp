@@ -7,9 +7,11 @@ import { startVerificationStatusPolling, trackVerificationOutcome } from '@lib/v
 import { ApplicationStatus } from '@typedefs/profile';
 import { SumsubVerificationSession, VerificationApplicantType, VerificationSession } from '@typedefs/verification';
 import SumsubWebSdk from '@sumsub/websdk-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSIWE } from 'connectkit';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { RiArrowLeftLine, RiExternalLinkLine } from 'react-icons/ri';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
+import { useAccount } from 'wagmi';
 
 const isApplicantType = (value: string | null): value is VerificationApplicantType =>
     value === 'individual' || value === 'company';
@@ -34,57 +36,144 @@ const getStatusMessage = (status: ApplicationStatus, applicantType: Verification
 function KYC() {
     const [searchParams] = useSearchParams();
     const typeParam = searchParams.get('type');
+    const { authenticated } = useAuthenticationContext() as AuthenticationContextType;
+    const { address, isConnected } = useAccount();
+    const { isSignedIn, data: signedSession } = useSIWE();
+    const identity = signedSession?.address?.toLowerCase();
+
+    if (!isApplicantType(typeParam)) return <Navigate to={routePath.notFound} replace />;
+
+    if (!authenticated || !isSignedIn || !isConnected || !identity || address?.toLowerCase() !== identity) {
+        return <VerificationExperience applicantType={typeParam} stage="loading" />;
+    }
+
+    return <IdentityVerification key={`${identity}:${typeParam}`} identity={identity} applicantType={typeParam} />;
+}
+
+const isConfirmedResult = (status: ApplicationStatus) =>
+    status === ApplicationStatus.Approved || status === ApplicationStatus.FinalRejected || status === ApplicationStatus.OnHold;
+
+function IdentityVerification({ identity, applicantType }: { identity: string; applicantType: VerificationApplicantType }) {
     const { setAccount } = useAuthenticationContext() as AuthenticationContextType;
 
     const [session, setSession] = useState<VerificationSession>();
     const [isConsentAccepted, setConsentAccepted] = useState(false);
-    const [isLoadingSession, setLoadingSession] = useState(false);
+    const [isLoadingSession, setLoadingSession] = useState(true);
     const [isLaunched, setLaunched] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string>();
     const [confirmedStatus, setConfirmedStatus] = useState<ApplicationStatus>();
     const sessionRequestInFlight = useRef(false);
+    const lifecycle = useRef(0);
+    const isMounted = useRef(false);
 
-    const loadSession = useCallback(async (type: VerificationApplicantType) => {
-        if (sessionRequestInFlight.current) return;
-        sessionRequestInFlight.current = true;
-        setSession(undefined);
-        setErrorMessage(undefined);
-        setConfirmedStatus(undefined);
-        setLoadingSession(true);
-        setLaunched(false);
-
-        try {
-            const response = await createVerificationSession(type);
-
-            if (response.applicantType !== type) {
-                throw new Error('Verification applicant type does not match the requested flow.');
-            }
-
-            setSession(response);
-            setLaunched(true);
-        } catch (error) {
-            console.error('Unable to prepare verification session:', error);
-            setErrorMessage('We could not securely prepare your verification session. Please try again.');
-        } finally {
-            sessionRequestInFlight.current = false;
-            setLoadingSession(false);
-        }
+    useLayoutEffect(() => {
+        isMounted.current = true;
+        lifecycle.current += 1;
+        return () => {
+            isMounted.current = false;
+            lifecycle.current += 1;
+        };
     }, []);
 
+    const refreshAccount = useCallback(
+        async (generation: number) => {
+            const latestAccount = await getAccount();
+            if (generation !== lifecycle.current) return;
+            if (latestAccount.address.toLowerCase() !== identity) {
+                throw new Error('Authenticated account does not match this verification flow.');
+            }
+            setAccount(latestAccount);
+            return latestAccount;
+        },
+        [identity, setAccount],
+    );
+
+    const refreshEntryStatus = useCallback(async () => {
+        const generation = lifecycle.current;
+        setLoadingSession(true);
+        setErrorMessage(undefined);
+        try {
+            const latestAccount = await refreshAccount(generation);
+            if (!latestAccount) return;
+            if (isConfirmedResult(latestAccount.kycStatus)) setConfirmedStatus(latestAccount.kycStatus);
+        } catch (error) {
+            if (generation !== lifecycle.current) return;
+            console.error('Unable to refresh verification status:', error);
+            setErrorMessage('We could not securely confirm your verification status. Please try again.');
+        } finally {
+            if (generation === lifecycle.current) setLoadingSession(false);
+        }
+    }, [refreshAccount]);
+
     useEffect(() => {
-        if (!isLaunched || !session || !isApplicantType(typeParam)) {
+        void refreshEntryStatus();
+    }, [refreshEntryStatus]);
+
+    const loadSession = useCallback(
+        async (type: VerificationApplicantType) => {
+            if (sessionRequestInFlight.current) return;
+            const generation = lifecycle.current;
+            sessionRequestInFlight.current = true;
+            setSession(undefined);
+            setErrorMessage(undefined);
+            setConfirmedStatus(undefined);
+            setLoadingSession(true);
+            setLaunched(false);
+
+            try {
+                const latestAccount = await refreshAccount(generation);
+                if (!latestAccount) return;
+                if (isConfirmedResult(latestAccount.kycStatus)) {
+                    setConfirmedStatus(latestAccount.kycStatus);
+                    return;
+                }
+                const response = await createVerificationSession(type);
+                if (generation !== lifecycle.current) return;
+
+                if (response.applicantType !== type) {
+                    throw new Error('Verification applicant type does not match the requested flow.');
+                }
+
+                setSession(response);
+                setLaunched(true);
+            } catch (error) {
+                if (generation !== lifecycle.current) return;
+                console.error('Unable to prepare verification session:', error);
+                try {
+                    const latestAccount = await refreshAccount(generation);
+                    if (!latestAccount) return;
+                    if (isConfirmedResult(latestAccount.kycStatus)) {
+                        setConfirmedStatus(latestAccount.kycStatus);
+                        return;
+                    }
+                } catch (refreshError) {
+                    console.error('Unable to refresh verification status:', refreshError);
+                }
+                if (generation !== lifecycle.current) return;
+                setErrorMessage('We could not securely prepare your verification session. Please try again.');
+            } finally {
+                if (generation === lifecycle.current) {
+                    sessionRequestInFlight.current = false;
+                    setLoadingSession(false);
+                }
+            }
+        },
+        [refreshAccount],
+    );
+
+    useEffect(() => {
+        if (!isLaunched || !session || confirmedStatus) {
             return;
         }
 
         let isDisposed = false;
+        const generation = lifecycle.current;
         const isNewOutcome = trackVerificationOutcome(session.status);
 
         const refreshStatus = async () => {
             try {
-                const latestAccount = await getAccount();
-                if (isDisposed) return false;
-
-                setAccount(latestAccount);
+                const latestAccount = await refreshAccount(generation);
+                if (isDisposed || !latestAccount) return false;
 
                 if (isNewOutcome(latestAccount.kycStatus)) {
                     setConfirmedStatus(latestAccount.kycStatus);
@@ -103,23 +192,23 @@ function KYC() {
             isDisposed = true;
             stopPolling();
         };
-    }, [isLaunched, session, setAccount, typeParam]);
+    }, [isLaunched, session, refreshAccount, confirmedStatus]);
 
-    if (!isApplicantType(typeParam)) {
-        return <Navigate to={routePath.notFound} replace />;
-    }
-
-    const retry = () => loadSession(typeParam);
+    const retry = () => (isConsentAccepted ? loadSession(applicantType) : refreshEntryStatus());
 
     const launch = async () => {
-        if (!isConsentAccepted) return;
-        await loadSession(typeParam);
+        if (!isConsentAccepted || isLoadingSession) return;
+        await loadSession(applicantType);
     };
 
     const refreshSumsubAccessToken = async (currentSession: SumsubVerificationSession) => {
+        if (!isMounted.current) throw new Error('Verification identity changed.');
+        const generation = lifecycle.current;
         const refreshedSession = await createVerificationSession(currentSession.applicantType);
 
-        if (refreshedSession.provider !== 'sumsub') {
+        if (generation !== lifecycle.current) throw new Error('Verification identity changed.');
+
+        if (refreshedSession.provider !== 'sumsub' || refreshedSession.applicantType !== applicantType) {
             throw new Error('Verification provider changed. Reload the page to continue.');
         }
 
@@ -192,14 +281,14 @@ function KYC() {
             </Button>
 
             <VerificationExperience
-                applicantType={typeParam}
+                applicantType={applicantType}
                 provider={session?.provider}
                 stage={stage}
                 providerContent={renderProvider()}
                 isConsentAccepted={isConsentAccepted}
                 isLaunching={isLoadingSession}
                 errorMessage={errorMessage}
-                statusMessage={confirmedStatus ? getStatusMessage(confirmedStatus, typeParam) : undefined}
+                statusMessage={confirmedStatus ? getStatusMessage(confirmedStatus, applicantType) : undefined}
                 onConsentChange={setConsentAccepted}
                 onLaunch={launch}
                 onRetry={retry}
