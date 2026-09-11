@@ -3,7 +3,7 @@ import { Button } from '@heroui/button';
 import { createVerificationSession, getAccount } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { routePath } from '@lib/routes/route-paths';
-import { startVerificationStatusPolling } from '@lib/verification-status-polling';
+import { startVerificationStatusPolling, trackVerificationOutcome } from '@lib/verification-status-polling';
 import { ApplicationStatus } from '@typedefs/profile';
 import { SumsubVerificationSession, VerificationApplicantType, VerificationSession } from '@typedefs/verification';
 import SumsubWebSdk from '@sumsub/websdk-react';
@@ -13,12 +13,6 @@ import { Link, Navigate, useSearchParams } from 'react-router-dom';
 
 const isApplicantType = (value: string | null): value is VerificationApplicantType =>
     value === 'individual' || value === 'company';
-
-const isStatusOutcome = (status: ApplicationStatus) =>
-    status === ApplicationStatus.Approved ||
-    status === ApplicationStatus.OnHold ||
-    status === ApplicationStatus.Rejected ||
-    status === ApplicationStatus.FinalRejected;
 
 const getStatusMessage = (status: ApplicationStatus, applicantType: VerificationApplicantType) => {
     const verificationType = applicantType === 'company' ? 'KYB' : 'KYC';
@@ -40,7 +34,7 @@ const getStatusMessage = (status: ApplicationStatus, applicantType: Verification
 function KYC() {
     const [searchParams] = useSearchParams();
     const typeParam = searchParams.get('type');
-    const { account, setAccount } = useAuthenticationContext() as AuthenticationContextType;
+    const { setAccount } = useAuthenticationContext() as AuthenticationContextType;
 
     const [session, setSession] = useState<VerificationSession>();
     const [isConsentAccepted, setConsentAccepted] = useState(false);
@@ -48,7 +42,6 @@ function KYC() {
     const [isLaunched, setLaunched] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string>();
     const [confirmedStatus, setConfirmedStatus] = useState<ApplicationStatus>();
-    const statusAtLaunch = useRef<ApplicationStatus>();
     const sessionRequestInFlight = useRef(false);
 
     const loadSession = useCallback(async (type: VerificationApplicantType) => {
@@ -79,11 +72,12 @@ function KYC() {
     }, []);
 
     useEffect(() => {
-        if (!isLaunched || !isApplicantType(typeParam)) {
+        if (!isLaunched || !session || !isApplicantType(typeParam)) {
             return;
         }
 
         let isDisposed = false;
+        const isNewOutcome = trackVerificationOutcome(session.status);
 
         const refreshStatus = async () => {
             try {
@@ -92,7 +86,7 @@ function KYC() {
 
                 setAccount(latestAccount);
 
-                if (isStatusOutcome(latestAccount.kycStatus) && latestAccount.kycStatus !== statusAtLaunch.current) {
+                if (isNewOutcome(latestAccount.kycStatus)) {
                     setConfirmedStatus(latestAccount.kycStatus);
                     return true;
                 }
@@ -109,7 +103,7 @@ function KYC() {
             isDisposed = true;
             stopPolling();
         };
-    }, [isLaunched, setAccount, typeParam]);
+    }, [isLaunched, session, setAccount, typeParam]);
 
     if (!isApplicantType(typeParam)) {
         return <Navigate to={routePath.notFound} replace />;
@@ -119,7 +113,6 @@ function KYC() {
 
     const launch = async () => {
         if (!isConsentAccepted) return;
-        statusAtLaunch.current = account?.kycStatus;
         await loadSession(typeParam);
     };
 

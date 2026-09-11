@@ -1,4 +1,22 @@
+import { ApplicationStatus } from '@typedefs/profile';
+
 export const verificationStatusRefreshIntervalMs = 5000;
+
+export const trackVerificationOutcome = (initialStatus: string) => {
+    let previousStatus = initialStatus;
+
+    return (status: ApplicationStatus) => {
+        const changed = status !== previousStatus;
+        previousStatus = status;
+        return (
+            changed &&
+            (status === ApplicationStatus.Approved ||
+                status === ApplicationStatus.OnHold ||
+                status === ApplicationStatus.Rejected ||
+                status === ApplicationStatus.FinalRejected)
+        );
+    };
+};
 
 export type VerificationPollingRuntime = {
     setInterval: (handler: () => void, timeout: number) => number;
