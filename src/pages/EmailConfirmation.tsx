@@ -81,7 +81,7 @@ function EmailConfirmation() {
                     <div className="col web-only-flex mt-6 w-[512px] gap-2">
                         <div className="row relative justify-between">
                             <div className="col center-all z-10 w-[150px] gap-4">
-                                <div className="center-all h-12 w-12 outline outline-6 outline-[#fcfcfd]">
+                                <div className="center-all h-12 w-12 rounded-full outline outline-6 outline-[#fcfcfd]">
                                     <div className="center-all h-full w-full rounded-full bg-primary">
                                         <RiCheckLine className="text-3xl text-white" />
                                     </div>
@@ -117,7 +117,7 @@ function EmailConfirmation() {
                     <div className="col mobile-only-flex mt-6 w-full gap-2">
                         <div className="row relative justify-between">
                             <div className="col center-all z-10 w-[126px] gap-3">
-                                <div className="center-all h-12 w-12 outline outline-6 outline-[#fcfcfd]">
+                                <div className="center-all h-12 w-12 rounded-full outline outline-6 outline-[#fcfcfd]">
                                     <div className="center-all h-full w-full rounded-full bg-primary">
                                         <RiCheckLine className="text-3xl text-white" />
                                     </div>
