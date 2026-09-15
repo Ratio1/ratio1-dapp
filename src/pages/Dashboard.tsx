@@ -5,7 +5,7 @@ import { AuthenticationContextType, useAuthenticationContext } from '@lib/contex
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
 import useAwait from '@lib/useAwait';
-import { fBI } from '@lib/utils';
+import { fBI, getVerificationTypeLabel } from '@lib/utils';
 import { BigCard } from '@shared/BigCard';
 import SyncingOraclesTag from '@shared/SyncingOraclesTag';
 import { ApplicationStatus } from '@typedefs/profile';
@@ -90,6 +90,8 @@ function Dashboard() {
         !account ||
         (account.kycStatus !== ApplicationStatus.Approved && environment === 'mainnet');
 
+    const verificationType = getVerificationTypeLabel(account?.applicantType);
+
     const getKycNotCompletedAlert = () => (
         <>
             {!!authenticated && (
@@ -97,7 +99,7 @@ function Dashboard() {
                     <div className="row gap-1.5">
                         <RiErrorWarningLine className="hidden text-[20px] lg:block" />
 
-                        <div className="md:font-medium">Buying licenses is available after completing KYC.</div>
+                        <div className="md:font-medium">Buying licenses is available after completing {verificationType}.</div>
                     </div>
 
                     <div className="flex">
@@ -109,7 +111,7 @@ function Dashboard() {
                             as={Link}
                             to={routePath.profile}
                         >
-                            <div className="text-sm">Go to KYC</div>
+                            <div className="text-sm">Go to {verificationType}</div>
                         </Button>
                     </div>
                 </div>
