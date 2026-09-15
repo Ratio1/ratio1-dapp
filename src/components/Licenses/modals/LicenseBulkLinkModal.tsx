@@ -6,7 +6,7 @@ import { Spinner } from '@heroui/spinner';
 import { config, environment } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { routePath } from '@lib/routes/route-paths';
-import { fBI, getShortAddressOrHash } from '@lib/utils';
+import { fBI, getShortAddressOrHash, getVerificationTypeLabel, getVerificationTypeLongLabel } from '@lib/utils';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import { ApplicationStatus } from '@typedefs/profile';
 import { addDays } from 'date-fns';
@@ -667,12 +667,14 @@ const LicenseBulkLinkModal = forwardRef<BulkLinkModalRef, Props>(({ licenses, li
                 variant="red"
                 icon={<RiShieldUserLine />}
                 title="Unavailable"
-                description={<div>KYC (Know Your Customer) must be completed before linking licenses.</div>}
+                description={
+                    <div>{getVerificationTypeLongLabel(account?.applicantType)} must be completed before linking licenses.</div>
+                }
             />
 
             <div className="center-all w-full">
                 <Button color="primary" as={Link} to={routePath.profile}>
-                    Go to KYC
+                    Go to {getVerificationTypeLabel(account?.applicantType)}
                 </Button>
             </div>
         </div>

@@ -1,8 +1,7 @@
 import { Button } from '@heroui/button';
 import { Skeleton } from '@heroui/skeleton';
 import { Switch } from '@heroui/switch';
-import { emailSubscribe, emailUnsubscribe, getKycInfo, initSumsubSession } from '@lib/api/backend';
-import { environment } from '@lib/config';
+import { emailSubscribe, emailUnsubscribe, getKycInfo } from '@lib/api/backend';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { routePath } from '@lib/routes/route-paths';
 import { getApplicationStatusInfo } from '@lib/utils';
@@ -12,6 +11,7 @@ import ProfileRow from '@shared/ProfileRow';
 import { ApiAccount } from '@typedefs/blockchain';
 import { KycInfo } from '@typedefs/general';
 import { ApplicationStatus } from '@typedefs/profile';
+import { VerificationApplicantType } from '@typedefs/verification';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiInformation2Line } from 'react-icons/ri';
@@ -28,8 +28,6 @@ export default function PersonalInformation() {
 
     const [isFetchingKycInfo, setFetchingKycInfo] = useState<boolean>(false);
     const [kycInfo, setKycInfo] = useState<KycInfo | undefined>();
-
-    const [isLoading, setLoading] = useState<boolean>(false);
 
     const [applicationStatusInfo, setApplicationStatusInfo] = useState<
         { text: string; color: 'yellow' | 'green' | 'red' } | undefined
@@ -67,10 +65,6 @@ export default function PersonalInformation() {
     };
 
     const toggleEmailSubscriptionPreference = async () => {
-        if (isLoading) {
-            return;
-        }
-
         // We set the new value optimistically
         setSubscribed(!isSubscribed);
 
@@ -87,25 +81,8 @@ export default function PersonalInformation() {
         }
     };
 
-    const initializeApplication = async () => {
-        setLoading(true);
-
-        const type: 'individual' | 'company' = isCompany ? 'company' : 'individual';
-
-        try {
-            const tokenResponse: string = await initSumsubSession(type);
-
-            if (!tokenResponse) {
-                throw new Error('Unexpected error, please try again.');
-            }
-
-            navigate(`${routePath.kyc}?type=${type}&token=${tokenResponse}`);
-        } catch (error) {
-            console.error('Error', error);
-            toast.error('Unexpected error, please try again.');
-        } finally {
-            setLoading(false);
-        }
+    const initializeApplication = (type: VerificationApplicantType) => {
+        navigate(`${routePath.kyc}?type=${type}`);
     };
 
     const getKycInfoContent = () => {
@@ -138,8 +115,7 @@ export default function PersonalInformation() {
                         <div className="flex">
                             <ApplicationButton
                                 label={`Continue ${applicationType}`}
-                                isLoading={isLoading}
-                                onPress={initializeApplication}
+                                onPress={() => initializeApplication(account.applicantType)}
                             />
                         </div>
 
@@ -188,8 +164,7 @@ export default function PersonalInformation() {
                         <div className="center-all">
                             <ApplicationButton
                                 label={`Start ${isCompany ? 'KYB' : 'KYC'}`}
-                                isLoading={isLoading}
-                                onPress={initializeApplication}
+                                onPress={() => initializeApplication(isCompany ? 'company' : 'individual')}
                             />
                         </div>
                     </div>
@@ -232,43 +207,26 @@ export default function PersonalInformation() {
             </div>
 
             {/* KYC/KYB */}
-            {environment === 'mainnet' && (
-                <div className="col gap-2">
-                    <div className="row gap-2">
-                        <div className="section-title">{!kycInfo ? 'KYC/KYB' : `${kycInfo.isCompany ? 'KYB' : 'KYC'}`}</div>
-
-                        {isApplicationInitiated && (
-                            <Label
-                                variant={
-                                    (
-                                        getApplicationStatusInfo(account.kycStatus) as {
-                                            text: string;
-                                            color: 'yellow' | 'green' | 'red';
-                                        }
-                                    ).color
-                                }
-                                text={
-                                    (
-                                        getApplicationStatusInfo(account.kycStatus) as {
-                                            text: string;
-                                            color: 'yellow' | 'green' | 'red';
-                                        }
-                                    ).text
-                                }
-                            />
-                        )}
+            <div className="col gap-2">
+                <div className="row gap-2">
+                    <div className="section-title">
+                        {isApplicationInitiated ? applicationType : !kycInfo ? 'KYC/KYB' : kycInfo.isCompany ? 'KYB' : 'KYC'}
                     </div>
 
-                    <DetailsCard>{getContent(account, applicationStatusInfo, isApplicationInitiated)}</DetailsCard>
+                    {isApplicationInitiated && (
+                        <Label variant={applicationStatusInfo.color} text={applicationStatusInfo.text} />
+                    )}
                 </div>
-            )}
+
+                <DetailsCard>{getContent(account, applicationStatusInfo, isApplicationInitiated)}</DetailsCard>
+            </div>
         </ProfileSectionWrapper>
     );
 }
 
-function ApplicationButton({ label, isLoading, onPress }: { label: string; isLoading: boolean; onPress: () => void }) {
+function ApplicationButton({ label, onPress }: { label: string; onPress: () => void }) {
     return (
-        <Button color="primary" className="h-9" size="sm" variant="solid" isLoading={isLoading} onPress={onPress}>
+        <Button color="primary" className="h-9" size="sm" variant="solid" onPress={onPress}>
             <div className="text-sm">{label}</div>
         </Button>
     );
@@ -279,8 +237,7 @@ function ApplicationInfoText({ isCompany }: { isCompany: boolean }) {
         <div className="flex items-start gap-1 sm:items-center">
             <RiInformation2Line className="text-primary text-lg" />
             <div className="compact">
-                You'll continue the {isCompany ? 'KYB' : 'KYC'} process using{' '}
-                <span className="text-primary font-medium">Sumsub</span>
+                You&apos;ll continue the {isCompany ? 'KYB' : 'KYC'} process with Ratio1&apos;s secure verification provider.
             </div>
         </div>
     );

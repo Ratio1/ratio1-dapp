@@ -198,6 +198,12 @@ export const getApplicationStatusInfo = (
     }
 };
 
+export const getVerificationTypeLabel = (applicantType?: string): 'KYC' | 'KYB' =>
+    applicantType === 'company' ? 'KYB' : 'KYC';
+
+export const getVerificationTypeLongLabel = (applicantType?: string): string =>
+    applicantType === 'company' ? 'KYB (Know Your Business)' : 'KYC (Know Your Customer)';
+
 export function resizeImage(file: File, maxWidth = 512, maxHeight = 512, quality = 0.9): Promise<Blob> {
     return new Promise((resolve, reject) => {
         const img = new Image();
