@@ -94,8 +94,16 @@ function LicensesPageHeader({
     isClaimingAllRewardsPoAI: boolean;
     setClaimingAllRewardsPoAI: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-    const { watchTx, fetchLicenses, r1Price, fetchR1Price, fetchPriceTiers, isLoadingPriceTiers, onBuyDrawerOpen } =
-        useBlockchainContext() as BlockchainContextType;
+    const {
+        watchTx,
+        fetchLicenses,
+        r1Price,
+        fetchR1Price,
+        fetchPriceTiers,
+        isLoadingPriceTiers,
+        isLoadingLicenses,
+        onBuyDrawerOpen,
+    } = useBlockchainContext() as BlockchainContextType;
     const { authenticated, account } = useAuthenticationContext() as AuthenticationContextType;
 
     const [r1PriceUsd, setR1PriceUsd] = useState<number>();
@@ -122,7 +130,7 @@ function LicensesPageHeader({
             ),
         [licenses],
     );
-    const [rewardsPoA, isLoadingRewardsPoA] = useAwait(rewardsPoAPromise);
+    const [rewardsPoA, isLoadingRewardsPoA, rewardsPoAError] = useAwait(rewardsPoAPromise);
 
     const releasedAmountPoA = useMemo(
         () => licenses.reduce((acc, license) => acc + license.totalClaimedAmount, 0n),
@@ -407,7 +415,7 @@ function LicensesPageHeader({
                                     variant="flat"
                                     isLoading={isClaimingAllRewardsPoA}
                                     onPress={claimAllRewardsPoA}
-                                    isDisabled={!authenticated || !rewardsPoA}
+                                    isDisabled={!authenticated || isLoadingRewardsPoA || !rewardsPoA}
                                 >
                                     <div className="text-sm">Claim rewards (PoA)</div>
                                 </Button>
@@ -426,6 +434,18 @@ function LicensesPageHeader({
                             </div>
                         </div>
 
+                        {rewardsPoAError && (
+                            <div
+                                role="alert"
+                                className="flex flex-wrap items-center justify-between gap-2 text-sm text-red-600"
+                            >
+                                <span>Could not load PoA rewards. Please retry.</span>
+                                <Button size="sm" variant="light" onPress={() => fetchLicenses()} isLoading={isLoadingLicenses}>
+                                    Retry rewards
+                                </Button>
+                            </div>
+                        )}
+
                         {/* PoA and PoAI */}
                         <div className="col gap-6 xl:gap-8">
                             <div className="col gap-2">
@@ -438,9 +458,13 @@ function LicensesPageHeader({
                                 <div className="grid grid-cols-2 gap-4 lg:flex lg:flex-row lg:justify-between">
                                     {getValueWithLabel(
                                         'Claimable ($R1)',
-                                        isLoadingRewardsPoA || rewardsPoA === undefined
+                                        isLoadingRewardsPoA
                                             ? '...'
-                                            : parseFloat(Number(formatUnits(rewardsPoA ?? 0n, 18)).toFixed(2)),
+                                            : rewardsPoAError
+                                              ? 'Unavailable'
+                                              : rewardsPoA === undefined
+                                                ? 'Syncing oracles'
+                                                : parseFloat(Number(formatUnits(rewardsPoA, 18)).toFixed(2)),
                                         'text-primary',
                                     )}
 

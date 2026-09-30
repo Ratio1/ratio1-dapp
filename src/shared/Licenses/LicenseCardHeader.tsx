@@ -10,11 +10,11 @@ import { Timer } from '@shared/Timer';
 import { TokenSvg } from '@shared/TokenSvg';
 import clsx from 'clsx';
 import { addDays, formatDistanceToNow, isBefore } from 'date-fns';
-import { FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, PropsWithChildren, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiCpuLine, RiExchange2Line, RiFireLine, RiLink, RiLinkUnlink, RiMoreFill, RiTimeLine } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
-import { License, MndRewardsBreakdown } from 'typedefs/blockchain';
+import { License } from 'typedefs/blockchain';
 import { formatUnits } from 'viem';
 import { useAccount, usePublicClient } from 'wagmi';
 import { LicenseCardNode } from './LicenseCardNode';
@@ -37,13 +37,18 @@ export const LicenseCardHeader = ({
     const publicClient = usePublicClient();
     const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
 
-    const [isLoadingRewards, setLoadingRewards] = useState<boolean>(license.isLinked);
-
-    // Rewards
-    const [rewardsTotal, setRewardsTotal] = useState<bigint | undefined>();
-    const [licenseRewardsPoA, setLicenseRewardsPoA] = useState<bigint | undefined>();
-    const [licenseRewardsBreakdown, setLicenseRewardsBreakdown] = useState<MndRewardsBreakdown | undefined>();
+    // Use the same promise lifecycle as the summary and expanded license details.
+    const [licenseRewardsPoA, isLoadingRewardsPoA, rewardsPoAError] = useAwait(license.isLinked ? license.rewards : undefined);
+    const [licenseRewardsBreakdown, isLoadingRewardsBreakdown, rewardsBreakdownError] = useAwait(
+        license.isLinked && license.type !== 'ND' ? license.rewardsBreakdown : undefined,
+    );
+    const isLoadingRewards = isLoadingRewardsPoA || isLoadingRewardsBreakdown;
+    const rewardsError = rewardsPoAError || rewardsBreakdownError;
     const licenseRewardsPoAI: bigint | undefined = license.type === 'ND' ? license.r1PoaiRewards || undefined : undefined;
+    const rewardsTotal =
+        !isLoadingRewards && !rewardsError && (licenseRewardsPoA !== undefined || licenseRewardsPoAI !== undefined)
+            ? (licenseRewardsPoA ?? 0n) + (licenseRewardsPoAI ?? 0n)
+            : undefined;
 
     // Used to restrict actions until all data is loaded
     const [_, isLoadingNodeAlias] = useAwait(license.isLinked ? license.alias : undefined);
@@ -70,31 +75,6 @@ export const LicenseCardHeader = ({
     }, [license]);
 
     const [shouldShowBurnButton] = useAwait(shouldShowBurnButtonPromise);
-
-    useEffect(() => {
-        if (license.isLinked) {
-            (async () => {
-                try {
-                    const [rewardsPoA, rewardsBreakdown] = await Promise.all([
-                        license.rewards,
-                        license.type !== 'ND' ? license.rewardsBreakdown : Promise.resolve(undefined),
-                    ]);
-                    setLicenseRewardsPoA(rewardsPoA);
-                    setLicenseRewardsBreakdown(rewardsBreakdown);
-
-                    setRewardsTotal(
-                        rewardsPoA !== undefined || licenseRewardsPoAI !== undefined
-                            ? (rewardsPoA ?? 0n) + (licenseRewardsPoAI ?? 0n)
-                            : undefined,
-                    );
-                } catch (error) {
-                    console.log(`[LicenseCardHeader] Error fetching rewards for license #${Number(license.licenseId)}`, error);
-                } finally {
-                    setLoadingRewards(false);
-                }
-            })();
-        }
-    }, [license, license.isLinked]);
 
     const getLicenseId = () => (
         <Link
@@ -164,6 +144,10 @@ export const LicenseCardHeader = ({
     const getRewardsCard = () => {
         if (!license.isLinked) {
             return undefined;
+        }
+
+        if (rewardsError) {
+            return <div className="text-sm text-red-600">Rewards unavailable</div>;
         }
 
         if (!isLoadingRewards && rewardsTotal === undefined) {
