@@ -134,17 +134,10 @@ async function _doPost<T>(endpoint: string, body: any) {
 
 const axiosInstance = axios.create({
     baseURL: oraclesUrl,
+    // Finish before the licenses page starts its next one-minute refresh.
+    timeout: 30_000,
     headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
     },
 });
-
-axiosInstance.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-    async (error) => {
-        return error.response;
-    },
-);
