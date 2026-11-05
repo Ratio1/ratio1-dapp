@@ -4,6 +4,8 @@ import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure
 import { Skeleton } from '@heroui/skeleton';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { changeInvoicingPreferences, getInvoicingPreferences } from '@lib/api/backend';
+import { environment } from '@lib/config';
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { invoicingPreferencesSchema } from '@schemas/invoicing';
 import { CardWithHeader } from '@shared/cards/CardWithHeader';
 import { SlateCard } from '@shared/cards/SlateCard';
@@ -12,6 +14,7 @@ import NumberInputWithLabel from '@shared/form/NumberInputWithLabel';
 import SelectWithLabel from '@shared/form/SelectWithLabel';
 import SubmitButton from '@shared/SubmitButton';
 import { InvoicingPreferences } from '@typedefs/invoicing';
+import { ApplicationStatus } from '@typedefs/profile';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
@@ -29,6 +32,10 @@ export default function PreferencesSection() {
 
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const { address } = useAccount();
+    const { account } = useAuthenticationContext() as AuthenticationContextType;
+
+    // The backend accepts invoicing preference changes on mainnet only after KYC is approved.
+    const canEditPreferences = !!account && (account.kycStatus === ApplicationStatus.Approved || environment !== 'mainnet');
 
     useEffect(() => {
         fetchInvoicingPreferences();
@@ -147,6 +154,7 @@ export default function PreferencesSection() {
                             color="primary"
                             variant="flat"
                             onPress={handleOpen}
+                            isDisabled={!canEditPreferences}
                         >
                             <div className="row gap-1.5">
                                 <RiEdit2Line className="text-lg" />
@@ -156,6 +164,10 @@ export default function PreferencesSection() {
                     }
                 >
                     <div className="col gap-3 sm:gap-4">
+                        {!canEditPreferences && (
+                            <div className="text-sm text-slate-500">Complete your KYC to edit your billing preferences.</div>
+                        )}
+
                         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
                             <BillingInfoRow label="Next Invoice Number" value={invoicingPreferences?.nextNumber || '—'} />
                             <BillingInfoRow label="Invoice Series" value={invoicingPreferences?.invoiceSeries || '—'} />

@@ -2,6 +2,7 @@ import { Button } from '@heroui/button';
 import { Form } from '@heroui/form';
 import { Skeleton } from '@heroui/skeleton';
 import { addReferralCode, getSellerCode } from '@lib/api/backend';
+import { environment } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { routePath } from '@lib/routes/route-paths';
 import { DetailsCard } from '@shared/cards/DetailsCard';
@@ -10,6 +11,7 @@ import { CopyableLink } from '@shared/CopyableLink';
 import { CopyableValue } from '@shared/CopyableValue';
 import StyledInput from '@shared/form/StyledInput';
 import { useQuery } from '@tanstack/react-query';
+import { ApplicationStatus } from '@typedefs/profile';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiCoupon2Line } from 'react-icons/ri';
@@ -24,6 +26,9 @@ export default function Referrals() {
 
     const [value, setValue] = useState<string>('');
     const [isApplying, setApplying] = useState<boolean>(false);
+
+    // The backend accepts a referral code on mainnet only after KYC is approved.
+    const canApplyCode = account.kycStatus === ApplicationStatus.Approved || environment !== 'mainnet';
 
     const { data, isLoading: isLoadingSellerCode } = useQuery({
         queryKey: ['sellerCode'],
@@ -142,15 +147,28 @@ export default function Referrals() {
                                             onValueChange={setValue}
                                             labelPlacement="outside"
                                             placeholder="Code"
-                                            isDisabled={isApplying}
+                                            isDisabled={isApplying || !canApplyCode}
                                         />
 
                                         <div className="flex">
-                                            <Button color="primary" className="rounded-lg" isLoading={isApplying} type="submit">
+                                            <Button
+                                                color="primary"
+                                                className="rounded-lg"
+                                                isLoading={isApplying}
+                                                isDisabled={!canApplyCode}
+                                                type="submit"
+                                            >
                                                 <div className="compact">Apply</div>
                                             </Button>
                                         </div>
                                     </div>
+
+                                    {!canApplyCode && (
+                                        <div className="text-sm text-slate-500">
+                                            Complete your KYC to apply a referral code. A code from a referral link is applied
+                                            automatically once your KYC is approved.
+                                        </div>
+                                    )}
                                 </div>
                             </Form>
                         ) : (

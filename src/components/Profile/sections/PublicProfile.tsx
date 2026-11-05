@@ -1,12 +1,14 @@
 import { Button } from '@heroui/button';
 import { Skeleton } from '@heroui/skeleton';
 import { getBrandingPlatforms, getPublicProfileInfo } from '@lib/api/backend';
-import { config, getDevAddress, isUsingDevAddress } from '@lib/config';
+import { config, environment, getDevAddress, isUsingDevAddress } from '@lib/config';
+import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { DetailsCard } from '@shared/cards/DetailsCard';
 import ProfileRow from '@shared/ProfileRow';
 import { useQuery } from '@tanstack/react-query';
 import { EthAddress } from '@typedefs/blockchain';
 import { BRANDING_PLATFORM_NAMES, PublicProfileInfo } from '@typedefs/general';
+import { ApplicationStatus } from '@typedefs/profile';
 import clsx from 'clsx';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -30,6 +32,10 @@ export default function PublicProfile() {
     const [isEditing, setEditing] = useState<boolean>(false);
 
     const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
+    const { account } = useAuthenticationContext() as AuthenticationContextType;
+
+    // The backend accepts branding changes on mainnet only after KYC is approved.
+    const canEditProfile = !!account && (account.kycStatus === ApplicationStatus.Approved || environment !== 'mainnet');
 
     const { data: brandingPlatforms = [], isLoading: isLoadingBrandingPlatforms } = useQuery<string[]>({
         queryKey: ['brandingPlatforms'],
@@ -139,9 +145,14 @@ export default function PublicProfile() {
                                 setImageRefreshToken(Date.now());
                             }}
                             setImageLoading={setImageLoading}
+                            isDisabled={!canEditProfile}
                         />
 
-                        <div className="text-sm text-slate-500">Only .jpg, .jpeg, and .png images are allowed.</div>
+                        <div className="text-sm text-slate-500">
+                            {canEditProfile
+                                ? 'Only .jpg, .jpeg, and .png images are allowed.'
+                                : 'Complete your KYC to edit your public profile.'}
+                        </div>
                     </div>
                 </div>
 
@@ -228,7 +239,7 @@ export default function PublicProfile() {
                                 size="sm"
                                 variant="solid"
                                 onPress={() => setEditing(true)}
-                                isDisabled={isLoading}
+                                isDisabled={isLoading || !canEditProfile}
                             >
                                 <div className="text-sm">Edit profile</div>
                             </Button>
