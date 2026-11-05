@@ -2,13 +2,14 @@ import Buy from '@components/Buy';
 import Layout from '@components/Layout';
 import { Drawer, DrawerBody, DrawerContent } from '@heroui/drawer';
 import { addReferralCode } from '@lib/api/backend';
-import { getDevAddress, isUsingDevAddress } from '@lib/config';
+import { environment, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import { routePath } from '@lib/routes/route-paths';
 import { isParentRoute, isSimpleRoute, routes } from '@lib/routes/routes';
 import PlaywrightPreview from '@pages/PlaywrightPreview';
 import { ClosableToastContent } from '@shared/ClosableToastContent';
+import { ApplicationStatus } from '@typedefs/profile';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { RiCoupon2Line } from 'react-icons/ri';
@@ -30,7 +31,9 @@ function App() {
     }, [address, authenticated]);
 
     useEffect(() => {
-        if (authenticated && account) {
+        // On mainnet the backend only accepts a referral code once KYC is approved, so the
+        // code stays in storage and is applied when the refreshed account reports approval.
+        if (authenticated && account && (account.kycStatus === ApplicationStatus.Approved || environment !== 'mainnet')) {
             const referralCode = localStorage.getItem('referralCode');
 
             if (referralCode) {

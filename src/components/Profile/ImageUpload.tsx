@@ -9,9 +9,11 @@ const ALLOWED_IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
 export default function ImageUpload({
     onSuccessfulUpload,
     setImageLoading,
+    isDisabled = false,
 }: {
     onSuccessfulUpload: () => void;
     setImageLoading: (loading: boolean) => void;
+    isDisabled?: boolean;
 }) {
     const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -83,6 +85,7 @@ export default function ImageUpload({
                 size="sm"
                 variant="solid"
                 onPress={handleButtonClick}
+                isDisabled={isDisabled}
             >
                 <div className="text-sm">Upload image...</div>
             </Button>
