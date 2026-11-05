@@ -34,8 +34,10 @@ export default function PublicProfile() {
     const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
     const { account } = useAuthenticationContext() as AuthenticationContextType;
 
-    // The backend accepts branding changes on mainnet only after KYC is approved.
-    const canEditProfile = !!account && (account.kycStatus === ApplicationStatus.Approved || environment !== 'mainnet');
+    // The backend accepts branding changes on mainnet only after KYC is approved. The KYC note
+    // waits for the account to load so it is not shown while loading or after a fetch error.
+    const isKycRequired = !!account && environment === 'mainnet' && account.kycStatus !== ApplicationStatus.Approved;
+    const canEditProfile = !!account && !isKycRequired;
 
     const { data: brandingPlatforms = [], isLoading: isLoadingBrandingPlatforms } = useQuery<string[]>({
         queryKey: ['brandingPlatforms'],
@@ -149,9 +151,9 @@ export default function PublicProfile() {
                         />
 
                         <div className="text-sm text-slate-500">
-                            {canEditProfile
-                                ? 'Only .jpg, .jpeg, and .png images are allowed.'
-                                : 'Complete your KYC to edit your public profile.'}
+                            {isKycRequired
+                                ? 'Complete your KYC to edit your public profile.'
+                                : 'Only .jpg, .jpeg, and .png images are allowed.'}
                         </div>
                     </div>
                 </div>

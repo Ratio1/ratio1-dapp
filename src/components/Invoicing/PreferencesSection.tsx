@@ -34,8 +34,10 @@ export default function PreferencesSection() {
     const { address } = useAccount();
     const { account } = useAuthenticationContext() as AuthenticationContextType;
 
-    // The backend accepts invoicing preference changes on mainnet only after KYC is approved.
-    const canEditPreferences = !!account && (account.kycStatus === ApplicationStatus.Approved || environment !== 'mainnet');
+    // The backend accepts invoicing preference changes on mainnet only after KYC is approved. The
+    // KYC note waits for the account to load so it is not shown while loading or after a fetch error.
+    const isKycRequired = !!account && environment === 'mainnet' && account.kycStatus !== ApplicationStatus.Approved;
+    const canEditPreferences = !!account && !isKycRequired;
 
     useEffect(() => {
         fetchInvoicingPreferences();
@@ -164,7 +166,7 @@ export default function PreferencesSection() {
                     }
                 >
                     <div className="col gap-3 sm:gap-4">
-                        {!canEditPreferences && (
+                        {isKycRequired && (
                             <div className="text-sm text-slate-500">Complete your KYC to edit your billing preferences.</div>
                         )}
 
