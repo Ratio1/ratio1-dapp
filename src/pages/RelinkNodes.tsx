@@ -23,11 +23,9 @@ import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 const itemKey = (license: License) => `${license.type}-${license.licenseId.toString()}`;
 
-// The contract only unlinks a license whose rewards were claimed in the current epoch,
-// and job (PoAI) rewards of the old node address cannot be claimed after the relink.
-const hasPendingRewards = (license: License) =>
-    Number(license.lastClaimEpoch) < getCurrentEpoch() ||
-    (license.type === 'ND' && (license.usdcPoaiRewards > 0n || license.r1PoaiRewards > 0n));
+// As in the link modal: a license last claimed in an earlier epoch is claimed again (even with zero
+// rewards) before it is linked, since the contract only unlinks a license claimed in the current epoch.
+const needsGhostClaim = (license: License) => license.isLinked && Number(license.lastClaimEpoch) < getCurrentEpoch();
 
 function RelinkNodes() {
     const { watchTx, licenses, isLoadingLicenses, fetchLicenses } = useBlockchainContext() as BlockchainContextType;
@@ -37,8 +35,10 @@ function RelinkNodes() {
     const publicClient = usePublicClient();
 
     const items = useNodeKeyRotations(licenses);
-    // Address typed or prefilled for each license; missing means the announced one.
+    // Address typed for each license; missing means the announced one (or none).
     const [edited, setEdited] = useState<Record<string, string>>({});
+    // Unclaimed PoA rewards of each license; missing while loading.
+    const [poaRewards, setPoaRewards] = useState<Record<string, bigint | undefined>>({});
     const [isSubmitting, setSubmitting] = useState<boolean>(false);
 
     useEffect(() => {
@@ -47,30 +47,102 @@ function RelinkNodes() {
         }
     }, [authenticated, address, publicClient]);
 
-    const getValue = (license: License, newNodeAddress: EthAddress) => edited[itemKey(license)] ?? newNodeAddress;
+    useEffect(() => {
+        let isCancelled = false;
+        Promise.all(items.map(({ license }) => (license.isLinked ? license.rewards : Promise.resolve(0n)))).then((values) => {
+            if (!isCancelled) {
+                setPoaRewards(Object.fromEntries(items.map(({ license }, index) => [itemKey(license), values[index]])));
+            }
+        });
+        return () => {
+            isCancelled = true;
+        };
+    }, [items]);
 
-    const getError = (license: License, newNodeAddress: EthAddress): string | undefined => {
-        const value = getValue(license, newNodeAddress);
+    const getValue = (item: { license: License; newNodeAddress?: EthAddress }) =>
+        edited[itemKey(item.license)] ?? item.newNodeAddress ?? '';
+
+    // Licenses left empty are skipped.
+    const selected = items.filter((item) => getValue(item) !== '');
+
+    const getError = (item: { license: License; newNodeAddress?: EthAddress }): string | undefined => {
+        const value = getValue(item);
+        if (value === '') {
+            return undefined;
+        }
         if (!isAddress(value, { strict: false })) {
             return 'Enter a valid node ETH address';
         }
-        if (value.toLowerCase() === license.nodeAddress.toLowerCase()) {
+        if (value.toLowerCase() === item.license.nodeAddress.toLowerCase()) {
             return 'This is the old, revoked address';
         }
-        const sameAddress = items.filter(
-            (item) => getValue(item.license, item.newNodeAddress).toLowerCase() === value.toLowerCase(),
-        );
-        if (sameAddress.length > 1) {
+        if (selected.filter((other) => getValue(other).toLowerCase() === value.toLowerCase()).length > 1) {
             return 'The same address is entered for another license';
         }
         return undefined;
     };
 
-    const licensesWithPendingRewards = items.filter(({ license }) => hasPendingRewards(license));
+    // Rewards the owner must claim first: job (PoAI) rewards of the old node address cannot be claimed after
+    // the relink, and the link modal also asks for PoA rewards to be claimed first.
+    const hasPendingRewards = (license: License) =>
+        (poaRewards[itemKey(license)] ?? 0n) > 0n ||
+        (license.type === 'ND' && (license.usdcPoaiRewards > 0n || license.r1PoaiRewards > 0n));
+
+    const isLoadingRewards = selected.some(({ license }) => poaRewards[itemKey(license)] === undefined);
+    const licensesWithPendingRewards = selected.filter(({ license }) => hasPendingRewards(license));
+    const ghostClaimCount = selected.filter(({ license }) => needsGhostClaim(license)).length;
     const canRelink =
-        items.length > 0 &&
+        selected.length > 0 &&
+        !isLoadingRewards &&
         licensesWithPendingRewards.length === 0 &&
-        items.every(({ license, newNodeAddress }) => !getError(license, newNodeAddress));
+        selected.every((item) => !getError(item));
+
+    // One zero-value claim transaction per contract for the licenses last claimed in an earlier epoch.
+    const ghostClaim = async (claimLicenses: License[], isND: boolean) => {
+        if (!publicClient || !walletClient || claimLicenses.length === 0) {
+            return;
+        }
+        const claims = await Promise.all(
+            claimLicenses.map(async (license) => {
+                if (!license.isLinked) {
+                    throw new Error('License is not linked to a node.');
+                }
+                const [fromEpoch, toEpoch, packedAvailabilities, ethSignatures] = await Promise.all([
+                    license.fromEpoch,
+                    license.toEpoch,
+                    license.packedAvailabilities,
+                    license.ethSignatures,
+                ]);
+                const computeParam = {
+                    licenseId: license.licenseId,
+                    nodeAddress: license.nodeAddress,
+                    fromEpoch: BigInt(fromEpoch),
+                    toEpoch: BigInt(toEpoch),
+                    packedAvailabilities,
+                };
+                return { computeParam, ethSignatures };
+            }),
+        );
+        const args = [
+            claims.map(({ computeParam }) => computeParam),
+            claims.map(({ ethSignatures }) => ethSignatures),
+        ] as const;
+        const txHash = isND
+            ? await simulateAndWriteContract({
+                  publicClient,
+                  walletClient,
+                  parameters: { address: config.ndContractAddress, abi: NDContractAbi, functionName: 'claimRewards', args },
+              })
+            : await simulateAndWriteContract({
+                  publicClient,
+                  walletClient,
+                  parameters: { address: config.mndContractAddress, abi: MNDContractAbi, functionName: 'claimRewards', args },
+              });
+        const receipt = await watchTx(txHash, publicClient);
+        if (receipt?.status !== 'success') {
+            throw new Error('Claiming failed, please try again.');
+        }
+    };
 
     const link = async (license: License, nodeAddress: EthAddress) => {
         if (!publicClient || !walletClient) {
@@ -97,14 +169,18 @@ function RelinkNodes() {
             return;
         }
 
-        const assignments = items.map(({ license, newNodeAddress }) => ({
-            license,
-            nodeAddress: getAddress(getValue(license, newNodeAddress)),
+        const assignments = selected.map((item) => ({
+            license: item.license,
+            nodeAddress: getAddress(getValue(item)),
         }));
         const ndAssignments = assignments.filter(({ license }) => license.type === 'ND');
+        const otherAssignments = assignments.filter(({ license }) => license.type !== 'ND');
 
         setSubmitting(true);
         try {
+            await ghostClaim(ndAssignments.map(({ license }) => license).filter(needsGhostClaim), true);
+            await ghostClaim(otherAssignments.map(({ license }) => license).filter(needsGhostClaim), false);
+
             if (ndAssignments.length > 0) {
                 const nodeAddresses = ndAssignments.map(({ nodeAddress }) => nodeAddress);
                 const { signature } = await multiLinkLicense(nodeAddresses);
@@ -121,7 +197,7 @@ function RelinkNodes() {
                 await watchTx(txHash, publicClient);
             }
 
-            for (const { license, nodeAddress } of assignments.filter(({ license }) => license.type !== 'ND')) {
+            for (const { license, nodeAddress } of otherAssignments) {
                 await link(license, nodeAddress);
             }
         } catch (error) {
@@ -157,7 +233,7 @@ function RelinkNodes() {
             <div className="center-all w-full py-14">
                 <EmptyData
                     title={isLoadingLicenses ? 'Loading your licenses' : 'Nothing to relink'}
-                    description="Licenses whose nodes announced a new key will be displayed here"
+                    description="Licenses linked to revoked node keys will be displayed here"
                     icon={<RiCpuLine />}
                 />
             </div>
@@ -168,9 +244,10 @@ function RelinkNodes() {
         <div className="col w-full gap-4">
             <Alert color="warning" classNames={{ base: 'items-start' }} title="Check every address on your machine">
                 <div className="text-sm">
-                    Each node replaced its revoked key and printed its new ETH address at startup. Compare every address below
-                    with the one shown on that machine before you sign. If they differ, type the address from your machine. A
-                    wrong address links your license to someone else's node, and the license cannot be relinked for 24 hours.
+                    A node whose key was revoked creates a new key and prints its new ETH address at startup. Compare every
+                    prefilled address below with the one shown on that machine before you sign, and type the address from the
+                    machine where it differs or none is prefilled. A wrong address links your license to someone else's node,
+                    and the license cannot be relinked for 24 hours.
                 </div>
             </Alert>
 
@@ -187,25 +264,41 @@ function RelinkNodes() {
                 </Alert>
             )}
 
+            {licensesWithPendingRewards.length === 0 && ghostClaimCount > 0 && (
+                <Alert color="primary" classNames={{ base: 'items-start' }} title="Additional confirmation required">
+                    <div className="text-sm">
+                        You'll first approve a claim transaction for {ghostClaimCount} license{ghostClaimCount > 1 ? 's' : ''}{' '}
+                        last claimed in a previous epoch.
+                    </div>
+                </Alert>
+            )}
+
             <div className="col gap-3">
-                {items.map(({ license, newNodeAddress }) => (
-                    <div key={itemKey(license)} className="col gap-1.5 rounded-xl border border-slate-200 bg-white p-3">
+                {items.map((item) => (
+                    <div key={itemKey(item.license)} className="col gap-1.5 rounded-xl border border-slate-200 bg-white p-3">
                         <div className="flex flex-col gap-0.5 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-2">
                             <span className="font-medium whitespace-nowrap">
-                                {license.type} #{Number(license.licenseId)}
+                                {item.license.type} #{Number(item.license.licenseId)}
                             </span>
-                            <span className="truncate font-mono text-[13px] text-slate-500">Old: {license.nodeAddress}</span>
+                            <span className="truncate font-mono text-[13px] text-slate-500">
+                                Old: {item.license.nodeAddress}
+                            </span>
                         </div>
 
                         <Input
-                            id={`relink-${itemKey(license)}`}
-                            aria-label={`New node address for ${license.type} #${Number(license.licenseId)}`}
-                            value={getValue(license, newNodeAddress)}
+                            id={`relink-${itemKey(item.license)}`}
+                            aria-label={`New node address for ${item.license.type} #${Number(item.license.licenseId)}`}
+                            value={getValue(item)}
                             onValueChange={(value) =>
-                                setEdited((previous) => ({ ...previous, [itemKey(license)]: value.trim() }))
+                                setEdited((previous) => ({ ...previous, [itemKey(item.license)]: value.trim() }))
                             }
-                            isInvalid={!!getError(license, newNodeAddress)}
-                            errorMessage={getError(license, newNodeAddress)}
+                            isInvalid={!!getError(item)}
+                            errorMessage={getError(item)}
+                            description={
+                                item.newNodeAddress
+                                    ? undefined
+                                    : 'No new key announced yet. Type the address shown on the machine, or leave empty to skip.'
+                            }
                             placeholder="0x"
                             variant="bordered"
                             size="sm"
@@ -217,7 +310,7 @@ function RelinkNodes() {
 
             <div className="flex justify-end">
                 <Button color="primary" onPress={onRelink} isLoading={isSubmitting} isDisabled={!canRelink}>
-                    Relink {items.length} license{items.length > 1 ? 's' : ''}
+                    Relink {selected.length} license{selected.length === 1 ? '' : 's'}
                 </Button>
             </div>
         </div>

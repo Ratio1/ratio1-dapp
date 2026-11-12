@@ -5,19 +5,19 @@ import { EthAddress, License } from 'typedefs/blockchain';
 // Node keys linked before this time can have an announced replacement key.
 const REVOKED_KEYS_LINKED_BEFORE = 1793721420n;
 
-// A linked license whose node announced a new key after its old key was revoked.
+// A linked license whose node key was revoked, with the new key its node announced, if any.
 export type RelinkItem = {
     license: License;
-    newNodeAddress: EthAddress;
+    newNodeAddress?: EthAddress;
 };
 
 /**
- * Licenses to relink: those linked before the revocation whose node announced a new key.
+ * Licenses to relink: those linked before the revocation whose node key is revoked.
  * Asks the oracle API once per set of old node addresses.
  */
 export default function useNodeKeyRotations(licenses: License[]): RelinkItem[] {
-    // New node address announced for each old node address (lowercase).
-    const [rotations, setRotations] = useState<Map<string, EthAddress>>(new Map());
+    // Revoked node addresses (lowercase) and the new address each one announced, if any.
+    const [rotations, setRotations] = useState<Map<string, EthAddress | undefined>>(new Map());
 
     const revokedKeyAddresses = useMemo(
         () =>
@@ -40,7 +40,7 @@ export default function useNodeKeyRotations(licenses: License[]): RelinkItem[] {
                     new Map(
                         Object.entries(result.rotations).map(([oldAddress, rotation]) => [
                             oldAddress.toLowerCase(),
-                            rotation.node_eth_address,
+                            rotation?.node_eth_address,
                         ]),
                     ),
                 ),
@@ -54,7 +54,7 @@ export default function useNodeKeyRotations(licenses: License[]): RelinkItem[] {
                 .filter((license) => license.isLinked && rotations.has(license.nodeAddress.toLowerCase()))
                 .map((license) => ({
                     license,
-                    newNodeAddress: rotations.get(license.nodeAddress.toLowerCase()) as EthAddress,
+                    newNodeAddress: rotations.get(license.nodeAddress.toLowerCase()),
                 })),
         [licenses, rotations],
     );

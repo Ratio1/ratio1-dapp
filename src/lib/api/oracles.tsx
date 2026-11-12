@@ -57,11 +57,11 @@ export const getMultiNodeEpochsRange = (nodesWithRanges: Record<types.EthAddress
         });
 };
 
-// New node keys announced by nodes whose old key was revoked, keyed by the old ETH address.
-// Addresses without an announced new key are left out of the result.
+// For each revoked node key among the given ETH addresses: the new key its node announced, or null if
+// none yet. Addresses that are not revoked are left out of the result.
 export const getNodeKeyRotations = (nodeAddresses: types.EthAddress[]) =>
     _doPost<{
-        rotations: Record<types.EthAddress, { node: types.R1Address; node_eth_address: types.EthAddress }>;
+        rotations: Record<types.EthAddress, { node: types.R1Address; node_eth_address: types.EthAddress } | null>;
     }>('/node_key_rotations', {
         eth_node_addresses: nodeAddresses,
     });

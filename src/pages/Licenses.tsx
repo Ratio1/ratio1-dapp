@@ -471,7 +471,10 @@ function Licenses() {
                             title={`${relinkItems.length} license${relinkItems.length > 1 ? 's need' : ' needs'} to be relinked`}
                         >
                             <div className="col items-start gap-2 text-sm">
-                                <div>Your nodes replaced their revoked keys. Link each license to its node's new address.</div>
+                                <div>
+                                    The keys of these nodes were revoked. Link each license to the new address shown on its
+                                    node.
+                                </div>
                                 <Button as={Link} to={routePath.relinkNodes} color="warning" variant="flat" size="sm">
                                     Review and relink
                                 </Button>
