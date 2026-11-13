@@ -2,6 +2,7 @@ export const routePath = {
     root: '/',
     dashboard: '/dashboard',
     licenses: '/licenses-and-nodes',
+    relinkNodes: '/relink-nodes',
     profile: '/profile',
     invoicing: '/invoicing',
     faucet: '/faucet',

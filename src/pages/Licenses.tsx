@@ -7,6 +7,8 @@ import LicenseBulkLinkModal from '@components/Licenses/modals/LicenseBulkLinkMod
 import type { BulkLinkAssignment } from '@components/Licenses/modals/LicenseBulkLinkModal';
 import LicenseLinkModal from '@components/Licenses/modals/LicenseLinkModal';
 import LicenseUnlinkModal from '@components/Licenses/modals/LicenseUnlinkModal';
+import { Alert } from '@heroui/alert';
+import { Button } from '@heroui/button';
 import { Pagination } from '@heroui/pagination';
 import { Skeleton } from '@heroui/skeleton';
 import { multiLinkLicense } from '@lib/api/backend';
@@ -14,6 +16,8 @@ import { FriendlyContractError, getContractErrorMessage, simulateAndWriteContrac
 import { config, getCurrentEpoch, getDevAddress, isUsingDevAddress } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
+import { routePath } from '@lib/routes/route-paths';
+import useNodeKeyRotations from '@lib/useNodeKeyRotations';
 import { DetailedAlert } from '@shared/DetailedAlert';
 import EmptyData from '@shared/EmptyData';
 import { Label } from '@shared/Label';
@@ -23,6 +27,7 @@ import { ConnectKitButton } from 'connectkit';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { RiCpuLine, RiWalletLine } from 'react-icons/ri';
+import { Link } from 'react-router-dom';
 import { License } from 'typedefs/blockchain';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
@@ -62,6 +67,8 @@ function Licenses() {
     const unlinkModalRef = useRef<{ trigger: (_license) => void }>(null);
     const burnModalRef = useRef<{ trigger: (_license) => void }>(null);
     const bulkLinkModalRef = useRef<{ trigger: () => void }>(null);
+
+    const relinkItems = useNodeKeyRotations(licenses);
 
     const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
     const { data: walletClient } = useWalletClient();
@@ -457,6 +464,24 @@ function Licenses() {
         <div className="h-full">
             <div className="col h-full justify-between gap-3">
                 <div className="col gap-3">
+                    {relinkItems.length > 0 && (
+                        <Alert
+                            color="warning"
+                            classNames={{ base: 'items-start' }}
+                            title={`${relinkItems.length} license${relinkItems.length > 1 ? 's need' : ' needs'} to be relinked`}
+                        >
+                            <div className="col items-start gap-2 text-sm">
+                                <div>
+                                    The keys of these nodes were revoked. Link each license to the new address shown on its
+                                    node.
+                                </div>
+                                <Button as={Link} to={routePath.relinkNodes} color="warning" variant="flat" size="sm">
+                                    Review and relink
+                                </Button>
+                            </div>
+                        </Alert>
+                    )}
+
                     <div>
                         <LicensesPageHeader
                             onFilterChange={setFilter}

@@ -11,6 +11,7 @@ import Invoicing from '@pages/Invoicing';
 import KYC from '@pages/KYC';
 import Licenses from '@pages/Licenses';
 import Profile from '@pages/Profile';
+import RelinkNodes from '@pages/RelinkNodes';
 import Unauthorized from '@pages/Unauthorized';
 import { TokenSvg } from '@shared/TokenSvg';
 import {
@@ -71,6 +72,11 @@ export const routeInfo = {
         title: 'Licenses & Nodes',
         description: 'View, organize & assign your licenses to nodes',
         mobileTitle: 'Licenses',
+    },
+    [routePath.relinkNodes]: {
+        title: 'Relink Nodes',
+        description: 'Link your licenses to the new keys of your nodes',
+        mobileTitle: 'Relink',
     },
     [routePath.profile]: {
         title: 'Profile',
@@ -189,6 +195,10 @@ export const routes: AppRoute[] = [
                 page: PrivacyPolicy,
             },
         ],
+    },
+    {
+        path: routePath.relinkNodes,
+        page: RelinkNodes,
     },
     {
         path: routePath.confirmEmail,
