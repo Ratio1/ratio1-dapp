@@ -28,14 +28,48 @@ type BaseGNDLicense = types.BaseLicense & {
 
 export type { BaseGNDLicense, BaseMNDLicense, BaseNDLicense };
 
+// Claim details are often consumed only after the owner opens a card. Keep their original
+// rejection available to that caller while avoiding unhandled rejections during an oracle outage.
+const observeDeferred = <T>(promise: Promise<T>): Promise<T> => {
+    void promise.catch(() => undefined);
+    return promise;
+};
+
+// Signed claim fields can be unavailable even when the HTTP response and other nodes are valid.
+const requireSignedAvailability = (
+    row: types.OraclesAvailabilityResult,
+    address: types.EthAddress,
+    [from, to]: [number, number],
+): types.OraclesAvailabilityResult => {
+    if (row.error) throw new Error(row.error);
+    if (row.node_eth_address?.toLowerCase() !== address.toLowerCase() || row.from_epoch !== from || row.to_epoch !== to) {
+        throw new Error('Oracle returned a different node or epoch range');
+    }
+    // Preserve the exact signed range. A partial answer must never look like a confirmed zero.
+    if (!Array.isArray(row.epochs) || !Array.isArray(row.epochs_vals) || to < from ||
+        row.epochs.length !== to - from + 1 || row.epochs_vals.length !== row.epochs.length ||
+        row.epochs.some((epoch, i) => epoch !== from + i)) {
+        throw new Error('Oracle returned incomplete epoch data');
+    }
+    if (!Array.isArray(row.eth_signatures) || !row.eth_signatures.length ||
+        row.eth_signatures.some((sig) => typeof sig !== 'string' || !/^0x[0-9a-f]{130}$/i.test(sig)) ||
+        row.packed_availabilities?.toLowerCase() !== packedAvailabilitiesFromValues(row.epochs_vals)) {
+        throw new Error('Oracle returned incomplete claim data');
+    }
+    return row;
+};
+
 export const getLicensesWithNodesAndRewards = (
     licenses: (BaseGNDLicense | BaseMNDLicense | BaseNDLicense)[],
     publicClient: PublicClient,
 ) => {
     console.log('[Licenses] getLicensesWithNodesAndRewards start', { licenses: licenses.length });
+    const currentEpoch = getCurrentEpoch();  // One epoch governs the request, its signed range and its calculation.
+    const lastClosedEpoch = Math.max(0, currentEpoch - 1);
     const nodesWithRanges = licenses.reduce(
         (acc, license) => {
-            acc[license.nodeAddress] = getRewardsEpochsRange(license);
+            // A settled or pre-mining license still requests a closed epoch for metadata and signed details.
+            acc[license.nodeAddress] = [Math.min(firstEpochToClaim(license), lastClosedEpoch), lastClosedEpoch];
             return acc;
         },
         {} as Record<types.EthAddress, [number, number]>,
@@ -51,6 +85,7 @@ export const getLicensesWithNodesAndRewards = (
     }
 
     console.log('[Licenses] getMultiNodeEpochsRange request', { nodes: Object.keys(nodesWithRanges).length });
+    const rewardsCheckedAt = Date.now();
     const result = getMultiNodeEpochsRange(nodesWithRanges)
         .then((response) => {
             console.log('[Licenses] getMultiNodeEpochsRange success', { nodes: Object.keys(nodesWithRanges).length });
@@ -62,18 +97,31 @@ export const getLicensesWithNodesAndRewards = (
         });
 
     const licensesWithNodesWithRewards: types.License[] = licenses.map((license) => {
-        const availability: Promise<types.OraclesAvailabilityResult> = result.then((result) => result[license.nodeAddress]);
+        const availability = result.then((batch) => {
+            const row = batch[license.nodeAddress];
+            if (!row) throw new Error('Oracle did not return the requested node');
+            return row;
+        });
+        const signedAvailability = observeDeferred(availability.then((row) => {
+            if (Number(license.lastClaimEpoch) > currentEpoch) {
+                throw new Error('The on-chain claim is ahead of the wallet epoch');  // Wait for a consistent signing range.
+            }
+            return requireSignedAvailability(row, license.nodeAddress, nodesWithRanges[license.nodeAddress]);
+        }));
+        // Metadata can still describe the node when its requested claim range is unavailable.
+        const field = <K extends keyof types.OraclesAvailabilityResult>(key: K, source = signedAvailability) =>
+            observeDeferred(source.then((row) => row[key]));
         let rewards: Promise<bigint | undefined>;
         let rewardsBreakdown: Promise<types.MndRewardsBreakdown | undefined> | undefined;
 
         switch (license.type) {
             case 'ND':
-                rewards = getNdRewards(license, availability, config.ndVestingEpochs);
+                rewards = getNdRewards(license, signedAvailability, config.ndVestingEpochs, currentEpoch);
                 break;
 
             case 'GND':
             case 'MND': {
-                rewardsBreakdown = getMndOrGndRewardsBreakdown(license, availability, publicClient);
+                rewardsBreakdown = getMndOrGndRewardsBreakdown(license, signedAvailability, publicClient, currentEpoch);
                 rewards = rewardsBreakdown.then((breakdown) =>
                     breakdown ? breakdown.rewardsAmount + breakdown.carryoverAmount : undefined,
                 );
@@ -87,16 +135,17 @@ export const getLicensesWithNodesAndRewards = (
         return {
             ...license,
             isLinked: true as const,
-            rewards,
-            rewardsBreakdown,
-            alias: availability.then(({ node_alias }) => node_alias),
-            isOnline: availability.then(({ node_is_online }) => node_is_online),
-            epochs: availability.then(({ epochs }) => epochs),
-            epochsAvailabilities: availability.then(({ epochs_vals }) => epochs_vals),
-            fromEpoch: availability.then(({ from_epoch }) => from_epoch),
-            toEpoch: availability.then(({ to_epoch }) => to_epoch),
-            packedAvailabilities: availability.then(({ packed_availabilities }) => packed_availabilities),
-            ethSignatures: availability.then(({ eth_signatures }) => eth_signatures),
+            rewardsCheckedAt,
+            rewards: observeDeferred(rewards),
+            rewardsBreakdown: rewardsBreakdown && observeDeferred(rewardsBreakdown),
+            alias: field('node_alias', availability),
+            isOnline: field('node_is_online', availability),
+            epochs: field('epochs'),
+            epochsAvailabilities: field('epochs_vals'),
+            fromEpoch: field('from_epoch'),
+            toEpoch: field('to_epoch'),
+            packedAvailabilities: field('packed_availabilities'),
+            ethSignatures: field('eth_signatures'),
         };
     });
 
@@ -104,45 +153,25 @@ export const getLicensesWithNodesAndRewards = (
     return licensesWithNodesWithRewards;
 };
 
-const getRewardsEpochsRange = (license: BaseGNDLicense | BaseMNDLicense | BaseNDLicense): [number, number] => {
-    const currentEpoch = getCurrentEpoch();
-    const lastClaimEpoch = Number(license.lastClaimEpoch);
-
-    if (license.totalClaimedAmount !== license.totalAssignedAmount && Number(license.lastClaimEpoch) < getCurrentEpoch()) {
-        switch (license.type) {
-            case 'MND':
-                return getMndRewardsEpochsRange(license, currentEpoch);
-
-            default:
-                return [lastClaimEpoch, currentEpoch - 1];
-        }
-    } else {
-        // Node already claimed current epoch rewards, so we simulate a node_last_epoch call
-        return [lastClaimEpoch - 1, currentEpoch - 1];
-    }
-};
-
-const getMndRewardsEpochsRange = (license: BaseMNDLicense, currentEpoch: number): [number, number] => {
-    const firstEpochToClaim =
-        license.lastClaimEpoch >= license.firstMiningEpoch ? Number(license.lastClaimEpoch) : Number(license.firstMiningEpoch);
-
-    return [currentEpoch >= config.mndCliffEpochs ? firstEpochToClaim : currentEpoch - 1, currentEpoch - 1];
-};
+// The mining contract records each license's own start, including the genesis license at epoch one.
+const firstEpochToClaim = (license: BaseGNDLicense | BaseMNDLicense | BaseNDLicense): number =>
+    license.type === 'ND' ? Number(license.lastClaimEpoch) : Math.max(Number(license.lastClaimEpoch), Number(license.firstMiningEpoch));
 
 const getNdRewards = async (
     license: BaseNDLicense,
     availability: Promise<types.OraclesAvailabilityResult>,
     vestingEpochs: number,
+    currentEpoch: number,
 ): Promise<bigint | undefined> => {
-    const currentEpoch = getCurrentEpoch();
     const epochsToClaim = currentEpoch - Number(license.lastClaimEpoch);
 
-    const { epochs, epochs_vals } = await availability;
-
-    if (!epochsToClaim) {
+    // The current on-chain claim epoch or a fully exhausted ND allocation establishes a zero balance.
+    if (epochsToClaim === 0 || license.totalClaimedAmount === license.totalAssignedAmount) {
         return 0n;
     }
+    if (epochsToClaim < 0) return undefined;  // A lagging wallet clock cannot establish the outstanding amount.
 
+    const { epochs, epochs_vals } = await availability;
     if (epochsToClaim !== epochs?.length || epochsToClaim !== epochs_vals?.length) {
         // Oracles are still syncing
         return undefined;
@@ -168,15 +197,14 @@ const getMndOrGndRewardsBreakdown = async (
     license: BaseMNDLicense | BaseGNDLicense,
     availability: Promise<types.OraclesAvailabilityResult>,
     publicClient: PublicClient,
+    currentEpoch: number,
 ): Promise<types.MndRewardsBreakdown | undefined> => {
-    const currentEpoch = getCurrentEpoch();
-    const firstEpochToClaim =
-        license.lastClaimEpoch >= license.firstMiningEpoch ? Number(license.lastClaimEpoch) : Number(license.firstMiningEpoch);
-    const epochsToClaim = currentEpoch - firstEpochToClaim;
+    const epochsToClaim = currentEpoch - firstEpochToClaim(license);
 
-    const { epochs, epochs_vals } = await availability;
-
-    if (currentEpoch < license.firstMiningEpoch || !epochsToClaim) {
+    // MND/GND carryover and withholding require the contract once there are epochs to claim.
+    const fullySettled = license.totalClaimedAmount === license.totalAssignedAmount && license.awbBalance === 0n;
+    if (Number(license.lastClaimEpoch) > currentEpoch && !fullySettled) return undefined;
+    if (currentEpoch < Number(license.firstMiningEpoch) || epochsToClaim === 0 || fullySettled) {
         return {
             rewardsAmount: 0n,
             carryoverAmount: 0n,
@@ -184,6 +212,7 @@ const getMndOrGndRewardsBreakdown = async (
         };
     }
 
+    const { epochs, epochs_vals } = await availability;
     if (epochsToClaim !== epochs?.length || epochsToClaim !== epochs_vals?.length) {
         // Oracles are still syncing
         return undefined;

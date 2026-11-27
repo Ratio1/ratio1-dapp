@@ -27,6 +27,8 @@ type LicenseWithNodeInfo = BaseLicense & {
 } & (
         | {
               isLinked: true;
+              // Time of the batch for the display snapshot. Claim data always comes from its promises.
+              rewardsCheckedAt?: number;
               alias: Promise<string | undefined>;
               rewards: Promise<bigint | undefined>;
               rewardsBreakdown?: Promise<MndRewardsBreakdown | undefined>;
@@ -75,6 +77,8 @@ type ComputeParam = {
 };
 
 type OraclesAvailabilityResult = {
+    // A batch may contain an error for one node alongside successful signed siblings.
+    error?: string;
     node: string;
     node_alias: string;
     node_eth_address: EthAddress;

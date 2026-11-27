@@ -16,9 +16,14 @@ import { useAccount, usePublicClient } from 'wagmi';
 import { BlockchainContext } from './context';
 import { waitForSafeOrChainTransactionReceipt } from '@lib/safe';
 
+const EMPTY_LICENSES: License[] = [];
+
 export const BlockchainProvider = ({ children }) => {
     // Licenses
     const [licenses, setLicenses] = useState<License[]>([]);
+    const [licensesScope, setLicensesScope] = useState<string>();
+    // Consecutive refreshes can complete out of order while a wallet or chain is changing.
+    const licenseRequest = useRef(0);
     const [isLoadingLicenses, setLoadingLicenses] = useState<boolean>(false);
 
     // R1 Balance
@@ -36,6 +41,7 @@ export const BlockchainProvider = ({ children }) => {
 
     const { address } = isUsingDevAddress ? getDevAddress() : useAccount();
     const publicClient = usePublicClient();
+    const activeLicenseScope = `${publicClient?.chain?.id}:${address?.toLowerCase()}`;
     const isContractAccountCacheRef = useRef<Map<string, boolean | undefined>>(new Map());
 
     useEffect(() => {
@@ -192,6 +198,7 @@ export const BlockchainProvider = ({ children }) => {
             return [];
         }
 
+        const request = ++licenseRequest.current;
         if (!useSilentUpdate) {
             setLoadingLicenses(true);
         }
@@ -256,6 +263,8 @@ export const BlockchainProvider = ({ children }) => {
                     ),
             ]);
 
+            // A newer wallet refresh owns the batch and the visible result.
+            if (request !== licenseRequest.current) return [];
             const baseLicenses: (BaseGNDLicense | BaseMNDLicense | BaseNDLicense)[] = [...mndLicenses, ...ndLicenses];
 
             const [linked, notLinked] = partition(baseLicenses, (license) => !isZeroAddress(license.nodeAddress));
@@ -271,12 +280,17 @@ export const BlockchainProvider = ({ children }) => {
             ];
 
             console.log('Fetched licenses', licenses);
-            setLicenses(licenses);
+            if (request === licenseRequest.current) {
+                setLicensesScope(activeLicenseScope);
+                setLicenses(licenses);
+            }
         } catch (error) {
-            console.error(error);
-            toast.error('An error occurred while fetching licenses.');
+            if (request === licenseRequest.current) {
+                console.error(error);
+                toast.error('An error occurred while fetching licenses.');
+            }
         } finally {
-            setLoadingLicenses(false);
+            if (request === licenseRequest.current) setLoadingLicenses(false);
         }
 
         return licenses;
@@ -298,8 +312,8 @@ export const BlockchainProvider = ({ children }) => {
         <BlockchainContext.Provider
             value={{
                 watchTx,
-                // Licenses
-                licenses,
+                // Publish only the response fetched for the connected wallet and chain.
+                licenses: licensesScope === activeLicenseScope ? licenses : EMPTY_LICENSES,
                 isLoadingLicenses,
                 fetchLicenses,
                 setLicenses,

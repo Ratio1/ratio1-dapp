@@ -4,7 +4,7 @@ import { PoAIContractAbi } from '@blockchain/PoAIContract';
 import { Button } from '@heroui/button';
 import { useDisclosure } from '@heroui/modal';
 import { getContractErrorMessage, simulateAndWriteContract } from '@lib/blockchain/contract-write';
-import { config, environment, getNextEpochTimestamp } from '@lib/config';
+import { config, environment, getCurrentEpoch, getNextEpochTimestamp } from '@lib/config';
 import { AuthenticationContextType, useAuthenticationContext } from '@lib/contexts/authentication';
 import { BlockchainContextType, useBlockchainContext } from '@lib/contexts/blockchain';
 import useAwait from '@lib/useAwait';
@@ -131,6 +131,26 @@ function LicensesPageHeader({
         [licenses],
     );
     const [rewardsPoA, isLoadingRewardsPoA, rewardsPoAError] = useAwait(rewardsPoAPromise);
+
+    // Cache only a display total, scoped to the wallet, chain, epoch and the chain state which produced it.
+    const lastGoodScope = JSON.stringify([
+        walletClient?.account.address, publicClient?.chain?.id, getCurrentEpoch(),
+        licenses.map((license) => [
+            license.type, String(license.licenseId), license.nodeAddress, String(license.lastClaimEpoch),
+            String(license.totalClaimedAmount), String(license.totalAssignedAmount),
+            ...(license.type === 'ND' ? [] : [String(license.firstMiningEpoch), String(license.awbBalance)]),
+        ]),
+    ]);
+    const [lastGoodPoA, setLastGoodPoA] = useState<{ scope: string; amount: bigint; at: Date }>();
+    useEffect(() => {
+        if (!walletClient?.account.address || isLoadingRewardsPoA || rewardsPoA === undefined || rewardsPoAError) return;
+        const times = licenses.filter((license) => license.isLinked).map((license) => license.rewardsCheckedAt ?? 0);
+        // Local UI state changes can re-use the original promises. Keep the original observation time.
+        if (times.length && times.every((at) => at > 0)) {
+            setLastGoodPoA({ scope: lastGoodScope, amount: rewardsPoA, at: new Date(Math.min(...times)) });
+        }
+    }, [lastGoodScope, walletClient?.account.address, licenses, rewardsPoA, rewardsPoAError, isLoadingRewardsPoA]);
+    const previousPoA = lastGoodPoA?.scope === lastGoodScope ? lastGoodPoA : undefined;
 
     const releasedAmountPoA = useMemo(
         () => licenses.reduce((acc, license) => acc + license.totalClaimedAmount, 0n),
@@ -439,7 +459,10 @@ function LicensesPageHeader({
                                 role="alert"
                                 className="flex flex-wrap items-center justify-between gap-2 text-sm text-red-600"
                             >
-                                <span>Could not load PoA rewards. Please retry.</span>
+                                <span>
+                                    Current oracle availability is unavailable. Your on-chain claims are unaffected.
+                                    {previousPoA && ` Last confirmed: ${fBI(previousPoA.amount, 18)} R1 at ${previousPoA.at.toLocaleTimeString()}.`}
+                                </span>
                                 <Button size="sm" variant="light" onPress={() => fetchLicenses()} isLoading={isLoadingLicenses}>
                                     Retry rewards
                                 </Button>

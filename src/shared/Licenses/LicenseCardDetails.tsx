@@ -2,7 +2,7 @@ import { Button } from '@heroui/button';
 import { getNodeEpochsRange, getNodeLastEpoch } from '@lib/api/oracles';
 import { getCurrentEpoch, getLicenseAssignEpoch } from '@lib/config';
 import useAwait from '@lib/useAwait';
-import { arrayAverage, getValueWithLabel, throttledToastOracleError } from '@lib/utils';
+import { arrayAverage, getValueWithLabel } from '@lib/utils';
 import { CardHorizontal } from '@shared/cards/CardHorizontal';
 import SyncingOraclesTag from '@shared/SyncingOraclesTag';
 import { cloneElement, useMemo } from 'react';
@@ -35,19 +35,21 @@ export const LicenseCardDetails = ({
     isClaimingAllRewardsPoA?: boolean;
     isClaimingAllRewardsPoAI?: boolean;
 }) => {
-    const [rewardsPoA, isLoadingRewardsPoA] = useAwait(license.isLinked ? license.rewards : 0n);
+    const [rewardsPoA, isLoadingRewardsPoA, rewardsError] = useAwait(license.isLinked ? license.rewards : 0n);
     const rewardsPoAI = license.type === 'ND' ? license.r1PoaiRewards : 0n;
     const [rewardsBreakdown] = useAwait<MndRewardsBreakdown | undefined>(
         license.isLinked && license.type !== 'ND' ? license.rewardsBreakdown : undefined,
     );
 
+    // Distinguish a failed oracle query from a successful response still awaiting epoch consensus.
+    const unavailableRewards = rewardsError ? <span className="text-sm text-slate-500">Unavailable</span> : <SyncingOraclesTag />;
     const hasMndBreakdown = !!rewardsBreakdown && rewardsBreakdown.carryoverAmount > 0n;
     const formatR1 = (value: bigint) => parseFloat(Number(formatUnits(value, 18)).toFixed(4)).toLocaleString();
 
     const nodePerformancePromise: Promise<{
         epochs: number[];
         epochsVals: number[];
-    }> = useMemo(async () => {
+    } | undefined> = useMemo(async () => {
         if (!license.isLinked) {
             return {
                 epochs: [],
@@ -62,6 +64,8 @@ export const LicenseCardDetails = ({
         const endEpoch = currentEpoch - 1;
 
         try {
+            // Request the longer history only after the shared batch succeeds. An outage must not fan out by card.
+            await license.epochs;
             const result =
                 licenseAssignEpoch === currentEpoch
                     ? await getNodeLastEpoch(license.nodeAddress)
@@ -72,13 +76,8 @@ export const LicenseCardDetails = ({
                 epochsVals: result.epochs_vals,
             };
         } catch (error) {
-            console.error(error);
-            throttledToastOracleError();
-
-            return {
-                epochs: [],
-                epochsVals: [],
-            };
+            console.warn('[Licenses] Node history unavailable', error);
+            return undefined;
         }
     }, [license]);
 
@@ -144,7 +143,7 @@ export const LicenseCardDetails = ({
                                     <div className="text-lg leading-none font-semibold text-slate-500">...</div>
                                 ) : rewardsPoA === undefined ? (
                                     <div className="flex">
-                                        <SyncingOraclesTag />
+                                        {unavailableRewards}
                                     </div>
                                 ) : (
                                     <div className="flex items-end gap-1.5">
@@ -168,9 +167,7 @@ export const LicenseCardDetails = ({
 
                                 {isLoadingRewardsPoA ? (
                                     <div className="text-lg leading-none font-semibold text-slate-500">...</div>
-                                ) : rewardsPoA === undefined ? (
-                                    <SyncingOraclesTag />
-                                ) : (
+                                ) : rewardsPoA === undefined ? unavailableRewards : (
                                     <div className="flex items-end gap-1.5">
                                         <div className="col gap-1.5">
                                             <div className="text-primary text-lg leading-none font-semibold">
@@ -307,6 +304,9 @@ export const LicenseCardDetails = ({
                         {getSectionTitle('Node Performance')}
 
                         {isEpochTransitioning() && <SyncingOraclesTag />}
+                        {!nodePerformance && !isLoadingNodePerformance && (
+                            <span className="text-sm text-slate-500">Node history unavailable</span>
+                        )}
                     </div>
 
                     {!isEpochTransitioning() && (
