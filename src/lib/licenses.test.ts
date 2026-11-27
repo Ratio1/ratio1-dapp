@@ -81,6 +81,15 @@ describe('licence rewards and signed claim inputs', () => {
         expect(batch).toHaveBeenCalledTimes(1);
     });
 
+    it('keeps a later on-chain claim unknown until the wallet clock catches up', async () => {
+        batch.mockResolvedValue(result({ [address(2)]: signed(address(2)), [address(3)]: signed(address(3)) }));
+        const [nd, mining] = linked([license(2, 101n), { ...miningLicense('MND', 3, 101n, 1n), awbBalance: 8n }]);
+        await expect(nd.rewards).resolves.toBeUndefined();
+        await expect(mining.rewards).resolves.toBeUndefined();
+        await expect(mining.ethSignatures).rejects.toThrow('ahead of the wallet epoch');
+        expect(readContract).not.toHaveBeenCalled();
+    });
+
     it('preserves signed inputs and contract amounts on a healthy mixed wallet', async () => {
         const details = { rewardsAmount: 7n, carryoverAmount: 2n, withheldAmount: 5n };
         readContract.mockResolvedValue([details]);

@@ -102,9 +102,12 @@ export const getLicensesWithNodesAndRewards = (
             if (!row) throw new Error('Oracle did not return the requested node');
             return row;
         });
-        const signedAvailability = observeDeferred(availability.then((row) =>
-            requireSignedAvailability(row, license.nodeAddress, nodesWithRanges[license.nodeAddress]),
-        ));
+        const signedAvailability = observeDeferred(availability.then((row) => {
+            if (Number(license.lastClaimEpoch) > currentEpoch) {
+                throw new Error('The on-chain claim is ahead of the wallet epoch');  // Wait for a consistent signing range.
+            }
+            return requireSignedAvailability(row, license.nodeAddress, nodesWithRanges[license.nodeAddress]);
+        }));
         // Metadata can still describe the node when its requested claim range is unavailable.
         const field = <K extends keyof types.OraclesAvailabilityResult>(key: K, source = signedAvailability) =>
             observeDeferred(source.then((row) => row[key]));
@@ -166,6 +169,7 @@ const getNdRewards = async (
     if (epochsToClaim === 0 || license.totalClaimedAmount === license.totalAssignedAmount) {
         return 0n;
     }
+    if (epochsToClaim < 0) return undefined;  // A lagging wallet clock cannot establish the outstanding amount.
 
     const { epochs, epochs_vals } = await availability;
     if (epochsToClaim !== epochs?.length || epochsToClaim !== epochs_vals?.length) {
@@ -199,7 +203,8 @@ const getMndOrGndRewardsBreakdown = async (
 
     // MND/GND carryover and withholding require the contract once there are epochs to claim.
     const fullySettled = license.totalClaimedAmount === license.totalAssignedAmount && license.awbBalance === 0n;
-    if (epochsToClaim <= 0 || fullySettled) {
+    if (Number(license.lastClaimEpoch) > currentEpoch && !fullySettled) return undefined;
+    if (currentEpoch < Number(license.firstMiningEpoch) || epochsToClaim === 0 || fullySettled) {
         return {
             rewardsAmount: 0n,
             carryoverAmount: 0n,
