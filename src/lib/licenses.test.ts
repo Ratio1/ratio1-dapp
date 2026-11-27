@@ -5,7 +5,8 @@ import { getMultiNodeEpochsRange } from './api/oracles';
 import { getLicensesWithNodesAndRewards, type BaseGNDLicense, type BaseMNDLicense, type BaseNDLicense } from './licenses';
 
 vi.mock('./api/oracles', () => ({ getMultiNodeEpochsRange: vi.fn() }));
-vi.mock('./config', () => ({ getCurrentEpoch: () => 100, config: { ndVestingEpochs: 10, mndCliffEpochs: 1 } }));
+const clock = vi.hoisted(() => ({ epoch: 100 }));
+vi.mock('./config', () => ({ getCurrentEpoch: () => clock.epoch, config: { ndVestingEpochs: 10, mndCliffEpochs: 223 } }));
 
 const batch = vi.mocked(getMultiNodeEpochsRange);
 const address = (n: number): EthAddress => `0x${n.toString(16).padStart(40, '0')}`;
@@ -32,7 +33,7 @@ const linked = (inputs: (BaseNDLicense | BaseMNDLicense | BaseGNDLicense)[]) =>
         return row;
     });
 
-beforeEach(() => { vi.resetAllMocks(); });
+beforeEach(() => { vi.resetAllMocks(); clock.epoch = 100; });
 
 describe('licence rewards and signed claim inputs', () => {
     it('returns proven ND, MND and GND zero while all 16 licences share one pending batch', async () => {
@@ -45,6 +46,30 @@ describe('licence rewards and signed claim inputs', () => {
         expect(batch).toHaveBeenCalledTimes(1);
         expect(Object.keys(batch.mock.calls[0][0])).toHaveLength(16);
         expect(readContract).not.toHaveBeenCalled();
+    });
+
+    it('requests the exact genesis mining range before the MND cliff', async () => {
+        clock.epoch = 6;
+        const node = address(1);
+        const genesis = miningLicense('GND', 1, 0n, 1n);
+        batch.mockResolvedValue(result({ [node]: { ...signed(node), from_epoch: 1, to_epoch: 5,
+            epochs: [1, 2, 3, 4, 5], epochs_vals: Array(5).fill(255), packed_availabilities: '0xffffffffff' } }));
+        readContract.mockResolvedValue([{ rewardsAmount: 5n, carryoverAmount: 0n, withheldAmount: 0n }]);
+        const [row] = linked([genesis]);
+        expect(batch).toHaveBeenCalledWith({ [node]: [1, 5] });
+        await expect(row.rewards).resolves.toBe(5n);
+    });
+
+    it('settles remaining AWB separately from the fully mined allocation', async () => {
+        const waiting = { ...miningLicense('MND', 2, 99n, 20n), totalClaimedAmount: 1000n, awbBalance: 8n };
+        const exhausted = { ...miningLicense('GND', 3, 99n, 1n), totalClaimedAmount: 1000n, awbBalance: 0n };
+        batch.mockResolvedValue(result({ [address(2)]: signed(address(2)) }));
+        readContract.mockResolvedValue([{ rewardsAmount: 0n, carryoverAmount: 8n, withheldAmount: 0n }]);
+        const [carryover, zero] = linked([waiting, exhausted]);
+        await expect(carryover.rewards).resolves.toBe(8n);
+        await expect(zero.rewards).resolves.toBe(0n);
+        await expect(zero.ethSignatures).rejects.toThrow();  // Displaying a zero never supplies claim credentials.
+        expect(readContract).toHaveBeenCalledTimes(1);
     });
 
     it('retains claim errors and mixed-wallet behavior during an outage', async () => {

@@ -64,9 +64,12 @@ export const getLicensesWithNodesAndRewards = (
     publicClient: PublicClient,
 ) => {
     console.log('[Licenses] getLicensesWithNodesAndRewards start', { licenses: licenses.length });
+    const currentEpoch = getCurrentEpoch();  // One epoch governs the request, its signed range and its calculation.
+    const lastClosedEpoch = Math.max(0, currentEpoch - 1);
     const nodesWithRanges = licenses.reduce(
         (acc, license) => {
-            acc[license.nodeAddress] = getRewardsEpochsRange(license);
+            // A settled or pre-mining license still requests a closed epoch for metadata and signed details.
+            acc[license.nodeAddress] = [Math.min(firstEpochToClaim(license), lastClosedEpoch), lastClosedEpoch];
             return acc;
         },
         {} as Record<types.EthAddress, [number, number]>,
@@ -110,12 +113,12 @@ export const getLicensesWithNodesAndRewards = (
 
         switch (license.type) {
             case 'ND':
-                rewards = getNdRewards(license, signedAvailability, config.ndVestingEpochs);
+                rewards = getNdRewards(license, signedAvailability, config.ndVestingEpochs, currentEpoch);
                 break;
 
             case 'GND':
             case 'MND': {
-                rewardsBreakdown = getMndOrGndRewardsBreakdown(license, signedAvailability, publicClient);
+                rewardsBreakdown = getMndOrGndRewardsBreakdown(license, signedAvailability, publicClient, currentEpoch);
                 rewards = rewardsBreakdown.then((breakdown) =>
                     breakdown ? breakdown.rewardsAmount + breakdown.carryoverAmount : undefined,
                 );
@@ -147,37 +150,16 @@ export const getLicensesWithNodesAndRewards = (
     return licensesWithNodesWithRewards;
 };
 
-const getRewardsEpochsRange = (license: BaseGNDLicense | BaseMNDLicense | BaseNDLicense): [number, number] => {
-    const currentEpoch = getCurrentEpoch();
-    const lastClaimEpoch = Number(license.lastClaimEpoch);
-
-    if (license.totalClaimedAmount !== license.totalAssignedAmount && Number(license.lastClaimEpoch) < getCurrentEpoch()) {
-        switch (license.type) {
-            case 'MND':
-                return getMndRewardsEpochsRange(license, currentEpoch);
-
-            default:
-                return [lastClaimEpoch, currentEpoch - 1];
-        }
-    } else {
-        // Node already claimed current epoch rewards, so we simulate a node_last_epoch call
-        return [lastClaimEpoch - 1, currentEpoch - 1];
-    }
-};
-
-const getMndRewardsEpochsRange = (license: BaseMNDLicense, currentEpoch: number): [number, number] => {
-    const firstEpochToClaim =
-        license.lastClaimEpoch >= license.firstMiningEpoch ? Number(license.lastClaimEpoch) : Number(license.firstMiningEpoch);
-
-    return [currentEpoch >= config.mndCliffEpochs ? firstEpochToClaim : currentEpoch - 1, currentEpoch - 1];
-};
+// The mining contract records each license's own start, including the genesis license at epoch one.
+const firstEpochToClaim = (license: BaseGNDLicense | BaseMNDLicense | BaseNDLicense): number =>
+    license.type === 'ND' ? Number(license.lastClaimEpoch) : Math.max(Number(license.lastClaimEpoch), Number(license.firstMiningEpoch));
 
 const getNdRewards = async (
     license: BaseNDLicense,
     availability: Promise<types.OraclesAvailabilityResult>,
     vestingEpochs: number,
+    currentEpoch: number,
 ): Promise<bigint | undefined> => {
-    const currentEpoch = getCurrentEpoch();
     const epochsToClaim = currentEpoch - Number(license.lastClaimEpoch);
 
     // The current on-chain claim epoch or a fully exhausted ND allocation establishes a zero balance.
@@ -211,14 +193,13 @@ const getMndOrGndRewardsBreakdown = async (
     license: BaseMNDLicense | BaseGNDLicense,
     availability: Promise<types.OraclesAvailabilityResult>,
     publicClient: PublicClient,
+    currentEpoch: number,
 ): Promise<types.MndRewardsBreakdown | undefined> => {
-    const currentEpoch = getCurrentEpoch();
-    const firstEpochToClaim =
-        license.lastClaimEpoch >= license.firstMiningEpoch ? Number(license.lastClaimEpoch) : Number(license.firstMiningEpoch);
-    const epochsToClaim = currentEpoch - firstEpochToClaim;
+    const epochsToClaim = currentEpoch - firstEpochToClaim(license);
 
     // MND/GND carryover and withholding require the contract once there are epochs to claim.
-    if (currentEpoch < license.firstMiningEpoch || epochsToClaim === 0) {
+    const fullySettled = license.totalClaimedAmount === license.totalAssignedAmount && license.awbBalance === 0n;
+    if (epochsToClaim <= 0 || fullySettled) {
         return {
             rewardsAmount: 0n,
             carryoverAmount: 0n,
