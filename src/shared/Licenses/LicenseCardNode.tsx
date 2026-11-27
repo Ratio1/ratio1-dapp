@@ -1,97 +1,16 @@
 import { Skeleton } from '@heroui/skeleton';
-import { getNodeInfo } from '@lib/api/oracles';
+import useAwait from '@lib/useAwait';
 import { getR1ExplorerUrl } from '@lib/config';
 import { getShortAddressOrHash } from '@lib/utils';
-import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { EthAddress, License } from 'typedefs/blockchain';
+import { License } from 'typedefs/blockchain';
 import { LicenseSmallCard } from './LicenseSmallCard';
 
-const MAX_RETRIES = 8;
-
 export const LicenseCardNode = ({ license }: { license: License }) => {
-    const [isLoading, setLoading] = useState(license.isLinked);
-
-    const [failureCount, setFailureCount] = useState(0);
-
-    const [node, setNode] = useState<{
-        alias: string | undefined;
-        isOnline: boolean;
-    }>();
-
-    useEffect(() => {
-        if (license.isLinked) {
-            (async () => {
-                try {
-                    const [alias, isOnline] = await Promise.all([license.alias, license.isOnline]);
-
-                    setNode({
-                        alias,
-                        isOnline,
-                    });
-                } catch (error) {
-                    console.log(`[LicenseCardNode] Error fetching node info:`, error);
-                } finally {
-                    setLoading(false);
-                }
-            })();
-        }
-    }, [license.isLinked]);
-
-    // This query will try to refetch the node info 6 times, with a delay of 4 seconds between each attempt
-    const { data: refetchedNodeInfo, isFetching: isLoadingQuery } = useQuery({
-        queryKey: ['refetchedNodeInfo', license.nodeAddress],
-        queryFn: async ({ queryKey }) => {
-            const nodeEthAddress = queryKey[1] as EthAddress;
-            console.log(`[Query] (${getShortAddressOrHash(nodeEthAddress, 4, true)}) Calling node_last_epoch`);
-
-            const nodeInfo = await getNodeInfo(nodeEthAddress);
-            console.log(
-                `[Query] (${getShortAddressOrHash(nodeEthAddress, 4, true)}) Received node info: ${JSON.stringify(nodeInfo)}`,
-            );
-
-            // Check if the alias is 'missing_id' and throw an error to trigger the retry
-            if (nodeInfo.node_alias === 'missing_id') {
-                throw new Error('Node alias is missing_id');
-            }
-
-            return nodeInfo;
-        },
-        // The alias of a node is undefined only in case of an error
-        enabled:
-            license.isLinked &&
-            !isLoading &&
-            (node?.alias === 'missing_id' || node?.alias === undefined) &&
-            failureCount < MAX_RETRIES - 1,
-        retry: (count, error) => {
-            console.log(`[Query] (${getShortAddressOrHash(license.nodeAddress, 4, true)}) Retry attempt ${count + 1}`, error);
-            setFailureCount(count + 1);
-            return count < MAX_RETRIES - 1;
-        },
-        retryDelay: (attemptIndex) => {
-            const delay = 5000; // 5 seconds
-            console.log(`[Query] Waiting ${delay}ms before retry #${attemptIndex + 1}`);
-            return delay;
-        },
-        refetchInterval: 5000,
-        refetchOnWindowFocus: false,
-    });
-
-    useEffect(() => {
-        if (refetchedNodeInfo) {
-            console.log(`[Query] (${getShortAddressOrHash(license.nodeAddress, 4, true)}) refetchedNodeInfo:`, {
-                alias: refetchedNodeInfo.node_alias,
-                isOnline: refetchedNodeInfo.node_is_online,
-            });
-
-            setNode({
-                alias: refetchedNodeInfo.node_alias,
-                isOnline: refetchedNodeInfo.node_is_online,
-            });
-        }
-    }, [refetchedNodeInfo]);
+    // Every card observes the same wallet batch. The page refresh or explicit Retry supplies the next sample.
+    const [alias, loadingAlias] = useAwait(license.isLinked ? license.alias : undefined);
+    const [online, loadingStatus] = useAwait(license.isLinked ? license.isOnline : undefined);
 
     if (!license.isLinked) {
         return null;
@@ -100,7 +19,7 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
     return (
         <LicenseSmallCard>
             <div className="row gap-2.5">
-                {isLoading || isLoadingQuery ? (
+                {loadingAlias || loadingStatus ? (
                     <div className="col gap-1.5 py-1.5">
                         <Skeleton className="h-4 w-24 rounded-lg" />
                         <Skeleton className="h-4 w-28 rounded-lg" />
@@ -109,19 +28,16 @@ export const LicenseCardNode = ({ license }: { license: License }) => {
                     <>
                         <div
                             className={clsx('h-9 w-1 rounded-full', {
-                                'bg-teal-500': node?.isOnline,
-                                'bg-red-500': !node?.isOnline,
+                                'bg-teal-500': online === true,
+                                'bg-red-500': online === false,
+                                'bg-slate-300': online === undefined,
                             })}
                         ></div>
 
                         <div className="col font-medium">
-                            {node?.alias === undefined ? (
-                                <Skeleton className="mb-1 h-4 min-w-24 rounded-lg" />
-                            ) : (
-                                <div className="max-w-[176px] overflow-hidden text-sm leading-5 text-ellipsis whitespace-nowrap">
-                                    {node?.alias}
-                                </div>
-                            )}
+                            <div className="max-w-[176px] overflow-hidden text-sm leading-5 text-ellipsis whitespace-nowrap">
+                                {alias && alias !== 'missing_id' ? alias : 'Node name unavailable'}
+                            </div>
 
                             <Link
                                 to={`${getR1ExplorerUrl()}/node/${license.nodeAddress}`}

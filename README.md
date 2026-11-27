@@ -48,3 +48,10 @@ export default tseslint.config({
   },
 })
 ```
+
+
+## License reward availability
+
+The licenses page shares one Oracle API batch across linked licenses. A confirmed current-epoch claim displays zero immediately. ND also has zero available when its allocation is exhausted. MND and GND use their contract calculation when mining epochs remain. Missing or partial oracle evidence leaves that claim unavailable, while other rows in the same batch can still succeed.
+
+The wallet total can show its last successful check time during an outage. It is specific to the wallet, chain, epoch and on-chain license state. Claim transactions always use currently validated node, epoch range, packed availability and signature fields. The normal wallet refresh or the Retry rewards action refreshes every card together.
